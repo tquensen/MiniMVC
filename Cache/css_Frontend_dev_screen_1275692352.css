@@ -1,0 +1,13 @@
+body {
+    background: #f00 url("http://scarax.ath.cx/MiniMVC/Module/My/Web/images/foo3.png");
+}
+p {
+    background: #f00 url("http://scarax.ath.cx/MiniMVC/Web/images/bar3.png");
+}
+
+body {
+    background: #f00 url("http://scarax.ath.cx/MiniMVC/App/Frontend/Web/images/foo.png");
+}
+p {
+    background: #f00 url("http://scarax.ath.cx/MiniMVC/Web/images/bar3.png");
+}

@@ -1,0 +1,9 @@
+TestExampleModel:
+  columns:
+    default_name: string(255)
+    name: string(255)
+    description: blob
+    status: integer
+  actAs:
+    I18n:
+      fields: [name, description]

@@ -1,0 +1,6 @@
+body {
+    background: #f00 url("../images/foo2.png");
+}
+p {
+    background: #f00 url("../images/bar2.png");
+}

@@ -1,0 +1,1 @@
+<?php echo json_encode(array('status' => 0, 'errorCode' => 404, 'message' => 'Error 404 Not found!'));
