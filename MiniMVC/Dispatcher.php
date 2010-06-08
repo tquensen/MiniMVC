@@ -136,9 +136,9 @@ class MiniMVC_Dispatcher
             }
         }
 
-        $this->registry->db->init();
-
         try {
+            $this->registry->db->init();
+            
             $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
             $this->registry->template->addToSlot('main', $content);
             return $this->registry->template->parse($this->registry->settings->currentApp);
@@ -223,6 +223,28 @@ class MiniMVC_Dispatcher
         }
 
         return $this->call($widgetData['controller'], $widgetData['action'], $widgetData['parameter']);
+    }
+
+    public function getTask($task, $params = array(), $app = null)
+    {
+        $app = ($app) ? $app : $this->registry->settings->currentApp;
+        $tasks = $this->registry->settings->get('tasks', $app);
+        if (!isset($tasks[$task])) {
+            throw new Exception('Task "' . $task . '" does not exist!');
+        }
+        if (!isset($tasks[$task]['controller']) || !isset($tasks[$task]['action'])) {
+            throw new Exception('Task "' . $task . '" is invalid (controller or action not set!');
+        }
+        $taskData = $tasks[$task];
+        $taskData['parameter'] = (isset($taskData['parameter'])) ? array_merge($taskData['parameter'], (array)$params) : (array)$params;
+        return $taskData;
+    }
+
+    public function callTask($task, $params = array())
+    {
+        $taskData = $this->getTask($task, $params);
+
+        return $this->call($taskData['controller'], $taskData['action'], $taskData['parameter']);
     }
 
     public function call($controller, $action, $params)

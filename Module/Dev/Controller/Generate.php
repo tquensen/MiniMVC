@@ -99,14 +99,14 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         if ($params['from'] == 'diff') {
             try {
                 Doctrine_Core::generateMigrationsFromDiff(BASEPATH . 'Module/' . $params['module'] . '/Lib/Migrations', BASEPATH . 'Module/' . $params['module'] . '/Model', BASEPATH . 'Module/' . $params['module'] . '/Model/Schema/schema.yml');
-
+                return 'Migrations created!';
             } catch (Exception $e) {
                 return 'Fehler: ' . $e->getMessage() . "\n";
             }
         } elseif ($params['from'] == 'models') {
             try {
                 Doctrine_Core::generateMigrationsFromModels(BASEPATH . 'Module/' . $params['module'] . '/Lib/Migrations', BASEPATH . 'Module/' . $params['module'] . '/Model');
-
+                return 'Migrations created!';
             } catch (Exception $e) {
                 return 'Fehler: ' . $e->getMessage() . "\n";
             }

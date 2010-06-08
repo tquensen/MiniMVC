@@ -84,15 +84,16 @@ class Helper_CSS extends MiniMVC_Helper
             
         }
 
-        $now = time();
         $newFiles = array();
         foreach ($medias as $media => $mediaFiles) {
-            $filename = 'css_'.$app.'_'.$environment.'_'.$media.'_'.$now.'.css';
+            $content = implode("\n\n", $mediaFiles);
+            $fileHash = md5($content);
+            $filename = 'css_'.$app.'_'.$environment.'_'.$media.'_'.$fileHash.'.css';
             $newFiles[] = array(
                 'url' => $baseurl.'cache/'.$filename,
                 'media' => $media
             );
-            file_put_contents(BASEPATH.'cache/'.$filename, implode("\n\n", $mediaFiles));
+            file_put_contents(BASEPATH.'cache/'.$filename, $content);
         }
         return array_merge($unmergedBefore, $newFiles, $unmergedAfter);
     }

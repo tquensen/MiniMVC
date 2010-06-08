@@ -9,7 +9,8 @@ class MiniMVC_Db
     {
         $dbSettings = MiniMVC_Registry::getInstance()->settings->db;
         if (!$dbSettings) {
-            throw new Exception('could not connect to database!');
+            return;
+            //throw new Exception('could not connect to database!');
         }
 
         spl_autoload_register(array('Doctrine', 'autoload'));
