@@ -1,5 +1,6 @@
 <?php
 $rights = MiniMVC_Registry::getInstance()->rights;
+
 $MiniMVC_roles['guest'] = array(
     'title' => 'Default role for guests',
     'rights' => $rights->getRights('guest'),

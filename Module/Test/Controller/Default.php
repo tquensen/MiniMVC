@@ -8,12 +8,12 @@ class Test_Default_Controller extends MiniMVC_Controller
             $this->view->form->updateRecord()->save();
             return 'YEAH!';
         }
-        return $this->view->parse('default/index');
+        return $this->view->parse();
     }
 
     public function showAction($params)
     {
         $this->view->entry = Doctrine_Core::getTable('TestExampleModel')->getTranslatedRecord($params['id'], $this->registry->settings->currentLanguage);
-        return $this->view->parse('default/show');
+        return $this->view->parse();
     }
 }

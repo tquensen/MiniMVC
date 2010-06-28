@@ -1,10 +1,16 @@
 <?php
-
+/**
+ * MiniMVC_Db is responsible for the current database connection
+ */
 class MiniMVC_Db
 {
     protected $connection = false;
     protected $profiler = false;
 
+    /**
+     *
+     * @return null
+     */
     public function init()
     {
         $dbSettings = MiniMVC_Registry::getInstance()->settings->db;
@@ -40,6 +46,10 @@ class MiniMVC_Db
         $this->registerModels();
     }
 
+    /**
+     *
+     * @return null
+     */
     protected function registerModels()
     {
         $config = MiniMVC_Registry::getInstance()->settings->config;
@@ -60,6 +70,10 @@ class MiniMVC_Db
         MiniMVC_Registry::getInstance()->settings->saveToCache('config', $config);
     }
 
+    /**
+     *
+     * @return Doctrine_Connection
+     */
     public function getConnection()
     {
         return $this->connection;

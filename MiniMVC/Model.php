@@ -1,6 +1,14 @@
-<?php 
+<?php
+/**
+ * MiniMVC_Model is the base class for all Models (Doctrine Records)
+ */
 class MiniMVC_Model extends Doctrine_Record
 {
+    /**
+     *
+     * @param array $options the options which will be passed th the form constructor
+     * @return MiniMVC_Form
+     */
 	public function getForm($options = array())
 	{
 		$formClass = get_class($this).'Form';

@@ -39,6 +39,11 @@ class MiniMVC_Form_Element
 		$this->validators = array_merge($this->validators, $validators);
 	}
 
+    /**
+     *
+     * @param <type> $option
+     * @return <type>
+     */
 	public function getOption($option)
 	{
 		return (isset($this->options[$option])) ? $this->options[$option] : null;

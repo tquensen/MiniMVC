@@ -1,4 +1,7 @@
 <?php
+/**
+ * MiniMVC_Translation holds an array of translated data
+ */
 class MiniMVC_Translation
 {
 	protected $translations = array();

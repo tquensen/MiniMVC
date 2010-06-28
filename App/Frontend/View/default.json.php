@@ -1,3 +1,3 @@
 <?php
 	header('Content-type: application/json');
-	echo $this->getSlot('main');
+	echo $layout->getSlot('main');

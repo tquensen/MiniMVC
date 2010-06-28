@@ -1,8 +1,14 @@
 <?php
-
+/**
+ * MiniMVC_Autoload does all the autoloading stuff
+ */
 class MiniMVC_Autoload
 {
-
+    /**
+     *
+     * @param string $class the name of the class to load
+     * @return null
+     */
     public static function autoload($class)
     {
         

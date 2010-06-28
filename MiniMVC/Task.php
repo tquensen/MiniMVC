@@ -1,4 +1,7 @@
 <?php
+/**
+ * MiniMVC_Task is used to dispatch and call CLI tasks
+ */
 class MiniMVC_Task {
     protected $registry = null;
 
@@ -7,6 +10,11 @@ class MiniMVC_Task {
         $this->registry = MiniMVC_Registry::getInstance();
     }
 
+    /**
+     *
+     * @param array $rawParams the raw CLI parameters (the argv array)
+     * @return string the parsed output of the task
+     */
     public function dispatch($rawParams)
     {
         $this->registry->template->setLayout(false);
@@ -34,6 +42,11 @@ class MiniMVC_Task {
         }
     }
 
+    /**
+     *
+     * @param array $rawParams the raw CLI parameters to parse
+     * @return array returns an associative array of parameters
+     */
     public function getCliParams($rawParams)
     {
         $params = array();

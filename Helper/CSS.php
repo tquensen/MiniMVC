@@ -3,19 +3,39 @@
 class Helper_CSS extends MiniMVC_Helper
 {
     protected $staticHelper = null;
+    protected $additionalFiles = array();
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->staticHelper = $this->registry->helper->static;
+    }
+
     public function get()
     {
-        return $this->prepareFiles();
+        return array_merge($this->prepareFiles(), $this->additionalFiles);
     }
 
     public function getHtml()
     {
-        return $this->registry->helper->Partial->get('css', array('files' => $this->prepareFiles()), $this->module);
+        return $this->registry->helper->Partial->get('css', array('files' => array_merge($this->prepareFiles(), $this->additionalFiles)), $this->module);
+    }
+
+    public function addFile($file, $module = null, $media = 'screen', $app = null)
+    {
+        if (!$app) {
+            $app = $this->registry->settings->currentApp;
+        }
+        $data = array();
+
+        $data['url'] = $this->staticHelper->get('css/' . $file, $module, $app);
+        $data['media'] = $media;
+
+        $this->additionalFiles[$module . '/' . $file] = $data;
     }
 
     public function prepareFiles()
     {
-        $this->staticHelper = $this->registry->helper->static;
         $view = $this->registry->settings->view;
 
         if (isset($view['cssCached'])) {
@@ -23,6 +43,7 @@ class Helper_CSS extends MiniMVC_Helper
         }
 
         $files = (isset($view['css'])) ? $view['css'] : array();
+        $files = array_merge($files, $this->additionalFiles);
         $preparedFiles = array();
         foreach ($files as $file) {
             $data = array();
@@ -36,18 +57,18 @@ class Helper_CSS extends MiniMVC_Helper
 
             $data['url'] = $this->staticHelper->get('css/' . $file['file'], $module, $app);
             $data['media'] = (isset($file['media'])) ? $file['media'] : 'screen';
-            $data['merge'] = (isset($file['merge'])) ? $file['merge'] : true;
+            $data['combine'] = (isset($file['combine'])) ? $file['combine'] : true;
             $preparedFiles[$module . '/' . $file['file']] = $data;
         }
 
-        $mergedFiles = $this->mergeFiles($preparedFiles, $app);
-        $view['cssCached'] = $mergedFiles;
+        $combinedFiles = $this->combineFiles($preparedFiles, $app);
+        $view['cssCached'] = $combinedFiles;
         $this->registry->settings->saveToCache('view', $view);
 
-        return $mergedFiles;
+        return $combinedFiles;
     }
 
-    public function mergeFiles($files, $app = null, $environment = null)
+    public function combineFiles($files, $app = null, $environment = null)
     {
 
         $app = ($app) ? $app : $this->registry->settings->currentApp;
@@ -59,14 +80,14 @@ class Helper_CSS extends MiniMVC_Helper
             $baseurl = (isset($this->registry->settings->apps[$app]['baseurl'])) ? $this->registry->settings->apps[$app]['baseurl'] : '';
         }
 
-        $unmergedBefore = array();
-        $unmergedAfter = array();
+        $uncombinedBefore = array();
+        $uncombinedAfter = array();
         $medias = array();
 
-        $mergedFound = false;
+        $combinedFound = false;
         foreach ($files as $file) {
-            if ($file['merge']) {
-                $mergedFound = true;
+            if ($file['combine']) {
+                $combinedFound = true;
                 $relativePath = str_replace($baseurl, '', $file['url']); //relative path from MiniMVC root
                 $urlPrefix = $baseurl.'../' . dirname($relativePath) . '/'; //relative url from cache to original css file folder
                 $filePath = BASEPATH . $relativePath;
@@ -75,10 +96,10 @@ class Helper_CSS extends MiniMVC_Helper
                     $medias[trim($media)][] = $data;
                 }
             } else {
-                if ($mergedFound) {
-                    $unmergedAfter[] = $file;
+                if ($combinedFound) {
+                    $uncombinedAfter[] = $file;
                 } else {
-                    $unmergedBefore[] = $file;
+                    $uncombinedBefore[] = $file;
                 }
             }
             
@@ -95,7 +116,7 @@ class Helper_CSS extends MiniMVC_Helper
             );
             file_put_contents(BASEPATH.'cache/'.$filename, $content);
         }
-        return array_merge($unmergedBefore, $newFiles, $unmergedAfter);
+        return array_merge($uncombinedBefore, $newFiles, $uncombinedAfter);
     }
 
     public function parseFile($file, $urlPrefix, $app = null, $environment = null)

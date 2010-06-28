@@ -5,9 +5,9 @@ class User_Login_Controller extends MiniMVC_Controller
 
     public function loginAction($params)
     {
-        $this->view->form = Doctrine_Core::getTable('User')->getRecord()->getForm(array('type' => 'login'));
+        $this->view->form = UserTable::getInstance()->getRecord()->getForm(array('type' => 'login'));
         if ($this->view->form->validate()) {
-            $user = Doctrine_Core::getTable('User')->findOneByEmail($this->view->form->email->value);
+            $user = UserTable::getInstance()->findOneBy('email', $this->view->form->email->value);
             if (!$user || ! $user->exists() || ! $user->checkPassword($this->view->form->password->value)) {
                 $this->view->form->setError();
                 $this->view->form->password->setError('Der Username oder das Passwort ist ungültig');
@@ -36,7 +36,7 @@ class User_Login_Controller extends MiniMVC_Controller
 
     public function logoutAction($params)
     {
-        $this->view->form = Doctrine_Core::getTable('User')->getRecord()->getForm(array('type' => 'logout'));
+        $this->view->form = UserTable::getInstance()->getRecord()->getForm(array('type' => 'logout'));
         if ($this->view->form->validate()) {
             $this->registry->guard->setUser();
             if (isset($this->registry->settings->config['user']['logoutRedirect']) && $this->registry->settings->config['user']['logoutRedirect']) {

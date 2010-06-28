@@ -1,39 +1,67 @@
-<?php 
+<?php
+/**
+ * MiniMVC_View is the default view class
+ *
+ * @property MiniMVC_Helpers $helper
+ * @property MiniMVC_Translation $t
+ */
 class MiniMVC_View
 {
 	protected $vars = array();
 	protected $registry = null;
     protected $module = null;
+    protected $controller = null;
+    protected $action = null;
+    /**
+     *
+     * @var MiniMVC_Helpers
+     */
 	protected $helper = null;
+    /**
+     *
+     * @var MiniMVC_Translation
+     */
     protected $t = null;
-    
-	public function __construct($module = null)
+
+    /**
+     *
+     * @param mixed $module the name of the associated module or null
+     */
+	public function __construct($module = null, $controller = null, $action = null)
 	{
         $this->module = $module;
+        $this->controller = $controller;
+        $this->action = $action;
 		$this->registry = MiniMVC_Registry::getInstance();
 
         $this->helper = $this->registry->helper;
         $this->t = $this->helper->I18n->get($this->module);
 	}
 
+    /**
+     *
+     * @return mixed returns the name of the associated module or null
+     */
     public function getModule()
     {
         return $this->module;
     }
 
-    protected function getSlot($slot, $array = false, $glue = '')
-    {
-        if ($this->module != '_default') {
-            return '';
-        }
-        return $this->registry->template->getSlot($slot, $array, $glue);
-    }
-
+    /**
+     *
+     * @param string $var the name of the var to set
+     * @param mixed $value the value to store
+     */
 	public function __set($var, $value)
 	{
 		$this->vars[$var] = $value;
 	}
-	
+
+    /**
+     *
+     * @param string $var the name of the var
+     * @return mixed the stored value
+     */
 	public function __get($var)
 	{
         if ($var == 'helper')
@@ -46,8 +74,14 @@ class MiniMVC_View
         }
 		return (isset($this->vars[$var])) ? $this->vars[$var] : '';
 	}
-	
-	public function parse($file, $module = null)
+
+    /**
+     *
+     * @param string $file the file to parse
+     * @param mixed $module the name of the module that contains the file or null to use the current module
+     * @return string returns the parsed output of the file
+     */
+	public function parse($file = null, $module = null)
 	{
         if ($module === null)
         {
@@ -56,6 +90,12 @@ class MiniMVC_View
                 return false;
             }
             $module = $this->module;
+        }
+        if ($file === null) {
+            if (!$this->controller || !$this->action) {
+                return false;
+            }
+            $file = $this->controller . '/' . $this->action;
         }
 		$app = $this->registry->settings->currentApp;
 		

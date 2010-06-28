@@ -1,8 +1,13 @@
 <?php
-
+/**
+ * MiniMVC_Dispatcher delegates requests and route/widget calls to the right controllers and actions
+ */
 class MiniMVC_Dispatcher
 {
-    protected $settings = null;
+    /**
+     *
+     * @var MiniMVC_Registry
+     */
     protected $registry = null;
 
     public function __construct()
@@ -10,6 +15,10 @@ class MiniMVC_Dispatcher
         $this->registry = MiniMVC_Registry::getInstance();
     }
 
+    /**
+     *
+     * @return string returns the parsed output of the current request
+     */
     public function dispatch()
     {
         $protocol = (!isset($_SERVER['HTTPS']) || !$_SERVER['HTTPS'] || $_SERVER['HTTPS'] == 'off') ? 'http' : 'https';
@@ -136,6 +145,10 @@ class MiniMVC_Dispatcher
             }
         }
 
+        $event = new sfEvent($this, 'minimvc.dispatcher.filterRoute');
+        $this->registry->events->filter($event, $routeData);
+        $routeData = $event->getReturnValue();
+        
         try {
             $this->registry->db->init();
             
@@ -156,6 +169,13 @@ class MiniMVC_Dispatcher
         }
     }
 
+    /**
+     *
+     * @param string $route the name of an internal route
+     * @param array $params the parameters for the route
+     * @param mixed $app the name of an app or null to use the current app
+     * @return array returns an array with route information
+     */
     public function getRoute($route, $params = array(), $app = null)
     {
         $app = ($app) ? $app : $this->registry->settings->currentApp;
@@ -171,6 +191,13 @@ class MiniMVC_Dispatcher
         return $routeData;
     }
 
+    /**
+     *
+     * @param string $route the name of an internal route
+     * @param array $params the parameters for the route
+     * @param bool $showErrorPages if true, the 401/403 error pages will be called if the user has insuficcient rights
+     * @return string the parsed output of the called action
+     */
     public function callRoute($route, $params = array(), $showErrorPages = true)
     {
         $routeData = $this->getRoute($route, $params);
@@ -199,6 +226,13 @@ class MiniMVC_Dispatcher
         return $this->call($routeData['controller'], $routeData['action'], $routeData['parameter']);
     }
 
+    /**
+     *
+     * @param string $widget the name of an internal widget
+     * @param array $params the parameters for the widget
+     * @param $app the name of an app or null to use the current app
+     * @return array returns an array with widget information
+     */
     public function getWidget($widget, $params = array(), $app = null)
     {
         $app = ($app) ? $app : $this->registry->settings->currentApp;
@@ -214,6 +248,12 @@ class MiniMVC_Dispatcher
         return $widgetData;
     }
 
+    /**
+     *
+     * @param string $widget the name of an internal widget
+     * @param array $params the parameters for the widget
+     * @return string the parsed output of the called widget
+     */
     public function callWidget($widget, $params = array())
     {
         $widgetData = $this->getWidget($widget, $params);
@@ -225,6 +265,13 @@ class MiniMVC_Dispatcher
         return $this->call($widgetData['controller'], $widgetData['action'], $widgetData['parameter']);
     }
 
+    /**
+     *
+     * @param string $task the name of an internal task
+     * @param array $params the parameters for the task
+     * @param $app the name of an app or null to use the current app
+     * @return array returns an array with task information
+     */
     public function getTask($task, $params = array(), $app = null)
     {
         $app = ($app) ? $app : $this->registry->settings->currentApp;
@@ -240,6 +287,12 @@ class MiniMVC_Dispatcher
         return $taskData;
     }
 
+    /**
+     *
+     * @param string $task the name of an internal task
+     * @param array $params the parameters for the task
+     * @return string the parsed output of the called task
+     */
     public function callTask($task, $params = array())
     {
         $taskData = $this->getTask($task, $params);
@@ -247,6 +300,13 @@ class MiniMVC_Dispatcher
         return $this->call($taskData['controller'], $taskData['action'], $taskData['parameter']);
     }
 
+    /**
+     *
+     * @param string $controller the name of a controller
+     * @param string $action the name of an action
+     * @param array $params an array with parameters
+     * @return string the parsed output of the called action
+     */
     public function call($controller, $action, $params)
     {
         if (strpos($controller, '_') === false) {
@@ -266,7 +326,7 @@ class MiniMVC_Dispatcher
             $viewName = $this->registry->settings->config['classes']['view'];
             $view = new $viewName($controllerParts[0]);
         } else {
-            $view = new MiniMVC_View($controllerParts[0]);
+            $view = new MiniMVC_View($controllerParts[0], $controllerParts[1], $action);
         }
 
         $controllerClass = new $controllerName($view);
@@ -274,6 +334,12 @@ class MiniMVC_Dispatcher
         return $controllerClass->$actionName($params);
     }
 
+    /**
+     *
+     * @param string $route a name of an internal route
+     * @param array $routeData information about the route
+     * @return string returns a regular expression pattern to parse the called route
+     */
     protected function getRegex($route, $routeData)
     {
         $routePattern = $routeData['route'];

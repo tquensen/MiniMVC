@@ -1,9 +1,27 @@
-<?php 
+<?php
+/**
+ * MiniMVC_Registry is the global registry for some frequently used classes
+ *
+ * @property MiniMVC_Settings $settings stores the configuration arrays
+ * @property MiniMVC_Dispatcher $dispatcher is responsible for any route calls
+ * @property MiniMVC_Layout $template the default layout/template class
+ * @property MiniMVC_Guard $guard is responsible for the current user session
+ * @property MiniMVC_Rights $rights is responsible for the role/right management
+ * @property MiniMVC_Db $db is responsible for the current database connection
+ * @property MiniMVC_Helpers $helper is the container for individual helper classes
+ * @property MiniMVC_Task $task is used to dispatch and call CLI tasks
+ * @property MiniMVC_Events $events the event dispatcher
+ */
 class MiniMVC_Registry
 {
 	protected $data = array();
 	private static $instances = array();
- 
+
+    /**
+     *
+     * @param integer $x the index of the instance
+     * @return MiniMVC_Registry
+     */
 	static public function getInstance($x=0)
 	{
 		if (!isset(self::$instances[$x])) {
@@ -30,9 +48,10 @@ class MiniMVC_Registry
 		{
 			return $this->data[$key];
 		}
-		if (isset($this->data['settings']->config['registryClasses'][$key]))
+        $config = $this->data['settings']->get('config');
+		if (isset($config['registryClasses'][$key]))
 		{
-			return $this->data[$key] = new $this->data['settings']->config['registryClasses'][$key]();
+			return $this->data[$key] = new $config['registryClasses'][$key]();
 		}
 		return null;
 	}

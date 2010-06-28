@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
-<?php echo $this->getSlot('meta')?>
-<?php echo $this->getSlot('css')?>
+<?php echo $layout->getSlot('meta')?>
+<?php echo $layout->getSlot('css')?>
 </head>
 <body>
-<?php echo $this->getSlot('navigation')?>
+<?php echo $layout->getSlot('navigation')?>
 
-<?php echo $this->getSlot('main')?>
+<?php echo $layout->getSlot('main')?>
 
-<?php echo $this->getSlot('javascript')?>
+<?php echo $layout->getSlot('javascript')?>
 </body>
 </html>

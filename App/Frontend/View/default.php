@@ -7,15 +7,15 @@
     <head>
         <script>(function(H){H.className=H.className.replace(/\bnojs\b/,'js')})(document.documentElement)</script>
         <meta charset="UTF-8">
-        <?php echo $this->getSlot('meta') ?>
+        <?php echo $layout->getSlot('meta') ?>
         <?php echo $helper->CSS->getHtml() ?>
     </head>
     <body>
-        <?php echo $this->getSlot('navigation') ?>
+        <?php echo $layout->getSlot('navigation') ?>
 
-        <?php echo $this->getSlot('main') ?>
-        <?php echo $this->getSlot('sidebar') ?>
+        <?php echo $layout->getSlot('main') ?>
+        <?php echo $layout->getSlot('sidebar') ?>
 
-        <?php echo $this->getSlot('javascript') ?>
+        <?php echo $layout->getSlot('javascript') ?>
     </body>
 </html>

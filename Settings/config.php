@@ -8,7 +8,7 @@ $MiniMVC_config['error500Route'] = 'core.error500';
 $MiniMVC_config['defaultLanguage'] = 'de';
 $MiniMVC_config['enabledLanguages'] = array('de', 'en');
 $MiniMVC_config['defaultTemplate'] = '';
-$MiniMVC_config['autoloadPaths'] = array('Lib/Doctrine');
+$MiniMVC_config['autoloadPaths'] = array('Lib/Doctrine', 'Lib/sfComponents');
 $MiniMVC_config['registryClasses'] = array(
     'dispatcher' => 'MiniMVC_Dispatcher',
     'template' => 'MiniMVC_Layout',
@@ -16,5 +16,6 @@ $MiniMVC_config['registryClasses'] = array(
     'rights' => 'MiniMVC_Rights',
     'db' => 'MiniMVC_Db',
     'helper' => 'MiniMVC_Helpers',
-    'task' => 'MiniMVC_Task'
+    'task' => 'MiniMVC_Task',
+    'events' => 'MiniMVC_Events'
 );
