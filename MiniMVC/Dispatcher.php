@@ -196,8 +196,12 @@ class MiniMVC_Dispatcher
             $routeData['action'] = 'index';
         }
 
-        if (isset($routeData['parameter']['_module']) && isset($routeData['parameter']['_controller'])) {
-            $routeData['controller'] = $routeData['parameter']['_module'] . '_' . $routeData['parameter']['_controller'];
+        if (isset($routeData['parameter']['_controller'])) {
+            if (isset($routeData['parameter']['_module'])) {
+                $routeData['controller'] = $routeData['parameter']['_module'] . '_' . $routeData['parameter']['_controller'];
+            } else {
+                $routeData['controller'] = 'My_' . $routeData['parameter']['_controller'];
+            }
         } elseif(!isset($routeData['controller'])) {
             $routeData['controller'] = 'My_Default';
         }
