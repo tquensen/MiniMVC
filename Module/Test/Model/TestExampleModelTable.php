@@ -14,13 +14,19 @@ class TestExampleModelTable extends Doctrine_Table
     /**
      * Returns an instance of this class.
      *
-     * @return object TestExampleModelTable
+     * @return TestExampleModelTable
      */
     public static function getInstance()
     {
         return Doctrine_Core::getTable('TestExampleModel');
     }
 
+    /**
+     *
+     * @param integer $id
+     * @param string $lang
+     * @return TestExampleModel
+     */
     public function getTranslatedRecord($id, $lang)
     {
         return $this->createQuery('a')->select('a.*, t.name as name, t.description as description')->leftJoin('a.Translation t')->where('a.id = ? and t.lang = ?')->execute(array($id, $lang))->getFirst();

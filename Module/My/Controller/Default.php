@@ -21,7 +21,12 @@ class My_Default_Controller extends MiniMVC_Controller
           $this->view->fisch = $fisch;
          */
 
-        return $this->view->parse('default/index');
+        return $this->view->parse();
+    }
+
+    public function testAction($params) {
+        $this->view->params = $params;
+        return $this->view->parse();
     }
 
 }

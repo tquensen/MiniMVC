@@ -20,15 +20,18 @@ class MiniMVC_Layout
 
     protected function prepareSlots()
     {
-        $key = $this->layout . ($this->format != null) ? '.' . $this->format : '';
+        $allkey = 'all' . (($this->format != null) ? '.' . $this->format : '');
+        $key = $this->layout . (($this->format != null) ? '.' . $this->format : '');
         $slots = $this->registry->settings->slots;
 
-        if (!isset($slots[$key]))
+        if (!isset($slots[$key]) && !isset($slots[$allkey]))
         {
             return;
         }
         
-        foreach ($slots as $currentSlot => $slotData) {
+        $activeSlots = array_merge((isset($slots[$allkey]) ? $slots[$allkey] : array()), (isset($slots[$key]) ? $slots[$key] : array()));
+        
+        foreach ($slots[$key] as $currentSlot => $slotData) {
             if (!isset($this->slots[$currentSlot])) {
                 $this->slots[$currentSlot] = array();
             }
@@ -83,6 +86,9 @@ class MiniMVC_Layout
      */
     public function setFormat($format = null)
     {
+        if ($format == 'html') {
+            $format = null;
+        }
         $this->format = $format;
     }
 

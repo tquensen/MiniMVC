@@ -5,17 +5,19 @@ class UserForm extends MiniMVC_Form
 
     public function __construct($record = false, $options = array())
     {
-        parent::__construct($record, $options);
         if (!isset($options['type']) || ! method_exists($this, 'get' . ucfirst($options['type']))) {
             throw new Exception('No valid type for UserForm specified!');
         }
+        $this->setName("User".ucfirst($options['type'])."Form");
+        parent::__construct($record, $options);
+        
 
         $this->{'get' . ucfirst($options['type'])} ();
     }
 
     protected function getLogin()
     {
-        $this->setName("UserLoginForm");
+        
 
         $this->addElement(new MiniMVC_Form_Element_Text('email',
                         array('defaultValue' => $this->record['email'], 'label' => 'E-Mail Adresse:'),
@@ -42,7 +44,6 @@ class UserForm extends MiniMVC_Form
 
     protected function getLogout()
     {
-        $this->setName("UserLogoutForm");
 
         $this->addElement(new MiniMVC_Form_Element_Submit('submit', array('label' => 'ausloggen')));
 
@@ -51,7 +52,6 @@ class UserForm extends MiniMVC_Form
 
     protected function getRegister()
     {
-        $this->setName("UserRegisterForm");
 
         $this->addElement(new MiniMVC_Form_Element_Text('name',
                         array('defaultValue' => $this->record['name'], 'label' => 'Username:'),
@@ -76,7 +76,6 @@ class UserForm extends MiniMVC_Form
 
     protected function getEdit()
     {
-        $this->setName("UserEditForm");
 
         $this->addElement(new MiniMVC_Form_Element_Text('name',
                         array('defaultValue' => $this->record['name'], 'label' => 'Username:'),
@@ -103,7 +102,6 @@ class UserForm extends MiniMVC_Form
 
     protected function getEditPassword()
     {
-        $this->setName("UserEditPasswordForm");
 
         $this->addElement(new MiniMVC_Form_Element_Text('oldPassword',
                         array('label' => 'Aktuelles Passwort:'),

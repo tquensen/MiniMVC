@@ -77,6 +77,7 @@ class MiniMVC_Dispatcher
         if (!$route) {
             $defaultRoute = $this->registry->settings->config['defaultRoute'];
             if ($defaultRoute && isset($routes[$defaultRoute])) {
+                $routeName = $defaultRoute;
                 $routeData = $routes[$defaultRoute];
             } else {
                 throw new Exception('no route given and no default Route defined!');
@@ -103,7 +104,8 @@ class MiniMVC_Dispatcher
                         }
                     }
 
-                    $routeData = $this->getRoute($currentRoute, $params);
+                    $routeName = $currentRoute;
+                    //$routeData = $this->getRoute($currentRoute, $params);
                     $found = true;
                     break;
                 }
@@ -112,47 +114,20 @@ class MiniMVC_Dispatcher
             if (!$found) {
                 $error404Route = (isset($this->registry->settings->config['error404Route'])) ? $this->registry->settings->config['error404Route'] : false;
                 if ($error404Route && isset($routes[$error404Route])) {
+                    $routeName = $error404Route;
                     $routeData = $routes[$error404Route];
                 } else {
                     throw new Exception('no valid route found and no valid 404 Route defined!');
                 }
             }
-        }
+        }        
 
-        if (isset($routeData['format'])) {
-            $this->registry->template->setFormat($routeData['format']);
-        }
-
-        if (isset($routeData['layout'])) {
-            $this->registry->template->setLayout($routeData['layout']);
-        }
-
-        if (isset($routeData['rights']) && $routeData['rights'] && !((int)$routeData['rights'] & $this->registry->guard->getRights())) {
-            if ($this->registry->guard->getRole() && $this->registry->guard->getRole() != 'guest') {
-                $error403Route = (isset($this->registry->settings->config['error403Route'])) ? $this->registry->settings->config['error403Route'] : false;
-                if ($error403Route && isset($routes[$error403Route])) {
-                    $routeData = $routes[$error403Route];
-                } else {
-                    throw new Exception('Insufficient rights and no 403 Route defined!');
-                }
-            } else {
-                $error401Route = (isset($this->registry->settings->config['error401Route'])) ? $this->registry->settings->config['error401Route'] : false;
-                if ($error401Route && isset($routes[$error401Route])) {
-                    $routeData = $routes[$error401Route];
-                } else {
-                    throw new Exception('Not logged in and no 401 Route defined!');
-                }
-            }
-        }
-
-        $event = new sfEvent($this, 'minimvc.dispatcher.filterRoute');
-        $this->registry->events->filter($event, $routeData);
-        $routeData = $event->getReturnValue();
+        
         
         try {
             $this->registry->db->init();
             
-            $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
+            $content = $this->callRoute($routeName, (isset($params) ? $params : array()));
             $this->registry->template->addToSlot('main', $content);
             return $this->registry->template->parse($this->registry->settings->currentApp);
         } catch (Exception $e) {
@@ -183,11 +158,14 @@ class MiniMVC_Dispatcher
         if (!isset($routes[$route])) {
             throw new Exception('Route "' . $route . '" does not exist!');
         }
-        if (!isset($routes[$route]['controller']) || !isset($routes[$route]['action'])) {
-            throw new Exception('Route "' . $widget . '" is invalid (controller or action not set!');
-        }
+        
         $routeData = $routes[$route];
         $routeData['parameter'] = (isset($routeData['parameter'])) ? array_merge($routeData['parameter'], (array)$params) : (array)$params;
+
+        $event = new sfEvent($this, 'minimvc.dispatcher.filterRoute');
+        $this->registry->events->filter($event, $routeData);
+        $routeData = $event->getReturnValue();
+
         return $routeData;
     }
 
@@ -201,6 +179,29 @@ class MiniMVC_Dispatcher
     public function callRoute($route, $params = array(), $showErrorPages = true)
     {
         $routeData = $this->getRoute($route, $params);
+
+        if (isset($routeData['format'])) {
+            $this->registry->template->setFormat($routeData['format']);
+        } elseif(isset($routeData['parameter']['_format'])) {
+            $this->registry->template->setFormat($routeData['parameter']['_format']);
+        }
+
+        if (isset($routeData['layout'])) {
+            $this->registry->template->setLayout($routeData['layout']);
+        }
+
+        if (isset($routeData['parameter']['_action'])) {
+            $routeData['action'] = $routeData['parameter']['_action'];
+        } elseif(!isset($routeData['action'])) {
+            $routeData['action'] = 'index';
+        }
+
+        if (isset($routeData['parameter']['_module']) && isset($routeData['parameter']['_controller'])) {
+            $routeData['controller'] = $routeData['parameter']['_module'] . '_' . $routeData['parameter']['_controller'];
+        } elseif(!isset($routeData['controller'])) {
+            $routeData['controller'] = 'My_Default';
+        }
+
 
         if (isset($routeData['rights']) && $routeData['rights'] && !((int)$routeData['rights'] & $this->registry->guard->getRights())) {
             if (!$showErrorPages) {
@@ -353,7 +354,7 @@ class MiniMVC_Dispatcher
 
             $routePattern = str_replace($search, $replace, $routePattern);
         }
-        $routePattern = preg_replace('#:([^:]+):#i', '(?P<$1>[^/]+)', $routePattern);
+        $routePattern = preg_replace('#:([^:]+):#i', '(?P<$1>[^\./]+)', $routePattern);
         if (isset($routeData['allowAnonymous']) && $routeData['allowAnonymous']) {
             if (substr($route, -1) == '/') {
                 $routePattern .= '(?P<anonymousParams>([^-/]+-[^/]+/)*)';

@@ -140,8 +140,8 @@ class ' . $name . 'Form extends MiniMVC_Form
 {
     public function __construct($record = false, $options = array())
     {
-        parent::__construct($record, $options);
         $this->setName("' . $name . 'Form");
+        parent::__construct($record, $options);       
 
         //add your elements here
 

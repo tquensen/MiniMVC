@@ -2,7 +2,7 @@ TestExampleModel:
   columns:
     default_name: string(255)
     name: string(255)
-    description: blob
+    description: clob
     status: integer
   actAs:
     I18n:

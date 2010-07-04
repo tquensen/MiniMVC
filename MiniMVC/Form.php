@@ -12,7 +12,7 @@ class MiniMVC_Form
 	{
         $t = MiniMVC_Registry::getInstance()->helper->I18n->get('_form');
 		$this->record = $record;
-		$this->name = (isset($options['name'])) ? $options['name'] : null;
+		$this->name = (isset($options['name'])) ? $options['name'] : $this->name;
 
 		$this->options['action'] = $_SERVER['REQUEST_URI'];
 		$this->options['method'] = 'post';
