@@ -1,0 +1,23 @@
+DevFisch:
+  columns:
+    name:
+      default: 'Fisch'
+      type: string(255)
+    art: integer
+  relations:
+    DevFischArt:
+      local: art
+      foreign: id
+      foreignAlias: Fische
+  actAs: 
+    Sluggable:
+      fields: [name]
+      canUpdate: true
+DevFischArt:
+  columns:
+    name: string(255)
+    test_id: integer
+  actAs: 
+    Sluggable:
+      fields: [name]
+      canUpdate: true
