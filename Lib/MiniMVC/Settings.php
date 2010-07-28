@@ -25,11 +25,13 @@ class MiniMVC_Settings
      * @param mixed $environment the name of the environment to use or null to not use an environment
      * @param boolean $useCache if a cache should be used (recommended for production environments)
      */
-    public function __construct($defaultApp = null, $environment = null, $useCache = true)
+    public function __construct($environment = null, $useCache = true)
     {
-        $this->currentApp = $defaultApp;
+        $this->currentApp = '';
         $this->currentEnvironment = $environment;
         $this->useCache = $useCache;
+
+        //$this->scanConfigFiles($this->currentApp, $this->currentEnvironment);
     }
 
     protected function scanConfigFiles($app, $environment)
@@ -72,6 +74,7 @@ class MiniMVC_Settings
 
             $this->settings[$app . '_' . $environment][$file] = $$varname;
         }
+
         $this->saveToCache(null, null, $app, $environment);
     }
 
@@ -121,6 +124,7 @@ class MiniMVC_Settings
             $this->settings[$app . '_' . $environment] = $MiniMVC_Settings;
             return (isset($this->settings[$app . '_' . $environment][$file])) ? $this->settings[$app . '_' . $environment][$file] : array();
         }
+
         $this->scanConfigFiles($app, $environment);
 
         return (isset($this->settings[$app . '_' . $environment][$file])) ? $this->settings[$app . '_' . $environment][$file] : array();

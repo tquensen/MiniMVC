@@ -8,7 +8,7 @@ include BASEPATH.'Lib/MiniMVC/Registry.php';
 include BASEPATH.'Lib/MiniMVC/Settings.php';
 spl_autoload_register(array('MiniMVC_Autoload', 'autoload'));
 
-MiniMVC_Registry::getInstance()->settings = new MiniMVC_Settings('Frontend', 'prod', true);
+MiniMVC_Registry::getInstance()->settings = new MiniMVC_Settings('prod', true);
 
 try {
     echo MiniMVC_Registry::getInstance()->dispatcher->dispatch();

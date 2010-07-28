@@ -12,6 +12,6 @@ include BASEPATH.'Lib/MiniMVC/Registry.php';
 include BASEPATH.'Lib/MiniMVC/Settings.php';
 spl_autoload_register(array('MiniMVC_Autoload', 'autoload'));
 
-MiniMVC_Registry::getInstance()->settings = new MiniMVC_Settings('Frontend', 'dev', false);
+MiniMVC_Registry::getInstance()->settings = new MiniMVC_Settings('dev', false);
 
 echo MiniMVC_Registry::getInstance()->task->dispatch($_SERVER['argv']);
