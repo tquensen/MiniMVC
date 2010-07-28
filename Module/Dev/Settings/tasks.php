@@ -1,6 +1,18 @@
 <?php
-$MiniMVC_tasks['dev.generateMigration'] = array(
+
+$MiniMVC_tasks['dev.generate.module'] = array(
     'controller' => 'Dev_Generate',
-    'action' => 'migration',
-    'parameter' => array('module' => false, 'from' => 'diff')
+    'action' => 'module',
+    'parameter' => array('module' => false)
+);
+
+$MiniMVC_tasks['dev.generate.model'] = array(
+    'controller' => 'Dev_Generate',
+    'action' => 'model',
+    'parameter' => array('module' => false, 'model' => false)
+);
+
+$MiniMVC_tasks['doctrine'] = array(
+    'controller' => 'Dev_Doctrine',
+    'action' => 'run'
 );

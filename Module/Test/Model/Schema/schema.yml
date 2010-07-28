@@ -1,9 +1,0 @@
-TestExampleModel:
-  columns:
-    default_name: string(255)
-    name: string(255)
-    description: clob
-    status: integer
-  actAs:
-    I18n:
-      fields: [name, description]

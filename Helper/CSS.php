@@ -61,7 +61,7 @@ class Helper_CSS extends MiniMVC_Helper
             $preparedFiles[$module . '/' . $file['file']] = $data;
         }
 
-        $combinedFiles = $this->combineFiles($preparedFiles, $app);
+        $combinedFiles = $this->combineFiles($preparedFiles);
         $view['cssCached'] = $combinedFiles;
         $this->registry->settings->saveToCache('view', $view);
 
@@ -105,16 +105,22 @@ class Helper_CSS extends MiniMVC_Helper
             
         }
 
+
         $newFiles = array();
         foreach ($medias as $media => $mediaFiles) {
             $content = implode("\n\n", $mediaFiles);
             $fileHash = md5($content);
-            $filename = 'css_'.$app.'_'.$environment.'_'.$media.'_'.$fileHash.'.css';
-            $newFiles[] = array(
-                'url' => $baseurl.'cache/'.$filename,
-                'media' => $media
-            );
-            file_put_contents(BASEPATH.'cache/'.$filename, $content);
+            $filename = 'css_'.$fileHash.'.css';
+            
+            if (!isset($newFiles[$fileHash])) {
+	            $newFiles[$fileHash] = array(
+	                'url' => $baseurl.'cache/'.$filename,
+	                'media' => $media
+	            );
+	            file_put_contents(BASEPATH.'cache/'.$filename, $content);
+            } else {
+            	$newFiles[$fileHash]['media'] .= ', ' . $media;
+            }
         }
         return array_merge($uncombinedBefore, $newFiles, $uncombinedAfter);
     }
