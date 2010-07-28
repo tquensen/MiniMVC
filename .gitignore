@@ -1,3 +1,5 @@
 nbproject
-TODO
 Cache/*
+.buildpath
+.project
+.settings
