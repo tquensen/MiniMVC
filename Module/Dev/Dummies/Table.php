@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @method {name} getOne()
+ * @method {name} getOneBy()
+ * @method {name} loadOne()
+ * @method {name} loadOneBy()
+ * @method {name} create()
+ */
 class {name}Table extends MiniMVC_Table
 {
 
@@ -11,19 +18,6 @@ class {name}Table extends MiniMVC_Table
 	protected $isAutoIncrement = true;
 
     protected static $_instance = null;
-
-    /**
-     * @method {name} getOne()
-     * @method {name} getOneBy()
-     * @method {name} loadOne()
-     * @method {name} loadOneBy()
-     * @method {name} create()
-     */
-
-	public function __construct()
-	{
-		parent::__construct();
-	}
 
     /**
      * @param {name} $entry

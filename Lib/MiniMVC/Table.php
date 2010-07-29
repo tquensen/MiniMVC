@@ -16,7 +16,7 @@ class MiniMVC_Table {
     protected $entryClass = 'Mysql_Model';
 
 	protected $columns = array('id');
-	protected $primary = 'id';
+	protected $identifier = 'id';
 	protected $isAutoIncrement = true;
 
 
@@ -24,7 +24,31 @@ class MiniMVC_Table {
 	{
 		$this->registry = MiniMVC_Registry::getInstance();
 		$this->db = $this->registry->db->get();
+        $this->construct();
 	}
+
+    protected function construct()
+    {
+
+    }
+
+    /**
+     *
+     * @return mixed the column name of the primary key
+     */
+    public function getIdentifier()
+    {
+        return $this->identifier;
+    }
+
+    /**
+     *
+     * @return string the name of the entry class
+     */
+    public function getEntryClass()
+    {
+        return $this->entryClass;
+    }
 
     /**
      * @param mixed $id the identifier of the entry to get
@@ -32,7 +56,7 @@ class MiniMVC_Table {
      */
 	public function getOne($id)
 	{
-		return (isset($this->entries[$id])) ? $this->entries[$id] : false;
+		return (isset($this->entries[$id])) ? $this->entries[$id] : null;
 	}
 
     /**
@@ -125,9 +149,10 @@ class MiniMVC_Table {
      * @param mixed $id the identifier
      * @return Mysql_Model
      */
-	public function loadOne($id)
+	public function loadOne($id, $reload = false)
 	{
-		return $this->loadOneBy($this->primary . ' = "'. $id . '"');
+
+		return (isset($this->entries[$id]) && !$reload) ? $this->entries[$id] : $this->loadOneBy($this->identifier . ' = "'. $id . '"');
 	}
 
     /**
@@ -159,13 +184,7 @@ class MiniMVC_Table {
 
 		$result = $this->db->query($sql);
 
-        $entries = array();
-        while($row = $result->fetch_assoc()) {
-            if (!isset($entries[$row[$this->primary]])) {
-                $entries[$row[$this->primary]] = $this->_buildEntry($row);
-            }
-        }
-		return $entries;
+		return $this->buildAll($result);
 	}
 
     /**
@@ -185,11 +204,11 @@ class MiniMVC_Table {
     /**
      *
      * @param string $order
-     * @return <type>
+     * @return array
      */
 	public function loadAll($order = null)
 	{
-		return $this->load(null, null, $order);
+		return $this->load(null, $order);
 	}
 
     
@@ -213,13 +232,54 @@ class MiniMVC_Table {
         return $sql;
     }
     
+    public function buildAll($result, $aliases = null, $relations = array())
+    {
+        $single = false;
+        $entries = array();
+        $aliasedIdentifiers = array();
+        $entryClasses = array();
+        if ($aliases === null) {
+            while ($row = $result->fetch_assoc()) {
+                $entries[] = $this->_buildEntry($row);
+            }
+            return $entries;
+        } elseif (is_string($aliases)) {
+            $identifier = $aliases.'__'.$this->identifier;
+            while ($row = $result->fetch_assoc()) {
+                if ($row[$identifier] && !isset($entries[$row[$identifier]])) {
+                    $entries[$row[$identifier]] = $this->_buildEntry($row, $aliases);
+                }
+            }
+            return $entries;
+        }
+        foreach ($aliases as $alias => $buildClass) {
+                $aliasedIdentifiers[$alias] = $alias.'__'.$buildClass->getIdentifier();
+                $entryClasses[$alias] = $buildClass->getEntryClass();
+        }
+        if (is_array($relations) && !is_array($relations[0])) {
+            $relations = array($relations);
+        }
+        while ($row = $result->fetch_assoc()) {
+            foreach ($aliases as $alias => $buildClass) {
+                if ($row[$aliasedIdentifiers[$alias]] && !isset($entries[$alias][$row[$aliasedIdentifiers[$alias]]])) {
+                    $entries[$alias][$row[$aliasedIdentifiers[$alias]]] = $buildClass->_buildEntry($row, $alias);
+                }
+            }
+            foreach ($relations as $relation) {
+                if ($row[$aliasedIdentifiers[$relation[0]]] && $row[$aliasedIdentifiers[$relation[1]]]) {
+                    $entries[$relation[0]][$row[$aliasedIdentifiers[$relation[0]]]]->{'set'.$entryClasses[$relation[1]]}($entries[$relation[1]][$row[$aliasedIdentifiers[$relation[1]]]], false);
+                }
+            }
+        }
+        return reset($entries);
+    }
 
-	public function _buildEntry($row, $alias)
+	public function _buildEntry($row, $alias = null)
 	{
         if ($alias) {
             $row = $this->_filter($row, $alias);
         }
-        if (empty($row) || !isset($row[$this->primary])) {
+        if (empty($row) || !isset($row[$this->identifier])) {
             return null;
         }
         $entry = new $this->entryClass($this);
@@ -317,7 +377,6 @@ class MiniMVC_Table {
 				if (isset($entry->$column) && $entry->$column !== $entry->getDatabaseProperty($column))
 				{
 					$columnSql[] = ' '.$column.' = "'.$this->db->real_escape_string(($this->serialize($entry->$column))).'" ';
-                    $entry->setDatabaseProperty($column, $entry->$column);
                     $update = true;
 				}
 			}
@@ -326,8 +385,15 @@ class MiniMVC_Table {
                     return false;
                 }
                 $sql = 'UPDATE '.$this->table.' SET ';
-                $sql .= implode(', ', $columnSql).' WHERE '.$this->primary.' = "'.$this->db->real_escape_string($this->serialize($entry->{$this->primary})).'" ;';
+                $sql .= implode(', ', $columnSql).' WHERE '.$this->identifier.' = "'.$this->db->real_escape_string($this->serialize($entry->{$this->primary})).'" ;';
                 $result = $this->db->query($sql);
+                foreach ($this->columns as $column)
+                {
+                    if (isset($entry->$column) && $entry->$column !== $entry->getDatabaseProperty($column))
+                    {
+                        $entry->setDatabaseProperty($column, $entry->$column);
+                    }
+                }
                 if ($entry->postUpdate() === false) {
                     return false;
                 }
@@ -356,7 +422,7 @@ class MiniMVC_Table {
 
 			$sql = 'DELETE
              FROM   '.$this->table.'
-             WHERE  '.$this->primary.' = "'.$this->db->real_escape_string($entry->{$this->primary}).'"
+             WHERE  '.$this->identifier.' = "'.$this->db->real_escape_string($entry->{$this->primary}).'"
              LIMIT 1
              ;';
 
@@ -375,7 +441,7 @@ class MiniMVC_Table {
 		{
 			$sql = 'DELETE
              FROM   '.$this->table.'
-             WHERE  '.$this->primary.' = "'.$this->db->real_escape_string($entry).'"
+             WHERE  '.$this->identifier.' = "'.$this->db->real_escape_string($entry).'"
              LIMIT 1
              ;';
 

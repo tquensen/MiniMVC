@@ -1,5 +1,11 @@
 <?php
-
+/**
+ * @method BlubbComments get()
+ * @method BlubbComments getOneBy()
+ * @method BlubbComments load()
+ * @method BlubbComments loadOneBy()
+ * @method BlubbComments create()
+ */
 class BlubbCommentsTable extends MiniMVC_Table
 {
 
@@ -12,20 +18,23 @@ class BlubbCommentsTable extends MiniMVC_Table
 
     protected static $_instance = null;
 
-    /**
-     * @method BlubbComments get()
-     * @method BlubbComments getOneBy()
-     * @method BlubbComments load()
-     * @method BlubbComments loadOneBy()
-     * @method BlubbComments create()
-     * @method BlubbComments get()
-     */
-
-	public function __construct()
+    public function loadWithUser($condition = null, $order = null, $limit = null, $offset = null)
 	{
-		parent::__construct();
+        $userTable = BlubbUserTable::getInstance();
+
+        $sql  = $this->_select('c');
+        $sql .= $userTable->_select('u', false);
+        $sql .= ' FROM '.$this->table.' c LEFT JOIN blubb_user u ON c.user_id = u.id';
+        if ($condition) $sql .= ' WHERE '.$condition;
+        if ($order) $sql .= ' ORDER BY '.$order;
+        if ($limit || $offset) $sql .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
+
+		$result = $this->db->query($sql);
+
+        return $this->buildAll($result, array('c' => $this, 'u' => $userTable), array(array('u', 'c'), array('c', 'u')));
 	}
 
+    
     /**
      * @param BlubbComments $entry
      * @return BlubbComments

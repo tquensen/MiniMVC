@@ -1,5 +1,12 @@
 <?php
-
+/**
+ * @method Blubber get()
+ * @method Blubber getOneBy()
+ * @method Blubber load()
+ * @method Blubber loadOneBy()
+ * @method Blubber create()
+ * @method Blubber get()
+ */
 class BlubberTable extends MiniMVC_Table
 {
 
@@ -11,20 +18,7 @@ class BlubberTable extends MiniMVC_Table
 	protected $isAutoIncrement = true;
 
     protected static $_instance = null;
-
-    /**
-     * @method Blubber get()
-     * @method Blubber getOneBy()
-     * @method Blubber load()
-     * @method Blubber loadOneBy()
-     * @method Blubber create()
-     * @method Blubber get()
-     */
-
-	public function __construct()
-	{
-		parent::__construct();
-	}
+  
 
     public function loadWithNumComments($condition, $order = null, $limit = null, $offset = null)
 	{
@@ -35,12 +29,14 @@ class BlubberTable extends MiniMVC_Table
         if ($order) $sql .= ' ORDER BY '.$order;
         if ($limit || $offset) $sql .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
 
+        echo $sql;
+        
 		$result = $this->db->query($sql);
 
         $entries = array();
         while($row = $result->fetch_assoc()) {
-            if (!isset($entries[$row['a__'.$this->primary]])) {
-                $entries[$row['a__'.$this->primary]] = $this->_buildEntry($row, 'a');
+            if (!isset($entries[$row['a__id']])) {
+                $entries[$row['a__id']] = $this->_buildEntry($row, 'a');
             }
         }
 		return $entries;
@@ -98,28 +94,29 @@ class BlubberTable extends MiniMVC_Table
 
         $start = microtime(true);
         while($row = $result->fetch_assoc()) {
-            if (!isset($entries[$row['a__id']])) {
+            //build entries;
+            if ($row['a__id'] && !isset($entries[$row['a__id']])) {
                 $entries[$row['a__id']] = $this->_buildEntry($row, 'a');
             }
-            if (!isset($comments[$row['c__id']])) {
+            if ($row['c__id'] && !isset($comments[$row['c__id']])) {
                 $comments[$row['c__id']] = $commentsTable->_buildEntry($row, 'c');
             }
-            if (!isset($user[$row['u__id']])) {
+            if ($row['u__id'] && !isset($user[$row['u__id']])) {
                 $user[$row['u__id']] = $userTable->_buildEntry($row, 'u');
             }
-            if (!isset($user[$row['cu__id']])) {
+            if ($row['cu__id'] && !isset($user[$row['cu__id']])) {
                 $user[$row['cu__id']] = $userTable->_buildEntry($row, 'cu');
             }
-            if ($entries[$row['a__id']]) {
-                if ($comments[$row['c__id']]) {
-                    $entries[$row['a__id']]->setComment($comments[$row['c__id']], $row['c__id'], false);
-                }
-                if ($user[$row['u__id']]) {
-                    $entries[$row['a__id']]->setUser($user[$row['u__id']], 0, false);
-                }
+
+            //build relations
+            if ($row['a__id'] && $row['c__id']) {
+                $entries[$row['a__id']]->setBlubbComments($comments[$row['c__id']], false);
             }
-            if ($comments[$row['c__id']] && $user[$row['cu__id']]) {
-                $comments[$row['c__id']]->setUser($user[$row['cu__id']], 0, false);
+            if ($row['a__id'] && $row['u__id']) {
+                $entries[$row['a__id']]->setBlubbUser($user[$row['u__id']], false);
+            }
+            if ($row['c__id'] && $row['cu__id']) {
+                $comments[$row['c__id']]->setBlubbUser($user[$row['cu__id']], false);
             }
         }
         echo '<br />TIME BUILD: '.number_format(microtime(true)-$start, 6, ',','').'s';
