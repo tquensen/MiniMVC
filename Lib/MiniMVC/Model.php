@@ -2,6 +2,7 @@
 class MiniMVC_Model
 {
 	protected $_properties = array();
+    protected $_databaseProperties = array();
 	protected $_table = null;
 	protected $_isNew = true;
 
@@ -15,12 +16,19 @@ class MiniMVC_Model
         }
 	}
 
-    public function isNew($newStatus = null)
+    public function isNew()
     {
-        if ($newStatus !== null) {
-            $this->_isNew = (bool) $newStatus;
-        }
-        return $this->_isNew;
+        return empty($this->_databaseProperties);
+    }
+
+    public function getDatabaseProperty($key)
+    {
+        return isset($this->_databaseProperties[$key]) ? $this->_databaseProperties[$key] : null;
+    }
+
+    public function setDatabaseProperty($key, $value)
+    {
+        $this->_databaseProperties[$key] = $value;
     }
 
     public function getForm($options = array())

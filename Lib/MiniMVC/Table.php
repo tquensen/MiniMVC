@@ -184,7 +184,13 @@ class MiniMVC_Table {
 
 		$result = $this->db->query($sql);
 
-		$entries = $this->_buildEntries($result, 'a');
+        $entries = array();
+        while($row = $result->fetch_assoc()) {
+            $key = 'a__'.$this->primary;
+            if (!isset($entries[$key])) {
+                $entries[$key] = $this->_buildEntry($result, 'a');
+            }
+        }
 		$this->set($entries);
 		return $entries;
 	}
@@ -209,7 +215,13 @@ class MiniMVC_Table {
 		
 		$result = $this->db->query($sql);
 
-		$entries = $this->_buildEntries($result, 'a');
+		$entries = array();
+        while($row = $result->fetch_assoc()) {
+            $key = 'a__'.$this->primary;
+            if (!isset($entries[$key])) {
+                $entries[$key] = $this->_buildEntry($result, 'a');
+            }
+        }
 		$this->set($entries);
 		return $entries;
 	}
@@ -267,28 +279,21 @@ class MiniMVC_Table {
 		return '';
 	}
 
-	protected function _buildEntries($result, $alias)
+	protected function _buildEntry($row, $alias)
 	{
-		if (!$result || !$result->num_rows)
-		{
-			return array();
-		}
-		$return = array();
-		while ($row = $result->fetch_assoc())
-		{
-            if ($alias) {
-                $row = $this->_filter($row, $alias);
-            }
-			$entry = new $this->entryClass($this);
-            $entry->isNew(false);
-			foreach ($row as $k=>$v)
-			{
-				$entry->$k = $this->unserialize($v);
-			}
-			$this->buildEntry($entry);
-			$this->set($entry);
-			$return[$entry->{$this->primary}] = $entry;
-		}
+        if ($alias) {
+            $row = $this->_filter($row, $alias);
+        }
+        $entry = new $this->entryClass($this);
+        foreach ($row as $k=>$v)
+        {
+            $v = $this->unserialize($v);
+            $entry->$k = $v;
+            $entry->setDatabaseProperty($k, $v);
+        }
+        $this->buildEntry($entry);
+        $this->set($entry);
+        return $entry;
 	}
 
     protected function _filter($row, $alias = '')
@@ -348,6 +353,7 @@ class MiniMVC_Table {
 				if (isset($entry->$column) && $entry->$column !== null)
 				{
 					$columnSql[] = ' '.$column.' = "'.$this->db->real_escape_string(($this->serialize($entry->$column))).'" ';
+                    $entry->setDatabaseProperty($column, $entry->$column);
 				}
 			}
 			$sql .= implode(', ', $columnSql).';';
@@ -357,18 +363,29 @@ class MiniMVC_Table {
 			{
 				$entry->{$this->primary} = $this->db->insert_id;
 			}
+
+            foreach ($this->columns as $column)
+			{
+                $entry->setDatabaseProperty($column, $entry->$column);
+            }
+
         } else {
-            $sql = 'UPDATE '.$this->table.' SET ';
+            $update = false;
 			$columnSql = '';
 			foreach ($this->columns as $column)
 			{
-				if (isset($entry->$column) && $entry->$column !== null)
+				if (isset($entry->$column) && $entry->$column !== $entry->getDatabaseProperty($column))
 				{
 					$columnSql[] = ' '.$column.' = "'.$this->db->real_escape_string(($this->serialize($entry->$column))).'" ';
+                    $entry->setDatabaseProperty($column, $entry->$column);
+                    $update = true;
 				}
 			}
-			$sql .= implode(', ', $columnSql).' WHERE '.$this->primary.' = "'.$this->db->real_escape_string($this->serialize($entry->{$this->primary})).'" ;';
-			$result = $this->db->query($sql);
+            if ($update) {
+                $sql = 'UPDATE '.$this->table.' SET ';
+                $sql .= implode(', ', $columnSql).' WHERE '.$this->primary.' = "'.$this->db->real_escape_string($this->serialize($entry->{$this->primary})).'" ;';
+                $result = $this->db->query($sql);
+            }
         }
 
 		$this->set($entry);
