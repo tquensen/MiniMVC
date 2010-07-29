@@ -14,4 +14,4 @@ spl_autoload_register(array('MiniMVC_Autoload', 'autoload'));
 
 MiniMVC_Registry::getInstance()->settings = new MiniMVC_Settings('dev', false);
 
-echo MiniMVC_Registry::getInstance()->task->dispatch($_SERVER['argv']);
+echo MiniMVC_Registry::getInstance()->task->dispatch($_SERVER['argv']) . "\n";

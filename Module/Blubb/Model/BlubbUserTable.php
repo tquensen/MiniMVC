@@ -1,23 +1,24 @@
 <?php
 
-class {name}Table extends MiniMVC_Table
+class BlubbUserTable extends MiniMVC_Table
 {
 
-	protected $table = '{table}';
-    protected $entryClass = '{name}';
+	protected $table = 'blubb_user';
+    protected $entryClass = 'BlubbUser';
 
-	protected $columns = array('id');
+	protected $columns = array('id', 'username');
 	protected $primary = 'id';
 	protected $isAutoIncrement = true;
 
     protected static $_instance = null;
 
     /**
-     * @method {name} getOne()
-     * @method {name} getOneBy()
-     * @method {name} loadOne()
-     * @method {name} loadOneBy()
-     * @method {name} create()
+     * @method BlubbUser get()
+     * @method BlubbUser getOneBy()
+     * @method BlubbUser load()
+     * @method BlubbUser loadOneBy()
+     * @method BlubbUser create()
+     * @method BlubbUser get()
      */
 
 	public function __construct()
@@ -26,8 +27,8 @@ class {name}Table extends MiniMVC_Table
 	}
 
     /**
-     * @param {name} $entry
-     * @return {name}
+     * @param BlubbUser $entry
+     * @return BlubbUser
      */
 	protected function buildEntry($entry)
 	{
@@ -55,13 +56,15 @@ class {name}Table extends MiniMVC_Table
 
     /**
      *
-     * @return {name}Table
+     * @return BlubbUserTable
      */
     public static function getInstance()
     {
         if (!isset(self::$_instance)) {
-            self::$_instance = new {name}Table;
+            self::$_instance = new BlubbUserTable;
         }
         return self::$_instance;
     }
+
+    
 }

@@ -3,6 +3,7 @@ class MiniMVC_Model
 {
 	protected $_properties = array();
     protected $_databaseProperties = array();
+    protected $_relations = array();
 	protected $_table = null;
 	protected $_isNew = true;
 
@@ -12,7 +13,7 @@ class MiniMVC_Model
             $this->_table = $table;
         } else {
             $tableName = get_class($this).'Table';
-            $this->_table = new $tableName();
+            $this->_table = call_user_func($tableName . '::getInstance');
         }
 	}
 
@@ -31,11 +32,10 @@ class MiniMVC_Model
         $this->_databaseProperties[$key] = $value;
     }
 
-    public function getForm($options = array())
-	{
-		$formClass = get_class($this).'Form';
-		return new $formClass($this, $options);
-	}
+    public function clearDatabaseProperties()
+    {
+        $this->_databaseProperties = array();
+    }
 
     public function getTable()
 	{
@@ -64,6 +64,35 @@ class MiniMVC_Model
         }
 	}
 
+    public function __call($name, $arguments)
+    {
+        if (substr($name, 0, 3) == 'get')
+        {
+            $relation = strtolower(substr($name, 3));
+            $identifier = isset($arguments[0]) ? $arguments[0] : 0;
+            return (isset($this->_relations[$relation][$identifier])) ? $this->_relations[$relation][$identifier] : null;
+        }
+        if (substr($name, 0, 3) == 'set')
+        {
+            $relation = strtolower(substr($name, 3));
+
+            $identifier = isset($arguments[1]) ? $arguments[1] : 0;
+            $update = isset($arguments[2]) ? $arguments[2] : true;
+            if (isset($arguments[0]) && $arguments[0]) {
+                if ($update || !isset($this->_relations[$relation][$identifier])) {
+                    $this->_relations[$relation][$identifier] = $arguments[0];
+                    return true;
+                }
+            } else {
+                if ($update) {
+                    unset($this->_relations[$relation][$identifier]);
+                    return true;
+                }
+            }
+        }
+        return null;
+    }
+
 	public function save()
 	{
 		return ($this->_table && method_exists($this->_table, 'save')) ? $this->_table->save($this) : false;
@@ -73,4 +102,59 @@ class MiniMVC_Model
 	{
 		return ($this->_table && method_exists($this->_table, 'delete')) ? $this->_table->delete($this) : false;
 	}
+
+    public function __toString()
+    {
+        return get_class($this).'<pre>'.print_r($this->_properties, true).'</pre>';
+    }
+
+    public function preSave()
+    {
+
+    }
+
+    public function preInsert()
+    {
+
+    }
+
+    public function preUpdate()
+    {
+
+    }
+
+    public function preDelete()
+    {
+
+    }
+
+    public function postSave()
+    {
+
+    }
+
+    public function postInsert()
+    {
+
+    }
+
+    public function postUpdate()
+    {
+
+    }
+
+    public function postDelete()
+    {
+        
+    }
+
+    public function postCreate()
+    {
+
+    }
+
+    public function postLoad()
+    {
+
+    }
 }

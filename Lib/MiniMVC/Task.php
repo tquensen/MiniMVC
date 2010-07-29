@@ -40,7 +40,7 @@ class MiniMVC_Task {
             $this->registry->db->init();
             return $this->registry->dispatcher->callTask($params['task'], $params);
         } catch (Exception $e) {
-            return 'error: '.$e->getmessage();
+            return 'error: '.$e->getMessage();
         }
     }
 

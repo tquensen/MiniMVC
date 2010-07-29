@@ -18,19 +18,19 @@ class MiniMVC_Table {
 	protected $columns = array('id');
 	protected $primary = 'id';
 	protected $isAutoIncrement = true;
-	
+
 
 	public function __construct()
 	{
-		$this->db = DB::get();
 		$this->registry = MiniMVC_Registry::getInstance();
+		$this->db = $this->registry->db->get();
 	}
 
     /**
      * @param mixed $id the identifier of the entry to get
      * @return Mysql_Model the entry
      */
-	public function get($id)
+	public function getOne($id)
 	{
 		return (isset($this->entries[$id])) ? $this->entries[$id] : false;
 	}
@@ -44,7 +44,7 @@ class MiniMVC_Table {
      */
 	public function getOneBy($field, $value, $order = null, $offset = 0)
 	{
-		return array_shift($this->getBy($field, $value, $order, 1, $offset));
+		return array_shift($this->get($field, $value, $order, 1, $offset));
 	}
 
     /**
@@ -55,16 +55,20 @@ class MiniMVC_Table {
      * @param int $offset
      * @return array
      */
-	public function getBy($field, $value, $order = null, $limit = null, $offset = null)
+	public function get($field = null, $value = null, $order = null, $limit = null, $offset = null)
 	{
 		$return = array();
-		foreach ($this->entries as $entry)
-		{
-			if (isset($entry->$field) && $entry->$field == $value)
-			{
-				$return[$entry->{$this->primary}] = $entry;
-			}
-		}
+        if ($field) {
+            foreach ($this->entries as $entry)
+            {
+                if (isset($entry->$field) && $entry->$field == $value)
+                {
+                    $return[$entry->{$this->primary}] = $entry;
+                }
+            }
+        } else {
+            $return = $this->entries;
+        }
 		if ($order !== null && $order !== false)
 		{
 			$order = explode(' ', $order, 2);
@@ -118,31 +122,12 @@ class MiniMVC_Table {
 
     /**
      *
-     * @param array $entries
-     * @return bool
-     */
-	public function setAll($entries)
-	{
-		if (!is_array($entries))
-		{
-			return false;
-		}
-		foreach ($entries as $entry)
-		{
-			$this->set($entry);
-		}
-		return true;
-	}
-
-    /**
-     *
      * @param mixed $id the identifier
      * @return Mysql_Model
      */
-	public function load($id)
+	public function loadOne($id)
 	{
-		$entries = $this->loadOneBy($this->primary, $id);
-		return (isset($entries[$id])) ? $entries[$id] : false;
+		return $this->loadOneBy($this->primary . ' = "'. $id . '"');
 	}
 
     /**
@@ -152,47 +137,49 @@ class MiniMVC_Table {
      * @param int $offset
      * @return Mysql_Model
      */
-	public function loadOneBy($field, $value, $order = null, $offset = 0)
+	public function loadOneBy($condition = null, $order = null, $offset = 0)
 	{
-		return array_shift($this->loadBy($field, $value, $order, 1, $offset));
+		return array_shift($this->load($condition, $order, 1, $offset));
 	}
 
     /**
-     * @param string $field the column to search in
-     * @param mixed $value the value of the column
-     * @param string $order
+     * @param string $condition the where condition("id = 1", "a.username LIKE 'foo%'")
+     * @param string $order an order by clause (id ASC, foo DESC)
      * @param int $limit
      * @param int $offset
      * @return array
      */
-	public function loadBy($field, $value, $order = null, $limit = null, $offset = null)
+	public function load($condition = null, $order = null, $limit = null, $offset = null)
 	{
-		if (!$this->primary)
-		{
-			return array();
-		}
-		if (!in_array($field, $this->columns))
-		{
-			return array();
-		}
-
-        $sql  = $this->_select('a');
-        $sql .= $this->_from('a');
-        $sql .= $this->_where('a.'.$field, $this->serialize($value));   
-		$sql .= $this->_limit($limit, $offset);
-		$sql .= $this->_order($order);
+        $sql  = $this->_select();
+        $sql .= ' FROM '.$this->table;
+        if ($condition) $sql .= ' WHERE '.$condition;
+        if ($order) $sql .= ' ORDER BY '.$order;
+        if ($limit || $offset) $sql .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
 
 		$result = $this->db->query($sql);
 
         $entries = array();
         while($row = $result->fetch_assoc()) {
-            $key = 'a__'.$this->primary;
-            if (!isset($entries[$key])) {
-                $entries[$key] = $this->_buildEntry($result, 'a');
+            if (!isset($entries[$row[$this->primary]])) {
+                $entries[$row[$this->primary]] = $this->_buildEntry($row);
             }
         }
-		$this->set($entries);
 		return $entries;
+	}
+
+    /**
+     * @param string $condition the where condition("id = 1", "a.username LIKE 'foo%'")
+     * @return int num results found
+     */
+	public function count($condition = null, $value = null)
+	{
+        $sql  = 'SELECT COUNT(*) num';
+        $sql .= ' FROM '.$this->table;
+        if ($condition) $sql .= ' WHERE '.$condition;
+		$result = $this->db->query($sql);
+        $row = $result->fetch_assoc();
+		return $row['num'];
 	}
 
     /**
@@ -202,33 +189,18 @@ class MiniMVC_Table {
      */
 	public function loadAll($order = null)
 	{
-		if (!$this->primary)
-		{
-			return array();
-		}
-
-		$entries = array();
-
-        $sql  = $this->_select('a');
-        $sql .= $this->_from('a');
-        $sql .= $this->_order($order);
-		
-		$result = $this->db->query($sql);
-
-		$entries = array();
-        while($row = $result->fetch_assoc()) {
-            $key = 'a__'.$this->primary;
-            if (!isset($entries[$key])) {
-                $entries[$key] = $this->_buildEntry($result, 'a');
-            }
-        }
-		$this->set($entries);
-		return $entries;
+		return $this->load(null, null, $order);
 	}
 
-    public function _select($alias, $first = false)
+    
+
+    public function _select($alias = null, $first = true)
     {
-        $sql = $first ? 'SELECT ' : ', ';
+        $sql = $first ? ' SELECT ' : ', ';
+        if (!$alias) {
+            $sql .= implode(', ', $this->columns).' ';
+            return $sql;
+        }
         $comma = false;
         foreach ($this->columns as $column) {
             if ($comma) {
@@ -240,58 +212,26 @@ class MiniMVC_Table {
         }
         return $sql;
     }
+    
 
-    protected function _from($alias)
-    {
-        return ' FROM '.$this->table.' '.$alias.' ';
-    }
-
-    public function _join($alias, $foreignAlias, $identifier, $foreignIdentifier, $type = 'LEFT')
-    {
-        return ' '.$type.' JOIN '.$this->table.' '.$alias.' ON '.$foreignAlias.'.'.$foreignIdentifier. ' = '.$alias.'.'.$identifier.' ';
-    }
-
-    protected function _where($field, $value, $operator = 'WHERE', $condition = '=')
-    {
-        return ' '.$operator.' '.$field.' '.$condition.' "'.$this->db->real_escape_string($value).'" ';
-    }
-
-	protected function _order($order = null)
-	{
-		if ($order !== null && $order !== false)
-		{
-			$order = explode(' ', $order, 2);
-			if (!isset($order[1]) || !in_array(strtolower(trim($order[1])), array('asc', 'desc')))
-			{
-				return false;
-			}
-			return ' ORDER BY '.$order[0].' '.strtolower(trim($order[1])).' ';
-		}
-		return '';
-	}
-
-	protected function _limit($limit = null, $offset = null)
-	{
-		if ($limit !== null || $offset !== null)
-		{
-			return ' LIMIT '.intval($offset).', '.intval($limit).' ';
-		}
-		return '';
-	}
-
-	protected function _buildEntry($row, $alias)
+	public function _buildEntry($row, $alias)
 	{
         if ($alias) {
             $row = $this->_filter($row, $alias);
+        }
+        if (empty($row) || !isset($row[$this->primary])) {
+            return null;
         }
         $entry = new $this->entryClass($this);
         foreach ($row as $k=>$v)
         {
             $v = $this->unserialize($v);
             $entry->$k = $v;
-            $entry->setDatabaseProperty($k, $v);
+            if (in_array($k, $this->columns)) {
+                $entry->setDatabaseProperty($k, $v);
+            }
         }
-        $this->buildEntry($entry);
+        $entry->postLoad();
         $this->set($entry);
         return $entry;
 	}
@@ -304,23 +244,13 @@ class MiniMVC_Table {
         $prefix = $alias.'__';
         $length = strlen($prefix);
         foreach ($row as $k=>$v) {
-            if (substr($v, 0, $length) == $prefix) {
-               $row[$k] = substr($v, $lenght);
-            } else {
-                unset($row[$k]);
+            if (substr($k, 0, $length) == $prefix) {
+               $row[substr($k, $length)] = $v;
             }
+            unset($row[$k]);
         }
         return $row;
     }
-
-	protected function buildEntry($entry)
-	{
-		/*
-		 $entry->additionalData = $entry->id.'Something';
-		 */
-		return $entry;
-	}
-
 
 
 	public function create($data = array())
@@ -338,14 +268,20 @@ class MiniMVC_Table {
             $entry->$k = $v;
         }
 
-        $this->buildEntry($entry);
+        $entry->postCreate();
 		$this->set($entry);
 		return $entry;
 	}
 
 	public function save($entry)
 	{
+        if ($entry->preSave() === false) {
+            return false;
+        }
         if ($entry->isNew()) {
+            if ($entry->preInsert() === false) {
+                return false;
+            }
             $sql = 'INSERT INTO '.$this->table.' SET ';
 			$columnSql = '';
 			foreach ($this->columns as $column)
@@ -369,6 +305,10 @@ class MiniMVC_Table {
                 $entry->setDatabaseProperty($column, $entry->$column);
             }
 
+            if ($entry->postInsert() === false) {
+                return false;
+            }
+
         } else {
             $update = false;
 			$columnSql = '';
@@ -382,13 +322,22 @@ class MiniMVC_Table {
 				}
 			}
             if ($update) {
+                if ($entry->preUpdate() === false) {
+                    return false;
+                }
                 $sql = 'UPDATE '.$this->table.' SET ';
                 $sql .= implode(', ', $columnSql).' WHERE '.$this->primary.' = "'.$this->db->real_escape_string($this->serialize($entry->{$this->primary})).'" ;';
                 $result = $this->db->query($sql);
+                if ($entry->postUpdate() === false) {
+                    return false;
+                }
             }
         }
 
 		$this->set($entry);
+        if ($entry->postSave() === false) {
+            return false;
+        }
 		return (bool) $result;
 	}
 
@@ -401,6 +350,10 @@ class MiniMVC_Table {
 				return false;
 			}
 
+            if ($entry->preDelete() === false) {
+                return false;
+            }
+
 			$sql = 'DELETE
              FROM   '.$this->table.'
              WHERE  '.$this->primary.' = "'.$this->db->real_escape_string($entry->{$this->primary}).'"
@@ -412,6 +365,11 @@ class MiniMVC_Table {
 			{
 				unset($this->entries[$entry->{$this->primary}]);
 			}
+            $entry->clearDatabaseProperties();
+
+            if ($entry->postDelete() === false) {
+                return false;
+            }
 		}
 		else
 		{
@@ -487,13 +445,27 @@ class MiniMVC_Table {
 
     }
 
-    /**
-     *
-     * @return MiniMVC_Table
-     */
-    public static function get()
+    protected function serialize($data)
     {
-        return new self;
+        return $data;
+    }
+
+    protected function unserialize($data)
+    {
+        return $data;
+    }
+
+    /**
+     * @param MiniMVC_Model $record The record to use for default values and to save the results in
+     * @param array $options form options
+     * @return MiniMVC_Form a form class instance
+     */
+    public function getForm($record = null, $options = array())
+    {
+        if (!$record) {
+            $record = new $this->entryClass($this);
+        }
+        return new MiniMVC_Form($record, $options);
     }
     
 }

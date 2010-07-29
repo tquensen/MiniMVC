@@ -24,7 +24,15 @@ class MiniMVC_Mysqli
             throw new Exception('No database config found for connection "'.$connection.'"!');
         }
 
-        $this->connections[$connection] = @new mysqli($dbSettings[$connection]['host'], $dbSettings[$connection]['username'], $dbSettings[$connection]['password'], $dbSettings[$connection]['database']);
+        $this->connections[$connection] = @new mysqli(
+                $dbSettings[$connection]['host'],
+                $dbSettings[$connection]['username'],
+                $dbSettings[$connection]['password'],
+                $dbSettings[$connection]['database'],
+                isset($dbSettings[$connection]['port']) ? $dbSettings[$connection]['port'] : null,
+                isset($dbSettings[$connection]['socket']) ? $dbSettings[$connection]['socket'] : null
+        );
+        
         if(mysqli_connect_errno())
         {
             throw new Exception('Could not connect to database: ' .  mysqli_connect_error());

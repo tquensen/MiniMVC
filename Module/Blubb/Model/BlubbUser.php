@@ -1,5 +1,5 @@
 <?php
-class {name} extends MiniMVC_Model
+class BlubbUser extends MiniMVC_Model
 {
 
 	public function __construct($table = null)
@@ -7,7 +7,7 @@ class {name} extends MiniMVC_Model
         if ($table) {
             $this->_table = $table;
         } else {
-            $this->_table = {name}Table::getInstance();
+            $this->_table = new BlubbUserTable();
         }
 	}
 
