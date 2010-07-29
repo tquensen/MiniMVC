@@ -70,6 +70,9 @@ class MiniMVC_Model
         {
             $relation = strtolower(substr($name, 3));
             $identifier = isset($arguments[0]) ? $arguments[0] : 0;
+            if ($identifier === true) {
+                return (isset($this->_relations[$relation])) ? $this->_relations[$relation] : array();
+            }
             return (isset($this->_relations[$relation][$identifier])) ? $this->_relations[$relation][$identifier] : null;
         }
         if (substr($name, 0, 3) == 'set')

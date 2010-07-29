@@ -31,7 +31,7 @@ class BlubberTable extends MiniMVC_Table
         $sql  = $this->_select('a').', count(b.id) a__comments_count';
         $sql .= ' FROM '.$this->table.' a LEFT JOIN blubb_comments b ON a.id = b.blubb_id';
         if ($condition) $sql .= ' WHERE '.$condition;
-        $sql .= ' GROUB BY a.id ';
+        $sql .= ' GROUP BY a.id ';
         if ($order) $sql .= ' ORDER BY '.$order;
         if ($limit || $offset) $sql .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
 
@@ -39,8 +39,8 @@ class BlubberTable extends MiniMVC_Table
 
         $entries = array();
         while($row = $result->fetch_assoc()) {
-            if (!isset($entries[$row[$this->primary]])) {
-                $entries[$row[$this->primary]] = $this->_buildEntry($row, 'a');
+            if (!isset($entries[$row['a__'.$this->primary]])) {
+                $entries[$row['a__'.$this->primary]] = $this->_buildEntry($row, 'a');
             }
         }
 		return $entries;
@@ -57,7 +57,7 @@ class BlubberTable extends MiniMVC_Table
 	{
         $ids = null;
         if ($limit || $offset) {
-            $preSelect = 'SELECT id FROM blubber a';
+            $preSelect = 'SELECT id FROM blubber a ';
             if ($condition) $preSelect .= ' WHERE '.$condition;
             if ($order) $preSelect .= ' ORDER BY '.$order;
             if ($limit || $offset) $preSelect .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
@@ -98,9 +98,8 @@ class BlubberTable extends MiniMVC_Table
 
         $start = microtime(true);
         while($row = $result->fetch_assoc()) {
-            $key = 'a__'.$this->primary;
-            if (!isset($entries[$row[$key]])) {
-                $entries[$row[$key]] = $this->_buildEntry($row, 'a');
+            if (!isset($entries[$row['a__id']])) {
+                $entries[$row['a__id']] = $this->_buildEntry($row, 'a');
             }
             if (!isset($comments[$row['c__id']])) {
                 $comments[$row['c__id']] = $commentsTable->_buildEntry($row, 'c');
@@ -109,14 +108,14 @@ class BlubberTable extends MiniMVC_Table
                 $user[$row['u__id']] = $userTable->_buildEntry($row, 'u');
             }
             if (!isset($user[$row['cu__id']])) {
-                $user[$row['cu__id']] = $userTable->_buildEntry($row, 'cu_user');
+                $user[$row['cu__id']] = $userTable->_buildEntry($row, 'cu');
             }
-            if ($entries[$row[$key]]) {
+            if ($entries[$row['a__id']]) {
                 if ($comments[$row['c__id']]) {
-                    $entries[$row[$key]]->setComment($comments[$row['c__id']], $row['c__id'], false);
+                    $entries[$row['a__id']]->setComment($comments[$row['c__id']], $row['c__id'], false);
                 }
                 if ($user[$row['u__id']]) {
-                    $entries[$row[$key]]->setUser($user[$row['u__id']], 0, false);
+                    $entries[$row['a__id']]->setUser($user[$row['u__id']], 0, false);
                 }
             }
             if ($comments[$row['c__id']] && $user[$row['cu__id']]) {
