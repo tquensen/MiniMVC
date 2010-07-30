@@ -6,7 +6,7 @@ class Blubb_Default_Controller extends MiniMVC_Controller
         $commentslist = BlubbCommentsTable::getInstance()->loadWithUser(null, 'u.username DESC');
         foreach ($commentslist as $comment) {
             echo '<br />Comment '.$comment->id.' ('.$comment->message.')<br />';
-            if ($user = $comment->getBlubbUser()) {
+            if ($user = $comment->getUser()) {
                 echo ' - User '.$user->id.' ('.$user->username.')<br />';
             } else {
                 echo ' - Kein User:<br />';
@@ -24,7 +24,7 @@ class Blubb_Default_Controller extends MiniMVC_Controller
             foreach ($blubber as $blubb) {
                 echo ' &nbsp; - '.$blubb->id.' ('.$blubb->name.')<br />';
             }
-            $comments = $user->getBlubbComments(true);
+            $comments = $user->getComments(true);
             echo ' - Comments:<br />';
             foreach ($comments as $comment) {
                 echo ' &nbsp; - '.$comment->id.' ('.$comment->message.')<br />';

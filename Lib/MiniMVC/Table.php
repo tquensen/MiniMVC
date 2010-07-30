@@ -12,6 +12,7 @@ class MiniMVC_Table {
     protected $registry = null;
 
 	protected $entries = array();
+    protected $relations = array();
 	protected $table = false;
     protected $entryClass = 'Mysql_Model';
 
@@ -39,6 +40,21 @@ class MiniMVC_Table {
     public function getIdentifier()
     {
         return $this->identifier;
+    }
+
+    public function getColumns()
+    {
+        return $this->columns;
+    }
+
+    public function getRelations()
+    {
+        return $this->relations;
+    }
+
+    public function getRelation($relation)
+    {
+        return isset($this->relations[$relation]) ? $this->relations[$relation] : null;
     }
 
     /**
@@ -309,7 +325,7 @@ class MiniMVC_Table {
             }
             foreach ($relations as $relation) {
                 if ($row[$aliasedIdentifiers[$relation[0]]] && $row[$aliasedIdentifiers[$relation[1]]]) {
-                    $entries[$relation[0]][$row[$aliasedIdentifiers[$relation[0]]]]->{'set'.$entryClasses[$relation[1]]}($entries[$relation[1]][$row[$aliasedIdentifiers[$relation[1]]]], false);
+                    $entries[$relation[0]][$row[$aliasedIdentifiers[$relation[0]]]]->{'set'.(isset($relation[2]) ? $relation[2] : $entryClasses[$relation[1]])}($entries[$relation[1]][$row[$aliasedIdentifiers[$relation[1]]]], false);
                 }
             }
         }

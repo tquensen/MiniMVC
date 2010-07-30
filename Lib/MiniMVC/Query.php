@@ -35,6 +35,9 @@ class MiniMVC_Query
      */
     public function from($table, $alias = null)
     {
+        if (is_string($table)) {
+            $table = call_user_func($table.'Table'.'::getInstance');
+        }
         $this->from = $alias;
         $this->tables[$alias] = $table;
         
@@ -51,7 +54,7 @@ class MiniMVC_Query
      * @param bool $reverse add reverse relations
      * @return MiniMVC_Query
      */
-    public function join($table, $alias, $related, $on, $type = 'LEFT', $reverse = false)
+    public function joinCustom($table, $alias, $related, $on, $type = 'LEFT', $reverse = false)
     {
         $this->tables[$alias] = $table;
         $this->join[$alias] = array($on, $type);
@@ -59,6 +62,28 @@ class MiniMVC_Query
         if ($reverse) {
             $this->relations[] = array($alias, $related);
         }
+
+        return $this;
+    }
+
+    /**
+     *
+     * @param MiniMVC_Table $table
+     * @param string $alias
+     * @param string $related related table alias
+     * @param string $on on condition
+     * @param string $type join type
+     * @param bool $reverse add reverse relations
+     * @return MiniMVC_Query
+     */
+    public function join($table, $relation, $alias)
+    {
+        if (!isset($this->tables[$table]) || !$data = $this->tables[$table]->getRelation($relation)) {
+            return $this;
+        }
+        $this->tables[$alias] = call_user_func($data[0].'Table'.'::getInstance');
+        $this->join[$alias] = array($table.'.'.$data[1].' '.(isset($data[3]) ? $data[3] : '=').' '.$alias.'.'.$data[2], isset($data[4]) ? $data[4] : 'LEFT');
+        $this->relations[] = array($table, $alias, $relation);
 
         return $this;
     }

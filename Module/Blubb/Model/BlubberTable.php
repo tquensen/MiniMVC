@@ -14,6 +14,7 @@ class BlubberTable extends MiniMVC_Table
     protected $entryClass = 'Blubber';
 
 	protected $columns = array('id', 'name', 'slug', 'user_id');
+    protected $relations = array('user' => array('BlubbUser', 'user_id', 'id'), 'comments' => array('BlubbComments', 'id', 'blubb_id'));
 	protected $primary = 'id';
 	protected $isAutoIncrement = true;
 
@@ -24,7 +25,7 @@ class BlubberTable extends MiniMVC_Table
 	{
         return $this->query('a')
                 ->select('count(b.id) a__comments_count')
-                ->join(BlubbCommentsTable::getInstance(), 'b', 'a', 'a.id = b.blubb_id')
+                ->join('a', 'comments', 'b')
                 ->where($condition)
                 ->orderBy($order)
                 ->groupBy('a.id')
@@ -43,9 +44,9 @@ class BlubberTable extends MiniMVC_Table
 	{
         return $this->query('a')
                 ->select('u')->select('c')->select('cu')
-                ->join(BlubbUserTable::getInstance(), 'u', 'a', 'a.user_id = u.id')
-                ->join(BlubbCommentsTable::getInstance(), 'c', 'a', 'a.id = c.blubb_id')
-                ->join(BlubbUserTable::getInstance(), 'cu', 'c', 'c.user_id = cu.id')
+                ->join('a', 'user', 'u')
+                ->join('a', 'comments', 'c')
+                ->join('c', 'user', 'cu')
                 ->where($condition)
                 ->orderBy($order)
                 ->limit($limit, $offset, true)
