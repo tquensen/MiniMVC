@@ -176,8 +176,7 @@ class MiniMVC_Table {
      */
 	public function load($condition = null, $order = null, $limit = null, $offset = null)
 	{
-        $sql  = $this->_select();
-        $sql .= ' FROM '.$this->table;
+        $sql  = $this->_select().$this->_from();
         if ($condition) $sql .= ' WHERE '.$condition;
         if ($order) $sql .= ' ORDER BY '.$order;
         if ($limit || $offset) $sql .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
@@ -188,18 +187,34 @@ class MiniMVC_Table {
 	}
 
     /**
-     * @param string $condition the where condition("id = 1", "a.username LIKE 'foo%'")
+     * @param string $condition the where condition("id = 1", "username LIKE 'foo%'")
      * @return int num results found
      */
 	public function count($condition = null, $value = null)
 	{
-        $sql  = 'SELECT COUNT(*) num';
-        $sql .= ' FROM '.$this->table;
+        $sql  = 'SELECT COUNT(*) num'.$this->_from();
         if ($condition) $sql .= ' WHERE '.$condition;
 		$result = $this->db->query($sql);
         $row = $result->fetch_assoc();
 		return $row['num'];
 	}
+
+    public function _getIdentifiers($alias = null, $condition = null, $order = null, $limit = null, $offset = null)
+    {
+        $sql = 'SELECT '.($alias ? $alias.'.' : '').$this->identifier.' FROM '.$this->table.' '.$alias.' ';
+        if ($condition) $sql .= ' WHERE '.$condition;
+        if ($order) $sql .= ' ORDER BY '.$order;
+        if ($limit || $offset) $sql .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
+        $ids = array();
+
+        $result = $this->db->query($sql);
+
+        $ids = array();
+        while($row = $result->fetch_assoc()) {
+            $ids[] = $row['id'];
+        }
+        return $ids;
+    }
 
     /**
      *
@@ -213,9 +228,10 @@ class MiniMVC_Table {
 
     
 
-    public function _select($alias = null, $first = true)
+    public function _select($alias = null, $prefixComma = false)
     {
-        $sql = $first ? ' SELECT ' : ', ';
+        $sql = $prefixComma ? ' , ' : ' SELECT ';
+
         if (!$alias) {
             $sql .= implode(', ', $this->columns).' ';
             return $sql;
@@ -231,8 +247,26 @@ class MiniMVC_Table {
         }
         return $sql;
     }
+
+    public function _join($alias, $on = null, $type = 'LEFT')
+    {
+        return ' '.$type.' JOIN '.$this->table.' '.$alias.' '.($on ? 'ON '.$on : '').' ';
+    }
+
+    public function _from($alias = null)
+    {
+        return ' FROM '.$this->table.' '.$alias.' ';
+    }
+
+    public function _in($key, $values)
+    {
+        if (empty($values) || !is_array($values)) {
+            return  ' ';
+        }
+        return ' '.$key.' IN ("'.implode('","',$this->db->real_escape_string($ids)).'") ';
+    }
     
-    public function buildAll($result, $aliases = null, $relations = array())
+    public function buildAll($result, $aliases = null, $relations = array(), $returnAll = false)
     {
         $single = false;
         $entries = array();
@@ -271,7 +305,7 @@ class MiniMVC_Table {
                 }
             }
         }
-        return reset($entries);
+        return $returnAll ? $entries : reset($entries);
     }
 
 	public function _buildEntry($row, $alias = null)

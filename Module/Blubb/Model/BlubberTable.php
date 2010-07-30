@@ -22,24 +22,15 @@ class BlubberTable extends MiniMVC_Table
 
     public function loadWithNumComments($condition, $order = null, $limit = null, $offset = null)
 	{
+        $c = BlubbCommentsTable::getInstance();
         $sql  = $this->_select('a').', count(b.id) a__comments_count';
-        $sql .= ' FROM '.$this->table.' a LEFT JOIN blubb_comments b ON a.id = b.blubb_id';
+        $sql .= $this->_from('a').$c->_join('b', 'a.id = b.blubb_id');
         if ($condition) $sql .= ' WHERE '.$condition;
         $sql .= ' GROUP BY a.id ';
         if ($order) $sql .= ' ORDER BY '.$order;
         if ($limit || $offset) $sql .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
 
-        echo $sql;
-        
-		$result = $this->db->query($sql);
-
-        $entries = array();
-        while($row = $result->fetch_assoc()) {
-            if (!isset($entries[$row['a__id']])) {
-                $entries[$row['a__id']] = $this->_buildEntry($row, 'a');
-            }
-        }
-		return $entries;
+        return  $this->buildAll($this->db->query($sql), 'a');
 	}
 
     /**
@@ -51,76 +42,22 @@ class BlubberTable extends MiniMVC_Table
      */
 	public function loadWithComments($condition, $order = null, $limit = null, $offset = null)
 	{
-        $ids = null;
-        if ($limit || $offset) {
-            $preSelect = 'SELECT id FROM blubber a ';
-            if ($condition) $preSelect .= ' WHERE '.$condition;
-            if ($order) $preSelect .= ' ORDER BY '.$order;
-            if ($limit || $offset) $preSelect .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
-            $ids = array();
-
-            $preResult = $this->db->query($preSelect);
-            while($preRow = $preResult->fetch_assoc()) {
-                $ids[] = $preRow['id'];
-            }
-        }
-
         $userTable = BlubbUserTable::getInstance();
         $commentsTable = BlubbCommentsTable::getInstance();
 
-		$sql  = $this->_select('a').$userTable->_select('u', false).$commentsTable->_select('c', false).$userTable->_select('cu', false);
-        $sql .= ' FROM '.$this->table.' a LEFT JOIN blubb_user u ON a.user_id = u.id LEFT JOIN blubb_comments c ON a.id = c.blubb_id LEFT JOIN blubb_user cu ON c.user_id = cu.id';
-        if ($condition) {
-            $sql .= ' WHERE '.$condition.' ';
-            if ($ids) {
-                $sql .= ' AND a.id IN ('.implode(',',$ids).') ';
-            }
-        } elseif ($ids) {
-            $sql .= ' WHERE a.id IN ('.implode(',',$ids).') ';
+		$sql  = $this->_select('a').$userTable->_select('u', true).$commentsTable->_select('c', true).$userTable->_select('cu', true);
+        $sql .= $this->_from('a').$userTable->_join('u', 'a.user_id = u.id').$commentsTable->_join('c', 'a.id = c.blubb_id').$userTable->_join('cu', 'c.user_id = cu.id');
+        if ($condition)  $sql .= ' WHERE '.$condition.' ';
+        if ($limit || $offset) {
+            $sql .= ($condition ? ' AND ' : ' WHERE ') . $this->_in('a.id', $this->_getIdentifiers('a', $condition, $order, $limit, $offset));
         }
         if ($order) $sql .= ' ORDER BY '.$order;
 
-		$result = $this->db->query($sql);
-
-        echo $sql."\n<br />\n";
-
-        $start = microtime(true);
-		$result = $this->db->query($sql);
-        echo '<br />TIME QUERY: '.number_format(microtime(true)-$start, 6, ',','').'s';
-
-        $entries = array();
-        $comments = array();
-        $user = array();
-
-        $start = microtime(true);
-        while($row = $result->fetch_assoc()) {
-            //build entries;
-            if ($row['a__id'] && !isset($entries[$row['a__id']])) {
-                $entries[$row['a__id']] = $this->_buildEntry($row, 'a');
-            }
-            if ($row['c__id'] && !isset($comments[$row['c__id']])) {
-                $comments[$row['c__id']] = $commentsTable->_buildEntry($row, 'c');
-            }
-            if ($row['u__id'] && !isset($user[$row['u__id']])) {
-                $user[$row['u__id']] = $userTable->_buildEntry($row, 'u');
-            }
-            if ($row['cu__id'] && !isset($user[$row['cu__id']])) {
-                $user[$row['cu__id']] = $userTable->_buildEntry($row, 'cu');
-            }
-
-            //build relations
-            if ($row['a__id'] && $row['c__id']) {
-                $entries[$row['a__id']]->setBlubbComments($comments[$row['c__id']], false);
-            }
-            if ($row['a__id'] && $row['u__id']) {
-                $entries[$row['a__id']]->setBlubbUser($user[$row['u__id']], false);
-            }
-            if ($row['c__id'] && $row['cu__id']) {
-                $comments[$row['c__id']]->setBlubbUser($user[$row['cu__id']], false);
-            }
-        }
-        echo '<br />TIME BUILD: '.number_format(microtime(true)-$start, 6, ',','').'s';
-		return $entries;
+        return $this->buildAll(
+                $this->db->query($sql),
+                array('a' => $this, 'u' => $userTable, 'c' => $commentsTable, 'cu' => $userTable),
+                array(array('a', 'c'), array('a', 'u'), array('c', 'cu'))
+        );
 	}
 
     /**

@@ -4,10 +4,10 @@ $MiniMVC_db = array();
 $MiniMVC_db['default'] = array(
 	'host' => 'localhost',
 	'username' => 'root',
-	'password' => 'peniskopf',
+	'password' => 'root',
 	'database' => 'minimvc_mysqli',
-    //'port' => 8889,
-    //'socket' => '/Applications/MAMP/tmp/mysql/mysql.sock'
+    'port' => 8889,
+    'socket' => '/Applications/MAMP/tmp/mysql/mysql.sock'
 );
 
 

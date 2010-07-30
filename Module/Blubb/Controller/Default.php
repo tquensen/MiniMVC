@@ -50,7 +50,7 @@ class Blubb_Default_Controller extends MiniMVC_Controller
 
         echo '<br /><br />------------------------------------------------<br /><br />';
         $start = microtime(true);
-        $entries = BlubberTable::getInstance()->loadWithComments('a.id < 40 and u.id = 2', 'a.name ASC, c.user_id ASC');//BlubberTable::getInstance()->loadWithComments();
+        $entries = BlubberTable::getInstance()->loadWithComments('a.id < 40', 'a.name ASC, c.user_id ASC');//BlubberTable::getInstance()->loadWithComments();
         echo '<br />TIME FULL: '.number_format(microtime(true)-$start, 6, ',','').'s';
         echo 'ENTRIES:'."<br />";
         foreach ($entries as $entry) {
