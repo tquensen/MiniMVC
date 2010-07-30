@@ -22,22 +22,13 @@ class BlubbUserTable extends MiniMVC_Table
 
     public function loadWithRelations($condition = null, $order = null, $limit = null, $offset = null)
 	{
-        $b = BlubberTable::getInstance();
-        $c = BlubbCommentsTable::getInstance();
-
-        $sql  = $this->_select('u').$b->_select('b', true).$c->_select('c', true);
-        $sql .= $this->_from('u').$b->_join('b', 'u.id = b.user_id').$c->_join('c', 'u.id = c.user_id');
-        if ($condition) $sql .= ' WHERE '.$condition;
-        if ($limit || $offset) {
-            $sql .= ($condition ? ' AND ' : ' WHERE ') . $this->_in('u.id', $this->_getIdentifiers('u', $condition, $order, $limit, $offset));
-        }
-        if ($order) $sql .= ' ORDER BY '.$order;
-
-        return $this->buildAll(
-                $this->db->query($sql),
-                array('u' => $this, 'b' => $b, 'c' => $c),
-                array(array('u', 'b'), array('u', 'c'))
-        );
+        return $this->query('u')->select('b')->select('c')
+                ->join(BlubberTable::getInstance(), 'b', 'u', 'u.id = b.user_id')
+                ->join(BlubbCommentsTable::getInstance(), 'c', 'u', 'u.id = c.user_id')
+                ->where($condition)
+                ->orderBy($order)
+                ->limit($limit, $offset, true)
+                ->build();
 	}
 
 

@@ -22,15 +22,14 @@ class BlubberTable extends MiniMVC_Table
 
     public function loadWithNumComments($condition, $order = null, $limit = null, $offset = null)
 	{
-        $c = BlubbCommentsTable::getInstance();
-        $sql  = $this->_select('a').', count(b.id) a__comments_count';
-        $sql .= $this->_from('a').$c->_join('b', 'a.id = b.blubb_id');
-        if ($condition) $sql .= ' WHERE '.$condition;
-        $sql .= ' GROUP BY a.id ';
-        if ($order) $sql .= ' ORDER BY '.$order;
-        if ($limit || $offset) $sql .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
-
-        return  $this->buildAll($this->db->query($sql), 'a');
+        return $this->query('a')
+                ->select('count(b.id) a__comments_count')
+                ->join(BlubbCommentsTable::getInstance(), 'b', 'a', 'a.id = b.blubb_id')
+                ->where($condition)
+                ->orderBy($order)
+                ->groupBy('a.id')
+                ->limit($limit, $offset)
+                ->build();
 	}
 
     /**
@@ -42,22 +41,15 @@ class BlubberTable extends MiniMVC_Table
      */
 	public function loadWithComments($condition, $order = null, $limit = null, $offset = null)
 	{
-        $userTable = BlubbUserTable::getInstance();
-        $commentsTable = BlubbCommentsTable::getInstance();
-
-		$sql  = $this->_select('a').$userTable->_select('u', true).$commentsTable->_select('c', true).$userTable->_select('cu', true);
-        $sql .= $this->_from('a').$userTable->_join('u', 'a.user_id = u.id').$commentsTable->_join('c', 'a.id = c.blubb_id').$userTable->_join('cu', 'c.user_id = cu.id');
-        if ($condition)  $sql .= ' WHERE '.$condition.' ';
-        if ($limit || $offset) {
-            $sql .= ($condition ? ' AND ' : ' WHERE ') . $this->_in('a.id', $this->_getIdentifiers('a', $condition, $order, $limit, $offset));
-        }
-        if ($order) $sql .= ' ORDER BY '.$order;
-
-        return $this->buildAll(
-                $this->db->query($sql),
-                array('a' => $this, 'u' => $userTable, 'c' => $commentsTable, 'cu' => $userTable),
-                array(array('a', 'c'), array('a', 'u'), array('c', 'cu'))
-        );
+        return $this->query('a')
+                ->select('u')->select('c')->select('cu')
+                ->join(BlubbUserTable::getInstance(), 'u', 'a', 'a.user_id = u.id')
+                ->join(BlubbCommentsTable::getInstance(), 'c', 'a', 'a.id = c.blubb_id')
+                ->join(BlubbUserTable::getInstance(), 'cu', 'c', 'c.user_id = cu.id')
+                ->where($condition)
+                ->orderBy($order)
+                ->limit($limit, $offset, true)
+                ->build();
 	}
 
     /**

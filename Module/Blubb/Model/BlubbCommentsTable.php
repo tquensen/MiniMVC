@@ -20,14 +20,8 @@ class BlubbCommentsTable extends MiniMVC_Table
 
     public function loadWithUser($condition = null, $order = null, $limit = null, $offset = null)
 	{
-        $u = BlubbUserTable::getInstance();
-
-        $sql  = $this->_select('c').$u->_select('u', true).$this->_from('c').$u->_join('u', 'c.user_id = u.id');
-        if ($condition) $sql .= ' WHERE '.$condition;
-        if ($order) $sql .= ' ORDER BY '.$order;
-        if ($limit || $offset) $sql .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
-
-        return $this->buildAll($this->db->query($sql), array('c' => $this, 'u' => $u), array(array('u', 'c'), array('c', 'u')));
+        return $this->query('c')->select('u')->join(BlubbUserTable::getInstance(), 'u', 'c', 'u.id = c.user_id')
+                ->where($condition)->orderBy($order)->limit($limit, $offset)->build();
 	}
 
     

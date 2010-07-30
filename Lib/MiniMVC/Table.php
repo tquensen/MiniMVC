@@ -164,7 +164,7 @@ class MiniMVC_Table {
      */
 	public function loadOneBy($condition = null, $order = null, $offset = 0)
 	{
-		return array_shift($this->load($condition, $order, 1, $offset));
+        return $this->query()->where($condition)->orderBy($order)->limit(1, $offset)->build();
 	}
 
     /**
@@ -176,14 +176,7 @@ class MiniMVC_Table {
      */
 	public function load($condition = null, $order = null, $limit = null, $offset = null)
 	{
-        $sql  = $this->_select().$this->_from();
-        if ($condition) $sql .= ' WHERE '.$condition;
-        if ($order) $sql .= ' ORDER BY '.$order;
-        if ($limit || $offset) $sql .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
-
-		$result = $this->db->query($sql);
-
-		return $this->buildAll($result);
+        return $this->query()->where($condition)->orderBy($order)->limit($limit, $offset)->build();
 	}
 
     /**
@@ -198,6 +191,12 @@ class MiniMVC_Table {
         $row = $result->fetch_assoc();
 		return $row['num'];
 	}
+
+    public function query($alias = null)
+    {
+        $q = new MiniMVC_Query();
+        return $q->select($alias)->from($this, $alias);
+    }
 
     public function _getIdentifiers($alias = null, $condition = null, $order = null, $limit = null, $offset = null)
     {
@@ -228,9 +227,9 @@ class MiniMVC_Table {
 
     
 
-    public function _select($alias = null, $prefixComma = false)
+    public function _select($alias = null, $prefix = ' SELECT ')
     {
-        $sql = $prefixComma ? ' , ' : ' SELECT ';
+        $sql = $prefix === true ? ' , ' : $prefix;
 
         if (!$alias) {
             $sql .= implode(', ', $this->columns).' ';
@@ -258,16 +257,25 @@ class MiniMVC_Table {
         return ' FROM '.$this->table.' '.$alias.' ';
     }
 
-    public function _in($key, $values)
+    public function _in($alias = null, $key = null, $values = array())
     {
         if (empty($values) || !is_array($values)) {
             return  ' ';
+        }
+        if (!$key) {
+            $key = $this->identifier;
+        }
+        if ($alias) {
+            $key = $alias.'.'.$key;
         }
         return ' '.$key.' IN ("'.implode('","',$this->db->real_escape_string($ids)).'") ';
     }
     
     public function buildAll($result, $aliases = null, $relations = array(), $returnAll = false)
     {
+        if (is_string($result)) {
+            $result = $this->db->query($result);
+        }
         $single = false;
         $entries = array();
         $aliasedIdentifiers = array();
@@ -290,7 +298,7 @@ class MiniMVC_Table {
                 $aliasedIdentifiers[$alias] = $alias.'__'.$buildClass->getIdentifier();
                 $entryClasses[$alias] = $buildClass->getEntryClass();
         }
-        if (is_array($relations) && !is_array($relations[0])) {
+        if (!empty($relations) && !is_array($relations[0])) {
             $relations = array($relations);
         }
         while ($row = $result->fetch_assoc()) {
