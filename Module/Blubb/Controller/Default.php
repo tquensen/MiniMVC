@@ -36,12 +36,12 @@ class Blubb_Default_Controller extends MiniMVC_Controller
         $userlist = BlubbUserTable::getInstance()->loadAll('username DESC');
         foreach ($userlist as $user) {
             echo '<br />User '.$user->id.' ('.$user->username.')<br />';
-            $blubber = $user->loadBlubber('user_id = '.$user->id);
+            $blubber = $user->loadBlubber();
             echo ' - Blubber:<br />';
             foreach ($blubber as $blubb) {
                 echo ' &nbsp; - '.$blubb->id.' ('.$blubb->name.')<br />';
             }
-            $comments = $user->loadBlubbComments('user_id = '.$user->id);
+            $comments = $user->loadComments();
             echo ' - Comments:<br />';
             foreach ($comments as $comment) {
                 echo ' &nbsp; - '.$comment->id.' ('.$comment->message.')<br />';

@@ -5,26 +5,26 @@ class MiniMVC_Table {
     /**
      * @var mysqli
      */
-	protected $db = null;
+	protected $_db = null;
     /**
      * @var MiniMVC_Registry 
      */
-    protected $registry = null;
+    protected $_registry = null;
 
-	protected $entries = array();
-    protected $relations = array();
-	protected $table = false;
-    protected $entryClass = 'Mysql_Model';
+	protected $_entries = array();
+	protected $_table = false;
+    protected $_model = 'MiniMVC_Model';
 
-	protected $columns = array('id');
-	protected $identifier = 'id';
-	protected $isAutoIncrement = true;
+	protected $_columns = array('id');
+    protected $_relations = array();
+	protected $_identifier = 'id';
+	protected $_isAutoIncrement = true;
 
 
 	public function __construct()
 	{
-		$this->registry = MiniMVC_Registry::getInstance();
-		$this->db = $this->registry->db->get();
+		$this->_registry = MiniMVC_Registry::getInstance();
+		$this->_db = $this->_registry->db->get();
         $this->construct();
 	}
 
@@ -39,31 +39,31 @@ class MiniMVC_Table {
      */
     public function getIdentifier()
     {
-        return $this->identifier;
+        return $this->_identifier;
     }
 
     public function getColumns()
     {
-        return $this->columns;
+        return $this->_columns;
     }
 
     public function getRelations()
     {
-        return $this->relations;
+        return $this->_relations;
     }
 
     public function getRelation($relation)
     {
-        return isset($this->relations[$relation]) ? $this->relations[$relation] : null;
+        return isset($this->_relations[$relation]) ? $this->_relations[$relation] : null;
     }
 
     /**
      *
-     * @return string the name of the entry class
+     * @return string the classname of the model
      */
-    public function getEntryClass()
+    public function getModelName()
     {
-        return $this->entryClass;
+        return $this->_model;
     }
 
     /**
@@ -72,7 +72,7 @@ class MiniMVC_Table {
      */
 	public function getOne($id)
 	{
-		return (isset($this->entries[$id])) ? $this->entries[$id] : null;
+		return (isset($this->_entries[$id])) ? $this->_entries[$id] : null;
 	}
 
     /**
@@ -99,20 +99,20 @@ class MiniMVC_Table {
 	{
 		$return = array();
         if ($field) {
-            foreach ($this->entries as $entry)
+            foreach ($this->_entries as $entry)
             {
                 if (isset($entry->$field) && $entry->$field == $value)
                 {
-                    $return[$entry->{$this->primary}] = $entry;
+                    $return[$entry->{$this->_identifier}] = $entry;
                 }
             }
         } else {
-            $return = $this->entries;
+            $return = $this->_entries;
         }
 		if ($order !== null && $order !== false)
 		{
 			$order = explode(' ', $order, 2);
-			if (!isset($order[1]) || !in_array(strtolower(trim($order[1])), array('asc', 'desc')) || !in_array(trim($order[0], $this->columns)))
+			if (!isset($order[1]) || !in_array(strtolower(trim($order[1])), array('asc', 'desc')) || !in_array(trim($order[0], $this->_columns)))
 			{
 				return array();
 			}
@@ -133,11 +133,11 @@ class MiniMVC_Table {
      */
 	public function getAll($reload = false)
 	{
-		if ($reload || !$this->entries)
+		if ($reload || !$this->_entries)
 		{
 			$this->loadAll();
 		}
-		return $this->entries;
+		return $this->_entries;
 	}
 
     /**
@@ -152,11 +152,11 @@ class MiniMVC_Table {
                 $this->set($currentEntry);
             }
         }
-		if (!isset($entry->{$this->primary}))
+		if (!isset($entry->{$this->_identifier}))
 		{
 			return false;
 		}
-		$this->entries[$entry->{$this->primary}] = $entry;
+		$this->_entries[$entry->{$this->_identifier}] = $entry;
 		return true;
 	}
 
@@ -168,7 +168,7 @@ class MiniMVC_Table {
 	public function loadOne($id, $reload = false)
 	{
 
-		return (isset($this->entries[$id]) && !$reload) ? $this->entries[$id] : $this->loadOneBy($this->identifier . ' = "'. $id . '"');
+		return (isset($this->_entries[$id]) && !$reload) ? $this->_entries[$id] : $this->loadOneBy($this->_identifier . ' = "'. $id . '"');
 	}
 
     /**
@@ -184,6 +184,16 @@ class MiniMVC_Table {
 	}
 
     /**
+     *
+     * @param string $order
+     * @return array
+     */
+	public function loadAll($order = null)
+	{
+		return $this->load(null, $order);
+	}
+
+    /**
      * @param string $condition the where condition("id = 1", "a.username LIKE 'foo%'")
      * @param string $order an order by clause (id ASC, foo DESC)
      * @param int $limit
@@ -195,6 +205,7 @@ class MiniMVC_Table {
         return $this->query()->where($condition)->orderBy($order)->limit($limit, $offset)->build();
 	}
 
+
     /**
      * @param string $condition the where condition("id = 1", "username LIKE 'foo%'")
      * @return int num results found
@@ -203,7 +214,7 @@ class MiniMVC_Table {
 	{
         $sql  = 'SELECT COUNT(*) num'.$this->_from();
         if ($condition) $sql .= ' WHERE '.$condition;
-		$result = $this->db->query($sql);
+		$result = $this->_db->query($sql);
         $row = $result->fetch_assoc();
 		return $row['num'];
 	}
@@ -216,13 +227,13 @@ class MiniMVC_Table {
 
     public function _getIdentifiers($alias = null, $condition = null, $order = null, $limit = null, $offset = null)
     {
-        $sql = 'SELECT '.($alias ? $alias.'.' : '').$this->identifier.' FROM '.$this->table.' '.$alias.' ';
+        $sql = 'SELECT '.($alias ? $alias.'.' : '').$this->_identifier.' FROM '.$this->_table.' '.$alias.' ';
         if ($condition) $sql .= ' WHERE '.$condition;
         if ($order) $sql .= ' ORDER BY '.$order;
         if ($limit || $offset) $sql .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
         $ids = array();
 
-        $result = $this->db->query($sql);
+        $result = $this->_db->query($sql);
 
         $ids = array();
         while($row = $result->fetch_assoc()) {
@@ -231,28 +242,16 @@ class MiniMVC_Table {
         return $ids;
     }
 
-    /**
-     *
-     * @param string $order
-     * @return array
-     */
-	public function loadAll($order = null)
-	{
-		return $this->load(null, $order);
-	}
-
-    
-
-    public function _select($alias = null, $prefix = ' SELECT ')
+    public function _select($alias = null, $prefix = null)
     {
         $sql = $prefix === true ? ' , ' : $prefix;
 
         if (!$alias) {
-            $sql .= implode(', ', $this->columns).' ';
+            $sql .= implode(', ', $this->_columns).' ';
             return $sql;
         }
         $comma = false;
-        foreach ($this->columns as $column) {
+        foreach ($this->_columns as $column) {
             if ($comma) {
                 $sql .= ', ';
             } else {
@@ -265,12 +264,12 @@ class MiniMVC_Table {
 
     public function _join($alias, $on = null, $type = 'LEFT')
     {
-        return ' '.$type.' JOIN '.$this->table.' '.$alias.' '.($on ? 'ON '.$on : '').' ';
+        return ' '.$type.' JOIN '.$this->_table.' '.$alias.' '.($on ? 'ON '.$on : '').' ';
     }
 
     public function _from($alias = null)
     {
-        return ' FROM '.$this->table.' '.$alias.' ';
+        return ' FROM '.$this->_table.' '.$alias.' ';
     }
 
     public function _in($alias = null, $key = null, $values = array())
@@ -279,18 +278,18 @@ class MiniMVC_Table {
             return  ' ';
         }
         if (!$key) {
-            $key = $this->identifier;
+            $key = $this->_identifier;
         }
         if ($alias) {
             $key = $alias.'.'.$key;
         }
-        return ' '.$key.' IN ("'.implode('","',$this->db->real_escape_string($ids)).'") ';
+        return ' '.$key.' IN ("'.implode('","',  array_map(array($this->_db, 'real_escape_string'), $values)).'") ';
     }
     
     public function buildAll($result, $aliases = null, $relations = array(), $returnAll = false)
     {
         if (is_string($result)) {
-            $result = $this->db->query($result);
+            $result = $this->_db->query($result);
         }
         $single = false;
         $entries = array();
@@ -298,21 +297,21 @@ class MiniMVC_Table {
         $entryClasses = array();
         if ($aliases === null) {
             while ($row = $result->fetch_assoc()) {
-                $entries[] = $this->_buildEntry($row);
+                $entries[] = $this->_buildModel($row);
             }
             return $entries;
         } elseif (is_string($aliases)) {
-            $identifier = $aliases.'__'.$this->identifier;
+            $identifier = $aliases.'__'.$this->_identifier;
             while ($row = $result->fetch_assoc()) {
                 if ($row[$identifier] && !isset($entries[$row[$identifier]])) {
-                    $entries[$row[$identifier]] = $this->_buildEntry($row, $aliases);
+                    $entries[$row[$identifier]] = $this->_buildModel($row, $aliases);
                 }
             }
             return $entries;
         }
         foreach ($aliases as $alias => $buildClass) {
                 $aliasedIdentifiers[$alias] = $alias.'__'.$buildClass->getIdentifier();
-                $entryClasses[$alias] = $buildClass->getEntryClass();
+                $entryClasses[$alias] = $buildClass->getModelName();
         }
         if (!empty($relations) && !is_array($relations[0])) {
             $relations = array($relations);
@@ -320,7 +319,7 @@ class MiniMVC_Table {
         while ($row = $result->fetch_assoc()) {
             foreach ($aliases as $alias => $buildClass) {
                 if ($row[$aliasedIdentifiers[$alias]] && !isset($entries[$alias][$row[$aliasedIdentifiers[$alias]]])) {
-                    $entries[$alias][$row[$aliasedIdentifiers[$alias]]] = $buildClass->_buildEntry($row, $alias);
+                    $entries[$alias][$row[$aliasedIdentifiers[$alias]]] = $buildClass->_buildModel($row, $alias);
                 }
             }
             foreach ($relations as $relation) {
@@ -332,20 +331,20 @@ class MiniMVC_Table {
         return $returnAll ? $entries : reset($entries);
     }
 
-	public function _buildEntry($row, $alias = null)
+	protected function _buildModel($row, $alias = null)
 	{
         if ($alias) {
             $row = $this->_filter($row, $alias);
         }
-        if (empty($row) || !isset($row[$this->identifier])) {
+        if (empty($row) || !isset($row[$this->_identifier])) {
             return null;
         }
-        $entry = new $this->entryClass($this);
+        $entry = new $this->_model($this);
         foreach ($row as $k=>$v)
         {
             $v = $this->unserialize($v);
             $entry->$k = $v;
-            if (in_array($k, $this->columns)) {
+            if (in_array($k, $this->_columns)) {
                 $entry->setDatabaseProperty($k, $v);
             }
         }
@@ -373,10 +372,10 @@ class MiniMVC_Table {
 
 	public function create($data = array())
 	{
-        $entry = new $this->entryClass($this);
+        $entry = new $this->_model($this);
 
         $default = array();
-        foreach ($this->columns as $column)
+        foreach ($this->_columns as $column)
         {
             $default[$column] = null;
         }
@@ -400,25 +399,25 @@ class MiniMVC_Table {
             if ($entry->preInsert() === false) {
                 return false;
             }
-            $sql = 'INSERT INTO '.$this->table.' SET ';
+            $sql = 'INSERT INTO '.$this->_table.' SET ';
 			$columnSql = '';
-			foreach ($this->columns as $column)
+			foreach ($this->_columns as $column)
 			{
 				if (isset($entry->$column) && $entry->$column !== null)
 				{
-					$columnSql[] = ' '.$column.' = "'.$this->db->real_escape_string(($this->serialize($entry->$column))).'" ';
+					$columnSql[] = ' '.$column.' = "'.$this->_db->real_escape_string(($this->serialize($entry->$column))).'" ';
                     $entry->setDatabaseProperty($column, $entry->$column);
 				}
 			}
 			$sql .= implode(', ', $columnSql).';';
-			$result = $this->db->query($sql);
+			$result = $this->_db->query($sql);
 
-			if ($this->isAutoIncrement)
+			if ($this->_isAutoIncrement)
 			{
-				$entry->{$this->primary} = $this->db->insert_id;
+				$entry->{$this->primary} = $this->_db->insert_id;
 			}
 
-            foreach ($this->columns as $column)
+            foreach ($this->_columns as $column)
 			{
                 $entry->setDatabaseProperty($column, $entry->$column);
             }
@@ -430,11 +429,11 @@ class MiniMVC_Table {
         } else {
             $update = false;
 			$columnSql = '';
-			foreach ($this->columns as $column)
+			foreach ($this->_columns as $column)
 			{
 				if (isset($entry->$column) && $entry->$column !== $entry->getDatabaseProperty($column))
 				{
-					$columnSql[] = ' '.$column.' = "'.$this->db->real_escape_string(($this->serialize($entry->$column))).'" ';
+					$columnSql[] = ' '.$column.' = "'.$this->_db->real_escape_string(($this->serialize($entry->$column))).'" ';
                     $update = true;
 				}
 			}
@@ -442,10 +441,10 @@ class MiniMVC_Table {
                 if ($entry->preUpdate() === false) {
                     return false;
                 }
-                $sql = 'UPDATE '.$this->table.' SET ';
-                $sql .= implode(', ', $columnSql).' WHERE '.$this->identifier.' = "'.$this->db->real_escape_string($this->serialize($entry->{$this->primary})).'" ;';
-                $result = $this->db->query($sql);
-                foreach ($this->columns as $column)
+                $sql = 'UPDATE '.$this->_table.' SET ';
+                $sql .= implode(', ', $columnSql).' WHERE '.$this->_identifier.' = "'.$this->_db->real_escape_string($this->serialize($entry->{$this->_identifier})).'" ;';
+                $result = $this->_db->query($sql);
+                foreach ($this->_columns as $column)
                 {
                     if (isset($entry->$column) && $entry->$column !== $entry->getDatabaseProperty($column))
                     {
@@ -469,7 +468,7 @@ class MiniMVC_Table {
 	{
 		if (is_object($entry))
 		{
-			if (!isset($entry->{$this->primary}) || !$entry->{$this->primary})
+			if (!isset($entry->{$this->_identifier}) || !$entry->{$this->_identifier})
 			{
 				return false;
 			}
@@ -479,15 +478,15 @@ class MiniMVC_Table {
             }
 
 			$sql = 'DELETE
-             FROM   '.$this->table.'
-             WHERE  '.$this->identifier.' = "'.$this->db->real_escape_string($entry->{$this->primary}).'"
+             FROM   '.$this->_table.'
+             WHERE  '.$this->_identifier.' = "'.$this->_db->real_escape_string($entry->{$this->_identifier}).'"
              LIMIT 1
              ;';
 
-			$result = $this->db->query($sql);
-			if (isset($this->entries[$entry->{$this->primary}]))
+			$result = $this->_db->query($sql);
+			if (isset($this->_entries[$entry->{$this->primary}]))
 			{
-				unset($this->entries[$entry->{$this->primary}]);
+				unset($this->_entries[$entry->{$this->primary}]);
 			}
             $entry->clearDatabaseProperties();
 
@@ -498,38 +497,38 @@ class MiniMVC_Table {
 		else
 		{
 			$sql = 'DELETE
-             FROM   '.$this->table.'
-             WHERE  '.$this->identifier.' = "'.$this->db->real_escape_string($entry).'"
+             FROM   '.$this->_table.'
+             WHERE  '.$this->_identifier.' = "'.$this->_db->real_escape_string($entry).'"
              LIMIT 1
              ;';
 
-			$result = $this->db->query($sql);
-			if (isset($this->entries[$entry]))
+			$result = $this->_db->query($sql);
+			if (isset($this->_entries[$entry]))
 			{
-				unset($this->entries[$entry]);
+				unset($this->_entries[$entry]);
 			}
 		}
-		return $this->db->affected_rows();
+		return $this->_db->affected_rows();
 	}
 
 	public function deleteBy($field, $value)
 	{
 		//validate field!
-		if (!in_array($field, $this->columns))
+		if (!in_array($field, $this->_columns))
 		{
 			return false;
 		}
 		$sql = 'DELETE
-         FROM   '.$this->table.'
-         WHERE  '.$field.' = "'.$this->db->real_escape_string($this->serialize($value)).'"
+         FROM   '.$this->_table.'
+         WHERE  '.$field.' = "'.$this->_db->real_escape_string($this->serialize($value)).'"
          ;';
-		$result = $this->db->query($sql);
-		$return = $this->db->affected_rows();
-		foreach ($this->entries as $id => $entry)
+		$result = $this->_db->query($sql);
+		$return = $this->_db->affected_rows();
+		foreach ($this->_entries as $id => $entry)
 		{
 			if (isset($entry->$field) && $entry->$field == $value)
 			{
-				unset($this->entries[$id]);
+				unset($this->_entries[$id]);
 			}
 		}
 
@@ -554,7 +553,7 @@ class MiniMVC_Table {
 		$newEntries = array();
 		foreach ($entries as $entry)
 		{
-			$newEntries[$entry->{$this->primary}] = $entry;
+			$newEntries[$entry->{$this->_identifier}] = $entry;
 		}
 		return $newEntries;
 	}
@@ -578,18 +577,4 @@ class MiniMVC_Table {
     {
         return $data;
     }
-
-    /**
-     * @param MiniMVC_Model $record The record to use for default values and to save the results in
-     * @param array $options form options
-     * @return MiniMVC_Form a form class instance
-     */
-    public function getForm($record = null, $options = array())
-    {
-        if (!$record) {
-            $record = new $this->entryClass($this);
-        }
-        return new MiniMVC_Form($record, $options);
-    }
-    
 }

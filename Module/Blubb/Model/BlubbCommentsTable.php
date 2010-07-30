@@ -9,13 +9,13 @@
 class BlubbCommentsTable extends MiniMVC_Table
 {
 
-	protected $table = 'blubb_comments';
-    protected $entryClass = 'BlubbComments';
+	protected $_table = 'blubb_comments';
+    protected $_model = 'BlubbComments';
 
-	protected $columns = array('id', 'blubb_id', 'user_id', 'message');
-    protected $relations = array('user' => array('BlubbUser', 'user_id', 'id'), 'blubb' => array('Blubber', 'id', 'user_id'));
-	protected $primary = 'id';
-	protected $isAutoIncrement = true;
+	protected $_columns = array('id', 'blubb_id', 'user_id', 'message');
+    protected $_relations = array('user' => array('BlubbUser', 'user_id', 'id'), 'blubb' => array('Blubber', 'id', 'user_id'));
+	protected $_identifier = 'id';
+	protected $_isAutoIncrement = true;
 
     protected static $_instance = null;
 
@@ -23,19 +23,6 @@ class BlubbCommentsTable extends MiniMVC_Table
 	{
         return $this->query('c')->select('u')->join('c','user','u')
                 ->where($condition)->orderBy($order)->limit($limit, $offset)->build();
-	}
-
-    
-    /**
-     * @param BlubbComments $entry
-     * @return BlubbComments
-     */
-	protected function buildEntry($entry)
-	{
-		/*
-		 $entry->additionalData = $entry->id.'Something';
-		 */
-		return $entry;
 	}
 
     /**

@@ -19,8 +19,7 @@ class MiniMVC_Model
 
     public function getIdentifier()
     {
-        $identifier = $this->_table->getIdentifier();
-        return $this->$identifier;
+        return $this->{$this->_table->getIdentifier()};
     }
 
     /**
@@ -120,15 +119,22 @@ class MiniMVC_Model
             return false;
         }
         elseif (substr($name, 0, 4) == 'load') {
-            $class = substr($name, 4);
-            $relation = strtolower($class);
+            $relation = strtolower(substr($name, 4));
             $condition = isset($arguments[0]) ? $arguments[0] : null;
             $order = isset($arguments[1]) ? $arguments[1] : null;
             $limit = isset($arguments[2]) ? $arguments[2] : null;
             $offset = isset($arguments[3]) ? $arguments[3] : null;
-            $tableName = $class.'Table';
+
+            if (!$data = $this->getTable()->getRelation($relation)) {
+                return null;
+            }
+
+            $where = $data[2].' = "'.$this->{$data[1]}.'"' . ($condition ? ' AND '.$condition : '');
+            $tableName = $data[0].'Table';
             $table = call_user_func($tableName . '::getInstance');
-            $entries = $table->load($condition, $order, $limit, $offset);
+
+            $entries = $table->load($where, $order, $limit, $offset);
+
             foreach ($entries as $entry) {
                 $this->_relations[$relation][$entry->getIdentifier()] = $entry;
             }

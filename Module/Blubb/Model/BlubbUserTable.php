@@ -10,13 +10,13 @@
 class BlubbUserTable extends MiniMVC_Table
 {
 
-	protected $table = 'blubb_user';
-    protected $entryClass = 'BlubbUser';
+	protected $_table = 'blubb_user';
+    protected $_model = 'BlubbUser';
 
-	protected $columns = array('id', 'username');
-    protected $relations = array('comments' => array('BlubbComments', 'id', 'user_id'), 'blubber' => array('Blubber', 'id', 'user_id'));
-	protected $primary = 'id';
-	protected $isAutoIncrement = true;
+	protected $_columns = array('id', 'username');
+    protected $_relations = array('comments' => array('BlubbComments', 'id', 'user_id'), 'blubber' => array('Blubber', 'id', 'user_id'));
+	protected $_identifier = 'id';
+	protected $_isAutoIncrement = true;
 
     protected static $_instance = null;
 
@@ -30,19 +30,6 @@ class BlubbUserTable extends MiniMVC_Table
                 ->orderBy($order)
                 ->limit($limit, $offset, true)
                 ->build();
-	}
-
-
-    /**
-     * @param BlubbUser $entry
-     * @return BlubbUser
-     */
-	protected function buildEntry($entry)
-	{
-		/*
-		 $entry->additionalData = $entry->id.'Something';
-		 */
-		return $entry;
 	}
 
     /**

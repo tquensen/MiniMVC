@@ -10,26 +10,18 @@
 class {name}Table extends MiniMVC_Table
 {
 
-	protected $table = '{table}';
-    protected $entryClass = '{name}';
+	protected $_table = '{table}';
+    protected $_model = '{name}';
 
-	protected $columns = array('id');
-	protected $primary = 'id';
-	protected $isAutoIncrement = true;
+	protected $_columns = array('id');
+    protected $_relations = array();
+	protected $_identifier = 'id';
+	protected $_isAutoIncrement = true;
 
     protected static $_instance = null;
 
-    /**
-     * @param {name} $entry
-     * @return {name}
-     */
-	protected function buildEntry($entry)
-	{
-		/*
-		 $entry->additionalData = $entry->id.'Something';
-		 */
-		return $entry;
-	}
+
+
 
     /**
      * Created the table for this model

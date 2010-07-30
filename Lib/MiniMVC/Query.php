@@ -82,7 +82,7 @@ class MiniMVC_Query
             return $this;
         }
         $this->tables[$alias] = call_user_func($data[0].'Table'.'::getInstance');
-        $this->join[$alias] = array($table.'.'.$data[1].' '.(isset($data[3]) ? $data[3] : '=').' '.$alias.'.'.$data[2], isset($data[4]) ? $data[4] : 'LEFT');
+        $this->join[$alias] = array($table.'.'.$data[1].' = '.$alias.'.'.$data[2], isset($data[3]) ? $data[3] : 'LEFT');
         $this->relations[] = array($table, $alias, $relation);
 
         return $this;
@@ -152,7 +152,7 @@ class MiniMVC_Query
         $select = array();
         foreach ($this->select as $k => $v) {
             if (isset($this->tables[$v])) {
-                $select[] = $this->tables[$v]->_select($v, false);
+                $select[] = $this->tables[$v]->_select($v);
             } else {
                 $select[] = $v;
             }

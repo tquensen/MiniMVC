@@ -10,13 +10,13 @@
 class BlubberTable extends MiniMVC_Table
 {
 
-	protected $table = 'blubber';
-    protected $entryClass = 'Blubber';
+	protected $_table = 'blubber';
+    protected $_model = 'Blubber';
 
-	protected $columns = array('id', 'name', 'slug', 'user_id');
-    protected $relations = array('user' => array('BlubbUser', 'user_id', 'id'), 'comments' => array('BlubbComments', 'id', 'blubb_id'));
-	protected $primary = 'id';
-	protected $isAutoIncrement = true;
+	protected $_columns = array('id', 'name', 'slug', 'user_id');
+    protected $_relations = array('user' => array('BlubbUser', 'user_id', 'id'), 'comments' => array('BlubbComments', 'id', 'blubb_id'));
+	protected $_identifier = 'id';
+	protected $_isAutoIncrement = true;
 
     protected static $_instance = null;
   
