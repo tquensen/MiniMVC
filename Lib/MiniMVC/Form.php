@@ -2,16 +2,12 @@
 class MiniMVC_Form
 {
 	protected $elements = array();
-	protected $name = false;
-	protected $record = false;
+	protected $name = null;
 	protected $isValid = true;
 	protected $options = array();
-	protected $module = false;
 
-	public function __construct($record = false, $options = array())
+	public function __construct($options = array())
 	{
-        $t = MiniMVC_Registry::getInstance()->helper->I18n->get('_form');
-		$this->record = $record;
 		$this->name = (isset($options['name'])) ? $options['name'] : $this->name;
 
 		$this->options['action'] = $_SERVER['REQUEST_URI'];
@@ -41,7 +37,12 @@ class MiniMVC_Form
 
 	public function __get($element)
 	{
-		return (isset($this->elements[$element])) ? $this->elements[$element] : false;
+		return $this->getElement($element);
+	}
+
+    public function __set($element)
+	{
+		$this->setElement($element);
 	}
 
 	public function setOption($option, $value)
@@ -55,26 +56,7 @@ class MiniMVC_Form
 		return (isset($this->options[$option])) ? $this->options[$option] : null;
 	}
 
-	public function &getRecord()
-	{
-		return $this->record;
-	}
-
-	public function updateRecord()
-	{
-		if ($this->record)
-		{
-			foreach ($this->elements as $element)
-			{
-				$element->updateRecord();
-			}
-			//$this->record->save();
-            return $this->record;
-		}
-        return false;
-	}
-
-	public function addElement($element)
+	public function setElement($element)
 	{
 		if (!is_object($element))
 		{
@@ -95,11 +77,11 @@ class MiniMVC_Form
 		return $this->elements;
 	}
 
-	public function setValues()
+	public function bindValues($values)
 	{
 		foreach ($this->elements as $element)
 		{
-			$element->setValue(isset($_POST[$this->name.'_'.$element->getName()]) ? $_POST[$this->name.'_'.$element->getName()] : null);
+			$element->setValue(isset($values[$element->getName()]) ? $values[$element->getName()] : null);
 		}
 		return true;
 	}
@@ -117,7 +99,7 @@ class MiniMVC_Form
 		}
 		foreach ($this->elements as $element)
 		{
-			if (!$element->validate($_POST[$this->name.'_'.$element->getName()]))
+			if (!$element->validate())
 			{
 				$this->isValid = false;
 			}
@@ -127,7 +109,7 @@ class MiniMVC_Form
 
 	public function wasSubmitted()
 	{
-		return isset($_POST[$this->name.'_FormCheck']);
+		return (bool) $this->FormCheck->value;
 	}
 
 }

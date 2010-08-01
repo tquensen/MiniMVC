@@ -2,6 +2,11 @@
 
 class MiniMVC_Query
 {
+    /**
+     *
+     * @var PDO
+     */
+    protected $db = null;
     protected $type = 'select';
     protected $select = array();
     protected $from = null;
@@ -14,6 +19,11 @@ class MiniMVC_Query
     protected $needPreQuery = false;
     protected $tables = array();
     protected $relations = array();
+
+    public function __construct($db = null)
+    {
+        $this->db = $db ? $db : MiniMVC_Registry::getInstance()->db->get();
+    }
 
     /**
      *
@@ -41,28 +51,6 @@ class MiniMVC_Query
         $this->from = $alias;
         $this->tables[$alias] = $table;
         
-        return $this;
-    }
-
-    /**
-     *
-     * @param MiniMVC_Table $table
-     * @param string $alias
-     * @param string $related related table alias
-     * @param string $on on condition
-     * @param string $type join type
-     * @param bool $reverse add reverse relations
-     * @return MiniMVC_Query
-     */
-    public function joinCustom($table, $alias, $related, $on, $type = 'LEFT', $reverse = false)
-    {
-        $this->tables[$alias] = $table;
-        $this->join[$alias] = array($on, $type);
-        $this->relations[] = array($related, $alias);
-        if ($reverse) {
-            $this->relations[] = array($alias, $related);
-        }
-
         return $this;
     }
 
@@ -145,25 +133,24 @@ class MiniMVC_Query
      *
      * @return string
      */
-    public function get()
+    public function get($values = array())
     {
         $q = 'SELECT ';
         $comma = false;
         $select = array();
         foreach ($this->select as $k => $v) {
             if (isset($this->tables[$v])) {
-                $select[] = $this->tables[$v]->_select($v);
+                $select[] = $this->_select($v);
             } else {
                 $select[] = $v;
             }
         }
         $q .= implode(', ', $select);
-        if (isset($this->tables[$this->from])) {
-            $q .= $this->tables[$this->from]->_from($this->from);
-        }
+        $q .= $this->_from($this->from);
+
         foreach ($this->join as $join => $info) {
             if (isset($this->tables[$join])) {
-                $q .= $this->tables[$join]->_join($join, $info[0], $info[1]);
+                $q .= $this->_join($join, $info[0], $info[1]);
             }
         }
         $condition = count($this->where) ? implode(' AND ', $this->where) : '';
@@ -173,7 +160,7 @@ class MiniMVC_Query
         if ($this->limit || $this->offset) {
             if ($this->needPreQuery) {
                 $limit = '';
-                $q .= ($condition ? ' AND ' : ' WHERE ') . $this->tables[$this->from]->_in($this->from, null, $this->tables[$this->from]->_getIdentifiers($this->from, $condition, $this->order, $this->limit, $this->offset));
+                $q .= ($condition ? ' AND ' : ' WHERE ') . $this->_in($this->from, null, $this->_getIdentifiers($this->from, $condition, $values, $this->order, $this->limit, $this->offset));
             } else {
                 $limit = ' LIMIT '.(int)$this->offset.','.(int)$this->limit;
             }
@@ -191,29 +178,122 @@ class MiniMVC_Query
         return $q;
     }
 
-    public function build($returnAll = false)
+    public function build($values = array(), $returnAll = false)
     {
-        $sql = $this->get();
-        
+        $sql = $this->get($values);
+
+        if (!is_array($values) && $values) {
+            $values = array($values);
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($values);
+
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $entries = array();
         if (count($this->tables) === 1) {
-            $aliases = $this->from;
-            $relations = null;
-        } else {
-            $aliases = array();
-            $relations = array();
-            foreach ($this->select as $a) {
-                if (isset($this->tables[$a])) {
-                    $aliases[$a] = $this->tables[$a];
+            foreach ($results as $row) {
+                $entries[] = $this->tables[$this->from]->buildModel($row, $this->from);
+            }
+            return $entries;
+        }
+        
+        $aliases = array();
+        $relations = array();
+        $aliasedIdentifiers = array();
+        foreach ($this->select as $a) {
+            if (isset($this->tables[$a])) {
+                $aliases[$a] = $this->tables[$a];
+            }
+        }
+        foreach ($this->relations as $relation) {
+            if (isset($aliases[$relation[0]]) && isset($aliases[$relation[1]])) {
+                $relations[] = $relation;
+            }
+        }
+        foreach ($aliases as $alias => $buildClass) {
+            $aliasedIdentifiers[$alias] = $alias.'__'.$buildClass->getIdentifier();
+        }
+        foreach ($results as $row) {
+            foreach ($aliases as $alias => $buildClass) {
+                if ($row[$aliasedIdentifiers[$alias]] && !isset($entries[$alias][$row[$aliasedIdentifiers[$alias]]])) {
+                    $entries[$alias][$row[$aliasedIdentifiers[$alias]]] = $buildClass->buildModel($row, $alias);
                 }
             }
-            foreach ($this->relations as $relation) {
-                if (isset($aliases[$relation[0]]) && isset($aliases[$relation[1]])) {
-                    $relations[] = $relation;
+            foreach ($relations as $relation) {
+                if ($row[$aliasedIdentifiers[$relation[0]]] && $row[$aliasedIdentifiers[$relation[1]]]) {
+                    $entries[$relation[0]][$row[$aliasedIdentifiers[$relation[0]]]]->{'set'.$relation[2]}($entries[$relation[1]][$row[$aliasedIdentifiers[$relation[1]]]], false);
                 }
             }
         }
 
-        return $this->tables[$this->from]->buildAll($sql, $aliases, $relations, $returnAll);
+        return $returnAll ? $entries : reset($entries);
+    }
+
+    protected function _select($alias = null, $prefix = null)
+    {
+        $sql = $prefix === true ? ' , ' : $prefix;
+
+        if (!$alias) {
+            $sql .= implode(', ', $this->tables[$alias]->getColumns()).' ';
+            return $sql;
+        }
+        $comma = false;
+        foreach ($this->tables[$alias]->getColumns() as $column) {
+            if ($comma) {
+                $sql .= ', ';
+            } else {
+                $comma = true;
+            }
+            $sql .= $alias.'.'.$column.' '.$alias.'__'.$column.' ';
+        }
+        return $sql;
+    }
+
+    protected function _join($alias, $on = null, $type = 'LEFT')
+    {
+        return ' '.$type.' JOIN '.$this->tables[$alias]->getTableName().' '.$alias.' '.($on ? 'ON '.$on : '').' ';
+    }
+
+    protected function _from($alias = null)
+    {
+        return ' FROM '.$this->tables[$alias]->getTableName().' '.$alias.' ';
+    }
+
+    protected function _in($alias = null, $key = null, $values = array())
+    {
+        if (empty($values) || !is_array($values)) {
+            return  ' ';
+        }
+        if (!$key) {
+            $key = $this->tables[$alias]->getIdentifier();
+        }
+        if ($alias) {
+            $key = $alias.'.'.$key;
+        }
+        return ' '.$key.' IN ("'.implode('","',  $values).'") ';
+    }
+
+    protected function _getIdentifiers($alias = null, $condition = null, $values = null, $order = null, $limit = null, $offset = null)
+    {
+        $sql = 'SELECT '.($alias ? $alias.'.' : '').$this->tables[$alias]->getIdentifier().' FROM '.$this->tables[$alias]->getTableName().' '.$alias.' ';
+        if ($condition) $sql .= ' WHERE '.$condition;
+        if ($order) $sql .= ' ORDER BY '.$order;
+        if ($limit || $offset) $sql .= ' LIMIT '.intval($offset).', '.intval($limit).' ';
+
+        if (!is_array($values) && $values) {
+            $values = array($values);
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($values);
+
+        $ids = array();
+        foreach($stmt->fetchAll(PDO::FETCH_NUM) as $row) {
+            $ids[] = $row[0];
+        }
+        return $ids;
     }
     
 

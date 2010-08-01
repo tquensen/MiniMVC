@@ -19,10 +19,10 @@ class BlubbCommentsTable extends MiniMVC_Table
 
     protected static $_instance = null;
 
-    public function loadWithUser($condition = null, $order = null, $limit = null, $offset = null)
+    public function loadWithUser($condition = null, $values = array(), $order = null, $limit = null, $offset = null)
 	{
         return $this->query('c')->select('u')->join('c','user','u')
-                ->where($condition)->orderBy($order)->limit($limit, $offset)->build();
+                ->where($condition)->orderBy($order)->limit($limit, $offset)->build($values);
 	}
 
     /**

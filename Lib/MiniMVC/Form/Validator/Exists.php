@@ -9,12 +9,12 @@ class MiniMVC_Form_Validator_Exists extends MiniMVC_Form_Validator
 		}
 		else
 		{
-			$record = &$element->getForm()->getRecord();
-			if (method_exists((object) $record, 'getTable'))
+			$model = $this->getOption('model');
+			if (method_exists((object) $model, 'getTable'))
 			{
                 try
                 {
-                    return (bool) $record->getTable()->findOneBy($element->getName(), $value);
+                    return (bool) $model->getTable()->count($element->getName() . ' = "' . mysqli_real_escape_string($value).'"');
 			
                 }
                 catch (Exception $e)

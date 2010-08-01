@@ -129,11 +129,11 @@ class MiniMVC_Model
                 return null;
             }
 
-            $where = $data[2].' = "'.$this->{$data[1]}.'"' . ($condition ? ' AND '.$condition : '');
+            $where = $data[2].' = ?' . ($condition ? ' AND '.$condition : '');
             $tableName = $data[0].'Table';
             $table = call_user_func($tableName . '::getInstance');
 
-            $entries = $table->load($where, $order, $limit, $offset);
+            $entries = $table->load($where, $this->{$data[1]}, $order, $limit, $offset);
 
             foreach ($entries as $entry) {
                 $this->_relations[$relation][$entry->getIdentifier()] = $entry;

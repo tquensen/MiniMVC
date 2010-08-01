@@ -21,7 +21,7 @@ class BlubberTable extends MiniMVC_Table
     protected static $_instance = null;
   
 
-    public function loadWithNumComments($condition, $order = null, $limit = null, $offset = null)
+    public function loadWithNumComments($condition, $values = array(), $order = null, $limit = null, $offset = null)
 	{
         return $this->query('a')
                 ->select('count(b.id) a__comments_count')
@@ -30,7 +30,7 @@ class BlubberTable extends MiniMVC_Table
                 ->orderBy($order)
                 ->groupBy('a.id')
                 ->limit($limit, $offset)
-                ->build();
+                ->build($values);
 	}
 
     /**
@@ -40,7 +40,7 @@ class BlubberTable extends MiniMVC_Table
      * @param int $offset
      * @return array
      */
-	public function loadWithComments($condition, $order = null, $limit = null, $offset = null)
+	public function loadWithComments($condition, $values = array(), $order = null, $limit = null, $offset = null)
 	{
         return $this->query('a')
                 ->select('u')->select('c')->select('cu')
@@ -50,7 +50,7 @@ class BlubberTable extends MiniMVC_Table
                 ->where($condition)
                 ->orderBy($order)
                 ->limit($limit, $offset, true)
-                ->build();
+                ->build($values);
 	}
 
     /**

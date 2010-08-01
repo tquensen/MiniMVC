@@ -21,7 +21,7 @@ class BlubbUserTable extends MiniMVC_Table
     protected static $_instance = null;
 
 
-    public function loadWithRelations($condition = null, $order = null, $limit = null, $offset = null)
+    public function loadWithRelations($condition = null, $values = array(), $order = null, $limit = null, $offset = null)
 	{
         return $this->query('u')->select('b')->select('c')
                 ->join('u','blubber','b')
@@ -29,7 +29,7 @@ class BlubbUserTable extends MiniMVC_Table
                 ->where($condition)
                 ->orderBy($order)
                 ->limit($limit, $offset, true)
-                ->build();
+                ->build($values);
 	}
 
     /**

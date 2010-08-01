@@ -116,18 +116,6 @@ class MiniMVC_Form_Element
 		return $this->isValid;
 	}
 
-	public function updateRecord()
-	{
-		if ($this->value !== null)
-		{
-			$record = &$this->form->getRecord();
-			if (isset($record[$this->name]))
-			{
-				$record[$this->name] = $this->value;
-			}
-		}
-	}
-
 	public function wasSubmitted()
 	{
 		return ($this->form) ? $this->form->wasSubmitted() : false;
