@@ -3,6 +3,11 @@ class Blubb_Default_Controller extends MiniMVC_Controller
 {
     public function indexAction($params)
     {
+        $blubb = BlubbCommentsTable::getInstance()->loadOne(24);
+        var_dump(get_class($blubb));
+        $blubber = $blubb->getBlubb(null, true);
+        echo '##'.$blubber->name.'<br />';
+
         $commentslist = BlubbCommentsTable::getInstance()->loadWithUser(null, null, 'u.username DESC');
         foreach ($commentslist as $comment) {
             echo '<br />Comment '.$comment->id.' ('.$comment->message.')<br />';

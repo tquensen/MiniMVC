@@ -177,7 +177,7 @@ class MiniMVC_Table {
 	public function loadOne($id, $reload = false)
 	{
 
-		return (isset($this->_entries[$id]) && !$reload) ? $this->_entries[$id] : $this->loadOneBy($this->_identifier, $id);
+		return (isset($this->_entries[$id]) && !$reload) ? $this->_entries[$id] : $this->loadOneBy($this->_identifier . ' = ?', $id);
 	}
 
     /**
@@ -189,7 +189,8 @@ class MiniMVC_Table {
      */
 	public function loadOneBy($condition, $value = null, $order = null, $offset = 0)
 	{
-        return $this->query()->where($condition)->orderBy($order)->limit(1, $offset)->build($value);
+        $result = $this->query()->where($condition)->orderBy($order)->limit(1, $offset)->build($value);
+        return is_array($result) ? reset($result) : null;
 	}
 
     /**
@@ -322,7 +323,7 @@ class MiniMVC_Table {
 
 			if ($this->_isAutoIncrement)
 			{
-				$entry->{$this->primary} = $this->_db->lastInsertId();
+				$entry->{$this->_identifier} = $this->_db->lastInsertId();
 			}
 
             foreach ($this->_columns as $column)

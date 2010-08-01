@@ -77,13 +77,37 @@ class MiniMVC_Model
     {
         if (substr($name, 0, 3) == 'get') {
             $relation = strtolower(substr($name, 3));
-            $identifier = isset($arguments[0]) ? $arguments[0] : false;
+            $identifier = isset($arguments[0]) ? $arguments[0] : null;
+            $load = isset($arguments[1]) ? $arguments[1] : false;
             if ($identifier === true) {
-                return (isset($this->_relations[$relation])) ? $this->_relations[$relation] : array();
-            } elseif ($identifier === false) {
-                return (isset($this->_relations[$relation]) && count($this->_relations[$relation])) ? reset($this->_relations[$relation]) : null;
+                if (isset($this->_relations[$relation])) {
+                    return $this->_relations[$relation];
+                }
+            } elseif ($identifier === null) {
+                if (isset($this->_relations[$relation]) && count($this->_relations[$relation])) {
+                    return reset($this->_relations[$relation]);
+                }
+            } else {
+                if (isset($this->_relations[$relation][$identifier])) {
+                    return $this->_relations[$relation][$identifier];
+                }
             }
-            return (isset($this->_relations[$relation][$identifier])) ? $this->_relations[$relation][$identifier] : null;
+            if (!$load || !$data = $this->getTable()->getRelation($relation)) {
+                return ($identifier === true) ? array() : null;
+            }
+
+            $info = $this->getTable()->getRelation($relation);
+            $table = call_user_func($info[0] . 'Table::getInstance');
+            $loadArguments = array();
+            if ($identifier === null) {
+                $loadArguments[2] = 1;
+            } elseif ($identifier !== true) {
+                $loadArguments[0] = $table->getIdentifier() . ' = ?';
+                $loadArguments[2] = array($identifier);
+            }
+
+            $entries = $this->__call('load'.substr($name, 3), $loadArguments);
+            return $identifier === true ? $entries : reset($entries);
         }
         if (substr($name, 0, 3) == 'set') {
             $relation = strtolower(substr($name, 3));
@@ -121,6 +145,7 @@ class MiniMVC_Model
         elseif (substr($name, 0, 4) == 'load') {
             $relation = strtolower(substr($name, 4));
             $condition = isset($arguments[0]) ? $arguments[0] : null;
+            $values = isset($arguments[0]) ? $arguments[0] : array();
             $order = isset($arguments[1]) ? $arguments[1] : null;
             $limit = isset($arguments[2]) ? $arguments[2] : null;
             $offset = isset($arguments[3]) ? $arguments[3] : null;
@@ -128,12 +153,15 @@ class MiniMVC_Model
             if (!$data = $this->getTable()->getRelation($relation)) {
                 return null;
             }
-
+            if (is_string($values)) {
+                $values = array($values);
+            }
+            array_unshift($values, $this->{$data[1]});
             $where = $data[2].' = ?' . ($condition ? ' AND '.$condition : '');
             $tableName = $data[0].'Table';
             $table = call_user_func($tableName . '::getInstance');
 
-            $entries = $table->load($where, $this->{$data[1]}, $order, $limit, $offset);
+            $entries = $table->load($where, $values, $order, $limit, $offset);
 
             foreach ($entries as $entry) {
                 $this->_relations[$relation][$entry->getIdentifier()] = $entry;
