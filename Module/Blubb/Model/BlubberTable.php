@@ -14,7 +14,7 @@ class BlubberTable extends MiniMVC_Table
     protected $_model = 'Blubber';
 
 	protected $_columns = array('id', 'name', 'slug', 'user_id');
-    protected $_relations = array('user' => array('BlubbUser', 'user_id', 'id'), 'comments' => array('BlubbComments', 'id', 'blubb_id'));
+    protected $_relations = array('user' => array('BlubbUser', 'user_id', 'id', true), 'comments' => array('BlubbComments', 'id', 'blubb_id'));
 	protected $_identifier = 'id';
 	protected $_isAutoIncrement = true;
 

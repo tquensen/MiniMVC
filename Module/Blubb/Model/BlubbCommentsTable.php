@@ -13,7 +13,7 @@ class BlubbCommentsTable extends MiniMVC_Table
     protected $_model = 'BlubbComments';
 
 	protected $_columns = array('id', 'blubb_id', 'user_id', 'message');
-    protected $_relations = array('user' => array('BlubbUser', 'user_id', 'id'), 'blubb' => array('Blubber', 'blubb_id', 'id'));
+    protected $_relations = array('user' => array('BlubbUser', 'user_id', 'id', true), 'blubb' => array('Blubber', 'blubb_id', 'id', true));
 	protected $_identifier = 'id';
 	protected $_isAutoIncrement = true;
 

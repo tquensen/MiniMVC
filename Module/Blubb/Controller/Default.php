@@ -3,9 +3,38 @@ class Blubb_Default_Controller extends MiniMVC_Controller
 {
     public function indexAction($params)
     {
-        $blubb = BlubbCommentsTable::getInstance()->loadOne(24);
+        $group = GroupTable::getInstance()->loadOneBy('name = ?', 'Horstgroup');
+
+        $user = new BlubbUser();
+        $user->username = 'Horstilein';
+        $group->setUser($user);
+
+        $user = new BlubbUser();
+        $user->username = 'Horstilein2';
+        $group->setUser($user);
+
+        foreach ($group->getUser(true) as $key => $user) {
+            echo 'User '.$user->username.'<br />';
+        }
+
+        $group->save(true);
+
+        exit;
+        
+        $groups = GroupTable::getInstance()->loadAll();
+        foreach ($groups as $group) {
+        echo '' .$group->name.'<br />';
+        $group->deleteUser(true, true, true);
+        exit;
+        foreach ($group->loadUser() as $user) {
+            echo ' - ' .$user->username.'<br />';
+        }
+        }
+
+
+        $blubb = BlubbCommentsTable::getInstance()->loadOne(7);
         var_dump(get_class($blubb));
-        $blubber = $blubb->getBlubb(null, true);
+        $blubber = $blubb->loadBlubb();
         echo '##'.$blubber->name.'<br />';
 
         $commentslist = BlubbCommentsTable::getInstance()->loadWithUser(null, null, 'u.username DESC');
@@ -24,15 +53,20 @@ class Blubb_Default_Controller extends MiniMVC_Controller
         $userlist = BlubbUserTable::getInstance()->loadWithRelations(null, null, 'u.username DESC');
         foreach ($userlist as $user) {
             echo '<br />User '.$user->id.' ('.$user->username.')<br />';
-            $blubber = $user->getBlubber(true);
+            $blubber = $user->getBlubber();
             echo ' - Blubber:<br />';
             foreach ($blubber as $blubb) {
                 echo ' &nbsp; - '.$blubb->id.' ('.$blubb->name.')<br />';
             }
-            $comments = $user->getComments(true);
+            $comments = $user->getComments();
             echo ' - Comments:<br />';
             foreach ($comments as $comment) {
                 echo ' &nbsp; - '.$comment->id.' ('.$comment->message.')<br />';
+            }
+            $groups = $user->getGroups();
+            echo ' - Groups:<br />';
+            foreach ($groups as $group) {
+                echo ' &nbsp; - '.$group->id.' ('.$group->name.')<br />';
             }
         }
 
@@ -50,6 +84,11 @@ class Blubb_Default_Controller extends MiniMVC_Controller
             echo ' - Comments:<br />';
             foreach ($comments as $comment) {
                 echo ' &nbsp; - '.$comment->id.' ('.$comment->message.')<br />';
+            }
+            $groups = $user->loadGroups();
+            echo ' - Groups:<br />';
+            foreach ($groups as $group) {
+                echo ' &nbsp; - '.$group->id.' ('.$group->name.')<br />';
             }
         }
 

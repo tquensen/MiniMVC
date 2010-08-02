@@ -306,20 +306,18 @@ class MiniMVC_Table {
                 return false;
             }
             $values = array();
-            $sql = 'INSERT INTO '.$this->_table.' SET ';
+            $query = MiniMVC_Query::create($this->_db)->insert($this->_table);
 			$columnSql = '';
 			foreach ($this->_columns as $column)
 			{
 				if (isset($entry->$column) && $entry->$column !== null)
 				{
-					$columnSql[] = ' '.$column.' = ? ';
+					$query->set(' '.$column.' = ? ');
                     $values[] = $entry->$column;
 				}
 			}
-			$sql .= implode(', ', $columnSql);
-
-			$stmt = $this->_db->prepare($sql);
-            $result = $stmt->execute($values);
+            
+            $result = $query->execute($values);
 
 			if ($this->_isAutoIncrement)
 			{
@@ -348,28 +346,30 @@ class MiniMVC_Table {
                     $update = true;
 				}
 			}
-            if ($update) {
-                if ($entry->preUpdate() === false) {
-                    return false;
-                }
-                $sql = 'UPDATE '.$this->_table.' SET ';
-                $sql .= implode(', ', $columnSql).' WHERE '.$this->_identifier.' = ?';
-                $values[] = $entry->{$this->_identifier};
+            if (!$update) {
+                return true;
+            }
+            if ($entry->preUpdate() === false) {
+                return false;
+            }
+            $sql = 'UPDATE '.$this->_table.' SET ';
+            $sql .= implode(', ', $columnSql).' WHERE '.$this->_identifier.' = ?';
+            $values[] = $entry->{$this->_identifier};
 
-                $stmt = $this->_db->prepare($sql);
-                $result = $stmt->execute($values);
-                
-                foreach ($this->_columns as $column)
+            $stmt = $this->_db->prepare($sql);
+            $result = $stmt->execute($values);
+
+            foreach ($this->_columns as $column)
+            {
+                if (isset($entry->$column) && $entry->$column !== $entry->getDatabaseProperty($column))
                 {
-                    if (isset($entry->$column) && $entry->$column !== $entry->getDatabaseProperty($column))
-                    {
-                        $entry->setDatabaseProperty($column, $entry->$column);
-                    }
-                }
-                if ($entry->postUpdate() === false) {
-                    return false;
+                    $entry->setDatabaseProperty($column, $entry->$column);
                 }
             }
+            if ($entry->postUpdate() === false) {
+                return false;
+            }
+   
         }
 
 		$this->set($entry);
@@ -392,13 +392,8 @@ class MiniMVC_Table {
                 return false;
             }
 
-			$sql = 'DELETE
-             FROM   '.$this->_table.'
-             WHERE  '.$this->_identifier.' = ?
-             LIMIT 1';
-
-			$stmt = $this->_db->prepare($sql);
-            $result = $stmt->execute(array($entry->{$this->_identifier}));
+            $query = new MiniMVC_Query($this->_db);
+            $result = $query->delete()->from($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry->{$this->_identifier});
 
 			if (isset($this->_entries[$entry->{$this->primary}]))
 			{
@@ -412,34 +407,33 @@ class MiniMVC_Table {
 		}
 		else
 		{
-			$sql = 'DELETE
-             FROM   '.$this->_table.'
-             WHERE  '.$this->_identifier.' = ?
-             LIMIT 1';
-
-			$stmt = $this->_db->prepare($sql);
-            $result = $stmt->execute(array($entry));
+            $query = new MiniMVC_Query($this->_db);
+            $result = $query->delete()->from($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry);
 
 			if (isset($this->_entries[$entry]))
 			{
 				unset($this->_entries[$entry]);
 			}
 		}
+        foreach ($this->_relations as $relation => $info) {
+            if (isset($info[3]) && $info[3] !== true) {
+                MiniMVC_Query::create($this->_db)->delete('a_b')->from($this->_model, 'a')->join('a', $relation, 'b', 'RIGHT')->where('a.'.$this->_identifier.' IS NULL')->execute();
+            }
+        }
 		return $result;
 	}
 
 	public function deleteBy($condition, $values)
 	{
-        if (!is_array($values) && $values) {
-            $values = array($values);
+        $query = new MiniMVC_Query($this->_db);
+        $result = $query->delete()->from($this)->where($condition)->execute($values);
+
+        foreach ($this->_relations as $relation => $info) {
+            if (isset($info[3]) && $info[3] !== true) {
+                MiniMVC_Query::create($this->_db)->delete('a_b')->from($info[0], 'a')->join('a', $relation, 'b')->where('b.'.$this->_identifier.' IS NULL')->execute();
+            }
         }
         
-		$sql = 'DELETE
-         FROM   '.$this->_table.'
-         WHERE  '.$condition;
-		$stmt = $this->_db->prepare($sql);
-        $result = $stmt->execute($values);
-
 		return $result;
 	}
 

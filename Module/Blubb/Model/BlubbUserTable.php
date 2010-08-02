@@ -14,7 +14,7 @@ class BlubbUserTable extends MiniMVC_Table
     protected $_model = 'BlubbUser';
 
 	protected $_columns = array('id', 'username');
-    protected $_relations = array('comments' => array('BlubbComments', 'id', 'user_id'), 'blubber' => array('Blubber', 'id', 'user_id'));
+    protected $_relations = array('comments' => array('BlubbComments', 'id', 'user_id'), 'blubber' => array('Blubber', 'id', 'user_id'), 'groups' => array('Group', 'user_id', 'group_id', 'group_user'));
 	protected $_identifier = 'id';
 	protected $_isAutoIncrement = true;
 
@@ -23,9 +23,10 @@ class BlubbUserTable extends MiniMVC_Table
 
     public function loadWithRelations($condition = null, $values = array(), $order = null, $limit = null, $offset = null)
 	{
-        return $this->query('u')->select('b')->select('c')
+        return $this->query('u')->select('b')->select('c')->select('g')
                 ->join('u','blubber','b')
                 ->join('u','comments','c')
+                ->join('u','groups','g')
                 ->where($condition)
                 ->orderBy($order)
                 ->limit($limit, $offset, true)

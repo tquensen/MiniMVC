@@ -7,10 +7,11 @@ class MiniMVC_Query
      * @var PDO
      */
     protected $db = null;
-    protected $type = 'select';
+    protected $type = 'SELECT';
     protected $select = array();
     protected $from = null;
     protected $join = array();
+    protected $set = array();
     protected $where = array();
     protected $order = '';
     protected $group = '';
@@ -19,6 +20,17 @@ class MiniMVC_Query
     protected $needPreQuery = false;
     protected $tables = array();
     protected $relations = array();
+
+    /**
+     *
+     * @param PDO $db
+     * @return MiniMVC_Query
+     */
+    public static function create($db = null)
+    {
+        $query = new MiniMVC_Query($db);
+        return $query;
+    }
 
     public function __construct($db = null)
     {
@@ -32,6 +44,33 @@ class MiniMVC_Query
      */
     public function select($alias = null)
     {
+        $this->type = 'SELECT';
+        $this->select[] = $alias;
+
+        return $this;
+    }
+
+    /**
+     *
+     * @param string|null $alias
+     * @return MiniMVC_Query
+     */
+    public function insert($alias = null)
+    {
+        $this->type = 'INSERT INTO';
+        $this->select[] = $alias;
+
+        return $this;
+    }
+
+    /**
+     *
+     * @param string|null $alias
+     * @return MiniMVC_Query
+     */
+    public function delete($alias = null)
+    {
+        $this->type = 'DELETE';
         $this->select[] = $alias;
 
         return $this;
@@ -46,6 +85,10 @@ class MiniMVC_Query
     public function from($table, $alias = null)
     {
         if (is_string($table)) {
+            if (!class_exists($table.'Table')) {
+                $this->from = $table;
+                return $this;
+            }
             $table = call_user_func($table.'Table'.'::getInstance');
         }
         $this->from = $alias;
@@ -64,13 +107,18 @@ class MiniMVC_Query
      * @param bool $reverse add reverse relations
      * @return MiniMVC_Query
      */
-    public function join($table, $relation, $alias)
+    public function join($table, $relation, $alias, $type = null)
     {
         if (!isset($this->tables[$table]) || !$data = $this->tables[$table]->getRelation($relation)) {
             return $this;
         }
         $this->tables[$alias] = call_user_func($data[0].'Table'.'::getInstance');
-        $this->join[$alias] = array($table.'.'.$data[1].' = '.$alias.'.'.$data[2], isset($data[3]) ? $data[3] : 'LEFT');
+        if (isset($data[3]) && $data[3] && $data[3] !== true) {
+            $this->join[$table.'_'.$alias] = array($table.'.'.$this->tables[$table]->getIdentifier().' = '.$table.'_'.$alias.'.'.$data[1], $data[3], $type);
+            $this->join[$alias] = array($table.'_'.$alias.'.'.$data[2].' = '.$alias.'.'.$this->tables[$alias]->getIdentifier(), null, $type);
+        } else {
+            $this->join[$alias] = array($table.'.'.$data[1].' = '.$alias.'.'.$data[2], null, $type);
+        }
         $this->relations[] = array($table, $alias, $relation);
 
         return $this;
@@ -85,6 +133,19 @@ class MiniMVC_Query
     {
         if (trim($condition)) {
             $this->where[] = $condition;
+        }
+        return $this;
+    }
+
+    /**
+     *
+     * @param string $data
+     * @return MiniMVC_Query
+     */
+    public function set($data)
+    {
+        if (trim($data)) {
+            $this->set[] = $data;
         }
         return $this;
     }
@@ -135,23 +196,31 @@ class MiniMVC_Query
      */
     public function get($values = array())
     {
-        $q = 'SELECT ';
+        $q = $this->type.' ';
         $comma = false;
         $select = array();
-        foreach ($this->select as $k => $v) {
-            if (isset($this->tables[$v])) {
-                $select[] = $this->_select($v);
-            } else {
+        if ($this->type == 'SELECT') {
+            foreach ($this->select as $k => $v) {
+                if (isset($this->tables[$v])) {
+                    $select[] = $this->_select($v);
+                } else {
+                    $select[] = $v;
+                }
+            }
+        } else {
+            foreach ($this->select as $k => $v) {
                 $select[] = $v;
             }
         }
         $q .= implode(', ', $select);
-        $q .= $this->_from($this->from);
+        if ($this->type == 'INSERT INTO') {
+            $q .= ' SET '.implode(' , ',$this->set);
+        } else {
+            $q .= $this->_from($this->from);
+        }
 
         foreach ($this->join as $join => $info) {
-            if (isset($this->tables[$join])) {
-                $q .= $this->_join($join, $info[0], $info[1]);
-            }
+            $q .= $this->_join($join, $info[0], isset($info[1]) ? $info[1] : null, isset($info[2]) ? $info[2] : null);
         }
         $condition = count($this->where) ? implode(' AND ', $this->where) : '';
         if ($this->where) {
@@ -176,6 +245,20 @@ class MiniMVC_Query
         $q .= $limit;
 
         return $q;
+    }
+
+    public function execute($values = array())
+    {
+        $sql = $this->get($values);
+
+        if (!is_array($values) && $values) {
+            $values = array($values);
+        }
+
+        $stmt = $this->db->prepare($sql);
+        $result = $stmt->execute($values);
+
+        return $result !== false ? $stmt : false;
     }
 
     public function build($values = array(), $returnAll = false)
@@ -251,14 +334,14 @@ class MiniMVC_Query
         return $sql;
     }
 
-    protected function _join($alias, $on = null, $type = 'LEFT')
+    protected function _join($alias, $on = null, $table = null, $type = 'LEFT')
     {
-        return ' '.$type.' JOIN '.$this->tables[$alias]->getTableName().' '.$alias.' '.($on ? 'ON '.$on : '').' ';
+        return ' '.$type.' JOIN '.($table ? $table : $this->tables[$alias]->getTableName()).' '.$alias.' '.($on ? 'ON '.$on : '').' ';
     }
 
     protected function _from($alias = null)
     {
-        return ' FROM '.$this->tables[$alias]->getTableName().' '.$alias.' ';
+        return ' FROM '.(isset($this->tables[$alias]) ? $this->tables[$alias]->getTableName() : '').' '.$alias.' ';
     }
 
     protected function _in($alias = null, $key = null, $values = array())
