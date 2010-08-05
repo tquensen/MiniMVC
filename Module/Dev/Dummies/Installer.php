@@ -1,19 +1,35 @@
 <?php
 
-class Module_MODULE_Installer extends MiniMVC_Installer
+class MODULE_Installer extends MiniMVC_Installer
 {
 
-    public function install()
+    public function install($installedVersion)
     {
-        // replace MODULE with your real models!
-        // MODULETable::get()->install();
+        try
+        {
+            $MODLC = new MODULETable();
+            $MODLC->install($installedVersion);
+        }
+        catch(Exception $e)
+        {
+            $this->message = $e->getMessage();
+            return false;
+        }
         return true;
     }
 
-    public function uninstall()
+    public function uninstall($installedVersion)
     {
-        // replace MODULE with your real models!
-        // MODULETable::get()->uninstall();
+        try
+        {
+            $MODLC = new MODULETable();
+            $MODLC->uninstall($installedVersion);
+        }
+        catch(Exception $e)
+        {
+            $this->message = $e->getMessage();
+            return false;
+        }
         return true;
     }
 

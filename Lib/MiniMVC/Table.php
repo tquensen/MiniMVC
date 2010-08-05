@@ -9,7 +9,7 @@ class MiniMVC_Table {
     /**
      * @var MiniMVC_Registry 
      */
-    protected $_registry = null;
+    protected $registry = null;
 
 	protected $_entries = array();
 	protected $_table = false;
@@ -23,8 +23,8 @@ class MiniMVC_Table {
 
 	public function __construct()
 	{
-		$this->_registry = MiniMVC_Registry::getInstance();
-		$this->_db = $this->_registry->db->get();
+		$this->registry = MiniMVC_Registry::getInstance();
+		$this->_db = $this->registry->db->get();
         $this->construct();
 	}
 
@@ -194,6 +194,16 @@ class MiniMVC_Table {
 	}
 
     /**
+     * @param string $condition the where condition("id = ?", "username LIKE ?")
+     * @param mixed $values the values for the ?-placeholders
+     * @return bool true if results were found
+     */
+	public function exist($condition, $values = null)
+	{
+        return (bool) $this->count($condition, $values);
+	}
+
+    /**
      *
      * @param string $order
      * @return array
@@ -217,11 +227,15 @@ class MiniMVC_Table {
 
 
     /**
-     * @param string $condition the where condition("id = 1", "username LIKE 'foo%'")
+     * @param string $condition the where condition("id = ?", "username LIKE ?")
+     * @param mixed $values the values for the ?-placeholders
      * @return int num results found
      */
 	public function count($condition = null, $values = null)
 	{
+        if (!is_array($values) && $values !== null) {
+            $values = array($values);
+        }
         if ($stmt = MiniMVC_Query::create($this->_db)->select('COUNT(*)')->from($this)->where($condition)->execute($values)) {
             return $stmt->fetchColumn();
         }
@@ -468,5 +482,20 @@ class MiniMVC_Table {
     public function uninstall()
     {
 
+    }
+
+    public function generateSlug($entry, $source, $field)
+    {
+        $slug = $this->registry->helper->Text->sanitize($source, true);
+        $id = $entry->getIdentifier();
+        $sql = 'SELECT count(*) FROM '.$this->_table.' WHERE '.$this->_identifier.' <> ? and '.$field.' = ?';
+        $stmt = $this->_db->prepare($sql);
+        $num = null;
+        do {
+            $slug = $slug . $num;
+            $stmt->execute(array($id, $slug));
+            $num--;
+        } while($stmt->fetchColumn());
+        return $slug;
     }
 }

@@ -21,22 +21,37 @@ class {name}Table extends MiniMVC_Table
     protected static $_instance = null;
 
 
-
-
-    /**
+   /**
      * Created the table for this model
      */
-    public function install()
+    public function install($installedVersion = 0)
     {
+        switch ($installedVersion) {
+            case 0:
+                $sql = 'CREATE TABLE `{table}` (
+					  `id` int(11) NOT NULL auto_increment,
+					  PRIMARY KEY  (`id`)
+					) ENGINE=INNODB DEFAULT CHARSET=utf8';
 
+                $this->_db->query($sql);
+            case 1:
+        }
+        return true;
     }
 
     /**
      * Deletes the table for this model
      */
-    public function uninstall()
+    public function uninstall($installedVersion = 'max')
     {
 
+        SWITCH ($installed_version) {
+            case 'max':
+            case 1:
+                $sql = 'DROP TABLE `{table}`';
+                $this->_db->query($sql);
+        }
+        return true;
     }
 
     /**

@@ -8,6 +8,7 @@
  * @property Helper_Static $Static
  * @property Helper_Url $Url
  * @property Helper_Pager $Pager
+ * @Property Helper_Text $Text
  *
  * @method Helper_CSS CSS($module) CSS($module)
  * @method Helper_I18n I18n()
@@ -15,6 +16,7 @@
  * @method Helper_Static Static()
  * @method Helper_Url Url()
  * @method Helper_Pager Pager()
+ * @method Helper_Text Text()
  * 
  */
 class MiniMVC_Helpers
@@ -39,14 +41,20 @@ class MiniMVC_Helpers
      */
     public function __call($name, $arguments)
     {
-        $module = (isset($arguments[0])) ? $arguments[0] . '/' : '';
+        $module = (isset($arguments[0])) ? $arguments[0] . '_' : '';
         if (!isset($this->helpers[$module.$name]))
 		{
-			$helperName = 'Helper_'.$name;
+			$helperName = $module.'Helper_'.$name;
 			if (class_exists($helperName))
 			{
 				$this->helpers[$module.$name] = new $helperName($module);
-			}
+			} else {
+                $helperName = 'Helper_'.$name;
+                if (class_exists($helperName))
+                {
+                    $this->helpers[$module.$name] = new $helperName($module);
+                }
+            }
 		}
 		return (isset($this->helpers[$module.$name])) ? $this->helpers[$module.$name] : null;
     }

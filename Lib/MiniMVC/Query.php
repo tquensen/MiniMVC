@@ -263,6 +263,10 @@ class MiniMVC_Query
 
     public function execute($values = array())
     {
+        if (!is_array($values) && $values !== null) {
+            $values = array($values);
+        }
+        
         $sql = $this->get($values);
 
         if (!is_array($values) && $values) {
@@ -277,11 +281,11 @@ class MiniMVC_Query
 
     public function build($values = array(), $returnAll = false)
     {
-        $sql = $this->get($values);
-
-        if (!is_array($values) && $values) {
+        if (!is_array($values) && $values !== null) {
             $values = array($values);
         }
+
+        $sql = $this->get($values); 
 
         $stmt = $this->db->prepare($sql);
         $stmt->execute($values);

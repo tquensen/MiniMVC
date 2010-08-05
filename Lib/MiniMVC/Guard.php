@@ -106,6 +106,9 @@ class MiniMVC_Guard
      */
     public function __get($key)
     {
+        if (isset($this->$key)) {
+            return $this->$key;
+        }
         return (isset($this->data[$key])) ? $this->data[$key] : null;
     }
 

@@ -131,7 +131,7 @@ class MiniMVC_View
 	
 	public function toJSON($data = null)
 	{
-		return json_encode(($data !== null) ? $this->vars : $data);
+		return json_encode(($data === null) ? $this->vars : $data);
 	}
 	
 	public function toXML($data)
@@ -144,7 +144,7 @@ class MiniMVC_View
 		$this->writeXML($xml, $data);
 		
 		$xml->endElement();
-		echo $xml->outputMemory(true);
+		return $xml->outputMemory(true);
 	}
 	
 	private function writeXML(XMLWriter $xml, $data){

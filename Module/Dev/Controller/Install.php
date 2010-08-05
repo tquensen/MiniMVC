@@ -5,47 +5,63 @@ class Dev_Install_Controller extends MiniMVC_Controller
 
     public function moduleAction($params)
     {
-        $form = $this->getInstallForm();
+        if (!$params['module']) {
+            return 'Kein Modul angegeben!' . "\n";
+        }
 
-        if ($form->validate()) {
-            $this->view->module = $form->module->value;
+        if (!file_exists(BASEPATH . 'Module/' . $params['module'])) {
+            return 'Modul existiert nicht!' . "\n";
+        }
 
-            if (file_exists(BASEPATH . '/Module/' . $this->view->module . '/Installer.php')) {
-                $class = 'Module_' . $this->view->module . '_Installer';
-                $installer = new $class();
-                if ($form->type->value == 'install') {
-                    $this->view->status = (bool)$installer->install();
-                } elseif ($form->type->value == 'uninstall') {
-                    $this->view->status = (bool)$installer->uninstall();
-                }
-            } else {
-                $this->view->status = false;
-            }
-            return $this->view->parse('install');
-        } else {
-            $this->view->form = $form;
-            return $this->view->parse('installForm');
+        if (!file_exists(BASEPATH . 'Module/' . $params['module'] . '/Installer.php')) {
+            return 'Modul hat keinen Installer!' . "\n";
+        }
+        $class = $params['module'] . '_Installer';
+        $installer = new $class();
+        if ($params['type'] == 'install') {
+            return $installer->install($params['fromVersion']) ? 'Modul wurde installiert!' : $installer->getMessage();
+        } elseif ($params['type'] == 'uninstall') {
+            return $installer->uninstall($params['fromVersion']) ? 'Modul wurde deinstalliert!' : $installer->getMessage();
         }
     }
 
-    protected function getInstallForm()
+    public function modelAction($params)
     {
-        $modules = MiniMVC_Registry::getInstance()->settings->modules;
-        $modules = array_combine($modules, $modules);
-        $modules = array('0' => $this->view->t->installFormModuleChoose) + $modules;
-        $form = new MiniMVC_Form(null, array('name' => 'DevInstaller'));
-        $form->addElement(
-                new MiniMVC_Form_Element_Select('module',
-                        array('label' => $this->view->t->installFormModule, 'options' => $modules, 'errorMessage' => $this->view->t->installFormModuleInvalid),
-                        new MiniMVC_Form_Validator_Required(array('errorMessage' => $this->view->t->installFormModuleRequired))
-                )
-        );
-        $form->addElement(new MiniMVC_Form_Element_Select('type', array('label' => $this->view->t->installFormType, 'options' => array('install' => 'install', 'uninstall' => 'uninstall'))));
-        $form->addElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $this->view->t->installFormSubmit)));
+        if (!$params['model']) {
+            return 'Kein Model angegeben!' . "\n";
+        }
 
-        $form->setValues();
+        $className = $params['model'].'Table';
 
-        return $form;
+        if (!class_exists($className)) {
+            return 'Model Table Klasse "'.$className.'" existiert nicht!' . "\n";
+        }
+
+        $class = call_user_func($className.'::getInstance');
+        
+        if ($params['type'] == 'install') {
+            try {
+                $status = $class->install($params['fromVersion']);
+                if ($status !== true && $status !== null) {
+                     return 'Es gab einen Fehler beim Installieren: '.$status;
+                } else {
+                     return  'Model wurde installiert!';
+                }
+            } catch (Exception $e) {
+                return 'Es gab einen Fehler beim Installieren: '.$e->getMessage();
+            }
+        } elseif ($params['type'] == 'uninstall') {
+            try {
+                $status = $class->uninstall($params['fromVersion']);
+                if ($status !== true && $status !== null) {
+                     return 'Es gab einen Fehler beim Deinstallieren: '.$status;
+                } else {
+                     return  'Model wurde deinstalliert!';
+                }
+            } catch (Exception $e) {
+                return 'Es gab einen Fehler beim Deinstallieren: '.$e->getMessage();
+            }
+        }
     }
 
 }

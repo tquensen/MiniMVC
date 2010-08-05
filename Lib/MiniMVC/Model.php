@@ -257,6 +257,8 @@ class MiniMVC_Model
                 $this->__call('save'.$relation, array());
             }
         }
+
+        return $status;
 	}
 
 	public function delete()

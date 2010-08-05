@@ -2,9 +2,9 @@
 $MiniMVC_db = array();
 
 $MiniMVC_db['default'] = array(
-	'driver' => 'mysql:unix_socket=/Applications/MAMP/tmp/mysql/mysql.sock;dbname=minimvc_mysqli',
+	'driver' => 'mysql:host=localhost;dbname=minimvc_mysqli', //'mysql:unix_socket=/Applications/MAMP/tmp/mysql/mysql.sock;dbname=minimvc_mysqli',
 	'username' => 'root',
-	'password' => 'root',
+	'password' => 'peniskopf',
 );
 
 

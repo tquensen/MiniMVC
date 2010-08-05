@@ -3,7 +3,10 @@ class Blubb_Default_Controller extends MiniMVC_Controller
 {
     public function indexAction($params)
     {
-        $group = GroupTable::getInstance()->loadOneBy('name = ?', 'Horstgroup');
+        if (!$group = GroupTable::getInstance()->loadOneBy('name = ?', 'Horstgroup'))
+        {
+            $group = GroupTable::getInstance()->create(array('name' => 'Horstgroup'));
+        }
 
         $user = new BlubbUser();
         $user->username = 'Horstilein';

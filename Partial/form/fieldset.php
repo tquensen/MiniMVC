@@ -1,1 +1,1 @@
-<fieldset><legend><?php echo htmlspecialchars($element->getOption('legend'))?></legend>
+<fieldset><legend><?php echo htmlspecialchars($element->legend)?></legend>

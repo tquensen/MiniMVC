@@ -1,5 +1,5 @@
     <input type="checkbox"
-           name="<?php echo htmlspecialchars($element->getForm()->getName() . '_' . $element->getName()) ?>"
-           id="<?php echo htmlspecialchars($element->getForm()->getName() . '_' . $element->getName()) ?>"
+           name="<?php echo htmlspecialchars($element->getForm()->getName() . '[' . $element->getName() . ']') ?>"
+           id="<?php echo htmlspecialchars($element->getForm()->getName() . '__' . $element->getName()) ?>"
            <?php if ($element->value): ?> checked="checked" <?php endif; ?> /> <label
-                      for="<?php echo htmlspecialchars($element->getForm()->getName() . '_' . $element->getName()) ?>"><?php echo htmlspecialchars($element->label) ?></label>
+                      for="<?php echo htmlspecialchars($element->getForm()->getName() . '__' . $element->getName()) ?>"><?php echo htmlspecialchars($element->label) ?></label>

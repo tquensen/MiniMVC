@@ -1,4 +1,10 @@
 HI<br />
+id: <?php echo htmlspecialchars($this->registry->guard->id) ?><br />
+role: <?php echo htmlspecialchars($this->registry->guard->role) ?><br />
+rights: <?php echo htmlspecialchars($this->registry->guard->rights) ?><br />
+name: <?php echo htmlspecialchars($this->registry->guard->name) ?><br />
+email: <?php echo htmlspecialchars($this->registry->guard->email) ?><br />
+slug: <?php echo htmlspecialchars($this->registry->guard->slug) ?><br />
 <?php echo $pager->getHtml(); ?>
 <?php
 /*

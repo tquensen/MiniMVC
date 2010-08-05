@@ -217,8 +217,8 @@ class MiniMVC_Dispatcher
             }
             if ($this->registry->guard->getRole() && $this->registry->guard->getRole() != $this->registry->rights->getRoleByKeyword('guest')) {
                 $error403Route = (isset($this->registry->settings->config['error403Route'])) ? $this->registry->settings->config['error403Route'] : false;
-                if ($error403Route && isset($routes[$error403Route])) {
-                    $routeData = $routes[$error403Route];
+                if ($error403Route && isset($this->registry->settings->routes[$error403Route])) {
+                    $routeData = $this->registry->settings->routes[$error403Route];
                 } else {
                     throw new Exception('Insufficient rights and no 403 Route defined!');
                 }
@@ -232,7 +232,7 @@ class MiniMVC_Dispatcher
             }
         }
 
-        return $this->call($routeData['controller'], $routeData['action'], $routeData['parameter']);
+        return $this->call($routeData['controller'], $routeData['action'], isset($routeData['parameter']) ? $routeData['parameter'] : array());
     }
 
     /**

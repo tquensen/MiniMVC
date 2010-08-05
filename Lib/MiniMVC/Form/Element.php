@@ -71,18 +71,20 @@ class MiniMVC_Form_Element
 
 	public function setValue($value)
 	{
-		if ($this->alwaysUseDefault == true)
-		{
-			$this->value = $this->defaultValue;
-			return;
-		}
-		if ($this->form->wasSubmitted())
+        if ($this->form->wasSubmitted() && !$this->alwaysUseDefault)
 		{
             $this->value = $value;
         }
         else
         {
-            $this->value = $this->defaultValue;
+            if ($this->defaultValue !== null) {
+                $this->value = $this->defaultValue;
+            } else {
+                if ($model = $this->getForm()->getModel) {
+                    $property = ($this->getOption['modelProperty']) ? $this->getOption['modelProperty'] : $this->name;
+                    $this->value = $model->$property;
+                }
+            }
         }
 	}
 
@@ -109,6 +111,7 @@ class MiniMVC_Form_Element
 	{
 		$this->errorMessage = $errorMessage;
 		$this->isValid = !$error;
+        $this->getForm()->setError($error);
 	}
 
 	public function isValid()
@@ -120,5 +123,10 @@ class MiniMVC_Form_Element
 	{
 		return ($this->form) ? $this->form->wasSubmitted() : false;
 	}
+
+    public function updateModel($model) {
+        $property = ($this->getOption['modelProperty']) ? $this->getOption['modelProperty'] : $this->name;
+        $model->$property = $this->value;
+    }
 
 }

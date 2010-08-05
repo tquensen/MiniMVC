@@ -5,7 +5,7 @@
  * @method Group getOneBy()
  * @method Group loadOne($id)
  * @method Group loadOneBy()
- * @method Group create()
+ * @method Group create($data = array())
  */
 class GroupTable extends MiniMVC_Table
 {
