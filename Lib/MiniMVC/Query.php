@@ -68,6 +68,19 @@ class MiniMVC_Query
      * @param string|null $alias
      * @return MiniMVC_Query
      */
+    public function update($alias = null)
+    {
+        $this->type = 'UPDATE';
+        $this->select[] = $alias;
+
+        return $this;
+    }
+
+    /**
+     *
+     * @param string|null $alias
+     * @return MiniMVC_Query
+     */
     public function delete($alias = null)
     {
         $this->type = 'DELETE';
@@ -110,6 +123,7 @@ class MiniMVC_Query
     public function join($table, $relation, $alias, $type = null)
     {
         if (!isset($this->tables[$table]) || !$data = $this->tables[$table]->getRelation($relation)) {
+            $this->join[$alias] = array($relation, $table, $type);
             return $this;
         }
         $this->tables[$alias] = call_user_func($data[0].'Table'.'::getInstance');
@@ -213,7 +227,7 @@ class MiniMVC_Query
             }
         }
         $q .= implode(', ', $select);
-        if ($this->type == 'INSERT INTO') {
+        if ($this->type == 'INSERT INTO' || $this->type == 'UPDATE') {
             $q .= ' SET '.implode(' , ',$this->set);
         } else {
             $q .= $this->_from($this->from);

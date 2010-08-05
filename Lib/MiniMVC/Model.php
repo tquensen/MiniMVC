@@ -112,6 +112,7 @@ class MiniMVC_Model
             $identifier = isset($arguments[0]) ? $arguments[0] : true;
             $realDelete = isset($arguments[1]) ? $arguments[1] : false;
             $realDeleteLoad = isset($arguments[2]) ? $arguments[2] : false;
+            $realDeleteCleanRef = isset($arguments[3]) ? $arguments[3] : false;
             if (is_object($identifier)) {
                 if (isset($this->_relations[$relation]['id_'.$arguments[0]->getIdentifier()])) {
                     unset($this->_relations[$relation]['id_'.$arguments[0]->getIdentifier()]);
@@ -131,13 +132,11 @@ class MiniMVC_Model
                             $table = call_user_func($tableName . '::getInstance');
                             if (isset($data[3]) && $data[3] !== true) {
                                 MiniMVC_Query::create()->delete('b')->from($this->_table->getModelName(), 'a')->join('a', $relation, 'b')->where('a.'.$this->_table->getIdentifier().' = ? AND b.'.$table->getIdentifier(). ' IS NOT NULL')->execute($this->getIdentifier());
-                            } else {
-                                $table->deleteBy($data[2] . ' = ?', $this->{$data[1]});
-                            }
-                            foreach ($table->getRelations() as $relation => $info) {
-                                if (isset($info[3]) && $info[3] !== true) {
-                                    MiniMVC_Query::create()->delete('a_b')->from($table->getModelName(), 'a')->join('a', $relation, 'b', 'RIGHT')->where('a.'.$table->getIdentifier().' IS NULL')->execute();
+                                if ($realDeleteCleanRef) {
+                                    $table->cleanRefTables();
                                 }
+                            } else {
+                                $table->deleteBy($data[2] . ' = ?', $this->{$data[1]}, $realDeleteCleanRef);
                             }
                             return true;
                         } else {

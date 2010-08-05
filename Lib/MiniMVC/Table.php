@@ -222,20 +222,10 @@ class MiniMVC_Table {
      */
 	public function count($condition = null, $values = null)
 	{
-        if (!is_array($values) && $values) {
-            $values = array($values);
+        if ($stmt = MiniMVC_Query::create($this->_db)->select('COUNT(*)')->from($this)->where($condition)->execute($values)) {
+            return $stmt->fetchColumn();
         }
-        
-        $sql  = 'SELECT COUNT(*) FROM '.$this->_table;
-        if ($condition) $sql .= ' WHERE '.$condition;
-
-        $stmt = $this->_db->prepare($sql);
-
-        $stmt->execute($values);
-
-
-		$result = $stmt->fetch(PDO::FETCH_NUM);
-		return $row[0];
+        return false;
 	}
 
     public function query($alias = null)
@@ -305,9 +295,10 @@ class MiniMVC_Table {
             if ($entry->preInsert() === false) {
                 return false;
             }
-            $values = array();
+
             $query = MiniMVC_Query::create($this->_db)->insert($this->_table);
-			$columnSql = '';
+
+            $values = array();
 			foreach ($this->_columns as $column)
 			{
 				if (isset($entry->$column) && $entry->$column !== null)
@@ -335,13 +326,15 @@ class MiniMVC_Table {
 
         } else {
             $update = false;
+
+            $query = MiniMVC_Query::create($this->_db)->update($this->_table)->where($this->_identifier.' = ?');
+
             $values = array();
-			$columnSql = '';
 			foreach ($this->_columns as $column)
 			{
 				if (isset($entry->$column) && $entry->$column !== $entry->getDatabaseProperty($column))
 				{
-					$columnSql[] = ' '.$column.' = ? ';
+					$query->set(' '.$column.' = ? ');
                     $values[] = $entry->$column;
                     $update = true;
 				}
@@ -352,12 +345,9 @@ class MiniMVC_Table {
             if ($entry->preUpdate() === false) {
                 return false;
             }
-            $sql = 'UPDATE '.$this->_table.' SET ';
-            $sql .= implode(', ', $columnSql).' WHERE '.$this->_identifier.' = ?';
             $values[] = $entry->{$this->_identifier};
 
-            $stmt = $this->_db->prepare($sql);
-            $result = $stmt->execute($values);
+            $result = $query->execute($values);
 
             foreach ($this->_columns as $column)
             {
@@ -417,25 +407,35 @@ class MiniMVC_Table {
 		}
         foreach ($this->_relations as $relation => $info) {
             if (isset($info[3]) && $info[3] !== true) {
-                MiniMVC_Query::create($this->_db)->delete('a_b')->from($this->_model, 'a')->join('a', $relation, 'b', 'RIGHT')->where('a.'.$this->_identifier.' IS NULL')->execute();
+                MiniMVC_Query::create($this->_db)->delete()->from($info[3])->where($info[1].' = ?')->execute(is_object($entry) ? $entry->{$this->_identifier} : $entry);
             }
         }
 		return $result;
 	}
 
-	public function deleteBy($condition, $values)
+	public function deleteBy($condition, $values, $cleanRefTable = false)
 	{
         $query = new MiniMVC_Query($this->_db);
         $result = $query->delete()->from($this)->where($condition)->execute($values);
 
-        foreach ($this->_relations as $relation => $info) {
-            if (isset($info[3]) && $info[3] !== true) {
-                MiniMVC_Query::create($this->_db)->delete('a_b')->from($info[0], 'a')->join('a', $relation, 'b')->where('b.'.$this->_identifier.' IS NULL')->execute();
-            }
+        if ($cleanRefTable) {
+            $this->cleanRefTables();
         }
         
 		return $result;
 	}
+
+    /**
+     * deletes all rows in m:n ref tables which have no related entry in this class
+     */
+    public function cleanRefTables()
+    {
+        foreach ($this->_relations as $relation => $info) {
+            if (isset($info[3]) && $info[3] !== true) {
+                MiniMVC_Query::create($this->_db)->delete('a_b')->from($info[3], 'a_b')->join($this->_table, 'a_b.'.$info[1].' = a.'.$this->_identifier, 'a')->where('a.'.$this->_identifier.' IS NULL')->execute();
+            }
+        }
+    }
 
 	public function orderBy($field, $direction, $entries)
 	{
