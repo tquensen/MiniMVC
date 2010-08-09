@@ -5,15 +5,18 @@ class Core_Task_Controller extends MiniMVC_Controller
 
     public function clearCacheAction()
     {
-        $status = $this->clearDirectory(BASEPATH . 'cache', true, true);
+        $status = $this->clearDirectory(BASEPATH . 'cache', true);
         return ($status === true) ? 'cache directory cleared!' : 'error: clearing cache directory failed: '.$status;
     }
 
     public function createLinksAction()
     {
+       if (!file_exists(BASEPATH.'Cache/public')) {
+           mkdir(BASEPATH.'Cache/public');
+       }
        if (!file_exists(WEBPATH.'cache')) {
-           echo 'Creating Link "'.WEBPATH.'cache" pointing to "'.BASEPATH.'Cache"'."\n";
-                symlink(BASEPATH.'Cache', WEBPATH.'cache');
+           echo 'Creating Link "'.WEBPATH.'cache" pointing to "'.BASEPATH.'Cache/public"'."\n";
+                symlink(BASEPATH.'Cache/public', WEBPATH.'cache');
        }
        if (!file_exists(WEBPATH.'app')) {
            mkdir(WEBPATH.'app');
@@ -36,7 +39,7 @@ class Core_Task_Controller extends MiniMVC_Controller
        return 'Symlinks wurrden erstellt!';
     }
 
-    protected function clearDirectory($dir, $recursive = false, $root = false)
+    protected function clearDirectory($dir, $recursive = false, $level = 1)
     {
         if (!is_dir($dir) || !is_writable($dir)) {
             return 'no write/delete permissons for directory "'.$dir.'"';
@@ -53,14 +56,15 @@ class Core_Task_Controller extends MiniMVC_Controller
                     return 'unlink failed for file "'.$dir.'/'.$file.'"';
                 }
             } elseif (is_dir($dir.'/'.$file) && $recursive) {
-                $status = $this->clearDirectory($dir.'/'.$file);
+                if ($level == 1 && $file == 'public') {
+                    continue;
+                }
+                $status = $this->clearDirectory($dir.'/'.$file, $recursive, $level + 1);
                 if ($status !== true) {
                     return $status;
                 }
-                if (!$root) {
-                    if (!@rmdir($dir.'/'.$file)) {
-                        return 'rmdir failed for directory "'.$dir.'/'.$file.'"';
-                    }
+                if (!@rmdir($dir.'/'.$file)) {
+                    return 'rmdir failed for directory "'.$dir.'/'.$file.'"';
                 }
             }
         }

@@ -56,8 +56,8 @@ class Helper_CSS extends MiniMVC_Helper
             $app = (isset($file['app'])) ? $file['app'] : $this->registry->settings->currentApp;
 
             if ($module) {
-                if (file_exists(APPPATH.$app.'/Web/'.strtolower($module).'/css/'.$file['file'])) {
-                    $data['file'] = APPPATH.$app.'/Web/'.strtolower($module).'/css/'.$file['file'];
+                if (file_exists(APPPATH.$app.'/Web/'.$module.'/css/'.$file['file'])) {
+                    $data['file'] = APPPATH.$app.'/Web/'.$module.'/css/'.$file['file'];
                 } else {
                     $data['file'] = MODULEPATH.$module.'/Web/css/'.$file['file']; 
                 }
@@ -129,11 +129,11 @@ class Helper_CSS extends MiniMVC_Helper
             $filename = 'css_'.$fileHash.'.css';
             
             if (!isset($newFiles[$fileHash])) {
+                file_put_contents(BASEPATH.'cache/public/'.$filename, $content);
 	            $newFiles[$fileHash] = array(
 	                'url' => $this->staticHelper->get('cache/'.$filename, null, $app),
 	                'media' => $media
-	            );
-	            file_put_contents(BASEPATH.'cache/'.$filename, $content);
+	            ); 
             } else {
             	$newFiles[$fileHash]['media'] .= ', ' . $media;
             }
