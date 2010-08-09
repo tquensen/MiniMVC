@@ -236,7 +236,7 @@ class MiniMVC_Table {
         if (!is_array($values) && $values !== null) {
             $values = array($values);
         }
-        if ($stmt = MiniMVC_Query::create($this->_db)->select('COUNT(*)')->from($this)->where($condition)->execute($values)) {
+        if ($stmt = MiniMVC_Query::create()->select('COUNT(*)')->from($this)->where($condition)->execute($values)) {
             return $stmt->fetchColumn();
         }
         return false;
@@ -244,15 +244,12 @@ class MiniMVC_Table {
 
     public function query($alias = null)
     {
-        $q = new MiniMVC_Query($this->_db);
+        $q = new MiniMVC_Query();
         return $q->select($alias)->from($this, $alias);
     }
     
-	public function buildModel($row, $alias = null)
+	public function buildModel($row)
 	{
-        if ($alias) {
-            $row = $this->_filter($row, $alias);
-        }
         if (empty($row) || !isset($row[$this->_identifier])) {
             return null;
         }
@@ -268,23 +265,6 @@ class MiniMVC_Table {
         $this->set($entry);
         return $entry;
 	}
-
-    protected function _filter($row, $alias = '')
-    {
-        if (!$alias) {
-            return $row;
-        }
-        $prefix = $alias.'__';
-        $length = strlen($prefix);
-        foreach ($row as $k=>$v) {
-            if (substr($k, 0, $length) == $prefix) {
-               $row[substr($k, $length)] = $v;
-            }
-            unset($row[$k]);
-        }
-        return $row;
-    }
-
 
 	public function create($data = array())
 	{
@@ -310,7 +290,7 @@ class MiniMVC_Table {
                 return false;
             }
 
-            $query = MiniMVC_Query::create($this->_db)->insert($this->_table);
+            $query = MiniMVC_Query::create()->insert($this->_table);
 
             $values = array();
 			foreach ($this->_columns as $column)
@@ -341,12 +321,12 @@ class MiniMVC_Table {
         } else {
             $update = false;
 
-            $query = MiniMVC_Query::create($this->_db)->update($this->_table)->where($this->_identifier.' = ?');
+            $query = MiniMVC_Query::create()->update($this->_table)->where($this->_identifier.' = ?');
 
             $values = array();
 			foreach ($this->_columns as $column)
 			{
-				if (isset($entry->$column) && $entry->$column !== $entry->getDatabaseProperty($column))
+				if ($entry->$column !== $entry->getDatabaseProperty($column))
 				{
 					$query->set(' '.$column.' = ? ');
                     $values[] = $entry->$column;
@@ -396,7 +376,7 @@ class MiniMVC_Table {
                 return false;
             }
 
-            $query = new MiniMVC_Query($this->_db);
+            $query = new MiniMVC_Query();
             $result = $query->delete()->from($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry->{$this->_identifier});
 
 			if (isset($this->_entries[$entry->{$this->primary}]))
@@ -411,7 +391,7 @@ class MiniMVC_Table {
 		}
 		else
 		{
-            $query = new MiniMVC_Query($this->_db);
+            $query = new MiniMVC_Query();
             $result = $query->delete()->from($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry);
 
 			if (isset($this->_entries[$entry]))
@@ -421,7 +401,7 @@ class MiniMVC_Table {
 		}
         foreach ($this->_relations as $relation => $info) {
             if (isset($info[3]) && $info[3] !== true) {
-                MiniMVC_Query::create($this->_db)->delete()->from($info[3])->where($info[1].' = ?')->execute(is_object($entry) ? $entry->{$this->_identifier} : $entry);
+                MiniMVC_Query::create()->delete()->from($info[3])->where($info[1].' = ?')->execute(is_object($entry) ? $entry->{$this->_identifier} : $entry);
             }
         }
 		return $result;
@@ -429,7 +409,7 @@ class MiniMVC_Table {
 
 	public function deleteBy($condition, $values, $cleanRefTable = false)
 	{
-        $query = new MiniMVC_Query($this->_db);
+        $query = new MiniMVC_Query();
         $result = $query->delete()->from($this)->where($condition)->execute($values);
 
         if ($cleanRefTable) {
@@ -446,7 +426,7 @@ class MiniMVC_Table {
     {
         foreach ($this->_relations as $relation => $info) {
             if (isset($info[3]) && $info[3] !== true) {
-                MiniMVC_Query::create($this->_db)->delete('a_b')->from($info[3], 'a_b')->join($this->_table, 'a_b.'.$info[1].' = a.'.$this->_identifier, 'a')->where('a.'.$this->_identifier.' IS NULL')->execute();
+                MiniMVC_Query::create()->delete('a_b')->from($info[3], 'a_b')->join($this->_table, 'a', 'a_b.'.$info[1].' = a.'.$this->_identifier)->where('a.'.$this->_identifier.' IS NULL')->execute();
             }
         }
     }

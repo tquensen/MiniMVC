@@ -13,7 +13,7 @@ class BlubbCommentsTable extends MiniMVC_Table
     protected $_model = 'BlubbComments';
 
 	protected $_columns = array('id', 'blubb_id', 'user_id', 'message');
-    protected $_relations = array('user' => array('BlubbUser', 'user_id', 'id', true), 'blubb' => array('Blubber', 'blubb_id', 'id', true));
+    protected $_relations = array('User' => array('BlubbUser', 'user_id', 'id', true), 'Blubb' => array('Blubber', 'blubb_id', 'id', true));
 	protected $_identifier = 'id';
 	protected $_isAutoIncrement = true;
 
@@ -21,7 +21,7 @@ class BlubbCommentsTable extends MiniMVC_Table
 
     public function loadWithUser($condition = null, $values = array(), $order = null, $limit = null, $offset = null)
 	{
-        return $this->query('c')->select('u')->join('c','user','u')
+        return $this->query('c')->select('u')->join('c.User','u')
                 ->where($condition)->orderBy($order)->limit($limit, $offset)->build($values);
 	}
 

@@ -14,7 +14,7 @@ class GroupTable extends MiniMVC_Table
     protected $_model = 'Group';
 
 	protected $_columns = array('id', 'name');
-    protected $_relations = array('user' => array('BlubbUser', 'group_id', 'user_id', 'group_user'));
+    protected $_relations = array('User' => array('BlubbUser', 'group_id', 'user_id', 'group_user'));
 	protected $_identifier = 'id';
 	protected $_isAutoIncrement = true;
 
@@ -24,7 +24,7 @@ class GroupTable extends MiniMVC_Table
 
 
     /**
-     * Created the table for this model
+     * Creates the table for this model
      */
     public function install()
     {

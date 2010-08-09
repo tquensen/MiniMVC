@@ -3,6 +3,7 @@ class Blubb_Default_Controller extends MiniMVC_Controller
 {
     public function indexAction($params)
     {
+        /*
         if (!$group = GroupTable::getInstance()->loadOneBy('name = ?', 'Horstgroup'))
         {
             $group = GroupTable::getInstance()->create(array('name' => 'Horstgroup'));
@@ -23,12 +24,10 @@ class Blubb_Default_Controller extends MiniMVC_Controller
         $group->save(true);
 
         exit;
-        
+        */
         $groups = GroupTable::getInstance()->loadAll();
         foreach ($groups as $group) {
         echo '' .$group->name.'<br />';
-        $group->deleteUser(true, true, true);
-        exit;
         foreach ($group->loadUser() as $user) {
             echo ' - ' .$user->username.'<br />';
         }
@@ -36,7 +35,6 @@ class Blubb_Default_Controller extends MiniMVC_Controller
 
 
         $blubb = BlubbCommentsTable::getInstance()->loadOne(7);
-        var_dump(get_class($blubb));
         $blubber = $blubb->loadBlubb();
         echo '##'.$blubber->name.'<br />';
 
@@ -53,23 +51,23 @@ class Blubb_Default_Controller extends MiniMVC_Controller
 
         echo '<br /><br />------------------------------------------------<br /><br />';
 
-        $userlist = BlubbUserTable::getInstance()->loadWithRelations(null, null, 'u.username DESC');
+        $userlist = BlubbUserTable::getInstance()->loadWithRelations(null, null, 'u.username DESC', 24);
         foreach ($userlist as $user) {
-            echo '<br />User '.$user->id.' ('.$user->username.')<br />';
-            $blubber = $user->getBlubber();
+            echo '<br />User '.$user['id'].' ('.$user['username'].')<br />';
+            $blubber = $user['Blubber'];
             echo ' - Blubber:<br />';
             foreach ($blubber as $blubb) {
-                echo ' &nbsp; - '.$blubb->id.' ('.$blubb->name.')<br />';
+                echo ' &nbsp; - '.$blubb['id'].' ('.$blubb['name'].')<br />';
             }
-            $comments = $user->getComments();
+            $comments = $user['Comments'];
             echo ' - Comments:<br />';
             foreach ($comments as $comment) {
-                echo ' &nbsp; - '.$comment->id.' ('.$comment->message.')<br />';
+                echo ' &nbsp; - '.$comment['id'].' ('.$comment['message'].')<br />';
             }
-            $groups = $user->getGroups();
+            $groups = $user['Groups'];
             echo ' - Groups:<br />';
             foreach ($groups as $group) {
-                echo ' &nbsp; - '.$group->id.' ('.$group->name.')<br />';
+                echo ' &nbsp; - '.$group['id'].' ('.$group['name'].')<br />';
             }
         }
 
@@ -81,7 +79,7 @@ class Blubb_Default_Controller extends MiniMVC_Controller
             $blubber = $user->loadBlubber();
             echo ' - Blubber:<br />';
             foreach ($blubber as $blubb) {
-                echo ' &nbsp; - '.$blubb->id.' ('.$blubb->name.')<br />';
+                echo ' &nbsp; - '.$blubb['id'].' ('.$blubb['name'].')<br />';
             }
             $comments = $user->loadComments();
             echo ' - Comments:<br />';
@@ -103,7 +101,7 @@ class Blubb_Default_Controller extends MiniMVC_Controller
         foreach ($entries as $entry) {
             echo (string) $entry;
         }
-
+        $start = microtime(true);
         $entries = BlubberTable::getInstance()->loadWithNumComments(null, null, 'a.name ASC');//BlubberTable::getInstance()->loadWithComments();
         echo '<br />TIME FULL: '.number_format(microtime(true)-$start, 6, ',','').'s';
         echo 'ENTRIES:'."<br />";

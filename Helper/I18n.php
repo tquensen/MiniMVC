@@ -40,17 +40,17 @@ class Helper_I18n extends MiniMVC_Helper
 
                 foreach ($this->registry->settings->modules as $currentModule)
                 {
-                    if (is_file(BASEPATH.'Module/'.$currentModule.'/I18n/'.$language.'.php'))
+                    if (is_file(MODULEPATH.$currentModule.'/I18n/'.$language.'.php'))
                     {
-                        include_once(BASEPATH.'Module/'.$currentModule.'/I18n/'.$language.'.php');
+                        include_once(MODULEPATH.$currentModule.'/I18n/'.$language.'.php');
                     }
                 }
 
                 if ($this->registry->settings->currentApp)
                 {
-                    if (is_file(BASEPATH.'App/'.$this->registry->settings->currentApp.'/I18n/'.$language.'.php'))
+                    if (is_file(APPPATH.$this->registry->settings->currentApp.'/I18n/'.$language.'.php'))
                     {
-                        include_once(BASEPATH.'App/'.$this->registry->settings->currentApp.'/I18n/'.$language.'.php');
+                        include_once(APPPATH.$this->registry->settings->currentApp.'/I18n/'.$language.'.php');
                     }
                 }
 

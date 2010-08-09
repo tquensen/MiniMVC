@@ -1,5 +1,5 @@
 <?php
-class MiniMVC_Model
+class MiniMVC_Model implements ArrayAccess
 {
 	protected $_properties = array();
     protected $_databaseProperties = array();
@@ -73,163 +73,287 @@ class MiniMVC_Model
         }
 	}
 
+    public function offsetSet($offset, $data)
+    {
+        if ($offset === null) {
+            return;
+        }
+        if ($this->_table->getRelation($offset)) {
+            $this->setRelated($offset, $data);
+        } else {
+            $this->_properties[$offset] = $data;
+        }
+    }
+
+    public function offsetGet($offset)
+    {
+        if ($this->_table->getRelation($offset)) {
+            return $this->getRelated($offset);
+        }
+        return isset($this->_properties[$offset]) ? $this->_properties[$offset] : null;
+    }
+
+    public function offsetExists($offset)
+    {
+        if ($this->_table->getRelation($offset)) {
+            return isset($this->_relations[$offset]);
+        }
+        return isset($this->_properties[$offset]);
+    }
+
+    public function offsetUnset($offset)
+    {
+        if ($this->_table->getRelation($offset)) {
+            $this->unlinkRelated($offset);
+        } elseif (isset($this->_properties[$offset])) {
+            unset($this->_properties[$offset]);
+        }
+    }
+
     public function __call($name, $arguments)
     {
+        if (!preg_match('/^(get|set|delete|load|save|unlink|link)([\w]+)$/', $name, $matches)) {
+            throw new Exception('unknown Method '.$name.' in class '.get_class($this));
+        }
+        $fnc = $matches[1].'Related';
+        $relation = $matches[2];
+        array_unshift($arguments, $relation);
+        return call_user_func_array(array($this, $fnc), $arguments);
+        /*
         if (substr($name, 0, 3) == 'get') {
             $relation = strtolower(substr($name, 3));
             $identifier = isset($arguments[0]) ? $arguments[0] : true;
-            $relationInfo = $this->_table->getRelation($relation);
-            if ($identifier === true) {
-                if (isset($this->_relations[$relation])) {
-                    return (isset($relationInfo[3]) && $relationInfo[3] === true) ? reset($this->_relations[$relation]) : $this->_relations[$relation];
-                }
-            } else {
-                if (isset($this->_relations[$relation]['id_'.$identifier])) {
-                    return $this->_relations[$relation]['id_'.$identifier];
-                }
-            }
-            return ($identifier === true && (!isset($relationInfo[3]) || $relationInfo[3] !== true)) ? array() : null;
-        }
-        if (substr($name, 0, 3) == 'set') {
+            return $this->getRelated($relation, $identifier);
+        } elseif (substr($name, 0, 3) == 'set') {
             $relation = strtolower(substr($name, 3));
-
+            $identifier = isset($arguments[0]) ? $arguments[0] : null;
             $update = isset($arguments[1]) ? $arguments[1] : true;
-            if (isset($arguments[0]) && is_object($arguments[0])) {
-                if (!$arguments[0]->getIdentifier()) {
-                    $this->_relations[$relation][] = $arguments[0];
-                    return true;
-                }
-                if ($update || !isset($this->_relations[$relation]['id_'.$arguments[0]->getIdentifier()])) {
-                    $this->_relations[$relation]['id_'.$arguments[0]->getIdentifier()] = $arguments[0];
-                    return true;
-                }
-            }
-            return false;
-        }
-        elseif (substr($name, 0, 6) == 'delete') {
+            return $this->setRelated($relation, $identifier, $update);
+        } elseif (substr($name, 0, 6) == 'delete') {
             $relation = strtolower(substr($name, 6));
-
             $identifier = isset($arguments[0]) ? $arguments[0] : true;
-            $realDelete = isset($arguments[1]) ? $arguments[1] : false;
+            $realDelete = isset($arguments[1]) ? $arguments[1] : true;
             $realDeleteLoad = isset($arguments[2]) ? $arguments[2] : false;
             $realDeleteCleanRef = isset($arguments[3]) ? $arguments[3] : false;
-            if (is_object($identifier)) {
-                if (isset($this->_relations[$relation]['id_'.$arguments[0]->getIdentifier()])) {
-                    unset($this->_relations[$relation]['id_'.$arguments[0]->getIdentifier()]);
-                    if ($realDelete) {
-                        $identifier->delete();
-                    }
-                    return true;
-                }
-            } else {
-                if (!$data = $this->getTable()->getRelation($relation)) {
-                    return null;
-                }
-                if ($identifier === true) {
-                    if ($realDelete === true) {
-                        if ($realDeleteLoad === true) {
-                            $tableName = $data[0].'Table';
-                            $table = call_user_func($tableName . '::getInstance');
-                            if (isset($data[3]) && $data[3] !== true) {
-                                MiniMVC_Query::create()->delete('b')->from($this->_table->getModelName(), 'a')->join('a', $relation, 'b')->where('a.'.$this->_table->getIdentifier().' = ? AND b.'.$table->getIdentifier(). ' IS NOT NULL')->execute($this->getIdentifier());
-                                if ($realDeleteCleanRef) {
-                                    $table->cleanRefTables();
-                                }
-                            } else {
-                                $table->deleteBy($data[2] . ' = ?', $this->{$data[1]}, $realDeleteCleanRef);
-                            }
-                            return true;
-                        } else {
-                            foreach ($this->_relations[$relation] as $entry) {
-                                $entry->delete();
-                            }
-                            return true;
-                        }
-                    }
-                    unset($this->_relations[$relation]);
-                } else {
-                    if (isset($this->_relations[$relation]['id_'.$identifier])) {
-                        if ($realDelete) {
-                            $this->_relations[$relation]['id_'.$identifier]->delete();
-                        }
-                        unset($this->_relations[$relation]['id_'.$identifier]);
-                        return true;
-                    } elseif($realDeleteLoad === true) {
-                        $tableName = $data[0].'Table';
-                        $table = call_user_func($tableName . '::getInstance');
-                        $table->delete($identifier);
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-        elseif (substr($name, 0, 4) == 'load') {
+            return $this->deleteRelated($relation, $identifier, $realDelete, $realDeleteLoad, $realDeleteCleanRef);
+        } elseif (substr($name, 0, 4) == 'load') {
             $relation = strtolower(substr($name, 4));
             $condition = isset($arguments[0]) ? $arguments[0] : null;
             $values = isset($arguments[0]) ? $arguments[0] : array();
             $order = isset($arguments[1]) ? $arguments[1] : null;
             $limit = isset($arguments[2]) ? $arguments[2] : null;
             $offset = isset($arguments[3]) ? $arguments[3] : null;
-
-            if (!$data = $this->getTable()->getRelation($relation)) {
-                return null;
-            }
-            if (is_string($values)) {
-                $values = array($values);
-            }
-
-            if (isset($data[3]) && $data[3] !== true) {
-                array_unshift($values, $this->getIdentifier());
-                $tableName = $data[0].'Table';
-                $table = call_user_func($tableName . '::getInstance');
-                $query = new MiniMVC_Query();
-                $query->select('b')->from($this->_table->getModelName(), 'a')->join('a', $relation, 'b')->where('a.'.$this->_table->getIdentifier().' = ? AND b.'.$table->getIdentifier(). ' IS NOT NULL');
-                if ($condition) {
-                    $query->where($condition);
-                }
-                $query->orderBy($order)->limit($limit, $offset);
-                $entries = $query->build($values);
-
-            } else {
-                array_unshift($values, $this->{$data[1]});
-                $where = $data[2].' = ?' . ($condition ? ' AND '.$condition : '');
-                $tableName = $data[0].'Table';
-                $table = call_user_func($tableName . '::getInstance');
-
-                $entries = $table->load($where, $values, $order, $limit, $offset);
-            }
-            
-
-            foreach ($entries as $entry) {
-                $this->_relations[$relation]['id_'.$entry->getIdentifier()] = $entry;
-            }
-            return (isset($data[3]) && $data[3] === true) ? reset($entries) : $entries;
-        }
-        elseif(substr($name, 0, 4) == 'save') {
+            return $this->loadRelated($relation, $condition, $values, $order, $limit, $offset);
+        } elseif(substr($name, 0, 4) == 'save') {
             $relation = strtolower(substr($name, 4));
+            $identifier = isset($arguments[0]) ? $arguments[0] : true;
+            return $this->saveRelated($relation, $identifier);
+        } elseif(substr($name, 0, 4) == 'link') {
+            $relation = strtolower(substr($name, 4));
+            $identifier = isset($arguments[0]) ? $arguments[0] : null;
+            return $this->linkRelated($relation, $identifier);
+        } elseif(substr($name, 0, 6) == 'unlink') {
+            $relation = strtolower(substr($name, 6));
+            $identifier = isset($arguments[0]) ? $arguments[0] : true;
+            return $this->unlinkRelated($relation, $identifier);
+        }
+        return null;
+         */
+    }
 
+    public function getRelated($relation, $identifier = true)
+    {
+        $relationInfo = $this->_table->getRelation($relation);
+        if ($identifier === true) {
+            if (isset($this->_relations[$relation])) {
+                return (isset($relationInfo[3]) && $relationInfo[3] === true) ? reset($this->_relations[$relation]) : $this->_relations[$relation];
+            }
+        } else {
+            if (isset($this->_relations[$relation]['_'.$identifier])) {
+                return $this->_relations[$relation]['_'.$identifier];
+            }
+        }
+        return ($identifier === true && (!isset($relationInfo[3]) || $relationInfo[3] !== true)) ? array() : null;
+    }
+
+    public function setRelated($relation, $identifier = null, $update = true)
+    {
+        if (is_object($identifier) && $identifier instanceof MiniMVC_Model) {
+            if (!$identifier->getIdentifier()) {
+                $this->_relations[$relation][] = $arguments[0];
+                return $this;
+            }
+            if ($update || !isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
+                $this->_relations[$relation]['_'.$identifier->getIdentifier()] = $identifier;
+                return $this;
+            }
             $info = $this->_table->getRelation($relation);
 
             if (!$info || !isset($this->_relations[$relation])) {
-                return false;
+                throw new Exception('Unknown relation "'.$relation.'" for model '.$this->_table->getModelName());
             }
-            $tableName = $info[0].'Table';
-            $table = call_user_func($tableName . '::getInstance');
             if (!isset($info[3]) || $info[3] === true) {
                 if ($info[1] == $this->_table->getIdentifier()) {
-                    foreach ($this->_relations[$relation] as $relation) {
-                        $relation->{$info[2]} = $this->getIdentifier();
-                        $relation->save();
-                    }
-                } elseif ($info[2] == $table->getIdentifier()) {
-                    foreach ($this->_relations[$relation] as $relation) {
-                        $relation->save();
-                        $this->{$info[1]} = $relation->getIdentifier();                       
+                    $identifier->{$info[2]} = $this->getIdentifier();
+                } elseif ($info[2] == $identifier->getTable()->getIdentifier() && $identifier->getIdentifier()) {
+                    $this->{$info[1]} = $identifier->getIdentifier();
+                }
+            }
+            return $this;
+        }
+        throw new InvalidArgumentException('$identifier must be a MiniMVC_Model instance!');
+    }
+
+    public function deleteRelated($relation, $identifier = true, $realDelete = true, $realDeleteLoad = false, $realDeleteCleanRef = false)
+    {
+        if (is_object($identifier)) {
+            if (isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
+                unset($this->_relations[$relation]['_'.$identifier->getIdentifier()]);
+                if (!$data = $this->getTable()->getRelation($relation)) {
+                    throw new Exception('Unknown relation "'.$relation.'" for model '.$this->_table->getModelName());
+                }
+                if ($realDelete) {
+                    $identifier->delete();
+                }
+                if ($data[1] != $this->getTable->getIdentifier && (!isset($data[3]) || $data[3] === true)) {
+                    $this->{$data[1]} = null;
+                }
+                return true;
+            }
+        } else {
+            if (!$data = $this->getTable()->getRelation($relation)) {
+                throw new Exception('Unknown relation "'.$relation.'" for model '.$this->_table->getModelName());
+            }
+            if ($identifier === true) {
+                if ($realDelete === true) {
+                    if ($realDeleteLoad === true) {
+                        $tableName = $data[0].'Table';
+                        $table = call_user_func($tableName . '::getInstance');
+                        if (isset($data[3]) && $data[3] !== true) {
+                            MiniMVC_Query::create()->delete('b')->from($this->_table->getModelName(), 'a')->join('a.'.$relation, 'b')->where('a.'.$this->_table->getIdentifier().' = ? AND b.'.$table->getIdentifier(). ' IS NOT NULL')->execute($this->getIdentifier());
+                            if ($realDeleteCleanRef) {
+                                $table->cleanRefTables();
+                            }
+                        } else {
+                            $table->deleteBy($data[2] . ' = ?', $this->{$data[1]}, $realDeleteCleanRef);
+                        }
+                    } else {
+                        foreach ($this->_relations[$relation] as $entry) {
+                            $entry->delete();
+                        }
                     }
                 }
+                unset($this->_relations[$relation]);
             } else {
-                if (!$this->getIdentifier()) {
+                if (isset($this->_relations[$relation]['_'.$identifier])) {
+                    if ($realDelete) {
+                        $this->_relations[$relation]['_'.$identifier]->delete();
+                    }
+                    unset($this->_relations[$relation]['_'.$identifier]);
+                } elseif($realDeleteLoad === true) {
+                    $tableName = $data[0].'Table';
+                    $table = call_user_func($tableName . '::getInstance');
+                    $table->delete($identifier);
+                }
+            }
+            if ($data[1] != $this->getTable()->getIdentifier() && (!isset($data[3]) || $data[3] === true)) {
+                $this->{$data[1]} = null;
+            }
+            return true;
+        }
+    }
+
+    public function loadRelated($relation, $condition = null, $values = array(), $order = null, $limit = null, $offset = null)
+    {
+        if (!$data = $this->getTable()->getRelation($relation)) {
+            throw new Exception('Unknown relation "'.$relation.'" for model '.$this->_table->getModelName());
+        }
+        if (is_string($values)) {
+            $values = array($values);
+        }
+
+        if (isset($data[3]) && $data[3] !== true) {
+            array_unshift($values, $this->getIdentifier());
+            $tableName = $data[0].'Table';
+            $table = call_user_func($tableName . '::getInstance');
+            $query = new MiniMVC_Query();
+            $query->select('b')->from($this->_table, 'a')->join('a.'.$relation, 'b')->where('a.'.$this->_table->getIdentifier().' = ? AND b.'.$table->getIdentifier(). ' IS NOT NULL');
+            if ($condition) {
+                $query->where($condition);
+            }
+            $query->orderBy($order)->limit($limit, $offset);
+            $entries = $query->build($values);
+
+        } else {
+            array_unshift($values, $this->{$data[1]});
+            $where = $data[2].' = ?' . ($condition ? ' AND '.$condition : '');
+            $tableName = $data[0].'Table';
+            $table = call_user_func($tableName . '::getInstance');
+
+            $entries = $table->load($where, $values, $order, $limit, $offset);
+        }
+
+        foreach ($entries as $entry) {
+            $this->_relations[$relation]['_'.$entry->getIdentifier()] = $entry;
+        }
+        return (isset($data[3]) && $data[3] === true) ? reset($entries) : $entries;
+    }
+
+    public function saveRelated($relation, $identifier = true, $saveThis = true)
+    {
+        if (!$info = $this->_table->getRelation($relation)) {
+            throw new Exception('Unknown relation "'.$relation.'" for model '.$this->_table->getModelName());
+        }
+        $this->save();
+        $tableName = $info[0].'Table';
+        $table = call_user_func($tableName . '::getInstance');
+        if (!isset($info[3]) || $info[3] === true) {
+            if ($info[1] == $this->_table->getIdentifier()) {
+                if ($identifier === true) {
+                    if (!isset($this->_relations[$relation])) {
+                        return false;
+                    }
+                    foreach ($this->_relations[$relation] as $relKey => $relation) {
+                        $relation->{$info[2]} = $this->getIdentifier();
+                        $relation->save();
+                        if (is_numeric($relKey)) {
+                            $this->_relations[$relation]['_'.$relation->getIdentifier()] = $relation;
+                            unset($this->_relations[$relation][$relKey]);
+                        }
+                    }
+                } elseif (is_object($identifier)) {
+                    $identifier->{$info[2]} = $this->getIdentifier();
+                    $identifier->save();
+                    $this->_relations[$relation]['_'.$identifier->getIdentifier()] = $identifier;
+                } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
+                    $this->_relations[$relation]['_'.$identifier]->{$info[2]} = $this->getIdentifier();
+                    $this->_relations[$relation]['_'.$identifier]->save();
+                }
+            } elseif ($info[2] == $table->getIdentifier()) {
+                if ($identifier === true) {
+                    if (!isset($this->_relations[$relation])) {
+                        return false;
+                    }
+                    foreach ($this->_relations[$relation] as $relKey => $relation) {
+                        $relation->save();
+                        $this->{$info[1]} = $relation->getIdentifier();
+                        if (is_numeric($relKey)) {
+                            $this->_relations[$relation]['_'.$relation->getIdentifier()] = $relation;
+                            unset($this->_relations[$relation][$relKey]);
+                        }
+                    }
+                } elseif (is_object($identifier)) {
+                    $identifier->save();
+                    $this->{$info[1]} = $identifier->getIdentifier();
+                    $this->_relations[$relation]['_'.$identifier->getIdentifier()] = $identifier;
+                } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
+                    $this->_relations[$relation]['_'.$identifier]->save();
+                    $this->{$info[1]} = $this->_relations[$relation]['_'.$identifier]->getIdentifier();
+                }
+            }
+        } else {
+            if ($identifier === true) {
+                if (!isset($this->_relations[$relation])) {
                     return false;
                 }
                 $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ?')->execute($this->getIdentifier());
@@ -243,9 +367,189 @@ class MiniMVC_Model
                         MiniMVC_Query::create()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $relation->getIdentifier()));
                     }
                 }
+            } elseif (is_object($identifier)) {
+                $identifier->save();
+                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[1].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
+                $result = $stmt->fetch(PDO::FETCH_NUM);
+                $stmt->closeCursor();
+                if (!$result) {
+                    MiniMVC_Query::create()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
+                }
+            } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
+                $this->_relations[$relation]['_'.$identifier]->save();
+                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[1].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
+                $result = $stmt->fetch(PDO::FETCH_NUM);
+                $stmt->closeCursor();
+                if (!$result) {
+                    MiniMVC_Query::create()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
+                }
             }
         }
-        return null;
+    }
+
+    public function linkRelated($relation, $identifier = null)
+    {
+        if (!$identifier) {
+            throw new Exception('No identifier/related '.$relation.' given for model '.$this->_table->getModelName());
+        }
+        if (!$info = $this->_table->getRelation($relation)) {
+            throw new Exception('Unknown relation "'.$relation.'" for model '.$this->_table->getModelName());
+        }
+        $tableName = $info[0].'Table';
+        $table = call_user_func($tableName . '::getInstance');
+        if (!isset($info[3]) || $info[3] === true) {
+            if ($info[1] == $this->_table->getIdentifier()) {
+                if (!$this->getIdentifier()) {
+                    $this->save();
+                }
+                if (is_object($identifier)) {
+                    $identifier->{$info[2]} = $this->getIdentifier();
+                    $identifier->save();
+                    $this->_relations[$relation]['_'.$identifier->getIdentifier()] = $identifier;
+                } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
+                    $this->_relations[$relation]['_'.$identifier]->{$info[2]} = $this->getIdentifier();
+                    $this->_relations[$relation]['_'.$identifier]->save();
+                } else {
+                    if ($object = $table->getOne($identifier)) {
+                        $object->{$info[2]} = $this->getIdentifier();
+                        $object->save();
+                    } else {
+                        MiniMVC_Query::create()->update($info[0])->set($info[2].' = ?')->where($table->getIdentifier().' = ?')->execute(array($this->getIdentifier(), $identifier));
+                    }
+                }
+            } elseif ($info[2] == $table->getIdentifier()) {
+                if (is_object($identifier)) {
+                    if (!$identifier->getIdentifier()) {
+                        $identifier->save();
+                    }
+                    $this->{$info[1]} = $identifier->getIdentifier();
+                    $this->_relations[$relation]['_'.$identifier->getIdentifier()] = $identifier;
+                } elseif(isset($this->_relations[$relation]['_'.$identifier])) {
+                    if (! $this->_relations[$relation]['_'.$identifier]->getIdentifier()) {
+                         $this->_relations[$relation]['_'.$identifier]->save();
+                    }
+                    $this->{$info[1]} = $this->_relations[$relation]['_'.$identifier]->getIdentifier();
+                } else {
+                    $this->{$info[1]} = $identifier;
+                    if ($object = $table->getOne($identifier)) {
+                        $this->_relations[$relation]['_'.$identifier] = $object;
+                    }
+                }
+                $this->save();
+            }
+        } else {
+            if (is_object($identifier)) {
+                if (!$this->getIdentifier()) {
+                    $this->save();
+                }
+                if (!$identifier->getIdentifier()) {
+                    $identifier->save();
+                }
+                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[1].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
+                $result = $stmt->fetch(PDO::FETCH_NUM);
+                $stmt->closeCursor();
+                if (!$result) {
+                    MiniMVC_Query::create()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
+                }
+            } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
+                if (!$this->getIdentifier()) {
+                    $this->save();
+                }
+                if (!$this->_relations[$relation]['_'.$identifier]->getIdentifier()) {
+                     $this->_relations[$relation]['_'.$identifier]->save();
+                }
+                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[1].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
+                $result = $stmt->fetch(PDO::FETCH_NUM);
+                $stmt->closeCursor();
+                if (!$result) {
+                    MiniMVC_Query::create()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
+                }
+            } else {
+                if (!$this->getIdentifier()) {
+                    $this->save();
+                }
+                if ($object = $table->getOne($identifier)) {
+                    $this->_relations[$relation]['_'.$identifier] = $object;
+                }
+                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[1].' = ?')->execute(array($this->getIdentifier(), $identifier));
+                $result = $stmt->fetch(PDO::FETCH_NUM);
+                $stmt->closeCursor();
+                if (!$result) {
+                    MiniMVC_Query::create()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier));
+                }
+            }
+        }
+    }
+
+    public function unlinkRelated($relation, $identifier = true)
+    {
+        if (!$info = $this->_table->getRelation($relation)) {
+            throw new Exception('Unknown relation "'.$relation.'" for model '.$this->_table->getModelName());
+        }
+        $tableName = $info[0].'Table';
+        $table = call_user_func($tableName . '::getInstance');
+        if (!isset($info[3]) || $info[3] === true) {
+            if ($info[1] == $this->_table->getIdentifier()) {
+                if (is_object($identifier)) {
+                    $identifier->{$info[2]} = null;
+                    $identifier->save();
+                    if (isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
+                        unset($this->_relations[$relation]['_'.$identifier->getIdentifier()]);
+                    }
+                } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
+                    $this->_relations[$relation]['_'.$identifier]->{$info[2]} = null;
+                    $this->_relations[$relation]['_'.$identifier]->save();
+                    if (isset($this->_relations[$relation]['_'.$identifier])) {
+                        unset($this->_relations[$relation]['_'.$identifier]);
+                    }
+                } elseif($identifier === true) {
+                    if (!$this->getIdentifier()) {
+                        return false;
+                    }
+                    MiniMVC_Query::create()->update($info[0])->set($info[2].' = ?')->where($info[2].' = ?')->execute(array(null, $this->getIdentifier()));
+                    foreach ($table->get($info[2], $this->getIdentifier()) as $object) {
+                        $object->{$info[2]} = null;
+                    }
+                } else {
+                    if ($object = $table->getOne($identifier)) {
+                        $object->{$info[2]} = null;
+                        $object->save();
+                    } else {
+                        MiniMVC_Query::create()->update($info[0])->set($info[2].' = ?')->where($table->getIdentifier().' = ?')->execute(array(null, $identifier));
+                    }
+                }
+            } elseif ($info[2] == $table->getIdentifier()) {
+                if (is_object($identifier)) {
+                    $this->{$info[1]} = null;
+                    if (isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
+                        unset($this->_relations[$relation]['_'.$identifier->getIdentifier()]);
+                    }
+                } else {
+                    $this->{$info[1]} = null;
+                    if (isset($this->_relations[$relation]['_'.$identifier])) {
+                        unset($this->_relations[$relation]['_'.$identifier]);
+                    }
+                }
+                $this->save();
+            }
+        } else {
+            $this->save();
+            if ($identifier === true) {
+                MiniMVC_Query::create()->delete()->from($info[3])->where($info[1].' = ?')->execute($this->getIdentifier());
+                unset($this->_relations[$relation]);
+            } else {
+                if (is_object($identifier)) {
+                    if (isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
+                        unset($this->_relations[$relation]['_'.$identifier->getIdentifier()]);
+                    }
+                } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
+                    if (isset($this->_relations[$relation]['_'.$identifier])) {
+                        unset($this->_relations[$relation]['_'.$identifier]);
+                    }
+                }
+                MiniMVC_Query::create()->delete()->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), is_object($identifier) ? $identifier->getIdentifier() : $identifier));
+            }
+        }
     }
     
 	public function save($relations = false)
@@ -254,7 +558,7 @@ class MiniMVC_Model
  
         if ($relations && $status) {
             foreach ($this->_relations as $relation => $info) {
-                $this->__call('save'.$relation, array());
+                $this->saveRelated($relation, array());
             }
         }
 

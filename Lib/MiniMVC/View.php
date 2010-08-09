@@ -104,20 +104,20 @@ class MiniMVC_View
 
         if ($module != '_default')
         {
-            $appPath = 'App/'.$app.'/View/'.$module.'/'.$file.$formatString.'.php';
-            $path = 'Module/'.$module.'/View/'.$file.$formatString.'.php';
+            $appPath = APPPATH.$app.'/View/'.$module.'/'.$file.$formatString.'.php';
+            $path = MODULEPATH.$module.'/View/'.$file.$formatString.'.php';
         }
         else
         {
             $appPath = false;
-            $path = 'App/'.$app.'/View/'.$file.$formatString.'.php';
+            $path = APPPATH.$app.'/View/'.$file.$formatString.'.php';
         }
         
-        if ($appPath && is_file(BASEPATH.$appPath))
+        if ($appPath && is_file($appPath))
 		{
 			$path = $appPath;
 		}
-		elseif (!is_file(BASEPATH.$path))
+		elseif (!is_file($path))
 		{
 			throw new Exception('View "'.$path.'" not found!');
 		}
@@ -125,7 +125,7 @@ class MiniMVC_View
         $helper = $this->helper;
         $t = $this->t;
 		ob_start();
-		include (BASEPATH.$path);
+		include ($path);
 		return ob_get_clean();
 	}
 	

@@ -14,7 +14,7 @@ class BlubberTable extends MiniMVC_Table
     protected $_model = 'Blubber';
 
 	protected $_columns = array('id', 'name', 'slug', 'user_id');
-    protected $_relations = array('user' => array('BlubbUser', 'user_id', 'id', true), 'comments' => array('BlubbComments', 'id', 'blubb_id'));
+    protected $_relations = array('User' => array('BlubbUser', 'user_id', 'id', true), 'Comments' => array('BlubbComments', 'id', 'blubb_id'));
 	protected $_identifier = 'id';
 	protected $_isAutoIncrement = true;
 
@@ -25,7 +25,7 @@ class BlubberTable extends MiniMVC_Table
 	{
         return $this->query('a')
                 ->select('count(b.id) a__comments_count')
-                ->join('a', 'comments', 'b')
+                ->join('a.Comments', 'b')
                 ->where($condition)
                 ->orderBy($order)
                 ->groupBy('a.id')
@@ -43,10 +43,10 @@ class BlubberTable extends MiniMVC_Table
 	public function loadWithComments($condition, $values = array(), $order = null, $limit = null, $offset = null)
 	{
         return $this->query('a')
-                ->select('u')->select('c')->select('cu')
-                ->join('a', 'user', 'u')
-                ->join('a', 'comments', 'c')
-                ->join('c', 'user', 'cu')
+                ->select('u, c, cu')
+                ->join('a.User', 'u')
+                ->join('a.Comments', 'c')
+                ->join('c.User', 'cu')
                 ->where($condition)
                 ->orderBy($order)
                 ->limit($limit, $offset, true)

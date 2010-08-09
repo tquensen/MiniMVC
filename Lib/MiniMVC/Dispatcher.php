@@ -26,34 +26,30 @@ class MiniMVC_Dispatcher
         $url = $host . $_SERVER['REQUEST_URI'];
         
         $currentLanguage = null;
-        $currentApp = null;
+        $currentApp = $this->registry->settings->currentApp;
         $route = null;
-        foreach ($this->registry->settings->apps as $app => $appurls) {
-            if (isset($appurls['baseurlI18n'])) {
-                if (preg_match('#^' . str_replace(':lang:', '(?P<lang>[a-z]{2})', $appurls['baseurlI18n']) . '(?P<route>[^\?]*).*$#', $url, $matches)) {
-                    $currentLanguage = $matches['lang'];
-                    $currentApp = $app;
-                    $route = $matches['route'];
-                    break;
-                }
-            }
-            if (isset($appurls['baseurl'])) {
-                if (preg_match('#^' . $appurls['baseurl'] . '(?P<route>[^\?]*).*$#', $url, $matches)) {
-                    $currentApp = $app;
-                    $route = $matches['route'];
-                    break;
-                }
-            }
-        }
 
-        if (!$currentApp) {
-            if (!isset($this->registry->settings->defaultApp) || !isset($this->registry->settings->apps[$this->registry->settings->defaultApp]['baseurl'])) {
+        if (!$currentApp || !isset($this->registry->settings->apps[$currentApp])) {
+            if (!isset($this->registry->settings->config['defaultApp']) || !isset($this->registry->settings->apps[$this->registry->settings->config['defaultApp']]['baseurl'])) {
                 throw new Exception('No matching App found and no default app configured!');
             }
-            header('Location: ' . $this->registry->settings->apps[$this->registry->settings->defaultApp]['baseurl']);
+            header('Location: ' . $this->registry->settings->apps[$this->registry->settings->config['defaultApp']]['baseurl']);
             exit;
         }
-        $this->registry->settings->currentApp = $currentApp;
+
+        $appurls = $this->registry->settings->apps[$currentApp];
+        if (isset($appurls['baseurlI18n'])) {
+            if (preg_match('#' . str_replace(':lang:', '(?P<lang>[a-z]{2})', $appurls['baseurlI18n']) . '(?P<route>[^\?]*).*$#', $url, $matches)) {
+                $currentLanguage = $matches['lang'];
+                $route = $matches['route'];
+            }
+        }
+        if (isset($appurls['baseurl'])) {
+            if (preg_match('#' . $appurls['baseurl'] . '(?P<route>[^\?]*).*$#', $url, $matches)) {
+                $route = $matches['route'];
+            }
+        }
+        
 
         if ($currentLanguage) {
             if (!in_array($currentLanguage, $this->registry->settings->config['enabledLanguages']) || $currentLanguage == $this->registry->settings->config['defaultLanguage']) {

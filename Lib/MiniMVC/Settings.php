@@ -25,9 +25,9 @@ class MiniMVC_Settings
      * @param mixed $environment the name of the environment to use or null to not use an environment
      * @param boolean $useCache if a cache should be used (recommended for production environments)
      */
-    public function __construct($environment = null, $useCache = true)
+    public function __construct($app = '', $environment = '', $useCache = true)
     {
-        $this->currentApp = '';
+        $this->currentApp = $app;
         $this->currentEnvironment = $environment;
         $this->useCache = $useCache;
 
@@ -51,24 +51,24 @@ class MiniMVC_Settings
 
             if ($file != 'modules') {
                 foreach ($this->modules as $module) {
-                    if (is_file(BASEPATH . 'Module/' . $module . '/Settings/' . $file . '.php')) {
-                        include(BASEPATH . 'Module/' . $module . '/Settings/' . $file . '.php');
+                    if (is_file(MODULEPATH . $module . '/Settings/' . $file . '.php')) {
+                        include(MODULEPATH . $module . '/Settings/' . $file . '.php');
                     }
                 }
 
                 foreach ($this->modules as $module) {
-                    if (is_file(BASEPATH . 'Module/' . $module . '/Settings/' . $file . '_' . $environment . '.php')) {
-                        include(BASEPATH . 'Module/' . $module . '/Settings/' . $file . '_' . $environment . '.php');
+                    if (is_file(MODULEPATH . $module . '/Settings/' . $file . '_' . $environment . '.php')) {
+                        include(MODULEPATH . $module . '/Settings/' . $file . '_' . $environment . '.php');
                     }
                 }
             }
 
             if ($app) {
-                if (is_file(BASEPATH . 'App/' . $app . '/Settings/' . $file . '.php')) {
-                    include(BASEPATH . 'App/' . $app . '/Settings/' . $file . '.php');
+                if (is_file(APPPATH . $app . '/Settings/' . $file . '.php')) {
+                    include(APPPATH . $app . '/Settings/' . $file . '.php');
                 }
-                if (is_file(BASEPATH . 'App/' . $app . '/Settings/' . $file . '_' . $environment . '.php')) {
-                    include(BASEPATH . 'App/' . $app . '/Settings/' . $file . '_' . $environment . '.php');
+                if (is_file(APPPATH . $app . '/Settings/' . $file . '_' . $environment . '.php')) {
+                    include(APPPATH . $app . '/Settings/' . $file . '_' . $environment . '.php');
                 }
             }
 
@@ -112,8 +112,8 @@ class MiniMVC_Settings
             return $this->settings['runtime'][$file];
         }
 
-        $app = ($app) ? $app : $this->currentApp;
-        $environment = ($environment) ? $environment : $this->currentEnvironment;
+        $app = ($app) ? $app : $this->get('currentApp');
+        $environment = ($environment) ? $environment : $this->get('currentEnvironment');
 
         if (isset($this->settings[$app . '_' . $environment])) {
             return (isset($this->settings[$app . '_' . $environment][$file])) ? $this->settings[$app . '_' . $environment][$file] : array();
@@ -139,8 +139,8 @@ class MiniMVC_Settings
      */
     public function saveToCache($file, $data, $app = null, $environment = null)
     {
-        $app = ($app) ? $app : $this->currentApp;
-        $environment = ($environment) ? $environment : $this->currentEnvironment;
+        $app = ($app) ? $app : $this->get('currentApp');
+        $environment = ($environment) ? $environment : $this->get('currentEnvironment');
 
         if ($file) {
             $this->settings[$app . '_' . $environment][$file] = $data;

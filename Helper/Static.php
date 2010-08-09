@@ -28,21 +28,21 @@ class Helper_Static extends MiniMVC_Helper
             $baseurl = (isset($this->registry->settings->apps[$app]['baseurl'])) ? $this->registry->settings->apps[$app]['baseurl'] : '';
         }
 
-        if ($module !== null && file_exists(BASEPATH.'App/'.$app.'/Web/'.$module.'/'.$file))
+        if ($module !== null && file_exists(APPPATH.$app.'/Web/'.$module.'/'.$file))
         {
-            $url = $baseurl.'App/'.$app.'/Web/'.$module.'/'.$file;
+            $url = $baseurl.'app/'.$app.'/'.$module.'/'.$file;
         }
-        elseif ($module !== null && file_exists(BASEPATH.'Module/'.$module.'/Web/'.$file))
+        elseif ($module !== null && file_exists(MODULEPATH.$module.'/Web/'.$file))
         {
-            $url = $baseurl.'Module/'.$module.'/Web/'.$file;
+            $url = $baseurl.'module/'.$module.'/'.$file;
         }
-        elseif (file_exists(BASEPATH.'App/'.$app.'/Web/'.$file))
+        elseif (file_exists(APPPATH.$app.'/Web/'.$file))
         {
-            $url = $baseurl.'App/'.$app.'/Web/'.$file;
+            $url = $baseurl.'app/'.$app.'/'.$file;
         }
         elseif (file_exists(BASEPATH.'Web/'.$file))
         {
-            $url = $baseurl.'Web/'.$file;
+            $url = $baseurl.$file;
         }
         else
         {

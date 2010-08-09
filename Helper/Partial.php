@@ -14,12 +14,12 @@ class Helper_Partial extends MiniMVC_Helper
         extract($_data);
 
         ob_start();
-        if ($_module !== null && file_exists(BASEPATH . 'App/' . $_app . '/Partial/' . $_module . '/' . $_file)) {
-            include(BASEPATH . 'App/' . $_app . '/Partial/' . $_module . '/' . $_file);
-        } elseif ($_module !== null && file_exists(BASEPATH . 'Module/' . $_module . '/Partial/' . $_file)) {
-            include(BASEPATH . 'Module/' . $_module . '/Partial/' . $_file);
-        } elseif (file_exists(BASEPATH . 'App/' . $_app . '/Partial/' . $_file)) {
-            include(BASEPATH . 'App/' . $_app . '/Partial/' . $_file);
+        if ($_module !== null && file_exists(APPPATH . $_app . '/Partial/' . $_module . '/' . $_file)) {
+            include(APPPATH . $_app . '/Partial/' . $_module . '/' . $_file);
+        } elseif ($_module !== null && file_exists(MODULEPATH . $_module . '/Partial/' . $_file)) {
+            include(MODULEPATH . $_module . '/Partial/' . $_file);
+        } elseif (file_exists(APPPATH . $_app . '/Partial/' . $_file)) {
+            include(APPPATH . $_app . '/Partial/' . $_file);
         } elseif (file_exists(BASEPATH . 'Partial/' . $_file)) {
             include(BASEPATH . 'Partial/' . $_file);
         }

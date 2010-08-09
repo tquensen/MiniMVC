@@ -31,6 +31,8 @@ class MiniMVC_Pdo
             isset($dbSettings[$connection]['options']) ? $dbSettings[$connection]['options'] : array()
         );
 
+        MiniMVC_Query::setDatabase($this->get());
+
         $this->registerModels();
     }
 

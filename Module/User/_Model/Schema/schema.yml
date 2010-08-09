@@ -1,0 +1,16 @@
+User:
+  columns:
+    name: string(255)
+    password: string(255)
+    salt: string(255)
+    email: string(255)
+    role: string(255)
+  indexes:
+    name:
+      fields: [name]
+    email:
+      fields: [email]
+  actAs: 
+    Sluggable:
+      fields: [name]
+      canUpdate: false

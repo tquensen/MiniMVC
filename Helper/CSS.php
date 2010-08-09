@@ -55,6 +55,15 @@ class Helper_CSS extends MiniMVC_Helper
             $module = (isset($file['module'])) ? $file['module'] : null;
             $app = (isset($file['app'])) ? $file['app'] : $this->registry->settings->currentApp;
 
+            if ($module) {
+                if (file_exists(APPPATH.$app.'/Web/'.strtolower($module).'/css/'.$file['file'])) {
+                    $data['file'] = APPPATH.$app.'/Web/'.strtolower($module).'/css/'.$file['file'];
+                } else {
+                    $data['file'] = MODULEPATH.$module.'/Web/css/'.$file['file']; 
+                }
+            } else {
+                $data['file'] = APPPATH.$app.'/Web/css/'.$file['file'];
+            }
             $data['url'] = $this->staticHelper->get('css/' . $file['file'], $module, $app);
             $data['media'] = (isset($file['media'])) ? $file['media'] : 'screen';
             $data['combine'] = (isset($file['combine'])) ? $file['combine'] : true;
@@ -62,6 +71,7 @@ class Helper_CSS extends MiniMVC_Helper
         }
 
         $combinedFiles = $this->combineFiles($preparedFiles);
+        $view = $this->registry->settings->view;
         $view['cssCached'] = $combinedFiles;
         $this->registry->settings->saveToCache('view', $view);
 
@@ -74,10 +84,16 @@ class Helper_CSS extends MiniMVC_Helper
         $app = ($app) ? $app : $this->registry->settings->currentApp;
         $environment = ($environment) ? $environment : $this->registry->settings->currentEnvironment;
 
+        $baseurls = array();
         if (isset($this->registry->settings->apps[$app]['baseurlStatic'])) {
-            $baseurl = $this->registry->settings->apps[$app]['baseurlStatic'];
-        } else {
-            $baseurl = (isset($this->registry->settings->apps[$app]['baseurl'])) ? $this->registry->settings->apps[$app]['baseurl'] : '';
+            if (is_array($this->registry->settings->apps[$app]['baseurlStatic'])) {
+                $baseurls = $this->registry->settings->apps[$app]['baseurlStatic'];
+            } else {
+                $baseurls[] = $this->registry->settings->apps[$app]['baseurlStatic'];
+            }
+        }
+        if (isset($this->registry->settings->apps[$app]['baseurl'])) {
+            $baseurls[] = $this->registry->settings->apps[$app]['baseurl'];
         }
 
         $uncombinedBefore = array();
@@ -88,9 +104,9 @@ class Helper_CSS extends MiniMVC_Helper
         foreach ($files as $file) {
             if ($file['combine']) {
                 $combinedFound = true;
-                $relativePath = str_replace($baseurl, '', $file['url']); //relative path from MiniMVC root
-                $urlPrefix = $baseurl.'../' . dirname($relativePath) . '/'; //relative url from cache to original css file folder
-                $filePath = BASEPATH . $relativePath;
+                $relativePath = str_replace($baseurls, '', $file['url']); //relative path from web root
+                $urlPrefix = '../' . dirname($relativePath) . '/'; //relative url from cache to original css file folder
+                $filePath = $file['file'];
                 $data = $this->parseFile($filePath, $urlPrefix, $app, $environment);
                 foreach (explode(',', $file['media']) as $media) {
                     $medias[trim($media)][] = $data;
@@ -114,7 +130,7 @@ class Helper_CSS extends MiniMVC_Helper
             
             if (!isset($newFiles[$fileHash])) {
 	            $newFiles[$fileHash] = array(
-	                'url' => $baseurl.'cache/'.$filename,
+	                'url' => $this->staticHelper->get('cache/'.$filename, null, $app),
 	                'media' => $media
 	            );
 	            file_put_contents(BASEPATH.'cache/'.$filename, $content);
@@ -158,9 +174,9 @@ class Helper_CSS extends MiniMVC_Helper
                 }
                 $search[] = $match[0];
                 $pathNew = implode('/', $pathNew);
-                if (preg_match('#Module/(\w*)/Web/(.*)$#', $pathNew, $moduleMatch)) {
+                if (preg_match('#module/(\w*)/(.*)$#', $pathNew, $moduleMatch)) {
                     $pathNew = $this->staticHelper->get($moduleMatch[2], $moduleMatch[1], $app);
-                } elseif (preg_match('#App/(\w*)/Web/(.*)$#', $pathNew, $moduleMatch)) {
+                } elseif (preg_match('#app/(\w*)/(.*)$#', $pathNew, $moduleMatch)) {
                     $tmp = explode('/', $moduleMatch[2]);
                     if (in_array($tmp[0], $activeModules)) {
                         $module = array_shift($tmp);
@@ -169,7 +185,7 @@ class Helper_CSS extends MiniMVC_Helper
                         $module = null;
                     }
                     $pathNew = $this->staticHelper->get($moduleMatch[2], $module, $moduleMatch[1]);
-                } elseif (preg_match('#Web/(.*)$#', $pathNew, $moduleMatch)) {
+                } elseif (preg_match('#(.*)$#', $pathNew, $moduleMatch)) {
                     $pathNew = $this->staticHelper->get($moduleMatch[1], null, $app);
                 }
                 $replace[] = 'url("' . $pathNew . '")';

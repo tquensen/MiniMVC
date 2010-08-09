@@ -7,11 +7,14 @@ if (!isset($_SERVER['argv']) || count($_SERVER['argv']) < 2) {
 }
 
 define('BASEPATH', str_replace('//', '/', dirname(__FILE__).'/'));
+define('APPPATH', BASEPATH . 'App/');
+define('MODULEPATH', BASEPATH . 'Module/');
+define('WEBPATH', BASEPATH . 'Web/');
 include BASEPATH.'Lib/MiniMVC/Autoload.php';
 include BASEPATH.'Lib/MiniMVC/Registry.php';
 include BASEPATH.'Lib/MiniMVC/Settings.php';
 spl_autoload_register(array('MiniMVC_Autoload', 'autoload'));
 
-MiniMVC_Registry::getInstance()->settings = new MiniMVC_Settings('dev', false);
+MiniMVC_Registry::getInstance()->settings = new MiniMVC_Settings('', 'dev', false);
 
 echo MiniMVC_Registry::getInstance()->task->dispatch($_SERVER['argv']) . "\n";
