@@ -1,0 +1,1 @@
+<?php echo json_encode(array('status' => 0, 'errorCode' => 401, 'message' => 'Error 401 Unauthorized!'));

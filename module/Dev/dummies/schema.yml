@@ -1,0 +1,9 @@
+MODULEExampleModel:
+  columns:
+    name:
+      type: string(255)
+    status: integer
+  actAs: 
+    Sluggable:
+      fields: [name]
+      canUpdate: true

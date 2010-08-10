@@ -1,0 +1,1 @@
+<fieldset><legend><?php echo htmlspecialchars($element->legend)?></legend>
