@@ -119,13 +119,16 @@ class Helper_CSS extends MiniMVC_Helper
 
 
         $newFiles = array();
+        if (!is_dir(CACHEPATH.'public')) {
+            mkdir (CACHEPATH.'public');
+        }
         foreach ($medias as $media => $mediaFiles) {
             $content = implode("\n\n", $mediaFiles);
             $fileHash = md5($content);
             $filename = 'css_'.$fileHash.'.css';
             
             if (!isset($newFiles[$fileHash])) {
-                file_put_contents(BASEPATH.'cache/public/'.$filename, $content);
+                file_put_contents(CACHEPATH.'public/'.$filename, $content);
 	            $newFiles[$fileHash] = array(
 	                'url' => $this->staticHelper->get('cache/'.$filename, null, $app),
 	                'media' => $media

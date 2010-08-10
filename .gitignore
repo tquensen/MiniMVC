@@ -1,10 +1,10 @@
 nbproject
-Cache/*
-!Cache/public
-Cache/public/*
-Web/app
-Web/cache
-Web/module
+cache/*
+!cache/public
+cache/public/*
+web/app
+web/cache
+web/module
 .buildpath
 .project
 .settings
