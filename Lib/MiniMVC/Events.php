@@ -43,7 +43,7 @@ class MiniMVC_Events extends sfEventDispatcher
     protected function loadConfigListeners($event)
     {
         if ($this->cachedEvents === null) {
-            $this->cachedEvents = MiniMVC_Registry::getInstance()->settings->events;
+            $this->cachedEvents = MiniMVC_Registry::getInstance()->settings->get('events');
         }
         if (!isset($this->cachedEvents[$event]) || !is_array($this->cachedEvents[$event])) {
             return array();

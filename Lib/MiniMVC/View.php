@@ -97,7 +97,7 @@ class MiniMVC_View
             }
             $file = $this->controller . '/' . $this->action;
         }
-		$app = $this->registry->settings->currentApp;
+		$app = $this->registry->settings->get('runtime/currentApp');
 		
         $format = $this->registry->template->getFormat();
         $formatString = ($format) ? '.'.$format : '';

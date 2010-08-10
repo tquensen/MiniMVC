@@ -22,7 +22,7 @@ class MiniMVC_Layout
     {
         $allkey = 'all' . (($this->format != null) ? '.' . $this->format : '');
         $key = $this->layout . (($this->format != null) ? '.' . $this->format : '');
-        $slots = $this->registry->settings->slots;
+        $slots = $this->registry->settings->get('slots');
 
         if (!isset($slots[$key]) && !isset($slots[$allkey]))
         {
@@ -108,16 +108,15 @@ class MiniMVC_Layout
      */
     public function parse($app = null, $useSlots = true)
     {
-        $app = ($app) ? $app : $this->registry->settings->currentApp;
+        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
         if ($this->layout === false) {
             return $this->getSlot('main');
         }
         if ($this->layout === null) {
-            $this->layout = (isset($this->registry->settings->config['defaultLayout']) && $this->registry->settings->config['defaultLayout']) ? $this->registry->settings->config['defaultLayout'] : 'default';
+            $this->layout = ($layout = $this->registry->settings->get('config/defaultLayout', 'default')) ? $layout : 'default';
         }
 
-        if (isset($this->registry->settings->config['classes']['view']) && $this->registry->settings->config['classes']['view']) {
-            $viewName = $this->registry->settings->config['classes']['view'];
+        if ($viewName = $this->registry->settings->get('config/classes/view')) {
             $view = new $viewName('_default');
         } else {
             $view = new MiniMVC_View('_default');

@@ -429,13 +429,13 @@ class MiniMVC_Query
         }
         $prefix = $alias.'__';
         $length = strlen($prefix);
+        $return = array();
         foreach ($row as $k=>$v) {
             if (substr($k, 0, $length) == $prefix) {
-               $row[substr($k, $length)] = $v;
-            }
-            unset($row[$k]);
+               $return[substr($k, $length)] = $v;
+            }           
         }
-        return $row;
+        return $return;
     }
 
     protected function _select($alias = null, $prefix = null)

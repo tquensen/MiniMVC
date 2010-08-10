@@ -4,7 +4,7 @@ class Helper_Url extends MiniMVC_Helper
 {	
 	public function get($route, $parameter = array(), $app = null)
 	{
-		$app = ($app) ? $app : $this->registry->settings->currentApp;
+		$app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
 		try
 		{
 			$routeData = $this->registry->dispatcher->getRoute($route, $parameter, $app);
@@ -13,11 +13,10 @@ class Helper_Url extends MiniMVC_Helper
 		{
 			return false;
 		}
-		if (!isset($this->registry->settings->apps[$app]))
+		if (!$appData = $this->registry->settings->get('apps/'.$app))
 		{
 			return false;
 		}
-		$appData = $this->registry->settings->apps[$app];
 		$baseurl = (isset($appData['baseurl'])) ? $appData['baseurl'] : '/';
 		$search = array();
 		$replace = array();

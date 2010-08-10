@@ -183,10 +183,11 @@ class MiniMVC_Model implements ArrayAccess
                 $this->_relations[$relation][] = $arguments[0];
                 return $this;
             }
-            if ($update || !isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
-                $this->_relations[$relation]['_'.$identifier->getIdentifier()] = $identifier;
+            if (!$update && isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
                 return $this;
             }
+
+            $this->_relations[$relation]['_'.$identifier->getIdentifier()] = $identifier;
             $info = $this->_table->getRelation($relation);
 
             if (!$info || !isset($this->_relations[$relation])) {

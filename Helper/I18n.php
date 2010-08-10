@@ -19,11 +19,11 @@ class Helper_I18n extends MiniMVC_Helper
 
         if (!self::$cached)
         {
-            $language = $this->registry->settings->currentLanguage;
-
-            if ($this->registry->settings->useCache && is_file(BASEPATH.'Cache/I18n_'.$this->registry->settings->currentApp.'_'.$language.'.php'))
+            $language = $this->registry->settings->get('runtime/currentLanguage');
+            $currentApp = $this->registry->settings->get('runtime/currentApp');
+            if ($this->registry->settings->get('runtime/useCache') && is_file(BASEPATH.'Cache/I18n_'.$currentApp.'_'.$language.'.php'))
             {
-                include_once(BASEPATH.'Cache/I18n_'.$this->registry->settings->currentApp.'_'.$language.'.php');
+                include_once(BASEPATH.'Cache/I18n_'.$currentApp.'_'.$language.'.php');
                 if (isset($MiniMVC_i18n))
                 {
                     self::$cached = $MiniMVC_i18n;
@@ -38,7 +38,7 @@ class Helper_I18n extends MiniMVC_Helper
                     include_once(BASEPATH.'I18n/'.$language.'.php');
                 }
 
-                foreach ($this->registry->settings->modules as $currentModule)
+                foreach ($this->registry->settings->get('modules') as $currentModule)
                 {
                     if (is_file(MODULEPATH.$currentModule.'/I18n/'.$language.'.php'))
                     {
@@ -46,24 +46,24 @@ class Helper_I18n extends MiniMVC_Helper
                     }
                 }
 
-                if ($this->registry->settings->currentApp)
+                if ($currentApp)
                 {
-                    if (is_file(APPPATH.$this->registry->settings->currentApp.'/I18n/'.$language.'.php'))
+                    if (is_file(APPPATH.$currentApp.'/I18n/'.$language.'.php'))
                     {
-                        include_once(APPPATH.$this->registry->settings->currentApp.'/I18n/'.$language.'.php');
+                        include_once(APPPATH.$currentApp.'/I18n/'.$language.'.php');
                     }
                 }
 
                 self::$cached = $MiniMVC_i18n;
 
-                if ($this->registry->settings->useCache) {
-                    file_put_contents(BASEPATH.'Cache/I18n_'.$this->registry->settings->currentApp.'_'.$language.'.php', '<?php $MiniMVC_i18n = '.var_export($MiniMVC_i18n, true).';');
+                if ($this->registry->settings->get('runtime/useCache')) {
+                    file_put_contents(BASEPATH.'Cache/I18n_'.$currentApp.'_'.$language.'.php', '<?php $MiniMVC_i18n = '.var_export($MiniMVC_i18n, true).';');
                 }
 
             }
         }
 
-		$translationClass = (isset($this->registry->settings->config['classes']['translation'])) ? $this->registry->settings->config['classes']['translation'] : 'MiniMVC_Translation';
+		$translationClass = $this->registry->settings->get('config/classes/translation', 'MiniMVC_Translation');
 		self::$loaded[$module] = new $translationClass((isset(self::$cached[$module]) ? self::$cached[$module] : array()));
 		return self::$loaded[$module];
 	}
@@ -74,7 +74,7 @@ class Helper_I18n extends MiniMVC_Helper
 		{
 			return $default;
 		}
-		$language = $this->registry->core->currentLanguage;
+		$language = $this->registry->settings->get('runtime/currentLanguage');
 
 		$input = (array) $input;
 		if (is_array($default))

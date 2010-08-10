@@ -22,17 +22,17 @@ class MiniMVC_Task {
 
         $params = $this->getCliParams($rawParams);
 
-        if (isset($params['app']) && isset($this->registry->settings->apps[$params['app']])) {
-            $this->registry->settings->currentApp = $params['app'];
+        if (isset($params['app']) && $this->registry->settings->get('apps/'.$params['app'])) {
+            $this->registry->settings->set('runtime/currentApp', $params['app']);
         }
 
-        $this->registry->settings->currentLanguage = '';
+        $this->registry->settings->set('runtime/currentLanguage', '');
 
         if (!$params['task']) {
             return 'error: no task specified!';
         }
 
-        if (!isset($this->registry->settings->tasks[$params['task']])) {
+        if (!$task = $this->registry->settings->get('tasks/'.$params['task'])) {
             return 'error: task '.$params['task'].' not found';
         }
       

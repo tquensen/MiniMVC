@@ -26,18 +26,19 @@ class MiniMVC_Dispatcher
         $url = $host . $_SERVER['REQUEST_URI'];
         
         $currentLanguage = null;
-        $currentApp = $this->registry->settings->currentApp;
+        $currentApp = $this->registry->settings->get('runtime/currentApp');
         $route = null;
 
-        if (!$currentApp || !isset($this->registry->settings->apps[$currentApp])) {
-            if (!isset($this->registry->settings->config['defaultApp']) || !isset($this->registry->settings->apps[$this->registry->settings->config['defaultApp']]['baseurl'])) {
+        if (!$currentApp || !$this->registry->settings->get('apps/'.$currentApp)) {
+            $defaultApp = $this->registry->settings->get('config/defaultApp');
+            if (!$redirectUrl = $this->registry->settings->get('apps/'.$defaultApp.'/baseurl')) {
                 throw new Exception('No matching App found and no default app configured!');
             }
-            header('Location: ' . $this->registry->settings->apps[$this->registry->settings->config['defaultApp']]['baseurl']);
+            header('Location: ' . $redirectUrl);
             exit;
         }
 
-        $appurls = $this->registry->settings->apps[$currentApp];
+        $appurls = $this->registry->settings->get('apps/'.$currentApp);
         if (isset($appurls['baseurlI18n'])) {
             if (preg_match('#' . str_replace(':lang:', '(?P<lang>[a-z]{2})', $appurls['baseurlI18n']) . '(?P<route>[^\?]*).*$#', $url, $matches)) {
                 $currentLanguage = $matches['lang'];
@@ -52,26 +53,25 @@ class MiniMVC_Dispatcher
         
 
         if ($currentLanguage) {
-            if (!in_array($currentLanguage, $this->registry->settings->config['enabledLanguages']) || $currentLanguage == $this->registry->settings->config['defaultLanguage']) {
-                if (!isset($this->registry->settings->apps[$currentApp]['baseurl'])) {
+            if (!in_array($currentLanguage, $this->registry->settings->get('config/enabledLanguages', array())) || $currentLanguage == $this->registry->settings->get('config/defaultLanguage')) {
+                if (!$redirectUrl = $this->registry->settings->get('apps/'.$currentApp.'/baseurl')) {
                     throw new Exception('No baseurl for App '.$currentApp.' found!');
                 }
-                header('Location: ' . $this->registry->settings->apps[$currentApp]['baseurl'] . $route);
+                header('Location: ' . $redirectUrl . $route);
                 exit;
             }
-            $this->registry->settings->currentLanguage = $currentLanguage;
         } else {
-            if (!isset($this->registry->settings->config['defaultLanguage'])) {
+            if (!$currentLanguage = $this->registry->settings->get('config/defaultLanguage')) {
                 throw new Exception('No default language for App '.$currentApp.' found!');
             }
-            $this->registry->settings->currentLanguage = $this->registry->settings->config['defaultLanguage'];
         }
+        $this->registry->settings->set('runtime/currentLanguage', $currentLanguage);
 
-        $routes = $this->registry->settings->routes;
+        $routes = $this->registry->settings->get('routes');
         $routeData = null;
 
         if (!$route) {
-            $defaultRoute = $this->registry->settings->config['defaultRoute'];
+            $defaultRoute = $this->registry->settings->get('config/defaultRoute');
             if ($defaultRoute && isset($routes[$defaultRoute])) {
                 $routeName = $defaultRoute;
                 $routeData = $routes[$defaultRoute];
@@ -112,7 +112,7 @@ class MiniMVC_Dispatcher
             }
 
             if (!$found) {
-                $error404Route = (isset($this->registry->settings->config['error404Route'])) ? $this->registry->settings->config['error404Route'] : false;
+                $error404Route = $this->registry->settings->get('config/error404Route');
                 if ($error404Route && isset($routes[$error404Route])) {
                     $routeName = $error404Route;
                     $routeData = $routes[$error404Route];
@@ -129,15 +129,15 @@ class MiniMVC_Dispatcher
             
             $content = $this->callRoute($routeName, (isset($params) ? $params : array()));
             $this->registry->template->addToSlot('main', $content);
-            return $this->registry->template->parse($this->registry->settings->currentApp);
+            return $this->registry->template->parse($this->registry->settings->get('runtime/currentApp'));
         } catch (Exception $e) {
-            $error500Route = (isset($this->registry->settings->config['error500Route'])) ? $this->registry->settings->config['error500Route'] : false;
+            $error500Route = $this->registry->settings->get('config/error500Route');
             if ($error500Route && isset($routes[$error500Route])) {
                 $routeData = $routes[$error500Route];
                 $routeData['parameter']['exception'] = $e;
                 $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
                 $this->registry->template->addToSlot('main', $content);
-                return $this->registry->template->parse($this->registry->settings->currentApp, false);
+                return $this->registry->template->parse($this->registry->settings->get('runtime/currentApp'), false);
             } else {
                 throw new Exception('Exception was thrown and no 500 Route defined!');
             }
@@ -153,13 +153,12 @@ class MiniMVC_Dispatcher
      */
     public function getRoute($route, $params = array(), $app = null)
     {
-        $app = ($app) ? $app : $this->registry->settings->currentApp;
+        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
         $routes = $this->registry->settings->get('routes', $app);
-        if (!isset($routes[$route])) {
+        if (!$routeData = $this->registry->settings->get('routes/'.$route, $app)) {
             throw new Exception('Route "' . $route . '" does not exist!');
         }
         
-        $routeData = $routes[$route];
         $routeData['parameter'] = (isset($routeData['parameter'])) ? array_merge($routeData['parameter'], (array)$params) : (array)$params;
 
         $event = new sfEvent($this, 'minimvc.dispatcher.filterRoute');
@@ -212,17 +211,13 @@ class MiniMVC_Dispatcher
                 return '';
             }
             if ($this->registry->guard->getRole() && $this->registry->guard->getRole() != $this->registry->rights->getRoleByKeyword('guest')) {
-                $error403Route = (isset($this->registry->settings->config['error403Route'])) ? $this->registry->settings->config['error403Route'] : false;
-                if ($error403Route && isset($this->registry->settings->routes[$error403Route])) {
-                    $routeData = $this->registry->settings->routes[$error403Route];
-                } else {
+                $error403Route = $this->registry->settings->get('config/error403Route');
+                if (!$error403Route || !$routeData = $this->registry->settings->get('routes/'.$error403Route)) {
                     throw new Exception('Insufficient rights and no 403 Route defined!');
                 }
             } else {
-                $error401Route = (isset($this->registry->settings->config['error401Route'])) ? $this->registry->settings->config['error401Route'] : false;
-                if ($error401Route && isset($routes[$error401Route])) {
-                    $routeData = $routes[$error401Route];
-                } else {
+                $error401Route = $this->registry->settings->get('config/error401Route');
+                if (!$error401Route ||!$routeData = $this->registry->settings->get('routes/'.$error401Route)) {
                     throw new Exception('Not logged in and no 401 Route defined!');
                 }
             }
@@ -240,15 +235,12 @@ class MiniMVC_Dispatcher
      */
     public function getWidget($widget, $params = array(), $app = null)
     {
-        $app = ($app) ? $app : $this->registry->settings->currentApp;
-        $widgets = $this->registry->settings->get('widgets', $app);
-        if (!isset($widgets[$widget])) {
+        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
+
+        if (!$widgetData = $this->registry->settings->get('widgets/'.$widget, $app)) {
             throw new Exception('Widget "' . $widget . '" does not exist!');
         }
-        if (!isset($widgets[$widget]['controller']) || !isset($widgets[$widget]['action'])) {
-            throw new Exception('Widget "' . $widget . '" is invalid (controller or action not set!');
-        }
-        $widgetData = $widgets[$widget];
+        
         $widgetData['parameter'] = (isset($widgetData['parameter'])) ? array_merge($widgetData['parameter'], (array)$params) : (array)$params;
         return $widgetData;
     }
@@ -262,6 +254,10 @@ class MiniMVC_Dispatcher
     public function callWidget($widget, $params = array())
     {
         $widgetData = $this->getWidget($widget, $params);
+
+        if (!isset($widgetData['controller']) || !isset($widgetData['action'])) {
+            throw new Exception('Widget "' . $widget . '" is invalid (controller or action not set!');
+        }
 
         if (isset($widgetData['rights']) && $widgetData['rights'] && !((int)$widgetData['rights'] & $this->registry->guard->getRights())) {
             return '';
@@ -279,15 +275,11 @@ class MiniMVC_Dispatcher
      */
     public function getTask($task, $params = array(), $app = null)
     {
-        $app = ($app) ? $app : $this->registry->settings->currentApp;
-        $tasks = $this->registry->settings->get('tasks', $app);
-        if (!isset($tasks[$task])) {
+        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
+        if (!$taskData = $this->registry->settings->get('tasks/'.$task, $app)) {
             throw new Exception('Task "' . $task . '" does not exist!');
         }
-        if (!isset($tasks[$task]['controller']) || !isset($tasks[$task]['action'])) {
-            throw new Exception('Task "' . $task . '" is invalid (controller or action not set!');
-        }
-        $taskData = $tasks[$task];
+        
         $taskData['parameter'] = (isset($taskData['parameter'])) ? array_merge($taskData['parameter'], (array)$params) : (array)$params;
         return $taskData;
     }
@@ -302,6 +294,10 @@ class MiniMVC_Dispatcher
     {
         $taskData = $this->getTask($task, $params);
 
+        if (!isset($tasks[$task]['controller']) || !isset($tasks[$task]['action'])) {
+            throw new Exception('Task "' . $task . '" is invalid (controller or action not set!');
+        }
+        
         return $this->call($taskData['controller'], $taskData['action'], $taskData['parameter']);
     }
 
@@ -327,8 +323,7 @@ class MiniMVC_Dispatcher
             throw new Exception('Action "' . $action . '" for Controller "' . $controller . '" does not exist!');
         }
 
-        if (isset($this->registry->settings->config['classes']['view']) && $this->registry->settings->config['classes']['view']) {
-            $viewName = $this->registry->settings->config['classes']['view'];
+        if ($viewName = $this->registry->settings->get('config/classes/view')) {
             $view = new $viewName($controllerParts[0], $controllerParts[1], $action);
         } else {
             $view = new MiniMVC_View($controllerParts[0], $controllerParts[1], $action);
@@ -368,11 +363,7 @@ class MiniMVC_Dispatcher
         }
         $routePattern = '#^' . $routePattern . '$#';
 
-        $routes = $this->registry->settings->routes;
-        if (isset($routes[$route])) {
-            $routes[$route]['routePattern'] = $routePattern;
-            $this->registry->settings->saveToCache('routes', $routes);
-        }
+        $this->registry->settings->set('routes/'.$route.'/routePattern', $routePattern);
 
         return $routePattern;
     }

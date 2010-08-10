@@ -19,9 +19,9 @@ class MiniMVC_Mysqli
 
         $this->currentConnection = $connection;
         
-        $dbSettings = MiniMVC_Registry::getInstance()->settings->db;
+        $dbSettings = MiniMVC_Registry::getInstance()->settings->get('db');
         if (!$dbSettings || !isset($dbSettings[$connection])) {
-            throw new Exception('No database config found for connection "'.$connection.'"!');
+            return;
         }
 
         $this->connections[$connection] = @new mysqli(
@@ -47,19 +47,20 @@ class MiniMVC_Mysqli
      */
     protected function registerModels()
     {
-        $config = MiniMVC_Registry::getInstance()->settings->config;
-
-        if (isset($config['modelPathsLoaded']) && $config['modelPathsLoaded']) {
+        $registry = MiniMVC_Registry::getInstance();
+        if ($registry->settings->get('config/modelPathsLoaded')) {
             return;
         }
 
-        foreach (array_reverse(MiniMVC_Registry::getInstance()->settings->modules) as $module) {
-            if (!in_array('Module/' . $module . '/Model', $config['autoloadPaths'])) {
-                $config['autoloadPaths'][] = 'Module/' . $module . '/Model';
+        $autoloadPaths = $registry->settings->get('config/autoloadPaths', array());
+
+        foreach (array_reverse($registry->settings->get('modules')) as $module) {
+            if (!in_array('Module/' . $module . '/Model', $autoloadPaths)) {
+                $autoloadPaths[] = 'Module/' . $module . '/Model';
             }
         }
-        $config['modelPathsLoaded'] = true;
-        MiniMVC_Registry::getInstance()->settings->saveToCache('config', $config);
+        $registry->settings->set('config/modelPathsLoaded', true);
+        $registry->settings->set('config/autoloadPaths', $autoloadPaths);
     }
 
     /**

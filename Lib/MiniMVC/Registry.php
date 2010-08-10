@@ -48,10 +48,9 @@ class MiniMVC_Registry
 		{
 			return $this->data[$key];
 		}
-        $config = $this->data['settings']->get('config');
-		if (isset($config['registryClasses'][$key]))
+		if ($className = $this->data['settings']->get('config/registryClasses/'.$key))
 		{
-			return $this->data[$key] = new $config['registryClasses'][$key]();
+			return $this->data[$key] = new $className();
 		}
 		return null;
 	}

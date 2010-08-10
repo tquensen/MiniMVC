@@ -24,7 +24,7 @@ class Helper_CSS extends MiniMVC_Helper
     public function addFile($file, $module = null, $media = 'screen', $app = null)
     {
         if (!$app) {
-            $app = $this->registry->settings->currentApp;
+            $app = $this->registry->settings->get('runtime/currentApp');
         }
         $data = array();
 
@@ -36,13 +36,11 @@ class Helper_CSS extends MiniMVC_Helper
 
     public function prepareFiles()
     {
-        $view = $this->registry->settings->view;
-
-        if (isset($view['cssCached'])) {
-            return $view['cssCached'];
+        if ($cache = $this->registry->settings->get('view/cssCached')) {
+            return $cache;
         }
 
-        $files = (isset($view['css'])) ? $view['css'] : array();
+        $files = $this->registry->settings->get('view/css', array());
         $files = array_merge($files, $this->additionalFiles);
         $preparedFiles = array();
         foreach ($files as $file) {
@@ -53,7 +51,7 @@ class Helper_CSS extends MiniMVC_Helper
                 continue;
             }
             $module = (isset($file['module'])) ? $file['module'] : null;
-            $app = (isset($file['app'])) ? $file['app'] : $this->registry->settings->currentApp;
+            $app = (isset($file['app'])) ? $file['app'] : $this->registry->settings->get('runtime/currentApp');
 
             if ($module) {
                 if (file_exists(APPPATH.$app.'/Web/'.$module.'/css/'.$file['file'])) {
@@ -71,9 +69,7 @@ class Helper_CSS extends MiniMVC_Helper
         }
 
         $combinedFiles = $this->combineFiles($preparedFiles);
-        $view = $this->registry->settings->view;
-        $view['cssCached'] = $combinedFiles;
-        $this->registry->settings->saveToCache('view', $view);
+        $this->registry->settings->set('view/cssCached', $combinedFiles);
 
         return $combinedFiles;
     }
@@ -81,19 +77,19 @@ class Helper_CSS extends MiniMVC_Helper
     public function combineFiles($files, $app = null, $environment = null)
     {
 
-        $app = ($app) ? $app : $this->registry->settings->currentApp;
-        $environment = ($environment) ? $environment : $this->registry->settings->currentEnvironment;
+        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
+        $environment = ($environment) ? $environment : $this->registry->settings->get('runtime/currentEnvironment');
 
         $baseurls = array();
-        if (isset($this->registry->settings->apps[$app]['baseurlStatic'])) {
-            if (is_array($this->registry->settings->apps[$app]['baseurlStatic'])) {
-                $baseurls = $this->registry->settings->apps[$app]['baseurlStatic'];
+        if ($baseurl = $this->registry->settings->get('apps/'.$app.'/baseurlStatic')) {
+            if (is_array($baseurl)) {
+                $baseurls = $baseurl;
             } else {
-                $baseurls[] = $this->registry->settings->apps[$app]['baseurlStatic'];
+                $baseurls[] = $baseurl;
             }
         }
-        if (isset($this->registry->settings->apps[$app]['baseurl'])) {
-            $baseurls[] = $this->registry->settings->apps[$app]['baseurl'];
+        if ($baseurl = $this->registry->settings->get('apps/'.$app.'/baseurl')) {
+            $baseurls[] = $baseurl;
         }
 
         $uncombinedBefore = array();
@@ -143,8 +139,8 @@ class Helper_CSS extends MiniMVC_Helper
 
     public function parseFile($file, $urlPrefix, $app = null, $environment = null)
     {
-        $app = ($app) ? $app : $this->registry->settings->currentApp;
-        $environment = ($environment) ? $environment : $this->registry->settings->currentEnvironment;
+        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
+        $environment = ($environment) ? $environment : $this->registry->settings->get('runtime/currentEnvironment');
         $activeModules = $this->registry->settings->get('modules', $app, $environment);
 
         if (!is_file($file) || !is_readable($file)) {

@@ -70,9 +70,9 @@ class MiniMVC_Controller
      */
 	protected function delegate401()
 	{
-		if (isset($this->registry->settings->config['error401Route']))
+		if ($route = $this->registry->settings->get('config/error401Route'))
 		{
-			return $this->delegate($this->registry->settings->config['error401Route']);
+			return $this->delegate($route);
 		}
 		return false;
 	}
@@ -83,9 +83,9 @@ class MiniMVC_Controller
      */
 	protected function delegate403()
 	{
-		if (isset($this->registry->settings->config['error403Route']))
+		if ($route = $this->registry->settings->get('config/error403Route'))
 		{
-			return $this->delegate($this->registry->settings->config['error403Route']);
+			return $this->delegate($route);
 		}
 		return false;
 	}
@@ -96,9 +96,9 @@ class MiniMVC_Controller
      */
 	protected function delegate404()
 	{
-		if (isset($this->registry->settings->config['error404Route']))
+		if ($route = $this->registry->settings->get('config/error404Route'))
 		{
-			return $this->delegate($this->registry->settings->config['error404Route']);
+			return $this->delegate($route);
 		}
 		return false;
 	}
@@ -109,9 +109,9 @@ class MiniMVC_Controller
      */
 	protected function delegate500()
 	{
-		if (isset($this->registry->settings->config['error500Route']))
+		if ($route = $this->registry->settings->get('config/error500Route'))
 		{
-			return $this->delegate($this->registry->settings->config['error500Route']);
+			return $this->delegate($route);
 		}
 		return false;
 	}

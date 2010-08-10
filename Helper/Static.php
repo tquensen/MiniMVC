@@ -4,28 +4,25 @@ class Helper_Static extends MiniMVC_Helper
 {	
 	public function get($file, $module = null, $app = null)
 	{
-        $view = $this->registry->settings->view;
-
         if ($module === null)
         {
             $module = $this->module;
         }
-        $app = ($app) ? $app : $this->registry->settings->currentApp;
+        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
 
-        if (isset($view['staticCached'][$app.'_'.$module.'_'.$file]))
+        if ($cache = $this->registry->settings->get('view/staticCached/'.$app.'_'.$module.'_'.str_replace('/', '__', $file)))
         {
-            return $view['staticCached'][$app.'_'.$module.'_'.$file];
+            return $cache;
         }
 
-        if (isset($this->registry->settings->apps[$app]['baseurlStatic'])) {
-            $baseurl = $this->registry->settings->apps[$app]['baseurlStatic'];
+        if ($baseurl = $this->registry->settings->get('apps/'.$app.'/baseurlStatic')) {
             if (is_array($baseurl)) {
                 $baseurl = array_values($baseurl);
                 $baseurl = $baseurl[hexdec(substr(md5($file), 0, 6)) % count($baseurl)];
             }
         }
         else {
-            $baseurl = (isset($this->registry->settings->apps[$app]['baseurl'])) ? $this->registry->settings->apps[$app]['baseurl'] : '';
+            $baseurl = $this->registry->settings->get('apps/'.$app.'/baseurl', '');
         }
 
         if ($module !== null && file_exists(APPPATH.$app.'/Web/'.$module.'/'.$file))
@@ -49,8 +46,7 @@ class Helper_Static extends MiniMVC_Helper
             $url = $file;
         }
 
-        $view['staticCached'][$app.'_'.$module.'_'.$file] = $url;
-        $this->registry->settings->saveToCache('view', $view);
+        $this->registry->settings->set('view/staticCached/'.$app.'_'.$module.'_'.str_replace('/', '__', $file), $url);
 
         return $url;
 	}

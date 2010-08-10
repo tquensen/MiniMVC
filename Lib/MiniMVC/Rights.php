@@ -11,7 +11,7 @@ class MiniMVC_Rights
      */
     public function getRoleByKeyword($keyword)
     {
-        foreach (MiniMVC_Registry::getInstance()->settings->roles as $key => $role)
+        foreach (MiniMVC_Registry::getInstance()->settings->get('roles', array()) as $key => $role)
         {
             if (isset($role['keyword']) && $role['keyword'] == $keyword)
             {
@@ -27,7 +27,7 @@ class MiniMVC_Rights
      */
     public function getRoleData($role)
     {
-        return (isset(MiniMVC_Registry::getInstance()->settings->roles[$role])) ? MiniMVC_Registry::getInstance()->settings->roles[$role] : null;
+        return MiniMVC_Registry::getInstance()->settings->get('roles/'.$role);
     }
 
     /**
@@ -48,7 +48,7 @@ class MiniMVC_Rights
      */
     public function getRights($rights)
     {
-        return (int) (isset(MiniMVC_Registry::getInstance()->settings->rights[$rights]['key'])) ? MiniMVC_Registry::getInstance()->settings->rights[$rights]['key'] : 0;
+        return (int) MiniMVC_Registry::getInstance()->settings->get('rights/'.$rights.'/key');
     }
 
     /**
@@ -58,7 +58,7 @@ class MiniMVC_Rights
     public function getAllRights()
     {
         $return = 0;
-        $rights = MiniMVC_Registry::getInstance()->settings->rights;
+        $rights = MiniMVC_Registry::getInstance()->settings->get('rights');
         foreach ($rights as $right)
         {
             if (!isset($right['key']))
