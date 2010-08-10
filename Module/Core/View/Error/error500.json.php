@@ -1,1 +1,0 @@
-<?php echo json_encode(array('status' => 0, 'errorCode' => 500, 'message' => 'Error 500 Server Error!'));
