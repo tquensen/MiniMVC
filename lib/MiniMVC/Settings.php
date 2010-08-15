@@ -151,7 +151,13 @@ class MiniMVC_Settings
             }
             $pointer = &$pointer[$index];
         }
-        $pointer[$index] = $value;
+        if ($value === null) {
+            if (isset($pointer[$index])) {
+                unset($pointer[$index]);
+            }
+        } else {
+            $pointer[$index] = $value;
+        }
 
         $this->changed[$app . '_' . $environment][$key] = $key;
 
@@ -169,7 +175,7 @@ class MiniMVC_Settings
         $environment = ($environment) ? $environment : $this->get('runtime/currentEnvironment');
 
         if ($this->get('runtime/useCache')) {
-            file_put_contents(CACHEPATH.'settings_' . $app . '_' . $environment . '.php', '<?php $MiniMVC_settings = ' . var_export($this->settings[$app . '_' . $environment], true) . ';');
+            file_put_contents(CACHEPATH.'settings_' . $app . '_' . $environment . '.php', '<?php ' . "\n" . $this->varExport($this->settings[$app . '_' . $environment], '$MiniMVC_settings', 100));
         }
     }
 
@@ -206,6 +212,25 @@ class MiniMVC_Settings
                 $this->settings[$key] = $MiniMVC_settings;
                 $this->save($app, $env);
             }
+        }
+    }
+
+    public function varExport($data, $varname, $maxDepth = 2, $depth = 0) {
+        if (is_array($data) && $depth < $maxDepth) {
+            $output = '';
+            if ($depth == 0) {
+                $output .= $varname.' = array();'."\n";
+                $output .= "\n";
+            }
+            foreach ($data as $key => $value) {
+                $output .= $this->varExport($value, $varname . '[' . var_export($key, true) . ']', $maxDepth, $depth + 1);
+            }
+            if ($depth == 1) {
+                $output .= "\n";
+            }
+            return $output;
+        } else {
+            return $varname . ' = ' . var_export($data, true) . ";\n";
         }
     }
 

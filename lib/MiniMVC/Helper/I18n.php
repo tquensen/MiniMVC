@@ -57,7 +57,7 @@ class Helper_I18n extends MiniMVC_Helper
                 self::$cached = $MiniMVC_i18n;
 
                 if ($this->registry->settings->get('runtime/useCache')) {
-                    file_put_contents(CACHEPATH.'i18n_'.$currentApp.'_'.$language.'.php', '<?php $MiniMVC_i18n = '.var_export($MiniMVC_i18n, true).';');
+                    file_put_contents(CACHEPATH.'i18n_'.$currentApp.'_'.$language.'.php', '<?php ' . "\n" . $this->registry->settings->varExport($MiniMVC_i18n, '$MiniMVC_i18n', 2));
                 }
 
             }
@@ -100,4 +100,44 @@ class Helper_I18n extends MiniMVC_Helper
 			}
 		}
 	}
+
+    public function redirectToPreferredLanguage()
+	{
+        $currentLanguage = $this->registry->settings->get('runtime/currentLanguage');
+
+        $preferredLanguage = $this->getPreferredLanguage();
+
+        if ($preferredLanguage && in_array($preferredLanguage, $this->registry->settings->get('config/enabledLanguages', array()))) {
+            if ($currentLanguage != $preferredLanguage) {
+                $this->registry->settings->set('runtime/currentLanguage', $preferredLanguage);
+                header('Location: ' . $this->registry->helper->Url->get($this->registry->settings->get('runtime/currentRoute'), $this->registry->settings->get('runtime/currentRouteParameter')));
+                exit;
+            }
+        }
+
+	}
+
+    public function getPreferredLanguage()
+    {
+        if (isset($_COOKIE['minimvc_preferred_language'])) {
+            return $_COOKIE['minimvc_preferred_language'];
+        }
+        return false;
+    }
+
+    public function setPreferredLanguage($language = null, $redirect = false)
+    {
+        $protocol = (!isset($_SERVER['HTTPS']) || !$_SERVER['HTTPS'] || $_SERVER['HTTPS'] == 'off') ? 'http' : 'https';
+        $baseurl = $this->registry->settings->get('apps/'.$this->registry->settings->get('runtime/currentApp').'/baseurl');
+        $path = str_replace($protocol . '://' . $_SERVER['HTTP_HOST'], '', $baseurl);
+        if ($language) {    
+            setcookie('minimvc_preferred_language', $language, time() + 2592000, $path, $_SERVER['HTTP_HOST'], false, false);
+        } elseif(isset($_COOKIE['minimvc_preferred_language'])) {
+            unset($_COOKIE['minimvc_preferred_language']);
+            setcookie('minimvc_preferred_language', $language, time() - 2592000, $path, $_SERVER['HTTP_HOST'], false, false);
+        }
+        if ($redirect) {
+            $this->redirectToPreferredLanguage();
+        }
+    }
 }

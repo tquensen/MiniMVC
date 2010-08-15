@@ -67,6 +67,8 @@ class MiniMVC_Dispatcher
         }
         $this->registry->settings->set('runtime/currentLanguage', $currentLanguage);
 
+        $this->registry->settings->set('runtime/requestedRoute', $route);
+
         $routes = $this->registry->settings->get('routes');
         $routeData = null;
 
@@ -125,6 +127,12 @@ class MiniMVC_Dispatcher
         
         
         try {
+
+            $this->registry->settings->set('runtime/currentRoute', $routeName);
+            $this->registry->settings->set('runtime/currentRouteParameter', $params);
+
+            $this->registry->events->notify(new sfEvent($this, 'minimvc.init'));
+
             $this->registry->db->init();
             
             $content = $this->callRoute($routeName, (isset($params) ? $params : array()));

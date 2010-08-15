@@ -1,6 +1,6 @@
 <?php
-$MiniMVC_events['minimvc.dispatcher.filterRoute']['core.example'] = array(
-    'class' => 'Core_Events',
-    'method' => 'initEvent',
+$MiniMVC_events['minimvc.init']['core.filterI18nRoute'] = array(
+    'class' => 'Core_I18n_Controller',
+    'method' => 'redirectToI18nRoute',
     'instance' => 'once'
 );

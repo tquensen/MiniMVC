@@ -21,7 +21,7 @@ class MiniMVC_Translation
 
 	public function __get($key)
 	{
-		return (isset($this->translations[$key])) ? $this->translations[$key] : '';
+		return (isset($this->translations[$key])) ? $this->translations[$key] : $key;
 	}
 
 	public function __call($key, $args)
@@ -56,7 +56,7 @@ class MiniMVC_Translation
 				$search[] = '{'.$key.'}';
 				$replace[] = $value;
 			}
-			return str_replace($search, $replace, $string);
+			$string = str_replace($search, $replace, $string);
 		}
 		return $string;
 	}

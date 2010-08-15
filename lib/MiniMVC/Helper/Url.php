@@ -17,13 +17,28 @@ class Helper_Url extends MiniMVC_Helper
 		{
 			return false;
 		}
-		$baseurl = (isset($appData['baseurl'])) ? $appData['baseurl'] : '/';
+        $language = $this->registry->settings->get('runtime/currentLanguage');
+        if ($language == $this->registry->settings->get('runtime/defaultLanguage') || !in_array($language, $this->registry->settings->get('config/enabledLanguages', array()))) {
+            $language = false;
+        }
+
+        if ($language) {
+            if ($baseurl = $this->registry->settings->get('apps/'.$app.'/baseurlI18n', '')) {
+                $baseurl = str_replace(':lang:', $language, $baseurl);
+            }
+        }
+        if (!$baseurl) {
+            $baseurl = $this->registry->settings->get('apps/'.$app.'/baseurl');
+        }
+
 		$search = array();
 		$replace = array();
-		foreach ($routeData['parameter'] as $param=>$value)
+
+        $parameter = array_merge(isset($routeData['parameter']) ? $routeData['parameter'] : array(), $parameter);
+		foreach ($parameter as $param=>$value)
 		{
 			$search[] = ':'.$param.':';
-			$replace[] = urldecode($value);
+			$replace[] = urlencode($value);
 		}
 		return $baseurl.str_replace($search, $replace, $routeData['route']);
 	}
