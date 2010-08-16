@@ -20,18 +20,39 @@ class MiniMVC_Layout
 
     protected function prepareSlots()
     {
-        $allkey = 'all' . (($this->format != null) ? '.' . $this->format : '');
-        $key = $this->layout . (($this->format != null) ? '.' . $this->format : '');
         $slots = $this->registry->settings->get('slots');
-
-        if (!isset($slots[$key]) && !isset($slots[$allkey]))
-        {
-            return;
-        }
+        $route = $this->registry->settings->get('runtime/currentRoute');
         
-        $activeSlots = array_merge((isset($slots[$allkey]) ? $slots[$allkey] : array()), (isset($slots[$key]) ? $slots[$key] : array()));
-        
-        foreach ($slots[$key] as $currentSlot => $slotData) {
+        foreach ($slots as $currentSlot => $slotData) {
+            if (isset($slotData['show']) && $slotData['show']) {
+                if (is_string($slotData['show']) && $slotData['show'] != $route) {
+                    continue;
+                } elseif(is_array($slotData['show']) && !in_array($route, $slotData['show'])) {
+                    continue;
+                }
+            }
+            if (isset($slotData['hide']) && $slotData['hide']) {
+                if (is_string($slotData['hide']) && $slotData['hide'] == $route) {
+                    continue;
+                } elseif(is_array($slotData['hide']) && in_array($route, $slotData['hide'])) {
+                    continue;
+                }
+            }
+            if (!isset($slotData['format']) || $slotData['format'] == 'html') {
+                $slotData['format'] = null;
+            }
+            if (!is_array($slotData['format']) && $slotData['format'] != 'all' && ($slotData['format'] != $this->format)) {
+                continue;
+            } elseif(is_array($slotData['format']) && !in_array($this->format ? $this->format : 'html', $slotData['format'])) {
+                continue;
+            }
+            if (isset($slotData['layout']) && $slotData['layout']) {
+                if (is_string($slotData['layout']) && $slotData['layout'] != 'all' && $slotData['layout'] != $this->layout) {
+                    continue;
+                } elseif(is_array($slotData['layout']) && !in_array($this->layout, $slotData['layout'])) {
+                    continue;
+                }
+            }
             if (!isset($this->slots[$currentSlot])) {
                 $this->slots[$currentSlot] = array();
             }
@@ -43,7 +64,13 @@ class MiniMVC_Layout
     {
         $dispatcher = $this->registry->dispatcher;
         foreach ($slotData as $currentSlotData) {
-            if (!isset($currentSlotData['name']) || ! isset($currentSlotData['type'])) {
+            if (is_string($currentSlotData)) {
+                $currentSlotData = array('name' => $currentSlotData, 'type' => 'widget');
+            }
+            if (!isset($currentSlotData['type'])) {
+                $currentSlotData['type'] = 'widget';
+            }
+            if (!isset($currentSlotData['name'])) {
                 continue;
             }
 

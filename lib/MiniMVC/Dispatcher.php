@@ -40,24 +40,25 @@ class MiniMVC_Dispatcher
 
         $appurls = $this->registry->settings->get('apps/'.$currentApp);
         if (isset($appurls['baseurlI18n'])) {
-            if (preg_match('#' . str_replace(':lang:', '(?P<lang>[a-z]{2})', $appurls['baseurlI18n']) . '(?P<route>[^\?]*).*$#', $url, $matches)) {
+            if (preg_match('#' . str_replace(':lang:', '(?P<lang>[a-z]{2})', $appurls['baseurlI18n']) . '(?P<route>[^\?\#]*).*$#', $url, $matches)) {
                 $currentLanguage = $matches['lang'];
                 $route = $matches['route'];
             }
         }
-        if (isset($appurls['baseurl'])) {
-            if (preg_match('#' . $appurls['baseurl'] . '(?P<route>[^\?]*).*$#', $url, $matches)) {
+        if (!$route && isset($appurls['baseurl'])) {
+            if (preg_match('#' . $appurls['baseurl'] . '(?P<route>[^\?\#]*).*$#', $url, $matches)) {
                 $route = $matches['route'];
+            } else {
+                $route = false;
             }
         }
-        
 
         if ($currentLanguage) {
             if (!in_array($currentLanguage, $this->registry->settings->get('config/enabledLanguages', array())) || $currentLanguage == $this->registry->settings->get('config/defaultLanguage')) {
                 if (!$redirectUrl = $this->registry->settings->get('apps/'.$currentApp.'/baseurl')) {
                     throw new Exception('No baseurl for App '.$currentApp.' found!');
                 }
-                header('Location: ' . $redirectUrl . $route);
+                header('Location: ' . $redirectUrl . $route . (isset($_SERVER['QUERY_STRING']) && $_SERVER['QUERY_STRING'] ? '?' . $_SERVER['QUERY_STRING'] : ''));
                 exit;
             }
         } else {
@@ -72,7 +73,7 @@ class MiniMVC_Dispatcher
         $routes = $this->registry->settings->get('routes');
         $routeData = null;
 
-        if (!$route) {
+        if (!$route && $route !== false) {
             $defaultRoute = $this->registry->settings->get('config/defaultRoute');
             if ($defaultRoute && isset($routes[$defaultRoute])) {
                 $routeName = $defaultRoute;
@@ -83,33 +84,38 @@ class MiniMVC_Dispatcher
         } else {
             $found = false;
 
-            foreach ($routes as $currentRoute => $currentRouteData) {
-                if (!isset($currentRouteData['route']) || !isset($currentRouteData['controller']) || !isset($currentRouteData['action'])) {
-                    continue;
-                }
-                $routePattern = (isset($currentRouteData['routePattern'])) ? $currentRouteData['routePattern'] : $this->getRegex($currentRoute, $currentRouteData);
-                if (preg_match($routePattern, $route, $matches)) {
-                    $params = (isset($currentRouteData['parameter'])) ? $currentRouteData['parameter'] : array();
-                    foreach ($matches as $paramKey => $paramValue) {
-                        if (!is_numeric($paramKey)) {
-                            if ($paramKey == 'anonymousParams') {
+            if ($route) {
+                foreach ($routes as $currentRoute => $currentRouteData) {
+                    if (isset($currentRouteData['active']) && !$currentRouteData['active']) {
+                        continue;
+                    }
+                    if (!isset($currentRouteData['route']) || !isset($currentRouteData['controller']) || !isset($currentRouteData['action'])) {
+                        continue;
+                    }
+                    $routePattern = (isset($currentRouteData['routePattern'])) ? $currentRouteData['routePattern'] : $this->getRegex($currentRoute, $currentRouteData);
+                    if (preg_match($routePattern, $route, $matches)) {
+                        $params = (isset($currentRouteData['parameter'])) ? $currentRouteData['parameter'] : array();
+                        foreach ($matches as $paramKey => $paramValue) {
+                            if (!is_numeric($paramKey)) {
+                                if ($paramKey == 'anonymousParams') {
 
-                                foreach (explode('/', $paramValue) as $anonymousParam) {
-                                    $anonymousParam = explode('-', $anonymousParam, 2);
-                                    if (trim($anonymousParam[0]) && !isset($params[urldecode($anonymousParam[0])])) {
-                                        $params[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : '';
+                                    foreach (explode('/', $paramValue) as $anonymousParam) {
+                                        $anonymousParam = explode('-', $anonymousParam, 2);
+                                        if (trim($anonymousParam[0]) && !isset($params[urldecode($anonymousParam[0])])) {
+                                            $params[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : '';
+                                        }
                                     }
+                                } else {
+                                    $params[urldecode($paramKey)] = urldecode($paramValue);
                                 }
-                            } else {
-                                $params[urldecode($paramKey)] = urldecode($paramValue);
                             }
                         }
-                    }
 
-                    $routeName = $currentRoute;
-                    //$routeData = $this->getRoute($currentRoute, $params);
-                    $found = true;
-                    break;
+                        $routeName = $currentRoute;
+                        //$routeData = $this->getRoute($currentRoute, $params);
+                        $found = true;
+                        break;
+                    }
                 }
             }
 
@@ -129,7 +135,7 @@ class MiniMVC_Dispatcher
         try {
 
             $this->registry->settings->set('runtime/currentRoute', $routeName);
-            $this->registry->settings->set('runtime/currentRouteParameter', $params);
+            $this->registry->settings->set('runtime/currentRouteParameter', isset($params) ? $params : array());
 
             $this->registry->events->notify(new sfEvent($this, 'minimvc.init'));
 
@@ -287,8 +293,20 @@ class MiniMVC_Dispatcher
         if (!$taskData = $this->registry->settings->get('tasks/'.$task, array(), $app)) {
             throw new Exception('Task "' . $task . '" does not exist!');
         }
+
+        if (isset($taskData['assign'])) {
+            if (is_array($taskData['assign'])) {
+                foreach ($taskData['assign'] as $k => $v) {
+                    if (isset($params[$k])) {
+                        $params[$v] = $params[$k];
+                    }
+                }
+            } elseif (is_string($taskData['assign']) && isset($params[0])) {
+                $params[$taskData['assign']] = $params[0];
+            }
+        }
         
-        $taskData['parameter'] = (isset($taskData['parameter'])) ? array_merge($taskData['parameter'], (array)$params) : (array)$params;
+        $taskData['parameter'] = (isset($taskData['parameter'])) ? array_merge($taskData['parameter'], $params) : $params;
         return $taskData;
     }
 
@@ -305,7 +323,7 @@ class MiniMVC_Dispatcher
         if (!isset($taskData['controller']) || !isset($taskData['action'])) {
             throw new Exception('Task "' . $task . '" is invalid (controller or action not set!');
         }
-        
+
         return $this->call($taskData['controller'], $taskData['action'], $taskData['parameter']);
     }
 

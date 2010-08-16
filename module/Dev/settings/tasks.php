@@ -1,39 +1,59 @@
 <?php
 
-$MiniMVC_tasks['dev.generate.module'] = array(
+$MiniMVC_tasks['generate.module'] = array(
     'controller' => 'Dev_Generate',
     'action' => 'module',
-    'parameter' => array('module' => false)
+    'parameter' => array('module' => false),
+    'assign' => 'module'
 );
 
-$MiniMVC_tasks['dev.install.module'] = array(
+$MiniMVC_tasks['install.module'] = array(
     'controller' => 'Dev_Install',
     'action' => 'module',
-    'parameter' => array('module' => false, 'fromVersion' => 0, 'type' => 'install')
+    'parameter' => array('module' => false, 'fromVersion' => 0, 'type' => 'install'),
+    'assign' => array('module', 'fromVersion')
 );
 
-$MiniMVC_tasks['dev.uninstall.module'] = array(
+$MiniMVC_tasks['uninstall.module'] = array(
     'controller' => 'Dev_Install',
     'action' => 'module',
-    'parameter' => array('module' => false, 'fromVersion' => 'max', 'type' => 'uninstall')
+    'parameter' => array('module' => false, 'fromVersion' => 'max', 'type' => 'uninstall'),
+    'assign' => array('module', 'fromVersion')
 );
 
-$MiniMVC_tasks['dev.install.model'] = array(
-    'controller' => 'Dev_Install',
-    'action' => 'model',
-    'parameter' => array('model' => false, 'fromVersion' => 0, 'type' => 'install')
-);
-
-$MiniMVC_tasks['dev.uninstall.model'] = array(
-    'controller' => 'Dev_Install',
-    'action' => 'model',
-    'parameter' => array('model' => false, 'fromVersion' => 'max', 'type' => 'uninstall')
-);
-
-$MiniMVC_tasks['dev.generate.model'] = array(
+$MiniMVC_tasks['generate.model'] = array(
     'controller' => 'Dev_Generate',
     'action' => 'model',
-    'parameter' => array('module' => false, 'model' => false)
+    'parameter' => array('module' => false, 'model' => false),
+    'assign' => array('module', 'model')
+);
+
+$MiniMVC_tasks['install.model'] = array(
+    'controller' => 'Dev_Install',
+    'action' => 'model',
+    'parameter' => array('model' => false, 'fromVersion' => 0, 'type' => 'install'),
+    'assign' => array('model', 'fromVersion')
+);
+
+$MiniMVC_tasks['uninstall.model'] = array(
+    'controller' => 'Dev_Install',
+    'action' => 'model',
+    'parameter' => array('model' => false, 'fromVersion' => 'max', 'type' => 'uninstall'),
+    'assign' => array('model', 'fromVersion')
+);
+
+$MiniMVC_tasks['generate.controller'] = array(
+    'controller' => 'Dev_Generate',
+    'action' => 'controller',
+    'parameter' => array('module' => false, 'controller' => false),
+    'assign' => array('module', 'controller')
+);
+
+$MiniMVC_tasks['generate.app'] = array(
+    'controller' => 'Dev_Generate',
+    'action' => 'app',
+    'parameter' => array('app' => false, 'w' => true),
+    'assign' => 'app'
 );
 
 $MiniMVC_tasks['doctrine'] = array(

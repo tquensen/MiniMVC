@@ -3,6 +3,10 @@
 class Core_Task_Controller extends MiniMVC_Controller
 {
 
+    public function testAction($params)
+    {
+        var_dump($params);
+    }
     public function clearCacheAction()
     {
         $status = $this->clearDirectory(CACHEPATH, true);
@@ -36,7 +40,7 @@ class Core_Task_Controller extends MiniMVC_Controller
                 symlink(MODULEPATH.$module.'/web', WEBPATH.'module/'.$module);
             }
        }
-       return 'Symlinks wurrden erstellt!';
+       return 'Symlinks wurden erstellt!';
     }
 
     protected function clearDirectory($dir, $recursive = false, $level = 1)

@@ -3,6 +3,53 @@
 class Dev_Generate_Controller extends MiniMVC_Controller
 {
 
+    public function appAction($params)
+    {
+        if (!$params['app']) {
+            return 'Keinen Appnamen angegeben!' . "\n";
+        }
+
+        if (file_exists(APPPATH . $params['app'])) {
+            return 'App existiert bereits!' . "\n";
+        }
+
+        if (!is_writable(APPPATH)) {
+            return 'Keine Schreibrechte im App-Ordner!' . "\n";
+        }
+
+        $path = APPPATH . $params['app'];
+        $dummy = MODULEPATH . 'Dev/dummies';
+
+        mkdir($path);
+        mkdir($path . '/i18n');
+        mkdir($path . '/settings');
+        mkdir($path . '/view');
+        mkdir($path . '/web');
+        mkdir($path . '/web/js');
+        mkdir($path . '/web/css');
+        mkdir($path . '/web/images');
+        mkdir($path . '/lib');
+
+        file_put_contents($path . '/view/default.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.php')));
+        file_put_contents($path . '/view/default.json.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.json.php')));
+        file_put_contents($path . '/i18n/de.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/de_app.php')));
+        file_put_contents($path . '/i18n/en.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/en_app.php')));
+        file_put_contents($path . '/settings/slots.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/slots.php')));
+        file_put_contents($path . '/settings/view.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/view.php')));
+        file_put_contents($path . '/settings/config.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/config_app.php')));
+        file_put_contents($path . '/settings/routes.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/routes_app.php')));
+        file_put_contents($path . '/settings/widgets.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/widgets_app.php')));
+
+        if ($params['w']) {
+            file_put_contents(WEBPATH . $params['app'] . '.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_web.php')));
+            file_put_contents(WEBPATH . $params['app'] . '_dev.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_web_dev.php')));
+        }
+
+        return 'App was generated successfully!'."\n"
+              .'Make sure to define the $MiniMVC_apps[\''.$params['app'].'\'][\'baseurl\'] in your settings/apps.php and settings/apps_dev.php files!'."\n"
+              .'Optionally, you can modify the web/.htaccess file to enable pretty URLs.';
+    }
+
     public function moduleAction($params)
     {
         if (!$params['module']) {
@@ -85,6 +132,40 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             $message .= '-> Datei '.$model.'Table.php erstellt'."\n";
         } else {
             $message .= '-> Datei '.$model.'Table.php existiert bereits'."\n";
+        }
+        return $message;
+    }
+
+    public function controllerAction($params)
+    {
+        if (!$params['module']) {
+            return 'Kein Modul angegeben!' . "\n";
+        }
+        if (!$params['controller']) {
+            return 'Kein Controllername angegeben!' . "\n";
+        }
+
+        $params['module'] = ucfirst($params['module']);
+        $controller = ucfirst($params['controller']);
+
+        $search = array(
+            'MODULE',
+            'CONTROLLER'
+        );
+        $replace = array(
+            $params['module'],
+            $controller
+        );
+
+        $path = MODULEPATH . $params['module'].'/controller';
+        $dummy = MODULEPATH . 'Dev/dummies';
+
+        $message = 'Erstelle Controller...'."\n";
+        if (!file_exists($path . '/'.$controller.'.php')) {
+            file_put_contents($path . '/'.$controller.'.php', str_replace($search, $replace, file_get_contents($dummy . '/Controller.php')));
+            $message .= '-> Datei '.$controller.'.php erstellt'."\n";
+        } else {
+            $message .= '-> Datei '.$controller.'.php existiert bereits'."\n";
         }
         return $message;
     }

@@ -15,3 +15,12 @@ $MiniMVC_routes['MODLC.defaultIndex.json'] = array(
     'parameter' => array(),
     'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('user'))
 );
+
+$MiniMVC_routes['MODLC.defaultCreate'] = array(
+    'route' => 'MODLC/create',
+    'controller' => 'MODULE_Default',
+    'action' => 'create',
+    'parameter' => array(),
+    'active' => false, //this route must be activated for each app to work
+    'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('admin'))
+);

@@ -18,7 +18,7 @@ class Helper_Url extends MiniMVC_Helper
 			return false;
 		}
         $language = $this->registry->settings->get('runtime/currentLanguage');
-        if ($language == $this->registry->settings->get('runtime/defaultLanguage') || !in_array($language, $this->registry->settings->get('config/enabledLanguages', array()))) {
+        if ($language == $this->registry->settings->get('config/defaultLanguage') || !in_array($language, $this->registry->settings->get('config/enabledLanguages', array()))) {
             $language = false;
         }
 

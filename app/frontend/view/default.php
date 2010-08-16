@@ -16,6 +16,6 @@
         <?php echo $layout->getSlot('main') ?>
         <?php echo $layout->getSlot('sidebar') ?>
 
-        <?php echo $layout->getSlot('javascript') ?>
+        <?php echo $helper->JS->getHtml() ?>
     </body>
 </html>

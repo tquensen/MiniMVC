@@ -1,8 +1,10 @@
 <?php
+
 /**
  * MiniMVC_Task is used to dispatch and call CLI tasks
  */
-class MiniMVC_Task {
+class MiniMVC_Task
+{
     protected $registry = null;
 
     public function __construct()
@@ -18,54 +20,84 @@ class MiniMVC_Task {
     public function dispatch($rawParams)
     {
         $this->registry->template->setLayout(false);
-        $this->registry->template->setFormat('text');
+        $this->registry->template->setFormat('plain');
 
-        $params = $this->getCliParams($rawParams);
+        array_shift($rawParams); // remove the filename (cli.php)
+        $taskName = array_shift($rawParams);
+        $params = $this->parseArgs($rawParams);
 
-        if (isset($params['app']) && $this->registry->settings->get('apps/'.$params['app'])) {
+        if (isset($params['app']) && $this->registry->settings->get('apps/' . $params['app'])) {
             $this->registry->settings->set('runtime/currentApp', $params['app']);
         }
 
         $this->registry->settings->set('runtime/currentLanguage', '');
 
-        if (!$params['task']) {
+        if (!$taskName) {
             return 'error: no task specified!';
         }
 
-        if (!$task = $this->registry->settings->get('tasks/'.$params['task'])) {
-            return 'error: task '.$params['task'].' not found';
+        if (!$task = $this->registry->settings->get('tasks/' . $taskName)) {
+            return 'error: task ' . $taskName . ' not found';
         }
-      
+
         try {
             $this->registry->db->init();
-            return $this->registry->dispatcher->callTask($params['task'], $params);
+            return $this->registry->dispatcher->callTask($taskName, $params);
         } catch (Exception $e) {
-            return 'error: '.$e->getMessage();
+            return 'error: ' . $e->getMessage();
         }
     }
 
     /**
      *
-     * @param array $rawParams the raw CLI parameters to parse
-     * @return array returns an associative array of parameters
+     * @param array $argv the raw CLI parameters to parse
+     * @return array returns an array of parameters
      */
-    public function getCliParams($rawParams)
+    public function parseArgs($argv)
     {
-        $params = array();
-        foreach ($rawParams as $param) {
-            if (substr($param, 0, 2) != '--') {
-                continue;
+        $out = array();
+        foreach ($argv as $arg) {
+            // --foo --bar=baz
+            if (substr($arg, 0, 2) == '--') {
+                $eqPos = strpos($arg, '=');
+                // --foo
+                if ($eqPos === false) {
+                    $key = substr($arg, 2);
+                    $value = isset($out[$key]) ? $out[$key] : true;
+                    $out[$key] = $value;
+                }
+                // --bar=baz
+                else {
+                    $key = substr($arg, 2, $eqPos - 2);
+                    $value = substr($arg, $eqPos + 1);
+                    $out[$key] = $value;
+                }
             }
-            $param = explode('=',  substr($param, 2));
-            if (!isset($param[1])) {
-                $param[1] = true;
+            // -k=value -abc
+            else if (substr($arg, 0, 1) == '-') {
+                // -k=value
+                if (substr($arg, 2, 1) == '=') {
+                    $key = substr($arg, 1, 1);
+                    $value = substr($arg, 3);
+                    $out[$key] = $value;
+                }
+                // -abc
+                else {
+                    $chars = str_split(substr($arg, 1));
+                    foreach ($chars as $char) {
+                        $key = $char;
+                        $value = isset($out[$key]) ? $out[$key] : true;
+                        $out[$key] = $value;
+                    }
+                }
             }
-            if (!trim($param[0])) {
-                continue;
+            // plain-arg
+            else {
+                $value = $arg;
+                $out[] = $value;
             }
-            $params[trim($param[0])] = trim($param[1]);
         }
-        $params['task'] = (isset($rawParams[1])) ? $rawParams[1] : null;
-        return $params;
+        return $out;
     }
+
 }
