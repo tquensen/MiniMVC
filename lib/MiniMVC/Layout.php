@@ -18,75 +18,77 @@ class MiniMVC_Layout
         $this->registry = MiniMVC_Registry::getInstance();
     }
 
-    protected function prepareSlots()
+    protected function prepareSlot($slot)
     {
+        if (is_string($slot)) {
+            $slot = array($slot);
+        }
+        $dispatcher = $this->registry->dispatcher;
         $slots = $this->registry->settings->get('slots');
         $route = $this->registry->settings->get('runtime/currentRoute');
+
+        foreach ($slot as $currentSlot) {
+            if (!isset($slots[$currentSlot])) {
+                continue;
+            }
+            foreach ($slots[$currentSlot] as $currentSlotData) {
+                if (is_string($currentSlotData)) {
+                    $currentSlotData = array('name' => $currentSlotData, 'type' => 'widget');
+                }
+                if (isset($currentSlotData['active']) && !$currentSlotData['active']) {
+                    continue;
+                }
+                if (!isset($currentSlotData['type'])) {
+                    $currentSlotData['type'] = 'widget';
+                }
+                if (!isset($currentSlotData['name'])) {
+                    continue;
+                }
+                if (isset($currentSlotData['show']) && $currentSlotData['show']) {
+                    if (is_string($currentSlotData['show']) && $currentSlotData['show'] != $route) {
+                        continue;
+                    } elseif(is_array($currentSlotData['show']) && !in_array($route, $currentSlotData['show'])) {
+                        continue;
+                    }
+                }
+                if (isset($currentSlotData['hide']) && $currentSlotData['hide']) {
+                    if (is_string($currentSlotData['hide']) && $currentSlotData['hide'] == $route) {
+                        continue;
+                    } elseif(is_array($currentSlotData['hide']) && in_array($route, $currentSlotData['hide'])) {
+                        continue;
+                    }
+                }
+                if (!isset($currentSlotData['format']) || $currentSlotData['format'] == 'html') {
+                    $currentSlotData['format'] = null;
+                }
+                if (!is_array($currentSlotData['format']) && $currentSlotData['format'] != 'all' && ($currentSlotData['format'] != $this->format)) {
+                    continue;
+                } elseif(is_array($currentSlotData['format']) && !in_array($this->format ? $this->format : 'html', $currentSlotData['format'])) {
+                    continue;
+                }
+                if (isset($currentSlotData['layout']) && $currentSlotData['layout']) {
+                    if (is_string($currentSlotData['layout']) && $currentSlotData['layout'] != 'all' && $currentSlotData['layout'] != $this->layout) {
+                        continue;
+                    } elseif(is_array($currentSlotData['layout']) && !in_array($this->layout, $currentSlotData['layout'])) {
+                        continue;
+                    }
+                }
+
+                try {
+                    if ($currentSlotData['type'] == 'route') {
+                        $content = $dispatcher->callRoute($currentSlotData['name'], (isset($currentSlotData['parameter'])) ? $currentSlotData['parameter'] : array(), false);
+                    } elseif ($currentSlotData['type'] == 'widget') {
+                        $content = $dispatcher->callWidget($currentSlotData['name'], (isset($currentSlotData['parameter'])) ? $currentSlotData['parameter'] : array());
+                    } else {
+                        continue;
+                    }
+                    $this->addToSlot($currentSlot, $content);
+                } catch (Exception $e) {
+
+                }
+            }
+        }
         
-        foreach ($slots as $currentSlot => $slotData) {
-            if (isset($slotData['show']) && $slotData['show']) {
-                if (is_string($slotData['show']) && $slotData['show'] != $route) {
-                    continue;
-                } elseif(is_array($slotData['show']) && !in_array($route, $slotData['show'])) {
-                    continue;
-                }
-            }
-            if (isset($slotData['hide']) && $slotData['hide']) {
-                if (is_string($slotData['hide']) && $slotData['hide'] == $route) {
-                    continue;
-                } elseif(is_array($slotData['hide']) && in_array($route, $slotData['hide'])) {
-                    continue;
-                }
-            }
-            if (!isset($slotData['format']) || $slotData['format'] == 'html') {
-                $slotData['format'] = null;
-            }
-            if (!is_array($slotData['format']) && $slotData['format'] != 'all' && ($slotData['format'] != $this->format)) {
-                continue;
-            } elseif(is_array($slotData['format']) && !in_array($this->format ? $this->format : 'html', $slotData['format'])) {
-                continue;
-            }
-            if (isset($slotData['layout']) && $slotData['layout']) {
-                if (is_string($slotData['layout']) && $slotData['layout'] != 'all' && $slotData['layout'] != $this->layout) {
-                    continue;
-                } elseif(is_array($slotData['layout']) && !in_array($this->layout, $slotData['layout'])) {
-                    continue;
-                }
-            }
-            if (!isset($this->slots[$currentSlot])) {
-                $this->slots[$currentSlot] = array();
-            }
-            $this->prepareSlot($currentSlot, $slotData);
-        }
-    }
-
-    protected function prepareSlot($slot, $slotData)
-    {
-        $dispatcher = $this->registry->dispatcher;
-        foreach ($slotData as $currentSlotData) {
-            if (is_string($currentSlotData)) {
-                $currentSlotData = array('name' => $currentSlotData, 'type' => 'widget');
-            }
-            if (!isset($currentSlotData['type'])) {
-                $currentSlotData['type'] = 'widget';
-            }
-            if (!isset($currentSlotData['name'])) {
-                continue;
-            }
-
-            try {
-                if ($currentSlotData['type'] == 'route') {
-                    $content = $dispatcher->callRoute($currentSlotData['name'], (isset($currentSlotData['parameter'])) ? $currentSlotData['parameter'] : array(), false);
-                } elseif ($currentSlotData['type'] == 'widget') {
-                    $content = $dispatcher->callWidget($currentSlotData['name'], (isset($currentSlotData['parameter'])) ? $currentSlotData['parameter'] : array());
-                } else {
-                    continue;
-                }
-                $this->addToSlot($slot, $content);
-            } catch (Exception $e) {
-                
-            }
-        }
     }
 
     /**
@@ -133,7 +135,7 @@ class MiniMVC_Layout
      * @param mixed $app the name of the app to use or null for the current app
      * @return string returns the parsed output of the current layout file and everything included
      */
-    public function parse($app = null, $useSlots = true)
+    public function parse($content, $app = null)
     {
         $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
         if ($this->layout === false) {
@@ -150,9 +152,7 @@ class MiniMVC_Layout
         }
         $view->layout = $this;
 
-        if ($useSlots) {
-            $this->prepareSlots();
-        }
+        $this->addToSlot('main', $content);
 
         return $view->parse($this->layout);
     }
@@ -162,7 +162,7 @@ class MiniMVC_Layout
      * @param string $slot the name of the slot
      * @param string $content the content which will be added to the slot
      */
-    public function addToSlot($slot, $content)
+    protected function addToSlot($slot, $content)
     {
         if (!isset($this->slots[$slot])) {
             $this->slots[$slot] = array();
@@ -181,6 +181,7 @@ class MiniMVC_Layout
     {
         if (!isset($this->slots[$slot])) {
             $this->slots[$slot] = array();
+            $this->prepareSlot($slot);
         }
         return ($array) ? $this->slots[$slot] : implode($glue, $this->slots[$slot]);
     }

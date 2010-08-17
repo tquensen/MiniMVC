@@ -1,27 +1,17 @@
 <?php
-//define slots and add module widgets or routes)
-$MiniMVC_slots['sidebar'][] = array('name' => 'user.login', 'hide' => 'user.login');
-$MiniMVC_slots['sidebar'][] = array('name' => 'user.logout', 'hide' => 'user.logout');
+//$MiniMVC_slots['someModule.hook']['APPLC.example'] = array('name' => 'APPLC.exampleWidget');
 
-//some advanced examples
+//advanced example
 /*
-$MiniMVC_slots['sidebar'][] = array(
+$MiniMVC_slots['somemodule.hook']['APPLC.example'] = array(
     'type' => 'widget', //defaults to widget (possible values: widget or route)
-    'name' => 'user.login',
-    'layout' => 'all', //default to "all"
-    'format' => 'all', //defaults to "html"
+    'name' => 'APPLC.exampleWidget',
+    'layout' => 'all', //default to "all" (this should only be set in the app config)
+    'format' => 'all', //defaults to "html" (this should only be set in the app config)
     'show' => 'home', //only show on these routes (string or array)
     'hide' => 'user.login', //hide widget on these routes (string or array)
-    'parameter' => array() //set parameter values
-);
-$MiniMVC_slots['sidebar'][] = array(
-    'type' => 'widget', //defaults to widget (possible values: widget or route)
-    'name' => 'user.logout',
-    'layout' => array('default', 'singleColumn'), //default to "all"
-    'format' => array('html', 'mobile'), //defaults to "html"
-    'show' => array('home', 'user.login', 'user.register'), //only show on these routes (string or array)
-    'hide' => 'user.logout', //hide widget on these routes (string or array)
-    'parameter' => array()
+    'parameter' => array(), //set parameter values
+    'active' => false //defaults to true. When set to false, this must be overwritten in the app settings
 );
  */
 

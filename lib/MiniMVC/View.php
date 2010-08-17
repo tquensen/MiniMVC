@@ -119,6 +119,7 @@ class MiniMVC_View
 		{
 			throw new Exception('View "'.$path.'" not found!');
 		}
+        
 		extract($this->vars);
         $helper = $this->helper;
         $t = $this->t;

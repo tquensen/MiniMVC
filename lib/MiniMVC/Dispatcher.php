@@ -45,7 +45,7 @@ class MiniMVC_Dispatcher
                 $route = $matches['route'];
             }
         }
-        if (!$route && isset($appurls['baseurl'])) {
+        if ($route === null && isset($appurls['baseurl'])) {
             if (preg_match('#' . $appurls['baseurl'] . '(?P<route>[^\?\#]*).*$#', $url, $matches)) {
                 $route = $matches['route'];
             } else {
@@ -142,16 +142,14 @@ class MiniMVC_Dispatcher
             $this->registry->db->init();
             
             $content = $this->callRoute($routeName, (isset($params) ? $params : array()));
-            $this->registry->template->addToSlot('main', $content);
-            return $this->registry->template->parse($this->registry->settings->get('runtime/currentApp'));
+            return $this->registry->template->parse($content, $this->registry->settings->get('runtime/currentApp'));
         } catch (Exception $e) {
             $error500Route = $this->registry->settings->get('config/error500Route');
             if ($error500Route && isset($routes[$error500Route])) {
                 $routeData = $routes[$error500Route];
                 $routeData['parameter']['exception'] = $e;
                 $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
-                $this->registry->template->addToSlot('main', $content);
-                return $this->registry->template->parse($this->registry->settings->get('runtime/currentApp'), false);
+                return $this->registry->template->parse($content, $this->registry->settings->get('runtime/currentApp'), false);
             } else {
                 throw new Exception('Exception was thrown and no 500 Route defined!');
             }

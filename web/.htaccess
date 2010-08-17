@@ -6,7 +6,7 @@ RewriteEngine on
 
 # BACKEND (or any other app than the default)
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^backend(.*)$ backend.php
+RewriteRule ^backend(.*)$ testapp2.php
 
 # FRONTEND
 RewriteCond %{REQUEST_FILENAME} !-f

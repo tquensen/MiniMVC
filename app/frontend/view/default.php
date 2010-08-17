@@ -14,8 +14,10 @@
         <?php echo $layout->getSlot('navigation') ?>
 
         <?php echo $layout->getSlot('main') ?>
+        SIDEBAR:
+        <div>
         <?php echo $layout->getSlot('sidebar') ?>
-
+        </div>
         <?php echo $helper->JS->getHtml() ?>
     </body>
 </html>

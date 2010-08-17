@@ -1,2 +1,2 @@
 <?php
-$MiniMVC_slots['default']['sidebar'] = array();
+$MiniMVC_slots = array();
