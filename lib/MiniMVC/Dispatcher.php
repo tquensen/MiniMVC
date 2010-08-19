@@ -274,6 +274,39 @@ class MiniMVC_Dispatcher
         if (isset($widgetData['rights']) && $widgetData['rights'] && !((int)$widgetData['rights'] & $this->registry->guard->getRights())) {
             return '';
         }
+        
+        $route = $this->registry->settings->get('runtime/currentRoute');
+        $format = $this->registry->template->getFormat();
+        $layout = $this->registry->template->getLayout();
+        if (isset($widgetData['show']) && $widgetData['show']) {
+            if (is_string($widgetData['show']) && $widgetData['show'] != $route) {
+                return '';
+            } elseif(is_array($widgetData['show']) && !in_array($route, $widgetData['show'])) {
+                return '';
+            }
+        }
+        if (isset($widgetData['hide']) && $widgetData['hide']) {
+            if (is_string($widgetData['hide']) && $widgetData['hide'] == $route) {
+                return '';
+            } elseif(is_array($widgetData['hide']) && in_array($route, $widgetData['hide'])) {
+                return '';
+            }
+        }
+        if (!isset($widgetData['format']) || $widgetData['format'] == 'html') {
+            $widgetData['format'] = null;
+        }
+        if (!is_array($widgetData['format']) && $widgetData['format'] != 'all' && ($widgetData['format'] != $format)) {
+            return '';
+        } elseif(is_array($widgetData['format']) && !in_array($format ? $format : 'html', $widgetData['format'])) {
+            return '';
+        }
+        if (isset($widgetData['layout']) && $widgetData['layout']) {
+            if (is_string($widgetData['layout']) && $widgetData['layout'] != 'all' && $widgetData['layout'] != $layout) {
+                return '';
+            } elseif(is_array($widgetData['layout']) && !in_array($layout, $widgetData['layout'])) {
+                return '';
+            }
+        }
 
         return $this->call($widgetData['controller'], $widgetData['action'], $widgetData['parameter']);
     }

@@ -158,7 +158,7 @@ class MiniMVC_Settings
         } else {
             $pointer[$index] = $value;
         }
-
+        
         $this->changed[$app . '_' . $environment][$key] = $key;
 
         return true;
@@ -221,6 +221,9 @@ class MiniMVC_Settings
             if ($depth == 0) {
                 $output .= $varname.' = array();'."\n";
                 $output .= "\n";
+            }
+            if (!count($data)) {
+                $output .= $varname.' = array();'."\n";
             }
             foreach ($data as $key => $value) {
                 $output .= $this->varExport($value, $varname . '[' . var_export($key, true) . ']', $maxDepth, $depth + 1);

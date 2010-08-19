@@ -18,79 +18,6 @@ class MiniMVC_Layout
         $this->registry = MiniMVC_Registry::getInstance();
     }
 
-    protected function prepareSlot($slot)
-    {
-        if (is_string($slot)) {
-            $slot = array($slot);
-        }
-        $dispatcher = $this->registry->dispatcher;
-        $slots = $this->registry->settings->get('slots');
-        $route = $this->registry->settings->get('runtime/currentRoute');
-
-        foreach ($slot as $currentSlot) {
-            if (!isset($slots[$currentSlot])) {
-                continue;
-            }
-            foreach ($slots[$currentSlot] as $currentSlotData) {
-                if (is_string($currentSlotData)) {
-                    $currentSlotData = array('name' => $currentSlotData, 'type' => 'widget');
-                }
-                if (isset($currentSlotData['active']) && !$currentSlotData['active']) {
-                    continue;
-                }
-                if (!isset($currentSlotData['type'])) {
-                    $currentSlotData['type'] = 'widget';
-                }
-                if (!isset($currentSlotData['name'])) {
-                    continue;
-                }
-                if (isset($currentSlotData['show']) && $currentSlotData['show']) {
-                    if (is_string($currentSlotData['show']) && $currentSlotData['show'] != $route) {
-                        continue;
-                    } elseif(is_array($currentSlotData['show']) && !in_array($route, $currentSlotData['show'])) {
-                        continue;
-                    }
-                }
-                if (isset($currentSlotData['hide']) && $currentSlotData['hide']) {
-                    if (is_string($currentSlotData['hide']) && $currentSlotData['hide'] == $route) {
-                        continue;
-                    } elseif(is_array($currentSlotData['hide']) && in_array($route, $currentSlotData['hide'])) {
-                        continue;
-                    }
-                }
-                if (!isset($currentSlotData['format']) || $currentSlotData['format'] == 'html') {
-                    $currentSlotData['format'] = null;
-                }
-                if (!is_array($currentSlotData['format']) && $currentSlotData['format'] != 'all' && ($currentSlotData['format'] != $this->format)) {
-                    continue;
-                } elseif(is_array($currentSlotData['format']) && !in_array($this->format ? $this->format : 'html', $currentSlotData['format'])) {
-                    continue;
-                }
-                if (isset($currentSlotData['layout']) && $currentSlotData['layout']) {
-                    if (is_string($currentSlotData['layout']) && $currentSlotData['layout'] != 'all' && $currentSlotData['layout'] != $this->layout) {
-                        continue;
-                    } elseif(is_array($currentSlotData['layout']) && !in_array($this->layout, $currentSlotData['layout'])) {
-                        continue;
-                    }
-                }
-
-                try {
-                    if ($currentSlotData['type'] == 'route') {
-                        $content = $dispatcher->callRoute($currentSlotData['name'], (isset($currentSlotData['parameter'])) ? $currentSlotData['parameter'] : array(), false);
-                    } elseif ($currentSlotData['type'] == 'widget') {
-                        $content = $dispatcher->callWidget($currentSlotData['name'], (isset($currentSlotData['parameter'])) ? $currentSlotData['parameter'] : array());
-                    } else {
-                        continue;
-                    }
-                    $this->addToSlot($currentSlot, $content);
-                } catch (Exception $e) {
-
-                }
-            }
-        }
-        
-    }
-
     /**
      *
      * @param mixed $file the filename (without extension) of the layout file to use, true or null to use the default layout, false to use no layout file
@@ -177,14 +104,59 @@ class MiniMVC_Layout
      * @param string $glue if returned as string, $glue will be added between the contents
      * @return mixed the contents of the slot as string or array (as set in the $array parameter)
      */
-    public function getSlot($slot, $array = false, $glue = '')
+    public function getSlot($slot, $data = array(), $glue = '')
     {
         if (!isset($this->slots[$slot])) {
             $this->slots[$slot] = array();
-            $this->prepareSlot($slot);
+            $this->prepareSlot($slot, $data);
         }
-        return ($array) ? $this->slots[$slot] : implode($glue, $this->slots[$slot]);
+        return ($glue === true) ? $this->slots[$slot] : implode($glue, $this->slots[$slot]);
     }
 
+    protected function prepareSlot($slot, $data)
+    {
+        if (is_string($slot)) {
+            $slot = array($slot);
+        }
+    
+        foreach ($slot as $currentSlot) {
+            $slotWidgets = $this->registry->settings->get('widgets/cachedSlots/'.$currentSlot);
+            if ($slotWidgets === null) {
+                $slotWidgets = $this->getSlotWidgets($currentSlot);
+            }
+            foreach ($slotWidgets as $currentWidget) {
+                try {
+                    $parameter = array('slot' => $data);
+                    $content = $this->registry->dispatcher->callWidget($currentWidget, $parameter);
+                    if ($content) {
+                        $this->addToSlot($currentSlot, $content);
+                    }
+                } catch (Exception $e) {
+
+                }
+            }
+        }
+    }
+
+    protected function getSlotWidgets($slot)
+    {
+        $widgets = $this->registry->settings->get('widgets', array());
+        $slotWidgets = array();
+        foreach ($widgets as $widgetName => $widgetData) {
+            if (!isset($widgetData['slot']) || !$widgetData['slot']) {
+                continue;
+            }
+            if (is_string($widgetData['slot']) && $widgetData['slot'] != $slot) {
+                continue;
+            }
+            if (is_array($widgetData['slot']) && !in_array($slot, $widgetData['slot'])) {
+                continue;
+            }
+            $slotWidgets[] = $widgetName;
+        }
+        var_dump($slot, $slotWidgets);
+        $this->registry->settings->set('widgets/cachedSlots/'.$slot, $slotWidgets);
+        return $slotWidgets;
+    }
 }
 

@@ -34,7 +34,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         file_put_contents($path . '/view/default.json.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.json.php')));
         file_put_contents($path . '/i18n/de.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/de_app.php')));
         file_put_contents($path . '/i18n/en.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/en_app.php')));
-        file_put_contents($path . '/settings/slots.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/slots_app.php')));
+        //file_put_contents($path . '/settings/slots.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/slots_app.php')));
         file_put_contents($path . '/settings/view.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/view.php')));
         file_put_contents($path . '/settings/config.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/config_app.php')));
         file_put_contents($path . '/settings/routes.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/routes_app.php')));
@@ -92,7 +92,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         file_put_contents($path . '/settings/config.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/config.php')));
         file_put_contents($path . '/settings/routes.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/routes.php')));
         file_put_contents($path . '/settings/widgets.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/widgets.php')));
-        file_put_contents($path . '/settings/slots.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/slots.php')));
+        //file_put_contents($path . '/settings/slots.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/slots.php')));
         //file_put_contents($path . '/Model/Schema/schema.yml', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/schema.yml')));
 
         return 'Modul wurde erfolgreich generiert!';
