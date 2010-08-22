@@ -154,7 +154,7 @@ class MiniMVC_Layout
             }
             $slotWidgets[] = $widgetName;
         }
-        var_dump($slot, $slotWidgets);
+
         $this->registry->settings->set('widgets/cachedSlots/'.$slot, $slotWidgets);
         return $slotWidgets;
     }

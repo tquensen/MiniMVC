@@ -20,7 +20,7 @@ class Core_Task_Controller extends MiniMVC_Controller
        }
        if (!file_exists(WEBPATH.'cache')) {
            echo 'Creating Link "'.WEBPATH.'cache" pointing to "'.CACHEPATH.'public"'."\n";
-                symlink(CACHEPATH.'public', WEBPATH.'cache');
+           symlink(CACHEPATH.'public', WEBPATH.'cache');
        }
        if (!file_exists(WEBPATH.'app')) {
            mkdir(WEBPATH.'app');

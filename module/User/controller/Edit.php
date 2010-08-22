@@ -5,8 +5,8 @@ class User_Edit_Controller extends MiniMVC_Controller
 
     public function editAction($params)
     {
-        $user = UserTable::getInstance()->findOneById($this->registry->guard->getId());
-        if ($user && $user->exists()) {
+        $user = UserTable::getInstance()->loadOneById($this->registry->guard->getId());
+        if ($user) {
             $this->view->form = $user->getForm(array('type' => 'edit'));
             if ($this->view->form->validate()) {
                 $conn = $this->registry->db->getConnection();
@@ -31,8 +31,8 @@ class User_Edit_Controller extends MiniMVC_Controller
 
     public function editPasswordAction($params)
     {
-        $user = UserTable::getInstance()->findOneById($this->registry->guard->getId());
-        if ($user && $user->exists()) {
+        $user = UserTable::getInstance()->loadOneById($this->registry->guard->getId());
+        if ($user) {
             $this->view->form = $user->getForm(array('type' => 'editPassword'));
             if ($this->view->form->validate()) {
                 $record = $this->view->form->updateRecord();

@@ -9,7 +9,12 @@ class Helper_I18n extends MiniMVC_Helper
 	{
 		$this->registry = MiniMVC_Registry::getInstance();
 	}
-	
+
+    /**
+     *
+     * @param string $module
+     * @return MiniMVC_Translation
+     */
 	public function get($module = '_default')
 	{
 		if (isset(self::$loaded[$module]))

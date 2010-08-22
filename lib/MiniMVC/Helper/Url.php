@@ -25,9 +25,10 @@ class Helper_Url extends MiniMVC_Helper
         if ($language) {
             if ($baseurl = $this->registry->settings->get('apps/'.$app.'/baseurlI18n', '')) {
                 $baseurl = str_replace(':lang:', $language, $baseurl);
+            } else {
+                $baseurl = $this->registry->settings->get('apps/'.$app.'/baseurl');
             }
-        }
-        if (!$baseurl) {
+        } else {
             $baseurl = $this->registry->settings->get('apps/'.$app.'/baseurl');
         }
 

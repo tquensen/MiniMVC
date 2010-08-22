@@ -5,6 +5,13 @@ $MiniMVC_routes['test'] = array(
     'action' => 'index',
     'parameter' => array('foo' => 'bar')
 );
+
+$MiniMVC_routes['my.formtest'] = array(
+    'route' => 'form',
+    'controller' => 'My_Default',
+    'action' => 'form'
+);
+
 $MiniMVC_routes['baum'] = array(
     'route' => 'baum/:foo:/',
     'controller' => 'My_Default',

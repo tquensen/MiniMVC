@@ -29,4 +29,16 @@ class My_Default_Controller extends MiniMVC_Controller
         return $this->view->parse();
     }
 
+    public function formAction($params)
+    {
+        $form = new MiniMVC_Form(array('name' => 'formTest', 'enctype' => 'multipart/form-data'));
+        $form->setElement(new MiniMVC_Form_Element_File('filetest'));
+        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => 'Jo!')));
+        if ($form->validate()) {
+            return '(' . $form->filetest->fileError . ') ' . $form->filetest->fileName.': '.$form->filetest->fileType;
+        }
+        $this->view->form = $form;
+        return $this->view->parse();
+    }
+
 }

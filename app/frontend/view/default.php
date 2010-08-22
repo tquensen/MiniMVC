@@ -11,7 +11,7 @@
         <?php echo $helper->CSS->getHtml() ?>
     </head>
     <body>
-        <?php echo $layout->getSlot('navigation') ?>
+        <?php echo $helper->Navi->getHtml('main') ?>
 
         <?php echo $layout->getSlot('main') ?>
         SIDEBAR:
