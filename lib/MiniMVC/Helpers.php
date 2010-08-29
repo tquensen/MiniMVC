@@ -3,6 +3,7 @@
  * MiniMVC_Helpers is the container for individual helper classes
  *
  * @property Helper_CSS $CSS
+ * @property Helper_JS $JS
  * @property Helper_Navi $Navi
  * @property Helper_I18n $I18n
  * @property Helper_Partial $Partial
@@ -12,6 +13,7 @@
  * @Property Helper_Text $Text
  *
  * @method Helper_CSS CSS()
+ * @method Helper_JS JS()
  * @method Helper_Navi Navi()
  * @method Helper_I18n I18n()
  * @method Helper_Partial Partial()

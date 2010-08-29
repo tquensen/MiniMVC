@@ -18,6 +18,6 @@
         <div>
         <?php echo $layout->getSlot('sidebar') ?>
         </div>
-        <?php /*echo $helper->JS->getHtml()*/ ?>
+        <?php echo $helper->JS->getHtml() ?>
     </body>
 </html>

@@ -13,12 +13,49 @@ class Helper_CSS extends MiniMVC_Helper
 
     public function get()
     {
-        return array_merge($this->prepareFiles(), $this->additionalFiles);
+        $files = $this->prepareFiles();
+        
+        $route = $this->registry->settings->get('runtime/currentRoute');
+        $format = $this->registry->template->getFormat();
+        $layout = $this->registry->template->getLayout();
+
+        foreach ($files as $filekey => $file) {
+            if (isset($file['show']) && $file['show']) {
+                if (is_string($file['show']) && $file['show'] != $route) {
+                    unset($files[$filekey]);
+                } elseif(is_array($file['show']) && !in_array($route, $file['show'])) {
+                    unset($files[$filekey]);
+                }
+            }
+            if (isset($file['hide']) && $file['hide']) {
+                if (is_string($file['hide']) && $file['hide'] == $route) {
+                    unset($files[$filekey]);
+                } elseif(is_array($file['hide']) && in_array($route, $file['hide'])) {
+                    unset($files[$filekey]);
+                }
+            }
+            if (!isset($file['format']) || $file['format'] == 'html') {
+                $file['format'] = null;
+            }
+            if (!is_array($file['format']) && $file['format'] != 'all' && ($file['format'] != $format)) {
+                unset($files[$filekey]);
+            } elseif(is_array($file['format']) && !in_array($format ? $format : 'html', $file['format'])) {
+                unset($files[$filekey]);
+            }
+            if (isset($file['layout']) && $file['layout']) {
+                if (is_string($file['layout']) && $file['layout'] != 'all' && $file['layout'] != $layout) {
+                    unset($files[$filekey]);
+                } elseif(is_array($file['layout']) && !in_array($layout, $file['layout'])) {
+                    unset($files[$filekey]);
+                }
+            }
+        }
+        return array_merge($files, $this->additionalFiles);
     }
 
     public function getHtml()
     {
-        return $this->registry->helper->Partial->get('css', array('files' => array_merge($this->prepareFiles(), $this->additionalFiles)), $this->module);
+        return $this->registry->helper->Partial->get('css', array('files' => $this->get()), $this->module);
     }
 
     public function addFile($file, $module = null, $media = 'screen', $app = null)
