@@ -46,7 +46,7 @@ class Helper_Url extends MiniMVC_Helper
         return $url;
 	}
 
-    public function link($title, $route, $parameter = array(), $method = null, $app = null)
+    public function link($title, $route, $parameter = array(), $attrs = '', $method = null, $app = null)
     {
         $url = $this->get($route, $parameter, $app);
         if (!$url) {
@@ -64,11 +64,11 @@ class Helper_Url extends MiniMVC_Helper
         }
 
         if ($method == 'GET') {
-            return '<a href="'.htmlspecialchars($url).'">'.$title.'</a>';
+            return '<a href="'.htmlspecialchars($url).'"'.($attrs ? ' '.$attrs : '').'>'.$title.'</a>';
         } else {
             return '<form class="minimvcInlineForm" action="" method="POST">'.
                    (strtoupper($method) != 'POST' ? '<input type="hidden" name="REQUEST_METHOD" value="'.htmlspecialchars($method).'" />' : '').
-                   '<button type="submit" class="minimvcLinkButton">'.$title.'</button>'.
+                   '<button type="submit"'.($attrs ? ' '.$attrs : '').'>'.$title.'</button>'.
                    '</form>';
         }
     }

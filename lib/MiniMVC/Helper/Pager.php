@@ -38,6 +38,7 @@ class Helper_Pager extends MiniMVC_Helper
      */
     public function init($entries, $entriesPerPage, $url, $currentPage = 1, $maxPages = 11)
     {
+        $t = $this->registry->helper->I18n->get('_pager');
         $this->entries = $entries;
         $this->entriesPerPage = $entriesPerPage;
         $this->currentPage = $currentPage;
@@ -46,11 +47,17 @@ class Helper_Pager extends MiniMVC_Helper
         $this->pages = (int) ceil($entries / $entriesPerPage);
 
         $this->labels = array(
-            'first' => '&lt;&lt;',
-            'previous' => '&lt;',
-            'next' => '&gt;',
-            'last' => '&gt;&gt;',
-            'spacer' => '...'
+            'first' => '&laquo; '.$t->first,
+            'previous1000' => '&laquo; -1000',
+            'previous100' => '&laquo; -100',
+            'previous10' => '&laquo; -10',
+            'previous' => '&laquo;',
+            'spacer' => '...',
+            'next' => '&raquo;',
+            'next10' => '+10 &raquo;',
+            'next100' => '+100 &raquo;',
+            'next1000' => '+1000 &raquo;',
+            'last' => $t->last.' &raquo;',
         );
     }
 
@@ -116,20 +123,27 @@ class Helper_Pager extends MiniMVC_Helper
     public function getLinks()
     {
         $links = array();
+        $pages_spacing = (int)(($this->maxPages - 1) / 2);
 
-        if ($this->labels['first']) {
-            if ($this->currentPage == 1) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['first'], 'link' => '', 'active' => false, 'type' => 'first');
-            } else {
-                $links[] = array('isLink' => true, 'label' => $this->labels['first'], 'link' => $this->getUrl(1), 'active' => false, 'type' => 'first');
-            }
+
+        if ($this->labels['first'] && $this->currentPage != 1) {
+            $links[] = array('isLink' => true, 'label' => $this->labels['first'], 'link' => $this->getUrl(1), 'active' => false, 'type' => 'first');
         }
-        if ($this->labels['previous']) {
-            if ($this->currentPage == 1) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['previous'], 'link' => '', 'active' => false, 'type' => 'previous');
-            } else {
-                $links[] = array('isLink' => true, 'label' => $this->labels['previous'], 'link' => $this->getUrl($this->currentPage - 1), 'active' => false, 'type' => 'previous');
-            }
+
+        if ($this->labels['previous1000'] && $this->currentPage > 1000 && $this->currentPage - $pages_spacing > 0) {
+            $links[] = array('isLink' => true, 'label' => $this->labels['previous1000'], 'link' => $this->getUrl($this->currentPage - 1000), 'active' => false, 'type' => 'previous1000');
+        }
+
+        if ($this->labels['previous100'] && $this->currentPage > 100 && $this->currentPage - $pages_spacing > 0) {
+            $links[] = array('isLink' => true, 'label' => $this->labels['previous100'], 'link' => $this->getUrl($this->currentPage - 100), 'active' => false, 'type' => 'previous100');
+        }
+
+        if ($this->labels['previous10'] && $this->currentPage > 10 && $this->currentPage - $pages_spacing > 0) {
+            $links[] = array('isLink' => true, 'label' => $this->labels['previous10'], 'link' => $this->getUrl($this->currentPage - 10), 'active' => false, 'type' => 'previous10');
+        }
+
+        if ($this->labels['previous'] && $this->currentPage != 1) {
+            $links[] = array('isLink' => true, 'label' => $this->labels['previous'], 'link' => $this->getUrl($this->currentPage - 1), 'active' => false, 'type' => 'previous');
         }
 
         if ($this->pages <= $this->maxPages) {
@@ -139,7 +153,6 @@ class Helper_Pager extends MiniMVC_Helper
                 $links[] = array('isLink' => $isLink, 'label' => $i, 'link' => $this->getUrl($i), 'active' => $active, 'type' => 'number');
             }
         } else {
-            $pages_spacing = (int)(($this->maxPages - 1) / 2);
 
             if ($this->currentPage <= $pages_spacing + 1) {
                 for ($i = 1; $i <= $pages_spacing * 2 + 1; $i++) {
@@ -174,21 +187,28 @@ class Helper_Pager extends MiniMVC_Helper
                     $links[] = array('isLink' => false, 'label' => $this->labels['spacer'], 'link' => '', 'active' => false, 'type' => 'spacer');
                 }
             }
+
         }
 
-        if ($this->labels['next']) {
-            if ($this->currentPage == $this->pages) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['next'], 'link' => '', 'active' => false, 'type' => 'next');
-            } else {
-                $links[] = array('isLink' => true, 'label' => $this->labels['next'], 'link' => $this->getUrl($this->currentPage + 1), 'active' => false, 'type' => 'next');
-            }
+        if ($this->labels['next'] && $this->currentPage != $this->pages) {
+            $links[] = array('isLink' => true, 'label' => $this->labels['next'], 'link' => $this->getUrl($this->currentPage + 1), 'active' => false, 'type' => 'next');
         }
-        if ($this->labels['last']) {
-            if ($this->currentPage == $this->pages) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['last'], 'link' => '', 'active' => false, 'type' => 'last');
-            } else {
-                $links[] = array('isLink' => true, 'label' => $this->labels['last'], 'link' => $this->getUrl($this->pages), 'active' => false, 'type' => 'last');
-            }
+
+        if ($this->labels['next10'] && $this->currentPage + 10 < $this->pages && $this->currentPage + $pages_spacing < $this->pages) {
+            $links[] = array('isLink' => true, 'label' => $this->labels['previous10'], 'link' => $this->getUrl($this->currentPage + 10), 'active' => false, 'type' => 'next10');
+        }
+
+        if ($this->labels['next100'] && $this->currentPage + 100 < $this->pages && $this->currentPage + $pages_spacing < $this->pages) {
+            $links[] = array('isLink' => true, 'label' => $this->labels['previous100'], 'link' => $this->getUrl($this->currentPage + 100), 'active' => false, 'type' => 'next100');
+        }
+
+        if ($this->labels['next1000'] && $this->currentPage + 1000 < $this->pages && $this->currentPage + $pages_spacing < $this->pages) {
+            $links[] = array('isLink' => true, 'label' => $this->labels['previous1000'], 'link' => $this->getUrl($this->currentPage + 1000), 'active' => false, 'type' => 'next1000');
+        }
+
+        
+        if ($this->labels['last'] && $this->currentPage != $this->pages) {
+            $links[] = array('isLink' => true, 'label' => $this->labels['last'], 'link' => $this->getUrl($this->pages), 'active' => false, 'type' => 'last');
         }
 
         return $links;
