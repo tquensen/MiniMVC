@@ -6,7 +6,7 @@
         </li>
     <?php endif; ?>
     <?php foreach ($form->getElements() as $currentElement): ?>
-        <li id="<?php echo htmlspecialchars($form->getName())?>__<?php echo htmlspecialchars($currentElement->getName())?>__wrapper" class="form<?php echo ucfirst($currentElement->getType())?><?php if (!$currentElement->isValid()):?> hasError<?php endif; ?>">
+        <li id="<?php echo htmlspecialchars($form->getName())?>__<?php echo htmlspecialchars($currentElement->getName())?>__wrapper" class="form<?php echo ucfirst($currentElement->getType())?>Wrapper<?php if (!$currentElement->isValid()):?> hasError<?php endif; ?>">
     <?php echo $this->get('form/' . $currentElement->getType(), array('element' => $currentElement)); ?>
     <?php if (!$currentElement->isValid()):?><span class="formError"><?php echo htmlspecialchars($currentElement->errorMessage)?></span><?php endif; ?>
         </li>
