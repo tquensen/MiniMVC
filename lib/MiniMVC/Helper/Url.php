@@ -32,18 +32,26 @@ class Helper_Url extends MiniMVC_Helper
             $baseurl = $this->registry->settings->get('apps/'.$app.'/baseurl');
         }
 
-		$search = array();
-		$replace = array();
+		$search = array('(',')');
+		$replace = array('','');
+        $regexSearch =  array();
 
-        $parameter = array_merge(isset($routeData['parameter']) ? $routeData['parameter'] : array(), $parameter);
-		foreach ($parameter as $param=>$value)
+        $allParameter = array_merge(isset($routeData['parameter']) ? $routeData['parameter'] : array(), $parameter);
+		foreach ($allParameter as $param=>$value)
 		{
-			$search[] = ':'.$param.':';
-			$replace[] = urlencode($value);
+            if (!$value || (isset($parameter[$param]) && !$parameter[$param]) || (isset($routeData['parameterPatterns'][$param]) && !isset($parameter[$param]) && !preg_match('#^'.$routeData['parameterPatterns'][$param].'$#', $value))) {
+                $regexSearch[] = '#\([^:\)]*:'.$param.':[^\)]*\)#u';
+            }
+            $search[] = ':'.$param.':';
+            $replace[] = urlencode($value);
 		}
-		$url = $baseurl.str_replace($search, $replace, $routeData['route']);
+        $url = $routeData['route'];
+        if (count($regexSearch)) {
+            $url = preg_replace($regexSearch, '', $url);
+        }
+		$url = str_replace($search, $replace, $url);
 
-        return $url;
+        return $baseurl.$url;
 	}
 
     public function link($title, $route, $parameter = array(), $attrs = '', $method = null, $app = null)

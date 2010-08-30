@@ -20,10 +20,11 @@ $MiniMVC_routes['baum'] = array(
 );
 
 $MiniMVC_routes['a'] = array(
-    'route' => 'a/:foo:/:action:(\.:_format:)?',
+    'route' => 'a/:foo:/:action:(.:_format:)',
+    'routePattern' => 'a/:foo:/:action:(\.:_format:)?',
     'controller' => 'My_Default',
     'action' => 'test',
     'parameter' => array('foo' => 'bar', '_format' => 'html'),
-    'parameterPatterns' => array('_format' => '(html|json)')
+    'parameterPatterns' => array('_format' => '(json)')
 );
 

@@ -100,7 +100,7 @@ class MiniMVC_Dispatcher
                     if (isset($currentRouteData['method']) && ((is_string($currentRouteData['method']) && $currentRouteData['method'] != $method) || (is_array($currentRouteData['method']) && !in_array($method, $currentRouteData['method'])))) {
                         continue;
                     }
-                    $routePattern = (isset($currentRouteData['routePattern'])) ? $currentRouteData['routePattern'] : $this->getRegex($currentRoute, $currentRouteData);
+                    $routePattern = (isset($currentRouteData['routePatternGenerated'])) ? $currentRouteData['routePatternGenerated'] : $this->getRegex($currentRoute, $currentRouteData);
                     if (preg_match($routePattern, $route, $matches)) {
                         $params = (isset($currentRouteData['parameter'])) ? $currentRouteData['parameter'] : array();
                         foreach ($matches as $paramKey => $paramValue) {
@@ -407,7 +407,7 @@ class MiniMVC_Dispatcher
      */
     protected function getRegex($route, $routeData)
     {
-        $routePattern = $routeData['route'];
+        $routePattern = isset($routeData['routePattern']) ? $routeData['routePattern'] : $routeData['route'];
         if (isset($routeData['parameterPatterns'])) {
             $search = array();
             $replace = array();
@@ -419,7 +419,7 @@ class MiniMVC_Dispatcher
             $routePattern = str_replace($search, $replace, $routePattern);
         }
         $routePattern = preg_replace('#:([^:]+):#i', '(?P<$1>[^\./]+)', $routePattern);
-        if (isset($routeData['allowAnonymous']) && $routeData['allowAnonymous']) {
+        if (!empty($routeData['allowAnonymous'])) {
             if (substr($route, -1) == '/') {
                 $routePattern .= '(?P<anonymousParams>([^-/]+-[^/]+/)*)';
             } else {
@@ -428,7 +428,7 @@ class MiniMVC_Dispatcher
         }
         $routePattern = '#^' . $routePattern . '$#';
 
-        $this->registry->settings->set('routes/'.$route.'/routePattern', $routePattern);
+        $this->registry->settings->set('routes/'.$route.'/routePatternGenerated', $routePattern);
 
         return $routePattern;
     }
