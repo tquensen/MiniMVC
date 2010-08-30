@@ -13,7 +13,7 @@ class MiniMVC_Form
         $this->model = (isset($options['model'])) ? $options['model'] : $this->model;
 
 		$this->options['action'] = $_SERVER['REQUEST_URI'];
-		$this->options['method'] = 'post';
+		$this->options['method'] = 'POST';
         $this->options['csrfProtection'] = true;
 		$this->options = array_merge($this->options, (array) $options);
 

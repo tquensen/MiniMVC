@@ -24,7 +24,12 @@ class MiniMVC_Dispatcher
         $protocol = (!isset($_SERVER['HTTPS']) || !$_SERVER['HTTPS'] || $_SERVER['HTTPS'] == 'off') ? 'http' : 'https';
 		$host = $protocol.'://'.$_SERVER['HTTP_HOST'];
         $url = $host . $_SERVER['REQUEST_URI'];
-        
+
+        if (isset($_POST['REQUEST_METHOD'])) {
+            $_SERVER['REQUEST_METHOD'] = strtoupper($_POST['REQUEST_METHOD']);
+        }
+        $method = (!empty($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+
         $currentLanguage = null;
         $currentApp = $this->registry->settings->get('runtime/currentApp');
         $route = null;
@@ -90,6 +95,9 @@ class MiniMVC_Dispatcher
                         continue;
                     }
                     if (!isset($currentRouteData['route']) || !isset($currentRouteData['controller']) || !isset($currentRouteData['action'])) {
+                        continue;
+                    }
+                    if (isset($currentRouteData['method']) && ((is_string($currentRouteData['method']) && $currentRouteData['method'] != $method) || (is_array($currentRouteData['method']) && !in_array($method, $currentRouteData['method'])))) {
                         continue;
                     }
                     $routePattern = (isset($currentRouteData['routePattern'])) ? $currentRouteData['routePattern'] : $this->getRegex($currentRoute, $currentRouteData);
