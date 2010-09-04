@@ -1,6 +1,6 @@
 <?php
 
-class Helper_JS extends MiniMVC_Helper
+class Helper_Js extends MiniMVC_Helper
 {
     protected $staticHelper = null;
     protected $additionalFiles = array();
@@ -67,7 +67,7 @@ class Helper_JS extends MiniMVC_Helper
 
     public function getHtml()
     {
-        return $this->registry->helper->Partial->get('js', array('files' => $this->get(), 'inlineFiles' => $this->getInlineFiles(), 'vars' => $this->getVars()), $this->module);
+        return $this->registry->helper->partial->get('js', array('files' => $this->get(), 'inlineFiles' => $this->getInlineFiles(), 'vars' => $this->getVars()), $this->module);
     }
 
     public function addFile($file, $module = null, $app = null)

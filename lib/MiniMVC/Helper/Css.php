@@ -1,6 +1,6 @@
 <?php
 
-class Helper_CSS extends MiniMVC_Helper
+class Helper_Css extends MiniMVC_Helper
 {
     protected $staticHelper = null;
     protected $additionalFiles = array();
@@ -55,7 +55,7 @@ class Helper_CSS extends MiniMVC_Helper
 
     public function getHtml()
     {
-        return $this->registry->helper->Partial->get('css', array('files' => $this->get()), $this->module);
+        return $this->registry->helper->partial->get('css', array('files' => $this->get()), $this->module);
     }
 
     public function addFile($file, $module = null, $media = 'screen', $app = null)
