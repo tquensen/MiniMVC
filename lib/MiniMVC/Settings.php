@@ -39,6 +39,11 @@ class MiniMVC_Settings
         foreach ($this->files as $file) {
             $varname = 'MiniMVC_' . $file;
             $$varname = array();
+
+            if (is_file(DATAPATH . 'settings/default/' . $file . '.php')) {
+                include(DATAPATH . 'settings/default/' . $file . '.php');
+            }
+
             if (is_file(DATAPATH . 'settings/' . $file . '.php')) {
                 include(DATAPATH . 'settings/' . $file . '.php');
             }
