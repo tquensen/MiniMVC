@@ -41,7 +41,7 @@ class Helper_Pager extends MiniMVC_Helper
      */
     public function init($entries, $entriesPerPage, $url, $currentPage = 1, $maxPages = 11, $showInactive = false)
     {
-        $t = $this->registry->helper->I18n->get('_pager');
+        $t = $this->registry->helper->i18n->get('_pager');
         $this->entries = $entries;
         $this->entriesPerPage = $entriesPerPage;
         $this->currentPage = $currentPage;
@@ -111,7 +111,7 @@ class Helper_Pager extends MiniMVC_Helper
      */
     public function getHtml($module = null)
     {
-        return $this->registry->helper->Partial->get('pager', $this->getForPartial(), $module);
+        return $this->registry->helper->partial->get('pager', $this->getForPartial(), $module);
     }
 
     /**

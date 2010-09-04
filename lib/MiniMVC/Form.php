@@ -19,7 +19,7 @@ class MiniMVC_Form
 
 		$this->setElement(new MiniMVC_Form_Element_Hidden('FormCheck', array('defaultValue' => 1, 'alwaysDisplayDefault' => true), array(new MiniMVC_Form_Validator_Required())));
 
-        $t = MiniMVC_Registry::getInstance()->helper->I18n->get('_form');
+        $t = MiniMVC_Registry::getInstance()->helper->i18n->get('_form');
         
         if ($this->getOption('csrfProtection')) {
             $oldCsrfToken = (isset($_SESSION['Form_'.$this->name.'_CsrfToken'])) ? $_SESSION['Form_'.$this->name.'_CsrfToken'] : null;

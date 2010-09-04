@@ -1,2 +1,2 @@
 <?php echo json_encode($params); ?>
-<?php echo $helper->Url->get('a', array('foo' => 'Käse')); ?>
+<?php echo $helper->url->get('a', array('foo' => 'Käse')); ?>

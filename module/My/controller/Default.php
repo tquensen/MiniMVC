@@ -8,7 +8,7 @@ class My_Default_Controller extends MiniMVC_Controller
         $this->view->params = $params;
         //return $this->view->parse('default/index.php', 'My');
 
-        $this->view->pager = $this->registry->helper->Pager->get(280058, 20, $this->registry->helper->Url->get('test') . '(?p={page})', (isset($_GET['p']) ? $_GET['p'] : 1), 7, true);
+        $this->view->pager = $this->registry->helper->pager->get(280058, 20, $this->registry->helper->url->get('test') . '(?p={page})', (isset($_GET['p']) ? $_GET['p'] : 1), 7, true);
         $this->view->pager->setLabels(array(
             'first' => '|«',
             'previous1000' => '««««',
@@ -22,7 +22,7 @@ class My_Default_Controller extends MiniMVC_Controller
             'last' => '»|',
         ));
 
-        $this->registry->helper->JS->addVar('my.test.func', '(function(a){ /*alert(a)*/ })(minimvc)', true);
+        $this->registry->helper->js->addVar('my.test.func', '(function(a){ /*alert(a)*/ })(minimvc)', true);
 
         //var_dump(new DevFischArtForm());//$fisch->getForm());
         /*

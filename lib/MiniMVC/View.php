@@ -11,15 +11,7 @@ class MiniMVC_View
 	protected $registry = null;
     protected $module = null;
     protected $defaultFile = null;
-    /**
-     *
-     * @var MiniMVC_Helpers
-     */
 	protected $helper = null;
-    /**
-     *
-     * @var MiniMVC_Translation
-     */
     protected $t = null;
 
     /**
@@ -33,7 +25,7 @@ class MiniMVC_View
 		$this->registry = MiniMVC_Registry::getInstance();
 
         $this->helper = $this->registry->helper;
-        $this->t = $this->helper->I18n->get($this->module);
+        $this->t = $this->helper->i18n->get($this->module);
 	}
 
     /**

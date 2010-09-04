@@ -1,3 +1,3 @@
 <?php var_dump($params); ?>
-<?php echo $helper->Url->get('a', array('foo' => 'Käse')); ?>
+<?php echo $helper->url->get('a', array('foo' => 'Käse')); ?>
 <br />

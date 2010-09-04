@@ -44,7 +44,7 @@ class MiniMVC_Controller
      */
     protected function redirect($route, $params = array(), $app = null)
     {
-        $url = $this->registry->helper->Url->get($route, $params, $app);
+        $url = $this->registry->helper->url->get($route, $params, $app);
         if ($url)
         {
             header('Location: '.$url);

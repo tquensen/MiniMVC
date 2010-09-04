@@ -466,7 +466,7 @@ class MiniMVC_Table {
 
     public function generateSlug($entry, $source, $field)
     {
-        $slug = $this->registry->helper->Text->sanitize($source, true);
+        $slug = $this->registry->helper->text->sanitize($source, true);
         $id = $entry->getIdentifier();
         $sql = 'SELECT count(*) FROM '.$this->_table.' WHERE '.$this->_identifier.' <> ? and '.$field.' = ?';
         $stmt = $this->_db->prepare($sql);

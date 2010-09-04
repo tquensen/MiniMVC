@@ -6,7 +6,7 @@ class Helper_Navi extends MiniMVC_Helper
     public function getHtml($navi)
     {
         $navi = $this->get($navi);
-        return $this->registry->helper->Partial->get('navi', array('navi' => $navi), $this->module);
+        return $this->registry->helper->partial->get('navi', array('navi' => $navi), $this->module);
     }
 
     public function get($navi)
@@ -35,7 +35,7 @@ class Helper_Navi extends MiniMVC_Helper
             if (is_string($entry['title'])) {
                 $current['title'] = $entry['title'];
             } elseif (is_array($entry['title']) && isset($entry['title'][0])) {
-                $t = $this->registry->helper->I18n->get(isset($entry[1]) ? $entry[1] : '_default');
+                $t = $this->registry->helper->i18n->get(isset($entry[1]) ? $entry[1] : '_default');
                 $current['title'] = $t->{$entry['title'][0]};
             } else {
                 $current['title'] = '';
@@ -43,7 +43,7 @@ class Helper_Navi extends MiniMVC_Helper
             if (isset($entry['url'])) {
                 $current['url'] = $entry['url'];
             } elseif (isset($entry['route'])) {
-                $current['url'] = $this->registry->helper->Url->get($entry['route'], isset($entry['parameter']) ? $entry['parameter'] : array(), isset($entry['app']) ? $entry['app'] : null);
+                $current['url'] = $this->registry->helper->url->get($entry['route'], isset($entry['parameter']) ? $entry['parameter'] : array(), isset($entry['app']) ? $entry['app'] : null);
                 if ($entry['route'] == $this->registry->settings->get('runtime/currentRoute')) {
                     $current['active'] = (!isset($entry['parameter']) || $entry['parameter'] == $this->registry->settings->get('runtime/currentRouteParameter')) ? true : false;
                 }

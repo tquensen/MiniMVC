@@ -2,25 +2,27 @@
 /**
  * MiniMVC_Helpers is the container for individual helper classes
  *
- * @property Helper_CSS $CSS
- * @property Helper_JS $JS
- * @property Helper_Navi $Navi
- * @property Helper_I18n $I18n
- * @property Helper_Partial $Partial
- * @property Helper_Static $Static
- * @property Helper_Url $Url
- * @property Helper_Pager $Pager
- * @Property Helper_Text $Text
+ * @property Helper_Css $css
+ * @property Helper_Js $js
+ * @property Helper_Navi $navi
+ * @property Helper_I18n $i18n
+ * @property Helper_Partial $partial
+ * @property Helper_Static $static
+ * @property Helper_Url $url
+ * @property Helper_Pager $pager
+ * @property Helper_Text $text
+ * @property Helper_Meta $meta
  *
- * @method Helper_CSS CSS()
- * @method Helper_JS JS()
- * @method Helper_Navi Navi()
- * @method Helper_I18n I18n()
- * @method Helper_Partial Partial()
- * @method Helper_Static Static()
- * @method Helper_Url Url()
- * @method Helper_Pager Pager()
- * @method Helper_Text Text()
+ * @method Helper_Css css()
+ * @method Helper_Js js()
+ * @method Helper_Navi navi()
+ * @method Helper_I18n i18n()
+ * @method Helper_Partial partial()
+ * @method Helper_Static static()
+ * @method Helper_Url url()
+ * @method Helper_Pager pager()
+ * @method Helper_Text text()
+ * @method Helper_Meta meta()
  * 
  */
 class MiniMVC_Helpers
@@ -45,6 +47,7 @@ class MiniMVC_Helpers
      */
     public function __call($name, $arguments)
     {
+        $name = ucfirst($name);
         $module = (isset($arguments[0])) ? $arguments[0] . '_' : '';
         if (!isset($this->helpers[$module.$name]))
 		{
@@ -69,7 +72,8 @@ class MiniMVC_Helpers
      * @return MiniMVC_Helper
      */
 	public function __get($name)
-	{                
+	{
+        $name = ucfirst($name);
 		if (!isset($this->helpers[$name]))
 		{
 			$helperName = 'Helper_'.$name;

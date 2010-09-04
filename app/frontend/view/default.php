@@ -7,10 +7,8 @@
     <head>
         <script>(function(H){H.className=H.className.replace(/\bnojs\b/,'js')})(document.documentElement)</script>
         <meta charset="UTF-8">
-        <?php echo $layout->getSlot('meta') ?>
-        <?php echo $helper->CSS->getHtml() ?>
-        <title>MiniMVC Test</title>
-        <meta name="description" content="Eine MiniMVC Test Seite" />
+        <?php echo $helper->meta->getHtml() ?>
+        <?php echo $helper->css->getHtml() ?>
     </head>
     <body>
         <script type="text/javascript">
@@ -30,14 +28,14 @@
         '\\"')+'");d.close();'}a.T(1)}({network:"scarax_qa82ju"});
         Meebo("makeEverythingSharable");
         </script>
-        <?php echo $helper->Navi->getHtml('main') ?>
+        <?php echo $helper->navi->getHtml('main') ?>
 
         <?php echo $layout->getSlot('main') ?>
         SIDEBAR:
         <div>
         <?php echo $layout->getSlot('sidebar') ?>
         </div>
-        <?php echo $helper->JS->getHtml() ?>
+        <?php echo $helper->js->getHtml() ?>
         <script type="text/javascript">
           Meebo("domReady");
         </script>

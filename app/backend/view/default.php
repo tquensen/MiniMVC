@@ -8,7 +8,7 @@
         <script>(function(H){H.className=H.className.replace(/\bnojs\b/,'js')})(document.documentElement)</script>
         <meta charset="UTF-8">
         <?php echo $layout->getSlot('meta') ?>
-        <?php echo $helper->CSS->getHtml() ?>
+        <?php echo $helper->css->getHtml() ?>
     </head>
     <body>
         <?php echo $layout->getSlot('navigation') ?>
