@@ -21,6 +21,7 @@ class My_Default_Controller extends MiniMVC_Controller
             'next1000' => '»»»»',
             'last' => '»|',
         ));
+
         $this->registry->helper->JS->addVar('my.test.func', '(function(a){ /*alert(a)*/ })(minimvc)', true);
 
         //var_dump(new DevFischArtForm());//$fisch->getForm());
