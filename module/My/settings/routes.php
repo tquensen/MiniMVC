@@ -1,30 +1,26 @@
 <?php
-$MiniMVC_routes['test'] = array(
-    'route' => 'test',
+//$rights = MiniMVC_Registry::getInstance()->rights;
+$MiniMVC_routes['my.defaultIndex'] = array(
+    'route' => 'my/index',
     'controller' => 'My_Default',
     'action' => 'index',
-    'parameter' => array('foo' => 'bar')
+    'parameter' => array(),
+    'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('user'))
 );
-
-$MiniMVC_routes['my.formtest'] = array(
-    'route' => 'form',
-    'controller' => 'My_Default',
-    'action' => 'form'
-);
-
-$MiniMVC_routes['baum'] = array(
-    'route' => 'baum/:foo:/',
+$MiniMVC_routes['my.defaultIndex.json'] = array(
+    'route' => 'my/index.json',
     'controller' => 'My_Default',
     'action' => 'index',
-    'parameter' => array('foo' => 'bar')
+    'format' => 'json',
+    'parameter' => array(),
+    'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('user'))
 );
 
-$MiniMVC_routes['a'] = array(
-    'route' => 'a/:foo:/:action:(.:_format:)',
-    'routePattern' => 'a/:foo:/:action:(\.:_format:)?',
+$MiniMVC_routes['my.defaultCreate'] = array(
+    'route' => 'my/create',
     'controller' => 'My_Default',
-    'action' => 'test',
-    'parameter' => array('foo' => 'bar', '_format' => 'html'),
-    'parameterPatterns' => array('_format' => '(json)')
+    'action' => 'create',
+    'parameter' => array(),
+    'active' => false, //this route must be activated for each app to work
+    'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('admin'))
 );
-

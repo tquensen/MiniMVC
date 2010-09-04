@@ -1,14 +1,14 @@
 <?php
 
-class MODULE_Installer extends MiniMVC_Installer
+class My_Installer extends MiniMVC_Installer
 {
 
     public function install($installedVersion)
     {
         try
         {
-            //$MODLC = new MODULETable();
-            //$MODLC->install($installedVersion);
+            $my = new MyTable();
+            $my->install($installedVersion);
         }
         catch(Exception $e)
         {
@@ -22,8 +22,8 @@ class MODULE_Installer extends MiniMVC_Installer
     {
         try
         {
-            //$MODLC = new MODULETable();
-            //$MODLC->uninstall($installedVersion);
+            $my = new MyTable();
+            $my->uninstall($installedVersion);
         }
         catch(Exception $e)
         {

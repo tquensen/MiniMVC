@@ -17,8 +17,7 @@ class User_Login_Controller extends MiniMVC_Controller
                 $guard->name = $user->name;
                 $guard->slug = $user->slug;
 
-                if (isset($this->registry->settings->config['user']['loginRedirect']) && $this->registry->settings->config['user']['loginRedirect']) {
-                    $redirect = $this->registry->settings->config['user']['loginRedirect'];
+                if ($redirect = $this->registry->settings->get('config/user/loginRedirect')) {
                     if (is_array($redirect)) {
                         if (isset($redirect['route'])) {
                             return $this->redirect($redirect['route'], (isset($redirect['parameter'])) ? $redirect['parameter'] : array(), (isset($redirect['app'])) ? $redirect['app'] : null);
@@ -39,8 +38,7 @@ class User_Login_Controller extends MiniMVC_Controller
         $this->view->form = UserTable::getInstance()->getLogoutForm(isset($params['widget']) ? $params['widget'] : false);
         if ($this->view->form->validate()) {
             $this->registry->guard->setUser();
-            if (isset($this->registry->settings->config['user']['logoutRedirect']) && $this->registry->settings->config['user']['logoutRedirect']) {
-                $redirect = $this->registry->settings->config['user']['logoutRedirect'];
+            if ($redirect = $this->registry->settings->get('config/user/logoutRedirect')) {
                 if (is_array($redirect)) {
                     if (isset($redirect['route'])) {
                         return $this->redirect($redirect['route'], (isset($redirect['parameter'])) ? $redirect['parameter'] : array(), (isset($redirect['app'])) ? $redirect['app'] : null);

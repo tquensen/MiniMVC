@@ -5,11 +5,12 @@
  */
 class User extends MiniMVC_Model
 {
+    public function preInsert()
+    {
+        $this->slug = $this->getTable()->generateSlug($this, $this->name, 'slug');
+    }
     public function preSave()
     {
-        if ($this->name != $this->getDatabaseProperty('name')) {
-            $this->slug = $this->getTable()->generateSlug($this, $this->name, 'slug');
-        }
         if ($this->password != $this->getDatabaseProperty('password')) {
             $this->salt = $this->generateSalt();
             $this->password = md5($this->password . $this->salt);

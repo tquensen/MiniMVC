@@ -407,7 +407,7 @@ class MiniMVC_Dispatcher
      */
     protected function getRegex($route, $routeData)
     {
-        $routePattern = isset($routeData['routePattern']) ? $routeData['routePattern'] : $routeData['route'];
+        $routePattern = isset($routeData['routePattern']) ? $routeData['routePattern'] : str_replace(array('(',')','[',']','.','?'), array('\\(','\\)','\\[','\\]','\\.','\\?'), $routeData['route']);
         if (isset($routeData['parameterPatterns'])) {
             $search = array();
             $replace = array();

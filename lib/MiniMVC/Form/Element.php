@@ -80,8 +80,8 @@ class MiniMVC_Form_Element
             if ($this->defaultValue !== null) {
                 $this->value = $this->defaultValue;
             } else {
-                if ($model = $this->getForm()->getModel) {
-                    $property = ($this->getOption['modelProperty']) ? $this->getOption['modelProperty'] : $this->name;
+                if ($model = $this->getForm()->getModel()) {
+                    $property = $this->getOption('modelProperty') ? $this->getOption('modelProperty') : $this->name;
                     $this->value = $model->$property;
                 }
             }
@@ -125,7 +125,7 @@ class MiniMVC_Form_Element
 	}
 
     public function updateModel($model) {
-        $property = ($this->getOption['modelProperty']) ? $this->getOption['modelProperty'] : $this->name;
+        $property = $this->getOption('modelProperty') ? $this->getOption('modelProperty') : $this->name;
         $model->$property = $this->value;
     }
 

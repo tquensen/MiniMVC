@@ -8,7 +8,7 @@ $MiniMVC_routes['MODLC.defaultIndex'] = array(
     'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('user'))
 );
 $MiniMVC_routes['MODLC.defaultIndex.json'] = array(
-    'route' => 'MODLC/index',
+    'route' => 'MODLC/index.json',
     'controller' => 'MODULE_Default',
     'action' => 'index',
     'format' => 'json',
