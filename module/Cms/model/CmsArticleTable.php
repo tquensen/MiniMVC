@@ -60,17 +60,17 @@ class CmsArticleTable extends MiniMVC_Table
     {
         switch ($installedVersion) {
             case 0:
-                $sql = 'CREATE TABLE `cms_article` (
-					  `id` int(11) NOT NULL auto_increment,
-                      `slug` varchar(255) NOT NULL,
-                      `title` varchar(255) NOT NULL,
-                      `teaser` text NOT NULL,
-                      `content` text NOT NULL,
-                      `status` enum("draft", "published") NOT NULL,
-					  PRIMARY KEY  (`id`),
-                      UNIQUE (`slug`),
-                      INDEX (`status`)
-					) ENGINE=INNODB DEFAULT CHARSET=utf8';
+                $sql = "CREATE TABLE cms_article (
+					  id int(11) NOT NULL auto_increment,
+                      slug varchar(255) NOT NULL,
+                      title varchar(255) NOT NULL,
+                      teaser text NOT NULL,
+                      content text NOT NULL,
+                      status enum('draft', 'published') NOT NULL,
+					  PRIMARY KEY  (id),
+                      UNIQUE (slug),
+                      INDEX (status)
+					) ENGINE=INNODB DEFAULT CHARSET=utf8";
 
                 $this->_db->query($sql);
             case 1:
@@ -84,10 +84,10 @@ class CmsArticleTable extends MiniMVC_Table
     public function uninstall($installedVersion = 'max')
     {
 
-        SWITCH ($installed_version) {
+        SWITCH ($installedVersion) {
             case 'max':
             case 1:
-                $sql = 'DROP TABLE `cms_article`';
+                $sql = 'DROP TABLE cms_article';
                 $this->_db->query($sql);
         }
         return true;

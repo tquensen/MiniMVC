@@ -128,16 +128,16 @@ class UserTable extends MiniMVC_Table
     {
         switch ($installedVersion) {
             case 0:
-                $sql = 'CREATE TABLE `user` (
-					  `id` int(11) NOT NULL auto_increment,
-					  `slug` varchar(255) NOT NULL,
-					  `name` varchar(255) NOT NULL,
-					  `password` varchar(255) NOT NULL,
-					  `salt` varchar(255) NOT NULL,
-					  `email` varchar(255) NOT NULL,
-					  `role` varchar(255) NOT NULL,
-					  PRIMARY KEY  (`id`)
-					) ENGINE=INNODB DEFAULT CHARSET=utf8';
+                $sql = "CREATE TABLE user (
+					  id int NOT NULL auto_increment,
+					  slug varchar(255) NOT NULL,
+					  name varchar(255) NOT NULL,
+					  password varchar(255) NOT NULL,
+					  salt varchar(255) NOT NULL,
+					  email varchar(255) NOT NULL,
+					  role varchar(255) NOT NULL,
+					  PRIMARY KEY  (id)
+					) ENGINE=INNODB DEFAULT CHARSET=utf8";
 
                 $this->_db->query($sql);
             case 1:

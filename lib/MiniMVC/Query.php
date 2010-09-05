@@ -260,7 +260,7 @@ class MiniMVC_Query
                 $limit = '';
                 $q .= ($condition ? ' AND ' : ' WHERE ') . $this->_in($this->from, null, $this->_getIdentifiers($values));
             } else {
-                $limit = ' LIMIT '.(int)$this->offset.','.(int)$this->limit;
+                $limit = ' LIMIT '.(int)$this->limit.' OFFSET '.(int)$this->offset;
             }
         } else {
             $limit = '';

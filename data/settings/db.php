@@ -7,6 +7,12 @@ $MiniMVC_db['default'] = array(
 	'password' => 'peniskopf',
 );
 
+//$MiniMVC_db['default'] = array(
+//	'driver' => 'pgsql:host=localhost;dbname=minimvc', //'mysql:unix_socket=/Applications/MAMP/tmp/mysql/mysql.sock;dbname=minimvc_mysqli',
+//	'username' => 'postgres',
+//	'password' => 'peniskopf',
+//);
+
 
 
 $MiniMVC_db['doctrine'] = array(

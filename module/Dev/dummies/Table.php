@@ -63,7 +63,7 @@ class {name}Table extends MiniMVC_Table
     public function uninstall($installedVersion = 'max')
     {
 
-        SWITCH ($installed_version) {
+        SWITCH ($installedVersion) {
             case 'max':
             case 1:
                 $sql = 'DROP TABLE `{table}`';
