@@ -42,6 +42,15 @@ class MiniMVC_Table {
         return $this->_identifier;
     }
 
+    /**
+     *
+     * @return PDO the database
+     */
+    public function getDb()
+    {
+        return $this->_db;
+    }
+
     public function getColumns()
     {
         return $this->_columns;
@@ -181,8 +190,8 @@ class MiniMVC_Table {
 	}
 
     /**
-     * @param string $field the column to search in
-     * @param mixed $value the value of the column
+     * @param string $condition the search condition (? = placeholder)
+     * @param mixed $value the value(s) for the placeholders in the condition
      * @param string $order
      * @param int $offset
      * @return Mysql_Model
@@ -282,84 +291,99 @@ class MiniMVC_Table {
 
 	public function save($entry)
 	{
-        if ($entry->preSave() === false) {
-            return false;
-        }
-        if ($entry->isNew()) {
-            if ($entry->preInsert() === false) {
+        try
+        {
+            $this->_db->beginTransaction();
+            if ($entry->preSave() === false) {
+                $this->_db->rollBack();
                 return false;
             }
+            if ($entry->isNew()) {
+                if ($entry->preInsert() === false) {
+                    $this->_db->rollBack();
+                    return false;
+                }
 
-            $query = MiniMVC_Query::create()->insert($this->_table);
+                $query = MiniMVC_Query::create()->insert($this->_table);
 
-            $values = array();
-			foreach ($this->_columns as $column)
-			{
-				if (isset($entry->$column) && $entry->$column !== null)
-				{
-					$query->set(' '.$column.' = ? ');
-                    $values[] = $entry->$column;
-				}
-			}
-            
-            $result = $query->execute($values);
+                $values = array();
+                foreach ($this->_columns as $column)
+                {
+                    if (isset($entry->$column) && $entry->$column !== null)
+                    {
+                        $query->set(' '.$column.' = ? ');
+                        $values[] = $entry->$column;
+                    }
+                }
 
-			if ($this->_isAutoIncrement)
-			{
-				$entry->{$this->_identifier} = $this->_db->lastInsertId();
-			}
+                $result = $query->execute($values);
 
-            foreach ($this->_columns as $column)
-			{
-                $entry->setDatabaseProperty($column, $entry->$column);
-            }
+                if ($this->_isAutoIncrement)
+                {
+                    $entry->{$this->_identifier} = $this->_db->lastInsertId();
+                }
 
-            if ($entry->postInsert() === false) {
-                return false;
-            }
-
-        } else {
-            $update = false;
-
-            $query = MiniMVC_Query::create()->update($this->_table)->where($this->_identifier.' = ?');
-
-            $values = array();
-			foreach ($this->_columns as $column)
-			{
-				if ($entry->$column !== $entry->getDatabaseProperty($column))
-				{
-					$query->set(' '.$column.' = ? ');
-                    $values[] = $entry->$column;
-                    $update = true;
-				}
-			}
-            if (!$update) {
-                return true;
-            }
-            if ($entry->preUpdate() === false) {
-                return false;
-            }
-            $values[] = $entry->{$this->_identifier};
-
-            $result = $query->execute($values);
-
-            foreach ($this->_columns as $column)
-            {
-                if (isset($entry->$column) && $entry->$column !== $entry->getDatabaseProperty($column))
+                foreach ($this->_columns as $column)
                 {
                     $entry->setDatabaseProperty($column, $entry->$column);
                 }
+
+                if ($entry->postInsert() === false) {
+                    $this->_db->rollBack();
+                    return false;
+                }
+
+            } else {
+                $update = false;
+
+                $query = MiniMVC_Query::create()->update($this->_table)->where($this->_identifier.' = ?');
+
+                $values = array();
+                foreach ($this->_columns as $column)
+                {
+                    if ($entry->$column !== $entry->getDatabaseProperty($column))
+                    {
+                        $query->set(' '.$column.' = ? ');
+                        $values[] = $entry->$column;
+                        $update = true;
+                    }
+                }
+                if (!$update) {
+                    return true;
+                }
+                if ($entry->preUpdate() === false) {
+                    $this->_db->rollBack();
+                    return false;
+                }
+                $values[] = $entry->{$this->_identifier};
+
+                $result = $query->execute($values);
+
+                foreach ($this->_columns as $column)
+                {
+                    if (isset($entry->$column) && $entry->$column !== $entry->getDatabaseProperty($column))
+                    {
+                        $entry->setDatabaseProperty($column, $entry->$column);
+                    }
+                }
+                if ($entry->postUpdate() === false) {
+                    $this->_db->rollBack();
+                    return false;
+                }
+
             }
-            if ($entry->postUpdate() === false) {
+
+            $this->set($entry);
+            if ($entry->postSave() === false) {
+                $this->_db->rollBack();
                 return false;
             }
-   
-        }
-
-		$this->set($entry);
-        if ($entry->postSave() === false) {
+            $this->_db->commit();
+        } catch (PDOException $e) {
+            $this->_db->rollBack();
             return false;
         }
+
 		return (bool) $result;
 	}
 
@@ -466,16 +490,18 @@ class MiniMVC_Table {
 
     public function generateSlug($entry, $source, $field)
     {
-        $slug = $this->registry->helper->text->sanitize($source, true);
-        $id = $entry->getIdentifier();
-        $sql = 'SELECT count(*) FROM '.$this->_table.' WHERE '.$this->_identifier.' <> ? and '.$field.' = ?';
+        $baseslug = $this->registry->helper->text->sanitize($source, true);
+        $id = $entry->getIdentifier() ? $entry->getIdentifier() : 0;
+        $sql = 'SELECT count(*) FROM '.$this->_table.' WHERE '.$this->_identifier.' != ? and '.$field.' = ?';
         $stmt = $this->_db->prepare($sql);
-        $num = null;
+        $num = 0;
+        $slug = $baseslug;
         do {
-            $slug = $slug . $num;
             $stmt->execute(array($id, $slug));
             $num--;
-        } while($stmt->fetchColumn());
+            $result = $stmt->fetchColumn();
+            $stmt->closeCursor();          
+        } while($result && $slug = $baseslug . $num);
         return $slug;
     }
 }

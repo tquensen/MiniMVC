@@ -300,7 +300,7 @@ class MiniMVC_Model implements ArrayAccess
         return (isset($data[3]) && $data[3] === true) ? reset($entries) : $entries;
     }
 
-    public function saveRelated($relation, $identifier = true, $saveThis = true)
+    public function saveRelated($relation, $identifier = true)
     {
         if (!$info = $this->_table->getRelation($relation)) {
             throw new Exception('Unknown relation "'.$relation.'" for model '.$this->_table->getModelName());

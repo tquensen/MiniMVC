@@ -33,9 +33,12 @@ class UserTable extends MiniMVC_Table
                             new MiniMVC_Form_Validator_Unique(array('errorMessage' => 'Diese E-Mail existiert bereits!')),
                             new MiniMVC_Form_Validator_Required(array('errorMessage' => 'keine E-Mail angegeben'))
                 )));
+
+        $form->setElement(new MiniMVC_Form_Element_Fieldset('pwFieldset', array('legend' => 'Passwörter')));
         $form->setElement(new MiniMVC_Form_Element_Password('password', array('label' => 'Passwort:'), new MiniMVC_Form_Validator_Required(array('errorMessage' => 'kein PW angegeben'))));
 
         $form->setElement(new MiniMVC_Form_Element_Password('passwordAgain', array('label' => 'Passwort wiederholen:'), array(new MiniMVC_Form_Validator_Equals(array('value' => $form->password, 'errorMessage' => 'Passwörter stimmen nicht überein')), new MiniMVC_Form_Validator_Required())));
+        $form->setElement(new MiniMVC_Form_Element_Fieldsetend('pwFieldsetEnd'));
 
         $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => 'registrieren')));
 
@@ -80,7 +83,11 @@ class UserTable extends MiniMVC_Table
     public function getLoginForm($widget = false)
     {
         $user = $this->create();
-        $form = new MiniMVC_Form(array('name' => $widget ? 'UserLoginWidgetForm' : 'UserLoginForm', 'model' => $user));
+        if ($widget) {
+            $form = new MiniMVC_Form(array('name' => 'UserLoginForm', 'model' => $user, 'action' => $this->registry->helper->url->get('user.login')));
+        } else {
+            $form = new MiniMVC_Form(array('name' => 'UserLoginForm', 'model' => $user));
+        }
         $form->setElement(new MiniMVC_Form_Element_Text('email',
                         array('label' => 'E-Mail Adresse:'),
                         array(
@@ -105,7 +112,11 @@ class UserTable extends MiniMVC_Table
 
     public function getLogoutForm($widget = false)
     {
-        $form = new MiniMVC_Form(array('name' => $widget ? 'UserLogoutWidgetForm' : 'UserLogoutForm'));
+        if ($widget) {
+            $form = new MiniMVC_Form(array('name' => 'UserLogoutForm', 'action' => $this->registry->helper->url->get('user.logout')));
+        } else {
+            $form = new MiniMVC_Form(array('name' => 'UserLogoutForm'));
+        }
         $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => 'ausloggen')));
         return $form;
     }

@@ -10,6 +10,7 @@ class User_Login_Controller extends MiniMVC_Controller
             $user = UserTable::getInstance()->loadOneBy('email = ?', $this->view->form->email->value);
             if (!$user || !$user->checkPassword($this->view->form->password->value)) {
                 $this->view->form->password->setError('Der Username oder das Passwort ist ungültig');
+                $this->view->form->errorRedirect();
             } else {
                 $guard = $this->registry->guard;
                 $guard->setUser($user->id, $user->role);

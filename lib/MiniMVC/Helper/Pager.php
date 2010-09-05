@@ -52,26 +52,26 @@ class Helper_Pager extends MiniMVC_Helper
 
 
         $this->labels = array(
-            'first' => '« ' . $t->first,
-            'previous1000' => '« -1000',
-            'previous100' => '« -100',
-            'previous10' => '« -10',
-            'previous' => '« -1',
-            'spacer' => '...',
-            'next' => '+1 »',
-            'next10' => '+10 »',
-            'next100' => '+100 »',
-            'next1000' => '+1000 »',
-            'last' => $t->last . ' »',
+            'first' => $t->first,
+            'previous1000' => $t->previous1000,
+            'previous100' => $t->previous100,
+            'previous10' => $t->previous10,
+            'previous' => $t->previous,
+            'spacer' => $t->spacer,
+            'next' => $t->next,
+            'next10' => $t->next10,
+            'next100' => $t->next100,
+            'next1000' => $t->next1000,
+            'last' => $t->last,
         );
     }
 
     /**
      * Defines the labels for the pager
      *
-     * The default labels are:
+     * The default labels are (depending on the current language/i18n):
      * array(
-     *      'first' => '« ' . $t->first,
+     *      'first' => '« first',
      *      'previous1000' => '« -1000',
      *      'previous100' => '« -100',
      *      'previous10' => '« -10',
@@ -81,7 +81,7 @@ class Helper_Pager extends MiniMVC_Helper
      *      'next10' => '+10 »',
      *      'next100' => '+100 »',
      *      'next1000' => '+1000 »',
-     *      'last' => $t->last . ' »',
+     *      'last' => 'last »',
      * );
      *
      * if omitted, the default label will be used,
@@ -146,7 +146,11 @@ class Helper_Pager extends MiniMVC_Helper
             if ($this->currentPage != 1) {
                 $links[] = array('isLink' => true, 'label' => $this->labels['first'] !== true ? $this->labels['first'] : '1', 'link' => $this->getUrl(1), 'active' => true, 'type' => 'first');
             } elseif ($this->showInactive) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['first'] !== true ? $this->labels['first'] : '1', 'link' => '', 'active' => false, 'type' => 'first');
+                if ($this->showInactive === 'empty') {
+                    $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => false, 'type' => 'first');
+                } else {
+                    $links[] = array('isLink' => false, 'label' => $this->labels['first'] !== true ? $this->labels['first'] : '1', 'link' => '', 'active' => false, 'type' => 'first');
+                }
             }
         }
 
@@ -154,7 +158,11 @@ class Helper_Pager extends MiniMVC_Helper
             if ($this->currentPage > 1000) {
                 $links[] = array('isLink' => true, 'label' => $this->labels['previous1000'] !== true ? $this->labels['previous1000'] : $this->currentPage - 1000, 'link' => $this->getUrl($this->currentPage - 1000), 'active' => true, 'type' => 'previous1000');
             } elseif ($this->showInactive) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['previous1000'] !== true ? $this->labels['previous1000'] : $this->currentPage - 1000, 'link' => '', 'active' => false, 'type' => 'previous1000');
+                if ($this->showInactive === 'empty') {
+                    $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => false, 'type' => 'previous1000');
+                } else {
+                    $links[] = array('isLink' => false, 'label' => $this->labels['previous1000'] !== true ? $this->labels['previous1000'] : $this->currentPage - 1000, 'link' => '', 'active' => false, 'type' => 'previous1000');
+                }
             }
         }
 
@@ -162,7 +170,11 @@ class Helper_Pager extends MiniMVC_Helper
             if ($this->currentPage > 100) {
                 $links[] = array('isLink' => true, 'label' => $this->labels['previous100'] !== true ? $this->labels['previous100'] : $this->currentPage - 100, 'link' => $this->getUrl($this->currentPage - 100), 'active' => true, 'type' => 'previous100');
             } elseif ($this->showInactive) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['previous100'] !== true ? $this->labels['previous100'] : $this->currentPage - 100, 'link' => '', 'active' => false, 'type' => 'previous100');
+                if ($this->showInactive === 'empty') {
+                    $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => false, 'type' => 'previous100');
+                } else {
+                    $links[] = array('isLink' => false, 'label' => $this->labels['previous100'] !== true ? $this->labels['previous100'] : $this->currentPage - 100, 'link' => '', 'active' => false, 'type' => 'previous100');
+                }
             }
         }
 
@@ -170,7 +182,11 @@ class Helper_Pager extends MiniMVC_Helper
             if ($this->currentPage > 10) {
                 $links[] = array('isLink' => true, 'label' => $this->labels['previous10'] !== true ? $this->labels['previous10'] : $this->currentPage - 10, 'link' => $this->getUrl($this->currentPage - 10), 'active' => true, 'type' => 'previous10');
             } elseif ($this->showInactive) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['previous10'] !== true ? $this->labels['previous10'] : $this->currentPage - 10, 'link' => '', 'active' => false, 'type' => 'previous10');
+                if ($this->showInactive === 'empty') {
+                    $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => false, 'type' => 'previous10');
+                } else {
+                    $links[] = array('isLink' => false, 'label' => $this->labels['previous10'] !== true ? $this->labels['previous10'] : $this->currentPage - 10, 'link' => '', 'active' => false, 'type' => 'previous10');
+                }
             }
         }
 
@@ -178,13 +194,21 @@ class Helper_Pager extends MiniMVC_Helper
             if ($this->currentPage > 1) {
                 $links[] = array('isLink' => true, 'label' => $this->labels['previous'] !== true ? $this->labels['previous'] : $this->currentPage - 1, 'link' => $this->getUrl($this->currentPage - 1), 'active' => true, 'type' => 'previous');
             } elseif ($this->showInactive) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['previous'] !== true ? $this->labels['previous'] : $this->currentPage - 1, 'link' => '', 'active' => false, 'type' => 'previous');
+                if ($this->showInactive === 'empty') {
+                    $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => false, 'type' => 'previous');
+                } else {
+                    $links[] = array('isLink' => false, 'label' => $this->labels['previous'] !== true ? $this->labels['previous'] : $this->currentPage - 1, 'link' => '', 'active' => false, 'type' => 'previous');
+                }
             }
         }
 
         if ($this->pages <= $this->maxPages) {
             if ($this->labels['spacer'] !== false && $this->showInactive) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['spacer'], 'link' => '', 'active' => false, 'type' => 'spacer');
+                if ($this->showInactive === 'empty') {
+                    $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => false, 'type' => 'spacer');
+                } else {
+                    $links[] = array('isLink' => false, 'label' => $this->labels['spacer'], 'link' => '', 'active' => false, 'type' => 'spacer');
+                }
             }
 
             for ($i = 1; $i <= $this->pages; $i++) {
@@ -193,12 +217,20 @@ class Helper_Pager extends MiniMVC_Helper
             }
 
             if ($this->labels['spacer'] !== false && $this->showInactive) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['spacer'], 'link' => '', 'active' => true, 'type' => 'spacer');
+                if ($this->showInactive === 'empty') {
+                    $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => true, 'type' => 'spacer');
+                } else {
+                    $links[] = array('isLink' => false, 'label' => $this->labels['spacer'], 'link' => '', 'active' => true, 'type' => 'spacer');
+                }
             }
         } else {
             if ($this->currentPage <= $pages_spacing + 1) {
                 if ($this->labels['spacer'] !== false && $this->showInactive) {
-                    $links[] = array('isLink' => false, 'label' => $this->labels['spacer'], 'link' => '', 'active' => false, 'type' => 'spacer');
+                    if ($this->showInactive === 'empty') {
+                        $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => false, 'type' => 'spacer');
+                    } else {
+                        $links[] = array('isLink' => false, 'label' => $this->labels['spacer'], 'link' => '', 'active' => false, 'type' => 'spacer');
+                    }
                 }
                 for ($i = 1; $i <= $pages_spacing * 2 + 1; $i++) {
                     $isLink = ($this->currentPage == $i) ? false : true;
@@ -216,7 +248,11 @@ class Helper_Pager extends MiniMVC_Helper
                     $links[] = array('isLink' => $isLink, 'label' => $i, 'link' => $this->getUrl($i), 'active' => true, 'type' => 'number');
                 }
                 if ($this->labels['spacer'] !== false && $this->showInactive) {
-                    $links[] = array('isLink' => false, 'label' => $this->labels['spacer'], 'link' => '', 'active' => false, 'type' => 'spacer');
+                    if ($this->showInactive === 'empty') {
+                        $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => false, 'type' => 'spacer');
+                    } else {
+                        $links[] = array('isLink' => false, 'label' => $this->labels['spacer'], 'link' => '', 'active' => false, 'type' => 'spacer');
+                    }
                 }
             } else {
                 if ($this->labels['spacer'] !== false) {
@@ -238,7 +274,11 @@ class Helper_Pager extends MiniMVC_Helper
             if ($this->currentPage < $this->pages) {
                 $links[] = array('isLink' => true, 'label' => $this->labels['next'] !== true ? $this->labels['next'] : $this->currentPage + 1, 'link' => $this->getUrl($this->currentPage + 1), 'active' => true, 'type' => 'next');
             } elseif ($this->showInactive) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['next'] !== true ? $this->labels['next'] : $this->currentPage + 1, 'link' => '', 'active' => false, 'type' => 'next');
+                if ($this->showInactive === 'empty') {
+                    $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => false, 'type' => 'next');
+                } else {
+                    $links[] = array('isLink' => false, 'label' => $this->labels['next'] !== true ? $this->labels['next'] : $this->currentPage + 1, 'link' => '', 'active' => false, 'type' => 'next');
+                }
             }
         }
 
@@ -246,7 +286,11 @@ class Helper_Pager extends MiniMVC_Helper
             if ($this->currentPage + 9 < $this->pages) {
                 $links[] = array('isLink' => true, 'label' => $this->labels['next10'] !== true ? $this->labels['next10'] : $this->currentPage + 10, 'link' => $this->getUrl($this->currentPage + 10), 'active' => true, 'type' => 'next10');
             } elseif ($this->showInactive) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['next10'] !== true ? $this->labels['next10'] : $this->currentPage + 10, 'link' => '', 'active' => false, 'type' => 'next10');
+                if ($this->showInactive === 'empty') {
+                    $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => false, 'type' => 'next10');
+                } else {
+                    $links[] = array('isLink' => false, 'label' => $this->labels['next10'] !== true ? $this->labels['next10'] : $this->currentPage + 10, 'link' => '', 'active' => false, 'type' => 'next10');
+                }
             }
         }
 
@@ -254,7 +298,11 @@ class Helper_Pager extends MiniMVC_Helper
             if ($this->currentPage + 99 < $this->pages) {
                 $links[] = array('isLink' => true, 'label' => $this->labels['next100'] !== true ? $this->labels['next100'] : $this->currentPage + 100, 'link' => $this->getUrl($this->currentPage + 100), 'active' => true, 'type' => 'next100');
             } elseif ($this->showInactive) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['next100'] !== true ? $this->labels['next100'] : $this->currentPage + 100, 'link' => '', 'active' => false, 'type' => 'next100');
+                if ($this->showInactive === 'empty') {
+                    $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => false, 'type' => 'next100');
+                } else {
+                    $links[] = array('isLink' => false, 'label' => $this->labels['next100'] !== true ? $this->labels['next100'] : $this->currentPage + 100, 'link' => '', 'active' => false, 'type' => 'next100');
+                }
             }
         }
 
@@ -262,7 +310,11 @@ class Helper_Pager extends MiniMVC_Helper
             if ($this->currentPage + 999 < $this->pages) {
                 $links[] = array('isLink' => true, 'label' => $this->labels['next1000'] !== true ? $this->labels['next1000'] : $this->currentPage + 1000, 'link' => $this->getUrl($this->currentPage + 1000), 'active' => true, 'type' => 'next1000');
             } elseif ($this->showInactive) {
-                $links[] = array('isLink' => false, 'label' => $this->labels['next1000'] !== true ? $this->labels['next1000'] : $this->currentPage + 1000, 'link' => '', 'active' => false, 'type' => 'next1000');
+                if ($this->showInactive === 'empty') {
+                    $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => false, 'type' => 'next1000');
+                } else {
+                    $links[] = array('isLink' => false, 'label' => $this->labels['next1000'] !== true ? $this->labels['next1000'] : $this->currentPage + 1000, 'link' => '', 'active' => false, 'type' => 'next1000');
+                }
             }
         }
 
@@ -270,7 +322,11 @@ class Helper_Pager extends MiniMVC_Helper
             if ($this->currentPage != $this->pages) {
                 $links[] = array('isLink' => true, 'label' => $this->labels['last'] !== true ? $this->labels['last'] : $this->pages, 'link' => $this->getUrl($this->pages), 'active' => true, 'type' => 'last');
             } elseif ($this->showInactive) {
-                $links[] = array('isLink' => true, 'label' => $this->labels['last'] !== true ? $this->labels['last'] : $this->pages, 'link' => '', 'active' => false, 'type' => 'last');
+                if ($this->showInactive === 'empty') {
+                    $links[] = array('isLink' => false, 'label' => '', 'link' => '', 'active' => false, 'type' => 'last');
+                } else {
+                    $links[] = array('isLink' => false, 'label' => $this->labels['last'] !== true ? $this->labels['last'] : $this->pages, 'link' => '', 'active' => false, 'type' => 'last');
+                }
             }
         }
 

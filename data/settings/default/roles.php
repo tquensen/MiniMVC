@@ -15,9 +15,13 @@ $MiniMVC_roles['moderator'] = array(
     'title' => 'Moderator role',
     'rights' => $rights->getRights('user') | $rights->getRights('moderate')
 );
+$MiniMVC_roles['author'] = array(
+    'title' => 'Author role',
+    'rights' => $rights->getRights('user') | $rights->getRights('publish')
+);
 $MiniMVC_roles['administrator'] = array(
     'title' => 'Administrator role',
-    'rights' => $rights->getRights('user') | $rights->getRights('moderate') | $rights->getRights('administrate'),
+    'rights' => $rights->getRights('user') | $rights->getRights('moderate') | $rights->getRights('publish') | $rights->getRights('administrate'),
     'keyword' => 'admin'
 );
 $MiniMVC_roles['superadmin'] = array(

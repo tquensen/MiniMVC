@@ -9,6 +9,7 @@ class User extends MiniMVC_Model
     {
         $this->slug = $this->getTable()->generateSlug($this, $this->name, 'slug');
     }
+
     public function preSave()
     {
         if ($this->password != $this->getDatabaseProperty('password')) {

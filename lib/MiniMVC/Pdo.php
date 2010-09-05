@@ -30,6 +30,7 @@ class MiniMVC_Pdo
             $dbSettings[$connection]['password'],
             isset($dbSettings[$connection]['options']) ? $dbSettings[$connection]['options'] : array()
         );
+       $this->connections[$connection]->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         MiniMVC_Query::setDatabase($this->get());
 

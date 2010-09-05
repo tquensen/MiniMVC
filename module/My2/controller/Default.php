@@ -8,18 +8,9 @@ class My2_Default_Controller extends MiniMVC_Controller
         $this->view->params = $params;
         //return $this->view->parse('default/index.php', 'My');
 
-        $this->view->pager = $this->registry->helper->pager->get(280058, 20, $this->registry->helper->url->get('test') . '(?p={page})', (isset($_GET['p']) ? $_GET['p'] : 1), 7, true);
+        $this->view->pager = $this->registry->helper->pager->get(1862, 20, $this->registry->helper->url->get('test') . '(?p={page})', (isset($_GET['p']) ? $_GET['p'] : 1), 7, 'empty');
         $this->view->pager->setLabels(array(
-            'first' => '|«',
-            'previous1000' => '««««',
-            'previous100' => '«««',
-            'previous10' => '««',
-            'previous' => '«',
-            'next' => '»',
-            'next10' => '»»',
-            'next100' => '»»»',
-            'next1000' => '»»»»',
-            'last' => '»|',
+            
         ));
 
         $this->registry->helper->js->addVar('my.test.func', '(function(a){ /*alert(a)*/ })(minimvc)', true);

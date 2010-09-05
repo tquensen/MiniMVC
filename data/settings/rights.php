@@ -11,6 +11,10 @@ $MiniMVC_rights['moderate'] = array(
     'title' => 'Moderation rights',
     'key' => 256
 );
+$MiniMVC_rights['publish'] = array(
+    'title' => 'Publisher rights',
+    'key' => 512
+);
 $MiniMVC_rights['administrate'] = array(
     'title' => 'Administration rights',
     'key' => 1024

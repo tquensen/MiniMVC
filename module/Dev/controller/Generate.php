@@ -89,6 +89,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         file_put_contents($path . '/view/default/index.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/index.php')));
         file_put_contents($path . '/view/default/index.json.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/index.json.php')));
         file_put_contents($path . '/view/default/widget.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/widget.php')));
+        file_put_contents($path . '/view/default/create.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/create.php')));
         file_put_contents($path . '/settings/config.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/config.php')));
         file_put_contents($path . '/settings/routes.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/routes.php')));
         file_put_contents($path . '/settings/widgets.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/widgets.php')));
@@ -111,11 +112,13 @@ class Dev_Generate_Controller extends MiniMVC_Controller
 
         $search = array(
             '{name}',
-            '{table}'
+            '{table}',
+            '{module}'
         );
         $replace = array(
             $model,
-            strtolower(preg_replace('/(?!^)[[:upper:]]+/', '_$0', $model))
+            strtolower(preg_replace('/(?!^)[[:upper:]]+/', '_$0', $model)),
+            $params['module']
         );
 
         $path = MODULEPATH . $params['module'].'/model';

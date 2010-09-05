@@ -15,7 +15,13 @@ $MiniMVC_routes['MODLC.defaultIndex.json'] = array(
     'parameter' => array(),
     'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('user'))
 );
-
+$MiniMVC_routes['MODLC.defaultShow'] = array(
+    'route' => 'MODLC/show/:id:',
+    'controller' => 'MODULE_Default',
+    'action' => 'show',
+    'parameter' => array('id' => false),
+    'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('user'))
+);
 $MiniMVC_routes['MODLC.defaultCreate'] = array(
     'route' => 'MODLC/create',
     'controller' => 'MODULE_Default',

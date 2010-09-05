@@ -1,2 +1,2 @@
 <?php
-$MiniMVC_routes['user.register']['layout'] = '1column';
+//$MiniMVC_routes['user.register']['layout'] = '1column';

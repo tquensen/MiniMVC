@@ -14,6 +14,7 @@ class MiniMVC_Form
 
 		$this->options['action'] = $_SERVER['REQUEST_URI'];
 		$this->options['method'] = 'POST';
+        $this->options['redirectOnError'] = true;
         $this->options['csrfProtection'] = true;
 		$this->options = array_merge($this->options, (array) $options);
 
@@ -100,6 +101,18 @@ class MiniMVC_Form
 
 	public function bindValues()
 	{
+        if (isset($_SESSION['form_'.$this->name.'__'.$this->getOption('action').'__errorData'])) {
+            $values = $_SESSION['form_'.$this->name.'__'.$this->getOption('action').'__errorData'];
+            unset($_SESSION['form_'.$this->name.'__'.$this->getOption('action').'__errorData']);
+            foreach ($this->elements as $element)
+            {
+                $element->setValue(isset($values[$element->getName()]['value']) ? $values[$element->getName()]['value'] : null);
+                if (!empty($values[$element->getName()]['hasError'])) {
+                    $element->setError($values[$element->getName()]['errorMessage']);
+                }
+            }
+            return true;
+        }
         $values = (isset($_POST[$this->name]) && is_array($_POST[$this->name])) ? $_POST[$this->name] : array();
 		foreach ($this->elements as $element)
 		{
@@ -127,8 +140,29 @@ class MiniMVC_Form
 				$this->isValid = false;
 			}
 		}
+        if (!$this->isValid && $this->getOption('redirectOnError')) {
+            $this->errorRedirect();
+        }
 		return $this->isValid;
 	}
+
+    public function errorRedirect()
+    {
+        if (!$this->isValid && $this->getOption('redirectOnError')) {
+            $sessionData = array();
+            foreach ($this->elements as $element)
+            {
+                $sessionData[$element->getName()] = array(
+                    'hasError' => !$element->isValid(),
+                    'value' => $element->value,
+                    'errorMessage' => $element->errorMessage
+                );
+            }
+            $_SESSION['form_'.$this->name.'__'.$this->getOption('action').'__errorData'] = $sessionData;
+            header('Location: '.$this->getOption('action'));
+            exit;
+        }
+    }
 
 	public function wasSubmitted()
 	{

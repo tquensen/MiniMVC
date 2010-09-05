@@ -8,7 +8,10 @@ class User_Register_Controller extends MiniMVC_Controller
         {
             $this->view->user = $this->view->form->updateModel();
             $this->view->user->role = $this->registry->rights->getRoleByKeyword('user');
-            $this->view->user->save();
+            if (!$this->view->user->save()) {
+                $this->view->form->validate();
+                $this->view->form->errorRedirect();
+            }
             return $this->view->parse('register/registerSuccess');
         }
         return $this->view->parse('register/registerForm');

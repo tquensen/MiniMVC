@@ -9,7 +9,11 @@ class User_Edit_Controller extends MiniMVC_Controller
         if ($user) {
             $this->view->form = UserTable::getInstance()->getEditForm($user);
             if ($this->view->form->validate()) {
-                $this->view->form->updateModel()->save();
+                $this->view->form->updateModel();
+                if (!$user->save()) {
+                    $this->view->form->validate();
+                    $this->view->form->errorRedirect();
+                }
                 $this->registry->guard->email = $user['email'];
                 $this->registry->guard->name = $user['name'];
                 return $this->view->parse('edit/editSuccess');

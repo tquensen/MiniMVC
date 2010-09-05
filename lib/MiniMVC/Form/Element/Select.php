@@ -16,7 +16,7 @@ class MiniMVC_Form_Element_Select extends MiniMVC_Form_Element
 	{
 		if (!$this->getOption('skipDefaultValidator'))
 		{
-			$this->validators[] = new MiniMVC_Form_Validator_InArray(array('array' => array_keys($this->options['options'])));
+			$this->validators[] = new MiniMVC_Form_Validator_InArray(array('errorMessage' => $this->errorMessage, 'array' => array_keys($this->options['options'])));
 		}
 
 		return parent::validate();
