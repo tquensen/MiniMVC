@@ -185,7 +185,6 @@ class MiniMVC_Table {
      */
 	public function loadOne($id, $reload = false)
 	{
-
 		return (isset($this->_entries[$id]) && !$reload) ? $this->_entries[$id] : $this->loadOneBy($this->_identifier . ' = ?', $id);
 	}
 
@@ -199,6 +198,59 @@ class MiniMVC_Table {
 	public function loadOneBy($condition, $value = null, $order = null, $offset = 0)
 	{
         $result = $this->query()->where($condition)->orderBy($order)->limit(1, $offset)->build($value);
+        return is_array($result) ? reset($result) : null;
+	}
+
+    /**
+     * loads entries with related entries
+     *
+     * an relationinfo array looks like:
+     * array('alias.relation', 'foreignalias', true) //set third parameter to true to select/fetch the related fields
+     * the alias for the current model is 'a'.
+     *
+     * examples:
+     * 1. array('a.Comments', 'c', true); //in this case, if you use limit or offset, set $usePreQuery to true
+     * 2. array(array('a.Metadata', 'm', true)array('a.Comments', 'c', true), array('c.User', 'cu', true));
+     *
+     * @param mixed $id the identifier
+     * @param array $relations either one array or a an array containing arrays with relationinfos
+     * @param string $condition the where condition("id = ?", "a.username LIKE ?")
+     * @param mixed $values the values for the ?-placeholders
+     * @param string $order an order by clause (id ASC, foo DESC)
+     * @param int $offset
+     * @param bool $needPreQuery set this to true if you use limit or offset with a 1-to-many left join (to limit the resulting entries, not the table rows)
+     * @return Mysql_Model
+     */
+	public function loadOneWithRelations($id, $relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = true)
+	{
+        $value = (array) $value;
+        array_unshift($value, $id);
+        $results = $this->loadWithRelations($relations, $condition ? 'a.'.$this->_identifier . ' = ? AND '.$condition : 'a.'.$this->_identifier . ' = ?', $value, $order, 1, $offset, $needPreQuery);
+        return is_array($result) ? reset($result) : null;
+	}
+
+    /**
+     * loads entries with related entries
+     *
+     * an relationinfo array looks like:
+     * array('alias.relation', 'foreignalias', true) //set third parameter to true to select/fetch the related fields
+     * the alias for the current model is 'a'.
+     *
+     * examples:
+     * 1. array('a.Comments', 'c', true); //in this case, if you use limit or offset, set $usePreQuery to true
+     * 2. array(array('a.Metadata', 'm', true)array('a.Comments', 'c', true), array('c.User', 'cu', true));
+     *
+     * @param array $relations either one array or a an array containing arrays with relationinfos
+     * @param string $condition the where condition("id = ?", "a.username LIKE ?")
+     * @param mixed $values the values for the ?-placeholders
+     * @param string $order an order by clause (id ASC, foo DESC)
+     * @param int $offset
+     * @param bool $needPreQuery set this to true if you use limit or offset with a 1-to-many left join (to limit the resulting entries, not the table rows)
+     * @return Mysql_Model
+     */
+	public function loadOneWithRelationsBy($relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = true)
+	{
+        $results = $this->loadWithRelations($relations, $condition, $value, $order, 1, $offset, $needPreQuery);
         return is_array($result) ? reset($result) : null;
 	}
 
@@ -223,7 +275,8 @@ class MiniMVC_Table {
 	}
 
     /**
-     * @param string $condition the where condition("id = 1", "a.username LIKE 'foo%'")
+     * @param string $condition the where condition("id = ?", "a.username LIKE ?")
+     * @param mixed $values the values for the ?-placeholders
      * @param string $order an order by clause (id ASC, foo DESC)
      * @param int $limit
      * @param int $offset
@@ -232,6 +285,55 @@ class MiniMVC_Table {
 	public function load($condition = null, $value = null, $order = null, $limit = null, $offset = null)
 	{
         return $this->query()->where($condition)->orderBy($order)->limit($limit, $offset)->build($value);
+	}
+
+    /**
+     * loads entries with related entries
+     * 
+     * an relationinfo array looks like:
+     * array('alias.relation', 'foreignalias', true) //set third parameter to true to select/fetch the related fields
+     * the alias for the current model is 'a'.
+     * 
+     * examples:
+     * 1. array('a.Comments', 'c', true); //in this case, if you use limit or offset, set $usePreQuery to true
+     * 2. array(array('a.Metadata', 'm', true)array('a.Comments', 'c', true), array('c.User', 'cu', true));
+     *
+     * @param array $relations either one array or a an array containing arrays with relationinfos
+     * @param string $condition the where condition("id = ?", "a.username LIKE ?")
+     * @param mixed $values the values for the ?-placeholders
+     * @param string $order an order by clause (id ASC, foo DESC)
+     * @param int $limit
+     * @param int $offset
+     * @param bool $needPreQuery set this to true if you use limit or offset with a 1-to-many left join (to limit the resulting entries, not the table rows)
+     * @return array
+     */
+	public function loadWithRelations($relations = array(), $condition = null, $value = null, $order = null, $limit = null, $offset = null, $needPreQuery = false)
+	{
+        $q = $this->query('a');
+        foreach ($relations as $relation) {
+            if (!is_array($relation)) {
+                if (!empty($relations[0]) && !empty($relations[1])) {
+                    if ((!empty($relations[2]) && $relations[2] === true) || (!empty($relations[3]) && $relations[3] === true)) {
+                        $q->select($relations[1]);
+                    } elseif (!empty($relations['select'])) {
+                        $q->select($relations['select']);
+                    }
+                    $q->join($relations[0], $relations[1], !empty($relations[2]) && $relations[2] !== true ? $relations[2] : null, !empty($relations[3]) && $relations[3] !== true ? $relations[3] : 'LEFT');
+                }
+                break;
+            }
+               
+            if (!empty($relation[0]) && !empty($relation[1])) {
+                if ((!empty($relation[2]) && $relation[2] === true) || (!empty($relation[3]) && $relation[3] === true)) {
+                    $q->select($relation[1]);
+                } elseif (!empty($relation['select'])) {
+                    $q->select($relation['select']);
+                }
+                $q->join($relation[0], $relation[1], !empty($relation[2]) && $relation[2] !== true ? $relation[2] : null, !empty($relation[3]) && $relation[3] !== true ? $relation[3] : 'LEFT');
+            }
+
+        }
+        $q->where($condition)->orderBy($order)->limit($limit, $offset, $needPreQuery)->build($value);
 	}
 
 

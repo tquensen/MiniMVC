@@ -15,8 +15,9 @@ class Cms_Default_Controller extends MiniMVC_Controller
     public function showAction($params)
     {
         $this->view->article = CmsArticleTable::getInstance()->loadOneBy('slug = ?', $params['slug']);
+
         if (!$this->view->article) {
-            $this->delegate404();
+            return $this->delegate404();
         }
 
         if ($this->view->article->status == 'draft' && !$this->registry->guard->userHasRight($this->registry->settings->get('config/cms/authorRights'))) {

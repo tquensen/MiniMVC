@@ -122,9 +122,9 @@ class MiniMVC_Query
 
     /**
      *
-     * @param string $relation
+     * @param string $table
      * @param string $alias
-     * @param string $on on condition
+     * @param string $relation on condition
      * @param string $type join type
      * @return MiniMVC_Query
      */
@@ -140,9 +140,9 @@ class MiniMVC_Query
         $this->tables[$alias] = call_user_func($data[0].'Table'.'::getInstance');
         if (isset($data[3]) && $data[3] && $data[3] !== true) {
             $this->join[$table.'_'.$alias] = array($data[3], $table.'.'.$this->tables[$table]->getIdentifier().' = '.$table.'_'.$alias.'.'.$data[1], $type);
-            $this->join[$alias] = array($this->tables[$alias]->getTableName(), $table.'_'.$alias.'.'.$data[2].' = '.$alias.'.'.$this->tables[$alias]->getIdentifier(), $type);
+            $this->join[$alias] = array($this->tables[$alias]->getTableName(), $table.'_'.$alias.'.'.$data[2].' = '.$alias.'.'.$this->tables[$alias]->getIdentifier() . ($relation ? ' AND '.$relation : ''), $type);
         } else {
-            $this->join[$alias] = array($this->tables[$alias]->getTableName(), $table.'.'.$data[1].' = '.$alias.'.'.$data[2], $type);
+            $this->join[$alias] = array($this->tables[$alias]->getTableName(), $table.'.'.$data[1].' = '.$alias.'.'.$data[2] . ($relation ? ' AND '.$relation : ''), $type);
         }
         $this->relations[] = array($table, $alias, $relation);
 
@@ -316,7 +316,7 @@ class MiniMVC_Query
         return $result !== false ? $stmt : false;
     }
 
-    public function build($values = array(), $returnAll = false)
+    public function build($values = array(), $return = false)
     {
         if (!is_array($values) && $values !== null) {
             $values = array($values);
@@ -331,8 +331,9 @@ class MiniMVC_Query
 
         $entries = array();
         if (count($this->tables) === 1) {
+            $table = reset($this->tables);
             foreach ($results as $row) {
-                $entries[] = $this->tables[$this->from]->buildModel($this->_filter($row, $this->from));
+                $entries[] = $table->buildModel($this->_filter($row, $this->from));
             }
             return $entries;
         }
@@ -345,6 +346,11 @@ class MiniMVC_Query
                 $aliases[$a] = $this->tables[$a];
             }
         }
+
+        if ($return === false) {
+            $return = reset(array_keys($aliases));
+        }
+
         foreach ($this->relations as $relation) {
             if (isset($aliases[$relation[0]]) && isset($aliases[$relation[1]])) {
                 $relations[] = $relation;
@@ -366,10 +372,10 @@ class MiniMVC_Query
             }
         }
 
-        return $returnAll ? $entries : (reset($entries) !== false ? reset($entries) : array());
+        return $return === true ? $entries : (isset($entries[$return]) ? $entries[$return] : array());
     }
 
-    public function buildArray($values = array(), $returnAll = false)
+    public function buildArray($values = array(), $return = false)
     {
         if (!is_array($values) && $values !== null) {
             $values = array($values);
@@ -390,6 +396,8 @@ class MiniMVC_Query
             return $entries;
         }
 
+
+
         $aliases = array();
         $relations = array();
         $aliasedIdentifiers = array();
@@ -398,6 +406,11 @@ class MiniMVC_Query
                 $aliases[$a] = $this->tables[$a];
             }
         }
+
+        if ($return === false) {
+            $return = reset(array_keys($aliases));
+        }
+        
         foreach ($this->relations as $relation) {
             if (isset($aliases[$relation[0]]) && isset($aliases[$relation[1]])) {
                 $relations[] = $relation;
@@ -419,7 +432,7 @@ class MiniMVC_Query
             }
         }
 
-        return $returnAll ? $entries : (reset($entries) !== false ? reset($entries) : array());
+        return $return === true ? $entries : (isset($entries[$return]) ? $entries[$return] : array());
     }
 
     protected function _filter($row, $alias = '')

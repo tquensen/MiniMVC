@@ -5,6 +5,8 @@
  * @method {name} getOneBy()
  * @method {name} loadOne()
  * @method {name} loadOneBy()
+ * @method {name} loadOneWithRelations()
+ * @method {name} loadOneWithRelationsBy()
  * @method {name} create()
  */
 class {name}Table extends MiniMVC_Table
