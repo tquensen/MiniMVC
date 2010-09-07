@@ -25,6 +25,7 @@ class Helper_I18n extends MiniMVC_Helper
         if (!self::$cached)
         {
             $language = $this->registry->settings->get('runtime/currentLanguage');
+            $fallbackLanguage = $this->registry->settings->get('config/defaultLanguage');
             $currentApp = $this->registry->settings->get('runtime/currentApp');
             if ($this->registry->settings->get('runtime/useCache') && is_file(CACHEPATH.'i18n_'.$currentApp.'_'.$language.'.php'))
             {
@@ -38,6 +39,32 @@ class Helper_I18n extends MiniMVC_Helper
             if (!self::$cached)
             {
                 $MiniMVC_i18n = array();
+
+                //load fallback language first (if it differs from current language)
+                if ($language != $fallbackLanguage) {
+                    if (is_file(DATAPATH.'i18n/'.$fallbackLanguage.'.php'))
+                    {
+                        include_once(DATAPATH.'i18n/'.$fallbackLanguage.'.php');
+                    }
+
+                    foreach ($this->registry->settings->get('modules') as $currentModule)
+                    {
+                        if (is_file(MODULEPATH.$currentModule.'/i18n/'.$fallbackLanguage.'.php'))
+                        {
+                            include_once(MODULEPATH.$currentModule.'/i18n/'.$fallbackLanguage.'.php');
+                        }
+                    }
+
+                    if ($currentApp)
+                    {
+                        if (is_file(APPPATH.$currentApp.'/i18n/'.$fallbackLanguage.'.php'))
+                        {
+                            include_once(APPPATH.$currentApp.'/i18n/'.$fallbackLanguage.'.php');
+                        }
+                    }
+                }
+
+                //overwrite fallback with current language where available
                 if (is_file(DATAPATH.'i18n/'.$language.'.php'))
                 {
                     include_once(DATAPATH.'i18n/'.$language.'.php');

@@ -15,7 +15,7 @@ class {name}Table extends MiniMVC_Table
 	protected $_table = '{table}';
     protected $_model = '{name}';
 
-	protected $_columns = array('id', 'name');
+	protected $_columns = array('id', 'slug', 'title');
     protected $_relations = array();
 	protected $_identifier = 'id';
 	protected $_isAutoIncrement = true;
@@ -24,18 +24,18 @@ class {name}Table extends MiniMVC_Table
 
     public function getForm($model = null)
     {
-        $i18n = $this->registry->helper->i18n->get('{module}');
+        $i18n = $this->registry->helper->i18n->get('{modlc}');
 
         if (!$model) {
             $model = $this->create();
         }
         $form = new MiniMVC_Form(array('name' => '{name}Form', 'model' => $model));
-        $form->setElement(new MiniMVC_Form_Element_Text('name',
-                        array('label' => $i18n->{name}FormNameLabel),
+        $form->setElement(new MiniMVC_Form_Element_Text('title',
+                        array('label' => $i18n->{namelcfirst}FormTitleLabel),
                         array(
-                            new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->{name}FormNameError))
+                            new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->{namelcfirst}FormTitleError))
                 )));
-        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $i18n->{name}FormSubmitLabel)));
+        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $i18n->{namelcfirst}FormSubmitLabel)));
 
         return $form;
     }
@@ -47,11 +47,13 @@ class {name}Table extends MiniMVC_Table
     {
         switch ($installedVersion) {
             case 0:
-                $sql = 'CREATE TABLE `{table}` (
-					  `id` int(11) NOT NULL auto_increment,
-                      `name` varchar(255) NOT NULL,
-					  PRIMARY KEY  (`id`)
-					) ENGINE=INNODB DEFAULT CHARSET=utf8';
+                $sql = "CREATE TABLE {table} (
+					  id int(11) NOT NULL auto_increment,
+                      slug varchar(255) NOT NULL,
+                      title varchar(255) NOT NULL,
+					  PRIMARY KEY  (id),
+                      UNIQUE (slug)
+					) ENGINE=INNODB DEFAULT CHARSET=utf8";
 
                 $this->_db->query($sql);
             case 1:
@@ -68,7 +70,7 @@ class {name}Table extends MiniMVC_Table
         SWITCH ($installedVersion) {
             case 'max':
             case 1:
-                $sql = 'DROP TABLE `{table}`';
+                $sql = "DROP TABLE {table}";
                 $this->_db->query($sql);
         }
         return true;

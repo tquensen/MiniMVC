@@ -21,15 +21,24 @@ class MiniMVC_Translation
 
 	public function __get($key)
 	{
-		return (isset($this->translations[$key])) ? $this->translations[$key] : $key;
+        $realkey = is_array($key) ? end($key) : $key;
+        
+		return (isset($this->translations[$realkey])) ? $this->translations[$realkey] : $key;
 	}
 
 	public function __call($key, $args)
 	{
-		return $this->t($key, (isset($args[0])) ? $args[0] : null, (isset($args[1])) ? $args[1] : null);
+		return $this->get($key, (isset($args[0])) ? $args[0] : null, (isset($args[1])) ? $args[1] : null);
 	}
 
-	public function t($key, $params = null, $subkey = null)
+    /**
+     *
+     * @param string $key the key/name of the translation
+     * @param string|array $params parameter values, either as query string "foo=foovalue&bar=baz" or as array('foo'=>'foovalue','bar'=>'baz')
+     * @param int|null $subkey if the translation is an array, this specifies which array key to use. when passing null or an invalid key, the last element will be used.
+     * @return string the translated string
+     */
+	public function get($key, $params = null, $subkey = null)
 	{
 		$string = $this->__get($key);
 		if (is_array($string))
@@ -47,7 +56,7 @@ class MiniMVC_Translation
 		{
 			if (is_string($params))
 			{
-				$params = $this->parseQueryString($params);
+				$params = $this->_parseQueryString($params);
 			}
 			$search = array();
 			$replace = array();
@@ -61,7 +70,7 @@ class MiniMVC_Translation
 		return $string;
 	}
 
-	public function parseQueryString($string)
+	public function _parseQueryString($string)
 	{
 		$return = array();
 		foreach (explode('&', $string) as $param)

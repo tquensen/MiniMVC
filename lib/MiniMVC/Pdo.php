@@ -28,9 +28,8 @@ class MiniMVC_Pdo
             $dbSettings[$connection]['driver'],
             $dbSettings[$connection]['username'],
             $dbSettings[$connection]['password'],
-            isset($dbSettings[$connection]['options']) ? $dbSettings[$connection]['options'] : array()
+            isset($dbSettings[$connection]['options']) ? array_merge(array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION), $dbSettings[$connection]['options']) : array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
         );
-       $this->connections[$connection]->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         MiniMVC_Query::setDatabase($this->get());
 

@@ -7,6 +7,6 @@ $MiniMVC_apps['backend']['baseurl'] = 'http://scarax.ath.cx/MiniMVC/backend/';
 $MiniMVC_apps['backend']['baseurlI18n'] = 'http://scarax.ath.cx/MiniMVC/backend/:lang:/';
 $MiniMVC_apps['backend']['baseurlStatic'] = 'http://scarax.ath.cx/MiniMVC/';
 
-$MiniMVC_apps['frontend']['baseurl'] = '/MiniMVC/web/';
-$MiniMVC_apps['frontend']['baseurlI18n'] = '/MiniMVC/web/:lang:/';
-$MiniMVC_apps['frontend']['baseurlStatic'] = 'http://scarax.ath.cx/MiniMVC/web/';
+$MiniMVC_apps['frontend']['baseurl'] = '/MiniMVC/';
+$MiniMVC_apps['frontend']['baseurlI18n'] = '/MiniMVC/:lang:/';
+$MiniMVC_apps['frontend']['baseurlStatic'] = 'http://localhost/MiniMVC/';

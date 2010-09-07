@@ -20,6 +20,7 @@ class MiniMVC_Table {
 	protected $_identifier = 'id';
 	protected $_isAutoIncrement = true;
 
+    protected $_returnTypes = array('object' => 'build', 'array' => 'buildArray', 'query' => 'getQueryObject');
 
 	public function __construct()
 	{
@@ -221,12 +222,12 @@ class MiniMVC_Table {
      * @param bool $needPreQuery set this to true if you use limit or offset with a 1-to-many left join (to limit the resulting entries, not the table rows)
      * @return Mysql_Model
      */
-	public function loadOneWithRelations($id, $relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = true)
+	public function loadOneWithRelations($id, $relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = false)
 	{
         $value = (array) $value;
         array_unshift($value, $id);
-        $results = $this->loadWithRelations($relations, $condition ? 'a.'.$this->_identifier . ' = ? AND '.$condition : 'a.'.$this->_identifier . ' = ?', $value, $order, 1, $offset, $needPreQuery);
-        return is_array($result) ? reset($result) : null;
+        $results = $this->loadWithRelations($relations, $condition ? 'a.'.$this->_identifier . ' = ? AND '.$condition : 'a.'.$this->_identifier . ' = ?', $value, $order, null, $offset, $needPreQuery);
+        return is_array($results) ? reset($results) : null;
 	}
 
     /**
@@ -250,8 +251,8 @@ class MiniMVC_Table {
      */
 	public function loadOneWithRelationsBy($relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = true)
 	{
-        $results = $this->loadWithRelations($relations, $condition, $value, $order, 1, $offset, $needPreQuery);
-        return is_array($result) ? reset($result) : null;
+        $results = $this->loadWithRelations($relations, $condition, $value, $order, null, $offset, $needPreQuery);
+        return is_array($results) ? reset($results) : null;
 	}
 
     /**
@@ -280,11 +281,15 @@ class MiniMVC_Table {
      * @param string $order an order by clause (id ASC, foo DESC)
      * @param int $limit
      * @param int $offset
+     * @param string $returnAs the type of data to return (object, array or query)
      * @return array
      */
-	public function load($condition = null, $value = null, $order = null, $limit = null, $offset = null)
+	public function load($condition = null, $value = null, $order = null, $limit = null, $offset = null, $returnAs = 'object')
 	{
-        return $this->query()->where($condition)->orderBy($order)->limit($limit, $offset)->build($value);
+        if (!isset($this->_returnTypes[$returnAs])) {
+            $returnAs = 'object';
+        }
+        return $this->query()->where($condition)->orderBy($order)->limit($limit, $offset)->{$this->_returnTypes[$returnAs]}($value);
 	}
 
     /**
@@ -305,10 +310,15 @@ class MiniMVC_Table {
      * @param int $limit
      * @param int $offset
      * @param bool $needPreQuery set this to true if you use limit or offset with a 1-to-many left join (to limit the resulting entries, not the table rows)
+     * @param string $returnAs the type of data to return (object, array or query)
      * @return array
      */
-	public function loadWithRelations($relations = array(), $condition = null, $value = null, $order = null, $limit = null, $offset = null, $needPreQuery = false)
+	public function loadWithRelations($relations = array(), $condition = null, $value = null, $order = null, $limit = null, $offset = null, $needPreQuery = false, $returnAs = 'object')
 	{
+        if (!isset($this->_returnTypes[$returnAs])) {
+            $returnAs = 'object';
+        }
+        
         $q = $this->query('a');
         foreach ($relations as $relation) {
             if (!is_array($relation)) {
@@ -333,7 +343,8 @@ class MiniMVC_Table {
             }
 
         }
-        $q->where($condition)->orderBy($order)->limit($limit, $offset, $needPreQuery)->build($value);
+
+        return $q->where($condition)->orderBy($order)->limit($limit, $offset, $needPreQuery)->{$this->_returnTypes[$returnAs]}($value);
 	}
 
 

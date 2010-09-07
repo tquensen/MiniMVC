@@ -25,6 +25,7 @@ class MiniMVC_Query
     protected $needPreQuery = false;
     protected $tables = array();
     protected $relations = array();
+    protected $values = array();
 
     public static function setDatabase($db)
     {
@@ -45,6 +46,14 @@ class MiniMVC_Query
     public function __construct($db = null)
     {
         $this->db = $db ? $db : self::$database;
+    }
+
+    public function setValues($values)
+    {
+        if (!is_array($values) && $values !== null) {
+            $values = array($values);
+        }
+        $this->values = $values;
     }
 
     /**
@@ -131,9 +140,9 @@ class MiniMVC_Query
     public function join($table, $alias, $relation = null, $type = 'LEFT')
     {
         if (strpos($table, '.')) {
-            list($table, $relation) = array_map('trim', explode('.', $table, 2));
+            list($table, $tableRelation) = array_map('trim', explode('.', $table, 2));
         }
-        if (!isset($this->tables[$table]) || !$data = $this->tables[$table]->getRelation($relation)) {
+        if (!isset($this->tables[$table]) || empty($tableRelation) || !$data = $this->tables[$table]->getRelation($tableRelation)) {
             $this->join[$alias] = array($table, $relation, $type);
             return $this;
         }
@@ -144,7 +153,7 @@ class MiniMVC_Query
         } else {
             $this->join[$alias] = array($this->tables[$alias]->getTableName(), $table.'.'.$data[1].' = '.$alias.'.'.$data[2] . ($relation ? ' AND '.$relation : ''), $type);
         }
-        $this->relations[] = array($table, $alias, $relation);
+        $this->relations[] = array($table, $alias, $tableRelation);
 
         return $this;
     }
@@ -217,11 +226,21 @@ class MiniMVC_Query
 
     /**
      *
+     * @return MiniMVC_Query 
+     */
+    public function getQueryObject($values = null)
+    {
+        $this->setValues($values);
+        return $this;
+    }
+
+    /**
+     *
      * @return string
      */
     public function get($values = array(), $isPreQuery = false)
     {
-
+        
         if ($isPreQuery) {
             $q = 'SELECT ';
             $select = array($this->from ? $this->from.'.'.$this->tables[$this->from]->getIdentifier() : $this->tables[$this->from]->getIdentifier());
@@ -274,34 +293,64 @@ class MiniMVC_Query
             $q .= ' ORDER BY '.$this->order.' ';
         }
         $q .= $limit;
+
         return $q;
     }
 
-    protected function count($count = '*', $values = array())
+    public function count($count = '*', $values = array())
     {
         if (!is_array($values) && $values !== null) {
             $values = array($values);
         }
 
-        $q = 'SELECT COUNT('.$count.')';
-        $q .= $this->_from($this->from);
-        foreach ($this->join as $join => $info) {
-            $q .= $this->_join($join, $info[0], isset($info[1]) ? $info[1] : null, isset($info[2]) ? $info[2] : null);
+        if (empty($values) && !empty($this->values)) {
+            $values = $this->values;
         }
-        $condition = count($this->where) ? implode(' AND ', $this->where) : '';
-        if ($condition) {
-            $q .= ' WHERE '.$condition.' ';
-        }
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute($values);
 
-        return $stmt->fetchColumn();
+        $oldType = $this->type;
+        $oldColumns = $this->columns;
+        $oldLimit = $this->limit;
+        $oldOffset = $this->offset;
+
+        
+        $this->type = 'SELECT';
+        $this->columns = array('COUNT('.$count.')');
+        $this->limit = null;
+        $this->offset = null;
+
+        if ($this->needPreQuery) {
+            $count = count($this->_getIdentifiers($values));
+        } else {
+            $query = $this->get($values);
+
+            $stmt = $this->db->prepare($query);
+
+            echo $query . '<br />';
+            var_dump($values);
+            echo '<br /><br />';
+
+            $stmt->execute($values);
+
+            $count = $stmt->fetchColumn();
+            $stmt->closeCursor();
+        }
+        
+        $this->type = $oldType;
+        $this->columns = $oldColumns;
+        $this->limit = $oldLimit;
+        $this->offest = $oldOffset;
+
+        return $count;
     }
 
     public function execute($values = array(), $query = null)
     {
         if (!is_array($values) && $values !== null) {
             $values = array($values);
+        }
+
+        if (empty($values) && !empty($this->values)) {
+            $values = $this->values;
         }
         
         $sql = ($query !== null) ? $query : $this->get($values);
@@ -311,6 +360,10 @@ class MiniMVC_Query
         }
 
         $stmt = $this->db->prepare($sql);
+
+        echo $sql . '<br />';
+            var_dump($values);
+            echo '<br /><br />';
         $result = $stmt->execute($values);
 
         return $result !== false ? $stmt : false;
@@ -324,7 +377,15 @@ class MiniMVC_Query
 
         $sql = $this->get($values); 
 
+        if (empty($values) && !empty($this->values)) {
+            $values = $this->values;
+        }
+        
         $stmt = $this->db->prepare($sql);
+
+        echo $sql . '<br />';
+            var_dump($values);
+            echo '<br /><br />';
         $stmt->execute($values);
 
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -348,7 +409,8 @@ class MiniMVC_Query
         }
 
         if ($return === false) {
-            $return = reset(array_keys($aliases));
+            $aliasKeys = array_keys($aliases);
+            $return = reset($aliasKeys);
         }
 
         foreach ($this->relations as $relation) {
@@ -383,7 +445,15 @@ class MiniMVC_Query
 
         $sql = $this->get($values);
 
+        if (empty($values) && !empty($this->values)) {
+            $values = $this->values;
+        }
+        
         $stmt = $this->db->prepare($sql);
+
+        echo $sql . '<br />';
+            var_dump($values);
+            echo '<br /><br />';
         $stmt->execute($values);
 
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -408,7 +478,8 @@ class MiniMVC_Query
         }
 
         if ($return === false) {
-            $return = reset(array_keys($aliases));
+            $aliasKeys = array_keys($aliases);
+            $return = reset($aliasKeys);
         }
         
         foreach ($this->relations as $relation) {
@@ -498,8 +569,21 @@ class MiniMVC_Query
     protected function _getIdentifiers($values = array())
     {
         $sql = $this->get($values, true);
+
+        if (empty($values) && !empty($this->values)) {
+            $values = $this->values;
+        }
+
+        if (empty($values) && !empty($this->values)) {
+            $values = $this->values;
+        }
         
         $stmt = $this->db->prepare($sql);
+
+        echo $sql . '<br />';
+            var_dump($values);
+            echo '<br /><br />';
+
         $stmt->execute($values);
 
         $ids = array();

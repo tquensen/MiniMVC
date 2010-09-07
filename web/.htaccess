@@ -8,7 +8,7 @@ RewriteEngine on
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^backend(.*)$ testapp2.php
 
-# FRONTEND
+# FRONTEND (default app)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ index.php
 

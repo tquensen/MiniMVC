@@ -243,6 +243,18 @@ class MiniMVC_Dispatcher
             }
         }
 
+        if (isset($routeData['model'])) {
+            $modelName = is_array($routeData['model']) ? $routeData['model'][0] : $routeData['model'];
+            $tableName = $modelName.'Table';
+            if (!class_exists($modelName) || !class_exists($tableName)) {
+                $routeData['parameter']['model'] = null;
+            } else {
+                $table = new $tableName;
+                $property = !empty($routeData['model'][1]) ? $routeData['model'][1] : $table->getIdentifier();
+                $routeData['parameter']['model'] = empty($routeData['parameter'][$property]) ? null : $table->loadOneBy($property.' = ?', $routeData['parameter'][$property]);
+            }
+        }
+
         return $this->call($routeData['controller'], $routeData['action'], isset($routeData['parameter']) ? $routeData['parameter'] : array());
     }
 
