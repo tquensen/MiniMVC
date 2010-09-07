@@ -82,7 +82,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         mkdir($path . '/lib');
         //mkdir($path . '/Lib/Migrations');
 
-        file_put_contents($path . '/controller/Default.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/Default.php')));
+        file_put_contents($path . '/controller/Default.php', str_replace(array('MODLC', 'MODULE', 'MODULELCFIRST'), array(strtolower($params['module']), $params['module'], strtolower(substr($params['module'], 0, 1)) . substr($params['module'], 1)), file_get_contents($dummy . '/Default.php')));
         file_put_contents($path . '/Installer.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/Installer.php')));
         file_put_contents($path . '/i18n/de.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/de.php')));
         file_put_contents($path . '/i18n/en.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/en.php')));
@@ -161,11 +161,13 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         $search = array(
             'MODLC',
             'MODULE',
+            'MODULELCFIRST',
             'CONTROLLER'
         );
         $replace = array(
             strtolower($params['module']),
             $params['module'],
+            strtolower(substr($params['module'], 0, 1)) . substr($params['module'], 1),
             $controller
         );
 

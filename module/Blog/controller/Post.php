@@ -29,6 +29,9 @@ class Blog_Post_Controller extends MiniMVC_Controller
         if (!$model) {
             return $this->delegate404();
         }
+        if ($model->status == 'draft' && !$this->registry->guard->userHasRight('publish')) {
+            return $this->delegate403();
+        }
         $this->view->model = $model;
         return $this->view->parse();
     }
@@ -39,7 +42,11 @@ class Blog_Post_Controller extends MiniMVC_Controller
         if ($this->view->form->validate())
         {
             $model = $this->view->form->updateModel();
-            $mode->save();
+            if (!$model->save()) {
+                $this->view->form->title->setError('Es gab einen Fehler beim speichern! Probier es doch nochmal, noob!');
+                $this->view->form->errorRedirect();
+            }
+            $this->refreshBlogPostTags($model, $this->view->form->tags->value);
             return $this->redirect('blog.show', array('slug' => $model->slug));
         }
         
@@ -56,10 +63,25 @@ class Blog_Post_Controller extends MiniMVC_Controller
         if ($this->view->form->validate())
         {
             $model = $this->view->form->updateModel();
-            $model->save();
+            if (!$model->save()) {
+                $this->view->form->title->setError('Es gab einen Fehler beim speichern! Probier es doch nochmal, noob!');
+                $this->view->form->errorRedirect();
+            }
+            $this->refreshBlogPostTags($model, $this->view->form->tags->value, true);
+
             return $this->redirect('blog.show', array('slug' => $model->slug));
         }
         
         return $this->view->parse();
+    }
+
+    protected function refreshBlogPostTags($model, $tagList, $delete = false)
+    {
+        if ($delete) {
+            $model->unlinkTags(true);
+        }
+        foreach ($tagList as $tagId) {
+            $model->linkTags($tagId);
+        }
     }
 }

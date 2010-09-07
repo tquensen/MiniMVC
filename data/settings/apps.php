@@ -1,12 +1,12 @@
 <?php 
-$MiniMVC_apps['testapp2']['baseurl'] = 'http://scarax.ath.cx/MiniMVC/web/backend/';
-$MiniMVC_apps['testapp2']['baseurlI18n'] = 'http://scarax.ath.cx/MiniMVC/web/backend/:lang:/';
+$MiniMVC_apps['testapp2']['baseurl'] = 'http://localhost/minimvc/backend/';
+$MiniMVC_apps['testapp2']['baseurlI18n'] = 'http://localhost/minimvc/backend/:lang:/';
 
 
-$MiniMVC_apps['backend']['baseurl'] = 'http://scarax.ath.cx/MiniMVC/backend/';
-$MiniMVC_apps['backend']['baseurlI18n'] = 'http://scarax.ath.cx/MiniMVC/backend/:lang:/';
-$MiniMVC_apps['backend']['baseurlStatic'] = 'http://scarax.ath.cx/MiniMVC/';
+$MiniMVC_apps['backend']['baseurl'] = 'http://localhost/minimvc/backend/';
+$MiniMVC_apps['backend']['baseurlI18n'] = 'http://localhost/minimvc/backend/:lang:/';
+$MiniMVC_apps['backend']['baseurlStatic'] = 'http://localhost/minimvc/';
 
-$MiniMVC_apps['frontend']['baseurl'] = '/MiniMVC/';
-$MiniMVC_apps['frontend']['baseurlI18n'] = '/MiniMVC/:lang:/';
-$MiniMVC_apps['frontend']['baseurlStatic'] = 'http://localhost/MiniMVC/';
+$MiniMVC_apps['frontend']['baseurl'] = 'http://localhost/minimvc/';
+$MiniMVC_apps['frontend']['baseurlI18n'] = 'http://localhost/minimvc/:lang:/';
+$MiniMVC_apps['frontend']['baseurlStatic'] = 'http://localhost/minimvc/';

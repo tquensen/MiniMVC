@@ -12,6 +12,18 @@ class MiniMVC_Form_Validator_InArray extends MiniMVC_Form_Validator
 		{
 			return false;
 		}
-		return in_array($value, $this->options['array'], true);
+        if (!empty($this->options['multiple'])) {
+            if (!is_array($value)) {
+                return false;
+            }
+
+            foreach ($value as $singleValue) {
+                if (!in_array($singleValue, $this->options['array'], empty($singleValue) && $singleValue !== '0')) {
+                    return false;
+                }
+            }
+            return true;
+        }
+		return in_array($value, $this->options['array'], empty($value) && $value !== '0');
 	}
 }

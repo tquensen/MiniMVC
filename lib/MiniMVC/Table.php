@@ -375,6 +375,7 @@ class MiniMVC_Table {
         if (empty($row) || !isset($row[$this->_identifier])) {
             return null;
         }
+
         $entry = new $this->_model($this);
         foreach ($row as $k=>$v)
         {
@@ -462,6 +463,7 @@ class MiniMVC_Table {
                     }
                 }
                 if (!$update) {
+                    $this->_db->rollBack();
                     return true;
                 }
                 if ($entry->preUpdate() === false) {

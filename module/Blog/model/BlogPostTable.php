@@ -28,14 +28,51 @@ class BlogPostTable extends MiniMVC_Table
 
         if (!$model) {
             $model = $this->create();
+            $currentTags = array();
+        } else {
+            $currentTags = array();
+            foreach ($model->loadTags() as $tag) {
+                $currentTags[] = $tag->getIdentifier();
+            }
         }
+
+        $allTags = array();
+        foreach (BlogTagTable::getInstance()->loadAll('title ASC') as $tag) {
+                $allTags[$tag->getIdentifier()] = $tag->title;
+        }
+        
         $form = new MiniMVC_Form(array('name' => 'BlogPostForm', 'model' => $model));
-        $form->setElement(new MiniMVC_Form_Element_Text('name',
-                        array('label' => $i18n->BlogPostFormNameLabel),
+        $form->setElement(new MiniMVC_Form_Element_Text('title',
+                        array('label' => 'Post-Titel:', 'info' => '(Pflichtfeld)'),
                         array(
-                            new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->BlogPostFormNameError))
+                            new MiniMVC_Form_Validator_Required(array('errorMessage' => 'Der Titel muss angegeben werden!'))
                 )));
-        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $i18n->BlogPostFormSubmitLabel)));
+
+        $form->setElement(new MiniMVC_Form_Element_Textarea('text',
+                        array('label' => 'Post-Inhalt:', 'info' => '(Pflichtfeld)'),
+                        array(
+                            new MiniMVC_Form_Validator_Required(array('errorMessage' => 'Der Inhalt muss angegeben werden!'))
+                )));
+        $form->setElement(new MiniMVC_Form_Element_Select('status',
+                        array(
+                            'label' => 'Status',
+                            'info' => '(Pflichtfeld)',
+                            'errorMessage' => 'Bitte wähle einen gültigen Status!',
+                            'options' => array('draft' => 'Vorschau', 'published' => 'Öffentlich')
+                            ),
+                        array(
+                            new MiniMVC_Form_Validator_Required(array('errorMessage' => 'Bitte wähle einen gültigen Status!'))
+                )));
+        $form->setElement(new MiniMVC_Form_Element_SelectMultiple('tags',
+                        array(
+                            'label' => 'Tags',
+                            'info' => '(Mehrfachauswahl mit gedrückter Strg bzw. Command-Taste)',
+                            'errorMessage' => 'Die Auswahl ist ungültig!',
+                            'options' => $allTags,
+                            'defaultValue' => $currentTags
+                            )
+                    ));
+        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => 'speichern')));
 
         return $form;
     }

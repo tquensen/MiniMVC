@@ -5,7 +5,7 @@ $MiniMVC_routes['MODLC.defaultIndex'] = array(
     'controller' => 'MODULE_Default',
     'action' => 'index',
     'parameter' => array(),
-    'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('user'))
+    'rights' => 0 //$rights->getRights('user')
 );
 $MiniMVC_routes['MODLC.defaultIndex.json'] = array(
     'route' => 'MODLC/index.json',
@@ -13,7 +13,7 @@ $MiniMVC_routes['MODLC.defaultIndex.json'] = array(
     'action' => 'index',
     'format' => 'json',
     'parameter' => array(),
-    'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('user'))
+    'rights' => 0 //$rights->getRights('user')
 );
 $MiniMVC_routes['MODLC.defaultShow'] = array(
     'route' => 'MODLC/show/:id:',
@@ -21,7 +21,7 @@ $MiniMVC_routes['MODLC.defaultShow'] = array(
     'action' => 'show',
     //'model' => array('MODULE', 'id'), //automatically load a model with the name MODULE by the given field 'id' (or null if not found). in your controller, you can access it with $params['model']
     'parameter' => array('id' => false),
-    'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('user'))
+    'rights' => 0 //$rights->getRights('user')
 );
 $MiniMVC_routes['MODLC.defaultCreate'] = array(
     'route' => 'MODLC/create',
@@ -29,7 +29,7 @@ $MiniMVC_routes['MODLC.defaultCreate'] = array(
     'action' => 'create',
     'parameter' => array(),
     'active' => false, //this route must be activated for each app to work
-    'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('admin'))
+    'rights' => 0 //$rights->getRights('publish')
 );
 $MiniMVC_routes['MODLC.defaultEdit'] = array(
     'route' => 'MODLC/edit/:id:',
@@ -38,5 +38,5 @@ $MiniMVC_routes['MODLC.defaultEdit'] = array(
     //'model' => array('MODULE', 'id'), //automatically load a model with the name MODULE by the given field 'id' (or null if not found). in your controller, you can access it with $params['model']
     'parameter' => array('id' => false),
     'active' => false, //this route must be activated for each app to work
-    'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('admin'))
+    'rights' => 0 //$rights->getRights('publish')
 );

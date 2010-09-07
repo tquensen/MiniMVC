@@ -276,8 +276,11 @@ class MiniMVC_Query
         }
         if ($this->limit || $this->offset) {
             if (!$isPreQuery && $this->needPreQuery && isset($this->tables[$this->from])) {
+                $ids = $this->_getIdentifiers($values);
                 $limit = '';
-                $q .= ($condition ? ' AND ' : ' WHERE ') . $this->_in($this->from, null, $this->_getIdentifiers($values));
+                if (count($ids)) {
+                    $q .= ($condition ? ' AND ' : ' WHERE ') . $this->_in($this->from, null, $this->_getIdentifiers($values));
+                }
             } else {
                 $limit = ' LIMIT '.(int)$this->limit.' OFFSET '.(int)$this->offset;
             }
@@ -325,10 +328,6 @@ class MiniMVC_Query
 
             $stmt = $this->db->prepare($query);
 
-            echo $query . '<br />';
-            var_dump($values);
-            echo '<br /><br />';
-
             $stmt->execute($values);
 
             $count = $stmt->fetchColumn();
@@ -361,9 +360,6 @@ class MiniMVC_Query
 
         $stmt = $this->db->prepare($sql);
 
-        echo $sql . '<br />';
-            var_dump($values);
-            echo '<br /><br />';
         $result = $stmt->execute($values);
 
         return $result !== false ? $stmt : false;
@@ -383,9 +379,6 @@ class MiniMVC_Query
         
         $stmt = $this->db->prepare($sql);
 
-        echo $sql . '<br />';
-            var_dump($values);
-            echo '<br /><br />';
         $stmt->execute($values);
 
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -451,9 +444,6 @@ class MiniMVC_Query
         
         $stmt = $this->db->prepare($sql);
 
-        echo $sql . '<br />';
-            var_dump($values);
-            echo '<br /><br />';
         $stmt->execute($values);
 
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -579,10 +569,6 @@ class MiniMVC_Query
         }
         
         $stmt = $this->db->prepare($sql);
-
-        echo $sql . '<br />';
-            var_dump($values);
-            echo '<br /><br />';
 
         $stmt->execute($values);
 

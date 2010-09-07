@@ -11,6 +11,6 @@
 //change access rights
 /*
 $rights = MiniMVC_Registry::getInstance()->rights;
-$MiniMVC_routes['something.secure']['rights'] = $rights->getRoleRights($rights->getRoleByKeyword('admin'));
-$MiniMVC_routes['something.more.secure']['rights'] = $rights->getRoleRights('SomeRoleName');
+$MiniMVC_routes['something.secure']['rights'] = //$rights->getRights('administrate')
+$MiniMVC_routes['something.more.secure']['rights'] = //$rights->getRights('administrate')
 */

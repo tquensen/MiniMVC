@@ -16,7 +16,7 @@ class MiniMVC_Form_Element_CheckboxGroup extends MiniMVC_Form_Element
 	{
 		if ($this->value !== null && !$this->getOption('skipDefaultValidator'))
 		{
-			$this->validators[] = new MiniMVC_Form_Validator_InArray(array('array' => array_keys($this->options['elements'])));
+			$this->validators[] = new MiniMVC_Form_Validator_InArray(array('array' => array_keys($this->options['elements']), 'multiple' => true));
 		}
 
 		return parent::validate();
