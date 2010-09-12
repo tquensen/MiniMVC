@@ -5,8 +5,8 @@ RewriteEngine on
 #RewriteRule ^(.*[^/])$ %{REQUEST_URI}/ [R=301,L]
 
 # BACKEND (or any other app than the default)
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^backend(.*)$ testapp2.php
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteRule ^backend(.*)$ backend.php
 
 # FRONTEND (default app)
 RewriteCond %{REQUEST_FILENAME} !-f

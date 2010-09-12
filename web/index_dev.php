@@ -1,5 +1,5 @@
 <?php
-if (false && !in_array(@$_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1')))
+if (!in_array(@$_SERVER['REMOTE_ADDR'], array('127.0.0.1', '::1')))
 {
     die('Error 403 Forbidden!');
 }
