@@ -261,7 +261,7 @@ class MiniMVC_Query
             }
         }
         $q .= implode(', ', $select);
-        if ($this->type == 'INSERT INTO' || $this->type == 'UPDATE') {
+        if (!$isPreQuery && ($this->type == 'INSERT INTO' || $this->type == 'UPDATE')) {
             $q .= ' SET '.implode(' , ',$this->set);
         } else {
             $q .= $this->_from($this->from);
@@ -276,11 +276,10 @@ class MiniMVC_Query
         }
         if ($this->limit || $this->offset) {
             if (!$isPreQuery && $this->needPreQuery && isset($this->tables[$this->from])) {
-                $ids = $this->_getIdentifiers($values);
                 $limit = '';
-                if (count($ids)) {
-                    $q .= ($condition ? ' AND ' : ' WHERE ') . $this->_in($this->from, null, $this->_getIdentifiers($values));
-                }
+                
+                $q .= ($condition ? ' AND ' : ' WHERE ') . $this->_in($this->from, null, $this->_getIdentifiers($values, true));
+                
             } else {
                 $limit = ' LIMIT '.(int)$this->limit.' OFFSET '.(int)$this->offset;
             }
@@ -545,7 +544,7 @@ class MiniMVC_Query
     protected function _in($alias = null, $key = null, $values = array())
     {
         if (empty($values) || !is_array($values)) {
-            return  ' ';
+            $values = (array) $values;
         }
         if (!$key) {
             $key = $this->tables[$alias]->getIdentifier();
@@ -556,10 +555,14 @@ class MiniMVC_Query
         return ' '.$key.' IN ("'.implode('","',  $values).'") ';
     }
 
-    protected function _getIdentifiers($values = array())
+    protected function _getIdentifiers($values = array(), $asQuery = false)
     {
         $sql = $this->get($values, true);
 
+        if ($asQuery) {
+            return $sql;
+        }
+        
         if (empty($values) && !empty($this->values)) {
             $values = $this->values;
         }
