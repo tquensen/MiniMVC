@@ -1,7 +1,7 @@
 <?php
 
 class Helper_Static extends MiniMVC_Helper
-{	
+{
 	public function get($file, $module = null, $app = null)
 	{
         if ($module === null)
@@ -37,13 +37,9 @@ class Helper_Static extends MiniMVC_Helper
         {
             $url = $baseurl.'app/'.$app.'/'.$file;
         }
-        elseif (file_exists(WEBPATH.$file))
-        {
-            $url = $baseurl.$file;
-        }
         else
         {
-            $url = $file;
+            $url = $baseurl.$file;
         }
 
         $this->registry->settings->set('view/staticCached/'.$app.'_'.$module.'_'.str_replace('/', '__', $file), $url);
