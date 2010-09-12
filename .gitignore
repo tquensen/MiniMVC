@@ -2,6 +2,7 @@ nbproject
 cache/*
 !cache/public
 cache/public/*
+!cache/public/.gitignore
 web/app
 web/cache
 web/module
