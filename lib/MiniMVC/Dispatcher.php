@@ -149,7 +149,7 @@ class MiniMVC_Dispatcher
 
             $this->registry->db->init();
             
-            $content = $this->callRoute($routeName, (isset($params) ? $params : array()));
+            $content = $this->callRoute($routeName, (isset($params) ? $params : array()), true, true);
             return $this->registry->template->parse($content, $this->registry->settings->get('runtime/currentApp'));
         } catch (Exception $e) {
             $error500Route = $this->registry->settings->get('config/error500Route');
@@ -195,18 +195,23 @@ class MiniMVC_Dispatcher
      * @param bool $showErrorPages if true, the 401/403 error pages will be called if the user has insuficcient rights
      * @return string the parsed output of the called action
      */
-    public function callRoute($route, $params = array(), $showErrorPages = true)
+    public function callRoute($route, $params = array(), $showErrorPages = true, $isMainRoute = true)
     {
         $routeData = $this->getRoute($route, $params);
 
-        if (isset($routeData['format'])) {
-            $this->registry->template->setFormat($routeData['format']);
-        } elseif(isset($routeData['parameter']['_format'])) {
-            $this->registry->template->setFormat($routeData['parameter']['_format']);
-        }
+        if ($isMainRoute) {
+            if (isset($routeData['format'])) {
+                $this->registry->template->setFormat($routeData['format']);
+            } elseif(isset($routeData['parameter']['_format'])) {
+                $this->registry->template->setFormat($routeData['parameter']['_format']);
+            }
 
-        if (isset($routeData['layout'])) {
-            $this->registry->template->setLayout($routeData['layout']);
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($routeData['parameter']['_controller']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
+                $this->registry->template->setLayout(false);
+            } elseif (isset($routeData['layout'])) {
+                $this->registry->template->setLayout($routeData['layout']);
+            }
+
         }
 
         if (isset($routeData['parameter']['_action'])) {

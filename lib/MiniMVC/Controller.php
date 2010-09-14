@@ -61,7 +61,7 @@ class MiniMVC_Controller
      */
 	protected function delegate($route, $params = array())
 	{
-		return $this->registry->dispatcher->callRoute($route, $params);
+		return $this->registry->dispatcher->callRoute($route, $params, true, true);
 	}
 
     /**

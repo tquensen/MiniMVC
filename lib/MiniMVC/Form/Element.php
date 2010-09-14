@@ -116,7 +116,7 @@ class MiniMVC_Form_Element
 
 	public function isValid()
 	{
-		return $this->isValid;
+		return $this->isValid === null ? true : (bool) $this->isValid;
 	}
 
 	public function wasSubmitted()

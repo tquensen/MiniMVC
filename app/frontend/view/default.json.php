@@ -1,3 +1,3 @@
 <?php
-	header('Content-type: application/json');
+	header('Content-Type: application/json');
 	echo $layout->getSlot('main');
