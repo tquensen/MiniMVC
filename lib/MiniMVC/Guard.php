@@ -134,11 +134,14 @@ class MiniMVC_Guard
     /**
      *
      * @param string|int $right the right to check, either as the name of the right as string ('user', 'administrator', ..) or as the key as int (2, 1024, ..)
-     * @return bool whether the current user has the required right or not
+     * @return bool whether the current user has the required right or not / returns true if the right is 0
      */
     public function userHasRight($right)
     {
-        if (!is_int($right)) {
+        if (!$right) {
+            return true;
+        }
+        if (!is_int($right) && !is_numeric($right)) {
             $right = $this->registry->rights->getRights($right);
         }
         return (bool) ((int) $this->rights & (int) $right);

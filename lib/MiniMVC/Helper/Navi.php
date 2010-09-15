@@ -26,7 +26,7 @@ class Helper_Navi extends MiniMVC_Helper
             if (!isset($entry['title'])) {
                 continue;
             }
-            if (isset($entry['rights']) && $entry['rights'] && !((int)$entry['rights'] & $this->registry->guard->getRights())) {
+            if (isset($entry['rights']) && $entry['rights'] && !($this->registry->guard->userHasRight($entry['rights']))) {
                 continue;
             }
             if (isset($entry['data'])) {
