@@ -180,7 +180,7 @@ class MiniMVC_Form
         return (isset($_POST[$this->name]) && is_array($_POST[$this->name]));
     }
 
-    public function handleAjaxValdation()
+    public function handleAjaxValidation()
     {
         if (empty($_POST['_validateForm']) || $_POST['_validateForm'] != $this->name) {
             return;
