@@ -1,5 +1,5 @@
 <?php
-class MiniMVC_Form_ElementRadio extends MiniMVC_Form_Element
+class MiniMVC_Form_Element_Radio extends MiniMVC_Form_Element
 {
 	protected $type = 'radio';
 
