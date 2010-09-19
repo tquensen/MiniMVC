@@ -484,7 +484,7 @@ class MiniMVC_Model implements ArrayAccess
                 if ($loadRelated && $object = $table->loadOne($identifier)) {
                     $this->_relations[$relation]['_'.$identifier] = $object;
                 }
-                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[1].' = ?')->execute(array($this->getIdentifier(), $identifier));
+                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier));
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
                 
