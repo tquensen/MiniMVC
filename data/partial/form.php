@@ -7,7 +7,7 @@
     <?php endif; ?>
     <?php foreach ($form->getElements() as $currentElement): ?>
         <?php if ($currentElement->getType() != 'fieldsetend'): ?>
-        <li id="<?php echo htmlspecialchars($form->getName())?>__<?php echo htmlspecialchars($currentElement->getName())?>__wrapper" class="form<?php echo ucfirst($currentElement->getType())?>Wrapper<?php if (!$currentElement->isValid()):?> invalid<?php elseif($form->wasSubmitted): ?> valid<?php endif; ?>">
+        <li id="<?php echo htmlspecialchars($form->getName())?>__<?php echo htmlspecialchars($currentElement->getName())?>__wrapper" class="form<?php echo ucfirst($currentElement->getType())?>Wrapper<?php if (!$currentElement->isValid()):?> invalid<?php elseif($form->wasSubmitted): ?> valid<?php endif; ?><?php if ($currentElement->class): ?> <?php echo $currentElement->class; ?><?php endif; ?>">
         <?php endif; ?>
     <?php echo $this->get('form/' . $currentElement->getType(), array('element' => $currentElement)); ?>
     <?php if (!$currentElement->info):?><span class="formInfo"><?php echo htmlspecialchars($currentElement->info)?></span><?php endif; ?>
