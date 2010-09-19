@@ -382,7 +382,7 @@ class MiniMVC_Model implements ArrayAccess
                 }
             } elseif (is_object($identifier)) {
                 $identifier->save();
-                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[1].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
+                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
                 if (!$result) {
@@ -390,7 +390,7 @@ class MiniMVC_Model implements ArrayAccess
                 }
             } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
                 $this->_relations[$relation]['_'.$identifier]->save();
-                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[1].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
+                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
                 if (!$result) {
