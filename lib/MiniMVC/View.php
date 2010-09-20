@@ -10,7 +10,8 @@ class MiniMVC_View
 	protected $vars = array();
 	protected $registry = null;
     protected $module = null;
-    protected $defaultFile = null;
+    protected $file = null;
+    protected $content = null;
 	protected $helper = null;
     protected $t = null;
 
@@ -21,7 +22,7 @@ class MiniMVC_View
 	public function __construct($module = null, $defaultFile = null)
 	{
         $this->module = $module;
-        $this->defaultFile = $defaultFile;
+        $this->file = $defaultFile;
 		$this->registry = MiniMVC_Registry::getInstance();
 
         $this->helper = $this->registry->helper;
@@ -65,34 +66,20 @@ class MiniMVC_View
 		return (isset($this->vars[$var])) ? $this->vars[$var] : '';
 	}
 
-    /**
-     *
-     * @param string $file the file to parse
-     * @param mixed $module the name of the module that contains the file or null to use the current module
-     * @return string returns the parsed output of the file
-     */
-	public function parse($file = null, $module = null)
-	{
-        if ($module === null)
-        {
-            if ($this->module === null)
-            {
-                return false;
-            }
-            $module = $this->module;
+    public function  __toString()
+    {
+        if ($this->file === null) {
+            return (string) $this->content;
         }
-        if ($file === null) {
-            if (!$this->defaultFile) {
-                return false;
-            }
-            $file = $this->defaultFile;
-        }
+
+        $file = $this->file;
+        
 		$app = $this->registry->settings->get('runtime/currentApp');
-		
+
         $format = $this->registry->template->getFormat();
         $formatString = ($format) ? '.'.$format : '';
 
-        if ($module != '_default')
+        if ($this->module != '_default')
         {
             $appPath = APPPATH.$app.'/view/'.$module.'/'.$file.$formatString.'.php';
             $path = MODULEPATH.$module.'/view/'.$file.$formatString.'.php';
@@ -102,7 +89,7 @@ class MiniMVC_View
             $appPath = false;
             $path = APPPATH.$app.'/view/'.$file.$formatString.'.php';
         }
-        
+
         if ($appPath && is_file($appPath))
 		{
 			$path = $appPath;
@@ -111,21 +98,57 @@ class MiniMVC_View
 		{
 			throw new Exception('View "'.$path.'" not found!');
 		}
-        
+
 		extract($this->vars);
         $helper = $this->helper;
         $t = $this->t;
 		ob_start();
 		include ($path);
 		return ob_get_clean();
-	}
-	
-	public function toJSON($data = null)
+    }
+
+    public function setFile($file = null) {
+        $this->file = $file;
+    }
+
+    public function setModule($module = '_default') {
+        $this->module = $module;
+    }
+
+    /**
+     *
+     * @param string $file the file to parse
+     * @param mixed $module the name of the module that contains the file or null to use the current module
+     * @return MiniMVC_View returns this view class
+     */
+	public function parse($file = null, $module = null)
 	{
-		return json_encode(($data === null) ? $this->vars : $data);
+        if ($file !== null) {
+            $this->file = $file;
+        }
+        if ($module !== null) {
+            $this->module = $module;
+        }
+        return $this;
+	}
+
+    public function parseText($text)
+    {
+        $this->file = null;
+        $this->content = $text;
+
+        return $this;
+    }
+	
+	public function parseJSON($data = null)
+	{
+        $this->file = null;
+        $this->content = json_encode(($data === null) ? $this->vars : $data);
+
+        return $this;
 	}
 	
-	public function toXML($data)
+	public function parseXML($data)
 	{
 		$xml = new XmlWriter();
 		$xml->openMemory();
@@ -135,7 +158,11 @@ class MiniMVC_View
 		$this->writeXML($xml, $data);
 		
 		$xml->endElement();
-		return $xml->outputMemory(true);
+
+        $this->file = null;
+		$this->content = $xml->outputMemory(true);
+
+        return $this;
 	}
 	
 	private function writeXML(XMLWriter $xml, $data){

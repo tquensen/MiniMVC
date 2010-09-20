@@ -388,7 +388,7 @@ class MiniMVC_Dispatcher
      * @param string $controller the name of a controller
      * @param string $action the name of an action
      * @param array $params an array with parameters
-     * @return string the parsed output of the called action
+     * @return MiniMVC_View the prepared view class of the called action
      */
     public function call($controller, $action, $params)
     {
@@ -413,7 +413,13 @@ class MiniMVC_Dispatcher
 
         $controllerClass = new $controllerName($view);
 
-        return $controllerClass->$actionName($params);
+        $return = $controllerClass->$actionName($params);
+
+        if (is_string($return)) {
+            $controllerClass->getView()->parseText($return);
+        }
+
+        return $controllerClass->getView();
     }
 
     /**

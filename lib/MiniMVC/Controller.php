@@ -28,6 +28,15 @@ class MiniMVC_Controller
 	}
 
     /**
+     *
+     * @return MiniMVC_View
+     */
+    public function getView()
+    {
+        return $this->view;
+    }
+
+    /**
      * Constructor function which is called on construct
      */
     protected function construct()
