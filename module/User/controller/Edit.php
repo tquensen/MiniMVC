@@ -16,11 +16,12 @@ class User_Edit_Controller extends MiniMVC_Controller
                 }
                 $this->registry->guard->email = $user['email'];
                 $this->registry->guard->name = $user['name'];
-                return $this->view->parse('edit/editSuccess');
+                $this->view->setFile('edit/editSuccess');
+                return;
             }
-            return $this->view->parse('edit/editForm');
+            $this->view->setFile('edit/editForm');
         } else {
-            return $this->delegate401();
+            $this->delegate401();
         }
     }
 
@@ -31,11 +32,12 @@ class User_Edit_Controller extends MiniMVC_Controller
             $this->view->form = UserTable::getInstance()->getEditPasswordForm($user);
             if ($this->view->form->validate()) {
                 $this->view->form->updateModel()->save();
-                return $this->view->parse('edit/editPasswordSuccess');
+                $this->view->setFile('edit/editPasswordSuccess');
+                return;
             }
-            return $this->view->parse('edit/editPasswordForm');
+            $this->view->setFile('edit/editPasswordForm');
         } else {
-            return $this->delegate401();
+            $this->delegate401();
         }
     }
 

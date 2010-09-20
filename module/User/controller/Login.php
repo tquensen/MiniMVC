@@ -28,10 +28,10 @@ class User_Login_Controller extends MiniMVC_Controller
                     }
                 }
 
-                return $this->view->parse('login/loginSuccess');
+                return $this->view->setFile('login/loginSuccess');
             }
         }
-        return $this->view->parse('login/loginForm');
+        return $this->view->setFile('login/loginForm');
     }
 
     public function logoutAction($params)
@@ -48,9 +48,9 @@ class User_Login_Controller extends MiniMVC_Controller
                     return $this->redirect($redirect);
                 }
             }
-            return $this->view->parse('login/logoutSuccess');
+            return $this->view->setFile('login/logoutSuccess');
         }
-        return $this->view->parse('login/logoutForm');
+        return $this->view->setFile('login/logoutForm');
     }
 
 }

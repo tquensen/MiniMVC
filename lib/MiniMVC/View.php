@@ -130,7 +130,7 @@ class MiniMVC_View
         return $this;
 	}
 
-    public function parseText($text)
+    public function parseText($text = '')
     {
         $this->file = null;
         $this->content = $text;

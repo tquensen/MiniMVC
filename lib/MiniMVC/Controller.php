@@ -57,25 +57,26 @@ class MiniMVC_Controller
         if ($url)
         {
             header('Location: '.$url);
+            
             $this->registry->template->setLayout(false);
         }
-        return false;
+        return $this->view->parseText();
     }
 
     /**
      *
      * @param string $route an internal route name
      * @param array $params parameter for the route
-     * @return string returns the parsed output of the delegated action
+     * @return MiniMVC_View returns the prepared view class of the delegated action
      */
 	protected function delegate($route, $params = array())
 	{
-		return $this->registry->dispatcher->callRoute($route, $params, true, true);
+		return $this->view = $this->registry->dispatcher->callRoute($route, $params, true, true);
 	}
 
     /**
      *
-     * @return string return the output of the configured 401 action
+     * @return MiniMVC_View returns the prepared view class of the configured 401 action
      */
 	protected function delegate401()
 	{
@@ -83,12 +84,12 @@ class MiniMVC_Controller
 		{
 			return $this->delegate($route);
 		}
-		return false;
+		return $this->view->parseText();
 	}
 
     /**
      *
-     * @return string return the output of the configured 403 action
+     * @return MiniMVC_View returns the prepared view class of the configured 403 action
      */
 	protected function delegate403()
 	{
@@ -96,12 +97,12 @@ class MiniMVC_Controller
 		{
 			return $this->delegate($route);
 		}
-		return false;
+		return $this->view->parseText();
 	}
 
     /**
      *
-     * @return string return the output of the configured 404 action
+     * @return MiniMVC_View returns the prepared view class of the configured 404 action
      */
 	protected function delegate404()
 	{
@@ -109,12 +110,12 @@ class MiniMVC_Controller
 		{
 			return $this->delegate($route);
 		}
-		return false;
+		return $this->view->parseText();
 	}
 	
     /**
      *
-     * @return string return the output of the configured 404 action
+     * @return MiniMVC_View returns the prepared view class of the configured 404 action
      */
 	protected function delegate500()
 	{
@@ -122,6 +123,6 @@ class MiniMVC_Controller
 		{
 			return $this->delegate($route);
 		}
-		return false;
+		return $this->view->parseText();
 	}
 }

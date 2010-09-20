@@ -417,6 +417,8 @@ class MiniMVC_Dispatcher
 
         if ($return === false || is_string($return)) {
             $controllerClass->getView()->parseText($return);
+        } elseif(is_object($return) && $return instanceof $viewName) {
+            return $return;
         }
 
         return $controllerClass->getView();
