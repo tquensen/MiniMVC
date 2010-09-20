@@ -59,17 +59,18 @@ class MiniMVC_Layout
 
     /**
      *
+     * @param MiniMVC_View $content the returned view class of the main controller
      * @param mixed $app the name of the app to use or null for the current app
-     * @return string returns the parsed output of the current layout file and everything included
+     * @return MiniMVC_View the prepared view class of the current layout file and everything included
      */
-    public function parse($content, $app = null)
+    public function prepare($content, $app = null)
     {
         $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
         if ($this->layout === false) {
-            return $this->getSlot('main');
+            return $content; //$this->getSlot('main');
         }
         if ($this->layout === null) {
-            $this->layout = ($layout = $this->registry->settings->get('config/defaultLayout', 'default')) ? $layout : 'default';
+            $this->layout = $this->registry->settings->get('config/defaultLayout', 'default');
         }
 
         if ($viewName = $this->registry->settings->get('config/classes/view')) {
@@ -81,13 +82,13 @@ class MiniMVC_Layout
 
         $this->addToSlot('main', $content);
 
-        return $view->parse($this->layout);
+        return $view->prepare($this->layout);
     }
 
     /**
      *
      * @param string $slot the name of the slot
-     * @param string $content the content which will be added to the slot
+     * @param MiniMVC_Views $content the content which will be added to the slot
      */
     protected function addToSlot($slot, $content)
     {
@@ -128,7 +129,7 @@ class MiniMVC_Layout
                 try {
                     $parameter = array('slot' => $data);
                     $content = $this->registry->dispatcher->callWidget($currentWidget, $parameter);
-                    if ($content) {
+                    if ($content !== null) {
                         $this->addToSlot($currentSlot, $content);
                     }
                 } catch (Exception $e) {

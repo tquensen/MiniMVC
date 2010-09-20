@@ -150,14 +150,14 @@ class MiniMVC_Dispatcher
             $this->registry->db->init();
             
             $content = $this->callRoute($routeName, (isset($params) ? $params : array()), true, true);
-            return $this->registry->template->parse($content, $this->registry->settings->get('runtime/currentApp'));
+            return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'));
         } catch (Exception $e) {
             $error500Route = $this->registry->settings->get('config/error500Route');
             if ($error500Route && isset($routes[$error500Route])) {
                 $routeData = $routes[$error500Route];
                 $routeData['parameter']['exception'] = $e;
                 $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
-                return $this->registry->template->parse($content, $this->registry->settings->get('runtime/currentApp'), false);
+                return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'), false);
             } else {
                 throw new Exception('Exception was thrown and no 500 Route defined!');
             }
@@ -193,7 +193,7 @@ class MiniMVC_Dispatcher
      * @param string $route the name of an internal route
      * @param array $params the parameters for the route
      * @param bool $showErrorPages if true, the 401/403 error pages will be called if the user has insuficcient rights
-     * @return string the parsed output of the called action
+     * @return MiniMVC_View the prepared view class of the called action
      */
     public function callRoute($route, $params = array(), $showErrorPages = true, $isMainRoute = true)
     {
@@ -233,7 +233,7 @@ class MiniMVC_Dispatcher
 
         if (isset($routeData['rights']) && $routeData['rights'] && !((int)$routeData['rights'] & $this->registry->guard->getRights())) {
             if (!$showErrorPages) {
-                return '';
+                return null;
             }
             if ($this->registry->guard->getRole() && $this->registry->guard->getRole() != $this->registry->rights->getRoleByKeyword('guest')) {
                 $error403Route = $this->registry->settings->get('config/error403Route');
@@ -286,7 +286,7 @@ class MiniMVC_Dispatcher
      *
      * @param string $widget the name of an internal widget
      * @param array $params the parameters for the widget
-     * @return string the parsed output of the called widget
+     * @return MiniMVC_View the prepared view class of the called widget
      */
     public function callWidget($widget, $params = array())
     {
@@ -297,7 +297,7 @@ class MiniMVC_Dispatcher
         }
 
         if (isset($widgetData['rights']) && $widgetData['rights'] && !((int)$widgetData['rights'] & $this->registry->guard->getRights())) {
-            return '';
+            return null;
         }
         
         $route = $this->registry->settings->get('runtime/currentRoute');
@@ -305,31 +305,31 @@ class MiniMVC_Dispatcher
         $layout = $this->registry->template->getLayout();
         if (isset($widgetData['show']) && $widgetData['show']) {
             if (is_string($widgetData['show']) && $widgetData['show'] != $route) {
-                return '';
+                return null;
             } elseif(is_array($widgetData['show']) && !in_array($route, $widgetData['show'])) {
-                return '';
+                return null;
             }
         }
         if (isset($widgetData['hide']) && $widgetData['hide']) {
             if (is_string($widgetData['hide']) && $widgetData['hide'] == $route) {
-                return '';
+                return null;
             } elseif(is_array($widgetData['hide']) && in_array($route, $widgetData['hide'])) {
-                return '';
+                return null;
             }
         }
         if (!isset($widgetData['format']) || $widgetData['format'] == 'html') {
             $widgetData['format'] = null;
         }
         if (!is_array($widgetData['format']) && $widgetData['format'] != 'all' && ($widgetData['format'] != $format)) {
-            return '';
+            return null;
         } elseif(is_array($widgetData['format']) && !in_array($format ? $format : 'html', $widgetData['format'])) {
-            return '';
+            return null;
         }
         if (isset($widgetData['layout']) && $widgetData['layout']) {
             if (is_string($widgetData['layout']) && $widgetData['layout'] != 'all' && $widgetData['layout'] != $layout) {
-                return '';
+                return null;
             } elseif(is_array($widgetData['layout']) && !in_array($layout, $widgetData['layout'])) {
-                return '';
+                return null;
             }
         }
 
@@ -370,7 +370,7 @@ class MiniMVC_Dispatcher
      *
      * @param string $task the name of an internal task
      * @param array $params the parameters for the task
-     * @return string the parsed output of the called task
+     * @return MiniMVC_View the prepared view class of the called task
      */
     public function callTask($task, $params = array())
     {
@@ -415,10 +415,12 @@ class MiniMVC_Dispatcher
 
         $return = $controllerClass->$actionName($params);
 
-        if ($return === false || is_string($return)) {
-            $controllerClass->getView()->parseText($return);
-        } elseif(is_object($return) && $return instanceof $viewName) {
+        if(is_object($return) && $return instanceof $viewName) {
             return $return;
+        } elseif ($return === false) {
+            return $controllerClass->getView()->prepareEmpty();
+        } elseif (is_string($return)) {
+            return $controllerClass->getView()->prepareText($return);
         }
 
         return $controllerClass->getView();

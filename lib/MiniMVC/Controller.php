@@ -60,7 +60,7 @@ class MiniMVC_Controller
             
             $this->registry->template->setLayout(false);
         }
-        return $this->view->parseText();
+        return $this->view->prepareEmpty();
     }
 
     /**
@@ -84,7 +84,7 @@ class MiniMVC_Controller
 		{
 			return $this->delegate($route);
 		}
-		return $this->view->parseText();
+		return $this->view->prepareEmpty();
 	}
 
     /**
@@ -97,7 +97,7 @@ class MiniMVC_Controller
 		{
 			return $this->delegate($route);
 		}
-		return $this->view->parseText();
+		return $this->view->prepareEmpty();
 	}
 
     /**
@@ -110,7 +110,7 @@ class MiniMVC_Controller
 		{
 			return $this->delegate($route);
 		}
-		return $this->view->parseText();
+		return $this->view->prepareEmpty();
 	}
 	
     /**
@@ -123,6 +123,6 @@ class MiniMVC_Controller
 		{
 			return $this->delegate($route);
 		}
-		return $this->view->parseText();
+		return $this->view->prepareEmpty();
 	}
 }

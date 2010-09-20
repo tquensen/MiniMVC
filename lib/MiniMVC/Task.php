@@ -15,7 +15,7 @@ class MiniMVC_Task
     /**
      *
      * @param array $rawParams the raw CLI parameters (the argv array)
-     * @return string the parsed output of the task
+     * @return MiniMVC_View the prepared view class of the called task
      */
     public function dispatch($rawParams)
     {

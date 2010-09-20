@@ -112,25 +112,35 @@ class MiniMVC_View
         if ($module !== null) {
             $this->module = $module;
         }
+        return $this;
     }
 
     public function setModule($module = '_default') {
         $this->module = $module;
+        return $this;
     }
 
     /**
      *
-     * @param string $file the file to parse
+     * @param string $file the file to use
      * @param mixed $module the name of the module that contains the file or null to use the current module
      * @return MiniMVC_View returns this view class
      */
-	public function parse($file = null, $module = null)
+	public function prepare($file = null, $module = null)
 	{
         $this->setFile($file, $module);
         return $this;
 	}
 
-    public function parseText($text = '')
+    public function prepareEmpty()
+    {
+        $this->file = null;
+        $this->content = $text;
+
+        return $this;
+    }
+
+    public function prepareText($text = '')
     {
         $this->file = null;
         $this->content = $text;
@@ -138,7 +148,7 @@ class MiniMVC_View
         return $this;
     }
 	
-	public function parseJSON($data = null)
+	public function prepareJSON($data = null)
 	{
         $this->file = null;
         $this->content = json_encode(($data === null) ? $this->vars : $data);
@@ -146,7 +156,7 @@ class MiniMVC_View
         return $this;
 	}
 	
-	public function parseXML($data)
+	public function prepareXML($data)
 	{
 		$xml = new XmlWriter();
 		$xml->openMemory();

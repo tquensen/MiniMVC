@@ -12,8 +12,8 @@ class User_Register_Controller extends MiniMVC_Controller
                 $this->view->form->validate();
                 $this->view->form->errorRedirect();
             }
-            return $this->view->setFile('register/registerSuccess');
+            return $this->view->prepare('register/registerSuccess');
         }
-        return $this->view->setFile('register/registerForm');
+        return $this->view->prepare('register/registerForm');
     }
 }
