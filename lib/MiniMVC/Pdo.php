@@ -31,6 +31,10 @@ class MiniMVC_Pdo
             isset($dbSettings[$connection]['options']) ? array_merge(array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION), $dbSettings[$connection]['options']) : array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
         );
 
+        if ($this->connections[$connection]->getAttribute(PDO::ATTR_DRIVER_NAME) == 'mysql') {
+            $this->connections[$connection]->exec('SET CHARACTER SET utf8');
+        }
+
         MiniMVC_Query::setDatabase($this->get());
 
         $this->registerModels();
