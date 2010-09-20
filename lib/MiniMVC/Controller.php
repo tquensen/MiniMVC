@@ -58,8 +58,8 @@ class MiniMVC_Controller
         {
             header('Location: '.$url);
             $this->registry->template->setLayout(false);
-            return null;
         }
+        return false;
     }
 
     /**

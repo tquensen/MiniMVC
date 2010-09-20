@@ -20,7 +20,8 @@ class MODULE_Default_Controller extends MiniMVC_Controller
                 false
         );
         */
-        return $this->view->parse();
+
+        //$this->view->setFile('default/index', 'MODULE');
     }
 
     public function showAction($params)
@@ -46,7 +47,8 @@ class MODULE_Default_Controller extends MiniMVC_Controller
             return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
         }
          */
-        return $this->view->parse();
+
+        //$this->view->setFile('default/create', 'MODULE');
     }
 
     public function editAction($params)
@@ -63,11 +65,12 @@ class MODULE_Default_Controller extends MiniMVC_Controller
             return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
         }
          */
-        return $this->view->parse();
+
+        //$this->view->setFile('default/edit', 'MODULE');
     }
 
     public function widgetAction($params)
     {
-        return $this->view->parse();
+        //$this->view->setFile('default/widget', 'MODULE');
     }
 }

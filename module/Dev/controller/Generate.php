@@ -162,12 +162,14 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             'MODLC',
             'MODULE',
             'MODULELCFIRST',
+            'CONTROLLERLC',
             'CONTROLLER'
         );
         $replace = array(
             strtolower($params['module']),
             $params['module'],
             strtolower(substr($params['module'], 0, 1)) . substr($params['module'], 1),
+            strtolower($controller),
             $controller
         );
 

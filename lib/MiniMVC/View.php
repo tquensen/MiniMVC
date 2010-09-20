@@ -107,8 +107,11 @@ class MiniMVC_View
 		return ob_get_clean();
     }
 
-    public function setFile($file = null) {
+    public function setFile($file = null, $module = null) {
         $this->file = $file;
+        if ($module !== null) {
+            $this->module = $module;
+        }
     }
 
     public function setModule($module = '_default') {
@@ -123,12 +126,7 @@ class MiniMVC_View
      */
 	public function parse($file = null, $module = null)
 	{
-        if ($file !== null) {
-            $this->file = $file;
-        }
-        if ($module !== null) {
-            $this->module = $module;
-        }
+        $this->setFile($file, $module);
         return $this;
 	}
 

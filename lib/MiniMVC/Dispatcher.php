@@ -415,7 +415,7 @@ class MiniMVC_Dispatcher
 
         $return = $controllerClass->$actionName($params);
 
-        if (is_string($return)) {
+        if ($return === false || is_string($return)) {
             $controllerClass->getView()->parseText($return);
         }
 
