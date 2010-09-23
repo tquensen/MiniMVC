@@ -159,6 +159,8 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         $controller = ucfirst($params['controller']);
 
         $search = array(
+            'MODULELCFIRST',
+            'CONTROLLERLCFIRST',
             'MODLC',
             'MODULE',
             'MODULELCFIRST',
@@ -166,6 +168,8 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             'CONTROLLER'
         );
         $replace = array(
+            strtolower(substr($params['module'], 0, 1)) . substr($params['module'], 1),
+            strtolower(substr($controller, 0, 1)) . substr($controller, 1),
             strtolower($params['module']),
             $params['module'],
             strtolower(substr($params['module'], 0, 1)) . substr($params['module'], 1),
