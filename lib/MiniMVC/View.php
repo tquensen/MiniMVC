@@ -18,6 +18,7 @@ class MiniMVC_View
     /**
      *
      * @param mixed $module the name of the associated module or null
+     * @param mixed $defaultFile the default file to use
      */
 	public function __construct($module = null, $defaultFile = null)
 	{
