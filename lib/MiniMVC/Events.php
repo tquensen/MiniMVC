@@ -51,23 +51,22 @@ class MiniMVC_Events extends sfEventDispatcher
         $listeners = array();
         foreach ($this->cachedEvents[$event] as $listener) {
             $callable = false;
-            if (isset($listener['function'])) {
-                $callable = $listener['function'];
-            } elseif (isset($listener['class']) && isset($listener['method']) && method_exists($listener['class'], $listener['method'])) {
-                $className = $listener['class'];
-                if (isset($listener['instance']) && $listener['instance'] == 'always') {
-                    $callable = array(new $className(), $listener['method']);
-                } elseif (isset($listener['instance']) && $listener['instance'] == 'static') {
-                    $callable = array($className, $listener['method']);
+            if (!is_array($listener)) {
+                $listeners[] = $listener;
+            } elseif (count($listener) > 1) {
+                $className = array_shift($listener);
+                $methodName = array_shift($listener);
+                $instance = array_shift($listener);
+                if ($instance == 'always') {
+                    $listeners[] = array(new $className(), $methodName);
+                } elseif ($instance == 'static') {
+                    $listeners[] = array($className, $methodName);
                 } else {
-                    if (!isset($cachedListeners[$className])) {
-                        $cachedListeners[$className] = new $className();
+                    if (!isset($this->cachedListeners[$className])) {
+                        $this->cachedListeners[$className] = new $className();
                     }
-                    $callable = array($cachedListeners[$className], $listener['method']);
+                    $listeners[] = array($this->cachedListeners[$className], $methodName);
                 }
-            }
-            if ($callable) {
-                $listeners[] = $callable;
             }
         }
 
