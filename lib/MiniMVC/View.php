@@ -81,8 +81,8 @@ class MiniMVC_View
 
         if ($this->module != '_default')
         {
-            $appPath = APPPATH.$app.'/view/'.$module.'/'.$file.$formatString.'.php';
-            $path = MODULEPATH.$module.'/view/'.$file.$formatString.'.php';
+            $appPath = APPPATH.$app.'/view/'.$this->module.'/'.$file.$formatString.'.php';
+            $path = MODULEPATH.$this->module.'/view/'.$file.$formatString.'.php';
         }
         else
         {
