@@ -100,8 +100,9 @@ class MiniMVC_View
 		}
 
 		extract($this->vars);
-        $helper = $this->helper;
+        $h = $this->helper;
         $t = $this->t;
+        $o = $this->helper->text;
 		ob_start();
 		include ($path);
 		return ob_get_clean();

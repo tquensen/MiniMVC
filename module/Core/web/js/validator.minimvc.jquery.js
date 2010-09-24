@@ -1,11 +1,12 @@
 (function(jQuery) {
-    var minimvcValidator = function() {
+    //var minimvcValidator = function() {
 
-      var forms = minimvc.forms || [];
+      var forms = minimvc.forms || {};
 
       jQuery.each(forms, function(formName, formData) {
+          forms[formName].formdata.pending = false;
           jQuery('#'+formName).bind('submit', function() {
-              if (jQuery(this).find('.invalid').length > 0) {
+              if (jQuery(this).find('.invalid').length > 0 || forms[formName].formdata.pending == true) {
                 return false;
               }
           });
@@ -20,8 +21,8 @@
                 } else {
                     elemId = '#' + formName + '__' + elemName;
                 }
-                var wrapperId = elemId + '__wrapper';
-                jQuery(elemId).bind('blur', function() {
+                var wrapperId = formName + '__' + elemName + '__wrapper';
+                jQuery(elemId).bind('change', function() {
                     var currentElem = $(this);
                     var elemValue = [];
                     if (elem.multiple === true) {
@@ -42,6 +43,9 @@
                             elemValue = currentElem.val();
                         }
                     }
+
+                    jQuery('#'+formName).addClass('pending');
+                    forms[formName].formdata.pending = true;
                     
                     $.ajax({
                         'cache': false,
@@ -50,9 +54,10 @@
                         'type': 'POST',
                         'url': formData.url,
                         'success': function(data) {
+                            var wrapper;
                             if (typeof(data.status) == "undefined" || data.status == false) {
                                 data.message = data.message || {};
-                                var wrapper = jQuery('#'+wrapperId);
+                                wrapper = jQuery('#'+wrapperId);
                                 if (wrapper.length == 0) {
                                     return false;
                                 }
@@ -64,14 +69,18 @@
                                     wrapper.append('<span class="formError">'+data.message+'</span>');
                                 }
                             } else {
-                                var wrapper = jQuery('#'+wrapperId);
+                                wrapper = jQuery('#'+wrapperId);
                                 wrapper.removeClass('invalid').addClass('valid');
                                 wrapper.find('.formError').remove();
                             }
+                        },
+                        'complete': function() {
+                            jQuery('#'+formName).removeClass('pending');
+                            forms[formName].formdata.pending = false;
                         }
                     });
                 });
           });
       });
-    }
+    //}
 })(jQuery);

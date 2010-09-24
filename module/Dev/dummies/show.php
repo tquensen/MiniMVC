@@ -1,1 +1,1 @@
-<h2><?php echo htmlspecialchars($model->title); ?></h2>
+<h2><?php $o->esc($model->title); ?></h2>

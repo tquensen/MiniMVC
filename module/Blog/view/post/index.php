@@ -4,15 +4,15 @@
         <?php foreach ($entries as $entry): ?>
         <li>
             <h3>
-                <a href="<?php echo htmlspecialchars($helper->url->get('blog.show', array('slug' => $entry->slug))); ?>"><?php echo htmlspecialchars($entry->title); ?></a>
+                <a href="<?php $o->esc($h->url->get('blog.show', array('slug' => $entry->slug))); ?>"><?php $o->esc($entry->title); ?></a>
             </h3>
             <p>
-                <?php echo htmlspecialchars(strip_tags($entry->text)); ?>
+                <?php $o->esc(strip_tags($entry->text)); ?>
             </p>
             <p>
                 Tags: (<?php echo count($entry->getTags()); ?>)
                 <?php foreach ($entry->getTags() as $tag): ?>
-                <span><?php echo $tag->title; ?></span>
+                <span><?php $o->esc($tag->title); ?></span>
                 <?php endforeach; ?>
             </p>
         </li>

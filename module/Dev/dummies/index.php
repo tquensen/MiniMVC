@@ -5,8 +5,8 @@
     <?php foreach ($entries as $entry): ?>
     <li>
         <h3>
-            <a href="<?php echo htmlspecialchars($helper->url->get('MODLC.defaultShow', array('id' => $entry->id))); ?>">
-                <?php echo htmlspecialchars($entry->title); ?>
+            <a href="<?php $o->esc($h->url->get('MODLC.defaultShow', array('id' => $entry->id))); ?>">
+                <?php $o->esc($entry->title); ?>
             </a>
         </h3>
     </li>

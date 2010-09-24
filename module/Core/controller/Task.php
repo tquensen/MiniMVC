@@ -2,11 +2,6 @@
 
 class Core_Task_Controller extends MiniMVC_Controller
 {
-
-    public function testAction($params)
-    {
-        var_dump($params);
-    }
     public function clearCacheAction()
     {
         $status = $this->clearDirectory(CACHEPATH, true);
