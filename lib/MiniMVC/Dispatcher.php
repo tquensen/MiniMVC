@@ -405,11 +405,8 @@ class MiniMVC_Dispatcher
             throw new Exception('Action "' . $action . '" for Controller "' . $controller . '" does not exist!');
         }
 
-        if ($viewName = $this->registry->settings->get('config/classes/view')) {
-            $view = new $viewName($controllerParts[0], strtolower($controllerParts[1].'/'.$action));
-        } else {
-            $view = new MiniMVC_View($controllerParts[0], strtolower($controllerParts[1].'/'.$action));
-        }
+        $viewName = $this->registry->settings->get('config/classes/view', 'MiniMVC_View');
+        $view = new $viewName($controllerParts[0], strtolower($controllerParts[1].'/'.$action));
 
         $controllerClass = new $controllerName($view);
         $this->registry->events->notify(new sfEvent($controllerClass, 'minimvc.call', array('controller' => $controller, 'action' => $action, 'params' => $params)));
