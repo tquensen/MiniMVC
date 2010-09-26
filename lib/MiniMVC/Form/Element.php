@@ -71,7 +71,7 @@ class MiniMVC_Form_Element
 
 	public function setValue($value)
 	{
-        if ($value !== null && !$this->alwaysUseDefault)
+        if ($this->getForm()->wasSubmitted() && !$this->alwaysUseDefault)
 		{
             $this->value = $value;
         }
