@@ -12,9 +12,17 @@ class MiniMVC_Form_Element_SelectMultiple extends MiniMVC_Form_Element
 		}
 	}
 
+    public function setValue($value)
+	{
+        parent::setValue($value);
+        if (!is_array($this->value)) {
+            $this->value = (array) $this->value;
+        }
+	}
+
     public function validate()
 	{
-		if ($this->value !== null && !$this->getOption('skipDefaultValidator'))
+		if ($this->value && !$this->getOption('skipDefaultValidator'))
 		{
 			$this->validators[] = new MiniMVC_Form_Validator_InArray(array('array' => array_keys($this->options['options']), 'multiple' => true));
 		}
