@@ -1,11 +1,11 @@
-<h2>MODULE</h2>
+<h2>CONTROLLER</h2>
 <?php /* LIST VIEW
 <?php if (count($entries)): ?>
 <ol>
     <?php foreach ($entries as $entry): ?>
     <li>
         <h3>
-            <a href="<?php $o->esc($h->url->get('MODLC.defaultShow', array('id' => $entry->id))); ?>">
+            <a href="<?php $o->esc($h->url->get('MODLC.CONTROLLERLCFIRSTShow', array('id' => $entry->id))); ?>">
                 <?php $o->esc($entry->title); ?>
             </a>
         </h3>

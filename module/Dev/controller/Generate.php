@@ -82,19 +82,33 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         mkdir($path . '/lib');
         //mkdir($path . '/Lib/Migrations');
 
-        file_put_contents($path . '/controller/Default.php', str_replace(array('MODLC', 'MODULE', 'MODULELCFIRST'), array(strtolower($params['module']), $params['module'], strtolower(substr($params['module'], 0, 1)) . substr($params['module'], 1)), file_get_contents($dummy . '/Default.php')));
-        file_put_contents($path . '/Installer.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/Installer.php')));
-        file_put_contents($path . '/i18n/de.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/de.php')));
-        file_put_contents($path . '/i18n/en.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/en.php')));
-        file_put_contents($path . '/view/default/index.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/index.php')));
-        file_put_contents($path . '/view/default/index.json.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/index.json.php')));
-        file_put_contents($path . '/view/default/widget.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/widget.php')));
-        file_put_contents($path . '/view/default/create.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/create.php')));
-        file_put_contents($path . '/view/default/show.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/show.php')));
-        file_put_contents($path . '/view/default/edit.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/edit.php')));
-        file_put_contents($path . '/settings/config.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/config.php')));
-        file_put_contents($path . '/settings/routes.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/routes.php')));
-        file_put_contents($path . '/settings/widgets.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/widgets.php')));
+        $search = array(
+            'MODULELCFIRST',
+            'CONTROLLERLCFIRST',
+            'MODLC',
+            'MODULE',
+            'CONTROLLER'
+        );
+        $replace = array(
+            strtolower(substr($params['module'], 0, 1)) . substr($params['module'], 1),
+            'default',
+            strtolower($params['module']),
+            $params['module'],
+            'Default'
+        );
+        file_put_contents($path . '/controller/Default.php', str_replace($search, $replace, file_get_contents($dummy . '/Default.php')));
+        file_put_contents($path . '/Installer.php', str_replace($search, $replace, file_get_contents($dummy . '/Installer.php')));
+        file_put_contents($path . '/i18n/de.php', str_replace($search, $replace, file_get_contents($dummy . '/de.php')));
+        file_put_contents($path . '/i18n/en.php', str_replace($search, $replace, file_get_contents($dummy . '/en.php')));
+        file_put_contents($path . '/view/default/index.php', str_replace($search, $replace, file_get_contents($dummy . '/index.php')));
+        file_put_contents($path . '/view/default/index.json.php', str_replace($search, $replace, file_get_contents($dummy . '/index.json.php')));
+        file_put_contents($path . '/view/default/widget.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.php')));
+        file_put_contents($path . '/view/default/create.php', str_replace($search, $replace, file_get_contents($dummy . '/create.php')));
+        file_put_contents($path . '/view/default/show.php', str_replace($search, $replace, file_get_contents($dummy . '/show.php')));
+        file_put_contents($path . '/view/default/edit.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.php')));
+        file_put_contents($path . '/settings/config.php', str_replace($search, $replace, file_get_contents($dummy . '/config.php')));
+        file_put_contents($path . '/settings/routes.php', str_replace($search, $replace, file_get_contents($dummy . '/routes.php')));
+        file_put_contents($path . '/settings/widgets.php', str_replace($search, $replace, file_get_contents($dummy . '/widgets.php')));
         //file_put_contents($path . '/settings/slots.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/slots.php')));
         //file_put_contents($path . '/Model/Schema/schema.yml', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/schema.yml')));
 
@@ -182,14 +196,14 @@ class Dev_Generate_Controller extends MiniMVC_Controller
 
         $message = 'Erstelle Controller...'."\n";
         if (!file_exists($path . '/'.$controller.'.php')) {
-            mkdir($path . '/view/'.strtolower($controller));
+            mkdir($path . '/../view/'.strtolower($controller));
             file_put_contents($path . '/'.$controller.'.php', str_replace($search, $replace, file_get_contents($dummy . '/Controller.php')));
-            file_put_contents($path . '/view/'.strtolower($controller).'/index.php', str_replace($search, $replace, file_get_contents($dummy . '/index.php')));
-            file_put_contents($path . '/view/'.strtolower($controller).'/index.json.php', str_replace($search, $replace, file_get_contents($dummy . '/index.json.php')));
-            file_put_contents($path . '/view/'.strtolower($controller).'/widget.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.php')));
-            file_put_contents($path . '/view/'.strtolower($controller).'/create.php', str_replace($search, $replace, file_get_contents($dummy . '/create.php')));
-            file_put_contents($path . '/view/'.strtolower($controller).'/show.php', str_replace($search, $replace, file_get_contents($dummy . '/show.php')));
-            file_put_contents($path . '/view/'.strtolower($controller).'/edit.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.php')));
+            file_put_contents($path . '/../view/'.strtolower($controller).'/index.php', str_replace($search, $replace, file_get_contents($dummy . '/index.php')));
+            file_put_contents($path . '/../view/'.strtolower($controller).'/index.json.php', str_replace($search, $replace, file_get_contents($dummy . '/index.json.php')));
+            file_put_contents($path . '/../view/'.strtolower($controller).'/widget.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.php')));
+            file_put_contents($path . '/../view/'.strtolower($controller).'/create.php', str_replace($search, $replace, file_get_contents($dummy . '/create.php')));
+            file_put_contents($path . '/../view/'.strtolower($controller).'/show.php', str_replace($search, $replace, file_get_contents($dummy . '/show.php')));
+            file_put_contents($path . '/../view/'.strtolower($controller).'/edit.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.php')));
 
             $message .= '-> Datei '.$controller.'.php erstellt'."\n";
         } else {
