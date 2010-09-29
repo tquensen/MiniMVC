@@ -1,13 +1,13 @@
 <?php
 
 /**
- * @method {name} getOne()
- * @method {name} getOneBy()
- * @method {name} loadOne()
- * @method {name} loadOneBy()
- * @method {name} loadOneWithRelations()
- * @method {name} loadOneWithRelationsBy()
- * @method {name} create()
+ * @method {name} getOne() getOne($id)
+ * @method {name} getOneBy() getOneBy($field, $value, $order = null, $offset = 0)
+ * @method {name} loadOne() loadOne($id, $reload = false)
+ * @method {name} loadOneBy() loadOneBy($condition, $value = null, $order = null, $offset = 0)
+ * @method {name} loadOneWithRelations() loadOneWithRelations($id, $relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = false)
+ * @method {name} loadOneWithRelationsBy() loadOneWithRelationsBy($relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = true)
+ * @method {name} create() create($data = array())
  */
 class {name}Table extends MiniMVC_Table
 {

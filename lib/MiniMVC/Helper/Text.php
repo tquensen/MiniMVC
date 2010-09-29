@@ -55,13 +55,20 @@ class Helper_Text extends MiniMVC_Helper
 
     public function esc($content, $print = true)
     {
-        return $print && print htmlspecialchars($content) ? null : htmlspecialchars($content);
+        if ($print) {
+            echo htmlspecialchars($content);
+            return;
+        }
+        return htmlspecialchars($content);
     }
 
     public function raw($content, $print = true)
     {
-        return $print && print html_entity_decode($content, ENT_QUOTES, 'UTF-8')
-                            ? null : html_entity_decode($content, ENT_QUOTES, 'UTF-8');
+        if ($print) {
+            echo html_entity_decode($content, ENT_QUOTES, 'UTF-8');
+            return;
+        }
+        return html_entity_decode($content, ENT_QUOTES, 'UTF-8');
     }
 
 }
