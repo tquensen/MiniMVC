@@ -23,6 +23,11 @@ class Helper_Navi extends MiniMVC_Helper
         foreach ($navi as $entry) {
             $current = array();
             $current['active'] = false;
+
+            if (!isset($entry['title'])) {
+                $entry['title'] = false;
+            }
+
             if (isset($entry['rights']) && $entry['rights'] && !($this->registry->guard->userHasRight($entry['rights']))) {
                 continue;
             }
@@ -59,7 +64,7 @@ class Helper_Navi extends MiniMVC_Helper
                 $active = true;
             }
 
-            if (!isset($entry['title'])) {
+            if (!$entry['title']) {
                 continue;
             }
             $return[] = $current;
