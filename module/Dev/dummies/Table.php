@@ -80,16 +80,16 @@ class {name}Table extends MiniMVC_Table
 
         SWITCH ($installedVersion) {
             case 0:
-            case 1:
-                if ($targetVersion == 1) break;
-                $sql = "DROP TABLE {table}";
-                $this->_db->query($sql);
-            /* //for every new version add your code below, beginning with "case NEW_VERSION:" and "if ($targetVersion == NEW_VERSION) break;"
+            /* //for every new version add your code directly below "case 0:", beginning with "case NEW_VERSION:" and "if ($targetVersion == NEW_VERSION) break;"
             case 2:
                 if ($targetVersion == 2) break;
                 $sql = "ALTER TABLE {table} DROP something";
                 $this->_db->query($sql);
              */
+            case 1:
+                if ($targetVersion == 1) break;
+                $sql = "DROP TABLE {table}";
+                $this->_db->query($sql);
         }
         return true;
     }
