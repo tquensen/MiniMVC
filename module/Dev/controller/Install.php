@@ -22,13 +22,13 @@ class Dev_Install_Controller extends MiniMVC_Controller
         $installer = new $class();
         if ($params['type'] == 'install') {
             if ($installer->install($params['fromVersion'], $params['toVersion'])) {
-                return 'Module '.$params['module'].' was installed successfully' . (($params['fromVersion'] || $params['toVersion']) ? ' from '.$params['fromVersion'].' to '.$params['toVersion'].'!' : '!');
+                return 'Module '.$params['module'].' was installed successfully' . ($params['fromVersion'] ? ' from '.$params['fromVersion'] : '') . ($params['toVersion'] ? ' to '.$params['toVersion'] : '') . '!';
             } else {
                 return $installer->getMessage();
             }
         } elseif ($params['type'] == 'uninstall') {
             if ($installer->uninstall($params['fromVersion'], $params['toVersion'])) {
-                return 'Module '.$params['module'].' was uninstalled successfully' . (($params['fromVersion'] || $params['toVersion']) ? ' from '.$params['fromVersion'].' to '.$params['toVersion'].'!' : '!');
+                return 'Module '.$params['module'].' was uninstalled successfully' . ($params['fromVersion'] ? ' from '.$params['fromVersion'] : '') . ($params['toVersion'] ? ' to '.$params['toVersion'] : '') . '!';
             } else {
                 return $installer->getMessage();
             }
@@ -55,7 +55,7 @@ class Dev_Install_Controller extends MiniMVC_Controller
                 if ($status !== true && $status !== null) {
                      return 'An error occurred: '.$status;
                 } else {
-                     return 'Model '.$params['model'].' was installed successfully' . (($params['fromVersion'] || $params['toVersion']) ? ' from '.$params['fromVersion'].' to '.$params['toVersion'].'!' : '!');
+                     return 'Model '.$params['model'].' was installed successfully' . ($params['fromVersion'] ? ' from '.$params['fromVersion'] : '') . ($params['toVersion'] ? ' to '.$params['toVersion'] : '') . '!';
                 }
             } catch (Exception $e) {
                 return 'An error occurred: '.$e->getMessage();
@@ -66,7 +66,7 @@ class Dev_Install_Controller extends MiniMVC_Controller
                 if ($status !== true && $status !== null) {
                      return 'An error occurred: '.$status;
                 } else {
-                     return 'Model '.$params['model'].' was uninstalled successfully' . (($params['fromVersion'] || $params['toVersion']) ? ' from '.$params['fromVersion'].' to '.$params['toVersion'].'!' : '!');
+                     return 'Model '.$params['model'].' was uninstalled successfully' . ($params['fromVersion'] ? ' from '.$params['fromVersion'] : '') . ($params['toVersion'] ? ' to '.$params['toVersion'] : '') . '!';
                 }
             } catch (Exception $e) {
                 return 'An error occurred: '.$e->getMessage();
