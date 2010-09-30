@@ -8,7 +8,7 @@ class MiniMVC_Form_Validator_File extends MiniMVC_Form_Validator
         }
 
         if ($this->path && file_exists($element->fileTempName)) {
-            $name = $this->generateFileName();
+            $name = $this->generateFileName($element->fileName);
             if (file_exists(rtrim($this->path, '/') . '/'. $name)) {
                 unlink(rtrim($this->path, '/') . '/'. $name);
             }
@@ -18,8 +18,10 @@ class MiniMVC_Form_Validator_File extends MiniMVC_Form_Validator
         return true;
 	}
 
-    protected function generateFileName()
+    protected function generateFileName($oldName)
     {
-        return $this->filename ? ($this->exactFilename ? $this->filename : time() . '_' . $this->filename) : md5(time().rand(10000, 99999));
+        $basename = $this->filename ? ($this->exactFilename ? $this->filename : time() . '_' . $this->filename) : md5(time().rand(10000, 99999));
+        $extension = pathinfo($oldName, PATHINFO_EXTENSION);
+        return $basename . ($extension ? '.'.$extension : '');
     }
 }
