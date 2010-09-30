@@ -6,12 +6,12 @@ class MiniMVC_Installer
 {
     protected $message = 'This Module doesn´t require installation.';
 
-    public function install($installedVersion)
+    public function install($installedVersion, $targetVersion)
     {
         return true;
     }
 
-    public function uninstall($installedVersion)
+    public function uninstall($installedVersion, $targetVersion)
     {
         return true;
     }
