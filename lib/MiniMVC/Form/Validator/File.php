@@ -8,7 +8,7 @@ class MiniMVC_Form_Validator_File extends MiniMVC_Form_Validator
         }
 
         if (file_exists($element->fileTempName)) {
-            $element->setValue($element->fileTempName);
+            $element->value = $element->fileTempName;
         }
         return true;
 	}
