@@ -10,27 +10,35 @@ class Dev_Install_Controller extends MiniMVC_Controller
         }
 
         if (!file_exists(MODULEPATH . $params['module'])) {
-            return 'Module '.$params['module'].' does not exist!' . "\n";
+            return 'Module ' . $params['module'] . ' does not exist!' . "\n";
         }
 
         $class = $params['module'] . '_Installer';
 
         if (!class_exists($class)) {
-            return 'Module '.$params['module'].' has no installer!' . "\n";
+            return 'Module ' . $params['module'] . ' has no installer!' . "\n";
         }
-        
+
         $installer = new $class();
         if ($params['type'] == 'install') {
-            if ($installer->install($params['fromVersion'], $params['toVersion'])) {
-                return 'Module '.$params['module'].' was installed successfully' . ($params['fromVersion'] ? ' from '.$params['fromVersion'] : '') . ($params['toVersion'] ? ' to '.$params['toVersion'] : '') . '!';
-            } else {
-                return $installer->getMessage();
+            try {
+                if ($installer->install($params['fromVersion'], $params['toVersion'])) {
+                    return 'Module ' . $params['module'] . ' was installed successfully' . ($params['fromVersion'] ? ' from ' . $params['fromVersion'] : '') . ($params['toVersion'] ? ' to ' . $params['toVersion'] : '') . '!';
+                } else {
+                    return 'An error occurred: ' . $installer->getMessage();
+                }
+            } catch (Exception $e) {
+                return 'An error occurred: ' . $e->getMessage();
             }
         } elseif ($params['type'] == 'uninstall') {
-            if ($installer->uninstall($params['fromVersion'], $params['toVersion'])) {
-                return 'Module '.$params['module'].' was uninstalled successfully' . ($params['fromVersion'] ? ' from '.$params['fromVersion'] : '') . ($params['toVersion'] ? ' to '.$params['toVersion'] : '') . '!';
-            } else {
-                return $installer->getMessage();
+            try {
+                if ($installer->uninstall($params['fromVersion'], $params['toVersion'])) {
+                    return 'Module ' . $params['module'] . ' was uninstalled successfully' . ($params['fromVersion'] ? ' from ' . $params['fromVersion'] : '') . ($params['toVersion'] ? ' to ' . $params['toVersion'] : '') . '!';
+                } else {
+                    return 'An error occurred: ' . $installer->getMessage();
+                }
+            } catch (Exception $e) {
+                return 'An error occurred: ' . $e->getMessage();
             }
         }
     }
@@ -41,35 +49,35 @@ class Dev_Install_Controller extends MiniMVC_Controller
             return 'No model specified!' . "\n";
         }
 
-        $className = $params['model'].'Table';
+        $className = $params['model'] . 'Table';
 
         if (!class_exists($className)) {
-            return 'Model table class "'.$className.'" does not exist!' . "\n";
+            return 'Model table class "' . $className . '" does not exist!' . "\n";
         }
 
-        $class = call_user_func($className.'::getInstance');
-        
+        $class = call_user_func($className . '::getInstance');
+
         if ($params['type'] == 'install') {
             try {
                 $status = $class->install($params['fromVersion']);
                 if ($status !== true && $status !== null) {
-                     return 'An error occurred: '.$status;
+                    return 'An error occurred: ' . $status;
                 } else {
-                     return 'Model '.$params['model'].' was installed successfully' . ($params['fromVersion'] ? ' from '.$params['fromVersion'] : '') . ($params['toVersion'] ? ' to '.$params['toVersion'] : '') . '!';
+                    return 'Model ' . $params['model'] . ' was installed successfully' . ($params['fromVersion'] ? ' from ' . $params['fromVersion'] : '') . ($params['toVersion'] ? ' to ' . $params['toVersion'] : '') . '!';
                 }
             } catch (Exception $e) {
-                return 'An error occurred: '.$e->getMessage();
+                return 'An error occurred: ' . $e->getMessage();
             }
         } elseif ($params['type'] == 'uninstall') {
             try {
                 $status = $class->uninstall($params['fromVersion']);
                 if ($status !== true && $status !== null) {
-                     return 'An error occurred: '.$status;
+                    return 'An error occurred: ' . $status;
                 } else {
-                     return 'Model '.$params['model'].' was uninstalled successfully' . ($params['fromVersion'] ? ' from '.$params['fromVersion'] : '') . ($params['toVersion'] ? ' to '.$params['toVersion'] : '') . '!';
+                    return 'Model ' . $params['model'] . ' was uninstalled successfully' . ($params['fromVersion'] ? ' from ' . $params['fromVersion'] : '') . ($params['toVersion'] ? ' to ' . $params['toVersion'] : '') . '!';
                 }
             } catch (Exception $e) {
-                return 'An error occurred: '.$e->getMessage();
+                return 'An error occurred: ' . $e->getMessage();
             }
         }
     }

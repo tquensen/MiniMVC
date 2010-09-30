@@ -47,6 +47,7 @@ class {name}Table extends MiniMVC_Table
     {
         switch ($installedVersion) {
             case 0:
+                if (!$targetVersion) break;
                 $sql = "CREATE TABLE {table} (
 					  id int(11) NOT NULL auto_increment,
                       slug varchar(255) NOT NULL,
@@ -56,17 +57,17 @@ class {name}Table extends MiniMVC_Table
 					) ENGINE=INNODB DEFAULT CHARSET=utf8";
 
                 $this->_db->query($sql);
-                if ($targetVersion <= 1) break;
             case 1:
-            /* //for every new version add your code below (including the lines "if ($targetVersion <= NEW_VERSION) break;" and "case NEW_VERSION:")
+                if ($targetVersion && $targetVersion <= 1) break;
+            /* //for every new version add your code below (including the lines "case NEW_VERSION:" and "if ($targetVersion && $targetVersion <= NEW_VERSION) break;")
 
                 $sql = "ALTER TABLE {table} (
 					  ADD something varchar(255)";
 
                 $this->_db->query($sql);
 
-                if ($targetVersion <= 2) break;
             case 2:
+                if ($targetVersion && $targetVersion <= 2) break;
              */
         }
         return true;
