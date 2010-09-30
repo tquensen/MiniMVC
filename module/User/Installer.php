@@ -3,12 +3,12 @@
 class User_Installer extends MiniMVC_Installer
 {
 
-    public function install($installedVersion)
+    public function install($installedVersion, $targetVersion)
     {
         try
         {
             $user = new UserTable();
-            $user->install($installedVersion);
+            $user->install($installedVersion, $targetVersion);
         }
         catch(Exception $e)
         {
@@ -18,12 +18,12 @@ class User_Installer extends MiniMVC_Installer
         return true;
     }
 
-    public function uninstall($installedVersion)
+    public function uninstall($installedVersion, $targetVersion)
     {
         try
         {
             $user = new UserTable();
-            $user->uninstall($installedVersion);
+            $user->uninstall($installedVersion, $targetVersion);
         }
         catch(Exception $e)
         {

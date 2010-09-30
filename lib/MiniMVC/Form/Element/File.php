@@ -5,7 +5,7 @@ class MiniMVC_Form_Element_File extends MiniMVC_Form_Element
 
     public function setValue($value)
 	{
-        parent::setValue($value);
+        parent::setValue(null);
 
         if (isset($_FILES[$this->getForm()->getName()])) {
             if (isset($_FILES[$this->getForm()->getName()]['name'][$this->name])) {

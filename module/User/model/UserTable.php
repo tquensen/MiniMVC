@@ -145,16 +145,56 @@ class UserTable extends MiniMVC_Table
         return true;
     }
 
+    public function install($installedVersion = 0, $targetVersion = 0)
+    {
+        switch ($installedVersion) {
+            case 0:
+                if (!$targetVersion) break;
+                $sql = "CREATE TABLE user (
+					  id int NOT NULL auto_increment,
+					  slug varchar(255) NOT NULL,
+					  name varchar(255) NOT NULL,
+					  password varchar(255) NOT NULL,
+					  salt varchar(255) NOT NULL,
+					  email varchar(255) NOT NULL,
+					  role varchar(255) NOT NULL,
+					  PRIMARY KEY  (id)
+					) ENGINE=INNODB DEFAULT CHARSET=utf8";
+
+                $this->_db->query($sql);
+            case 1:
+                if ($targetVersion && $targetVersion <= 1) break;
+            /* //for every new version add your code below (including the lines "case NEW_VERSION:" and "if ($targetVersion && $targetVersion <= NEW_VERSION) break;")
+
+                $sql = "ALTER TABLE {table} (
+					  ADD something varchar(255)";
+
+                $this->_db->query($sql);
+
+            case 2:
+                if ($targetVersion && $targetVersion <= 2) break;
+             */
+        }
+        return true;
+    }
+
     /**
      * Deletes the table for this model
      */
-    public function uninstall($installedVersion = 'max')
+    public function uninstall($installedVersion = 0, $targetVersion = 0)
     {
 
-        SWITCH ($installed_version) {
-            case 'max':
+        SWITCH ($installedVersion) {
+            case 0:
+            /* //for every new version add your code directly below "case 0:", beginning with "case NEW_VERSION:" and "if ($targetVersion >= NEW_VERSION) break;"
+            case 2:
+                if ($targetVersion >= 2) break;
+                $sql = "ALTER TABLE {table} DROP something";
+                $this->_db->query($sql);
+             */
             case 1:
-                $sql = 'DROP TABLE `user`';
+                if ($targetVersion >= 1) break;
+                $sql = "DROP TABLE user";
                 $this->_db->query($sql);
         }
         return true;
