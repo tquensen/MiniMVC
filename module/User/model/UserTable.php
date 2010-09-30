@@ -124,27 +124,6 @@ class UserTable extends MiniMVC_Table
     /**
      * Created the table for this model
      */
-    public function install($installedVersion = 0)
-    {
-        switch ($installedVersion) {
-            case 0:
-                $sql = "CREATE TABLE user (
-					  id int NOT NULL auto_increment,
-					  slug varchar(255) NOT NULL,
-					  name varchar(255) NOT NULL,
-					  password varchar(255) NOT NULL,
-					  salt varchar(255) NOT NULL,
-					  email varchar(255) NOT NULL,
-					  role varchar(255) NOT NULL,
-					  PRIMARY KEY  (id)
-					) ENGINE=INNODB DEFAULT CHARSET=utf8";
-
-                $this->_db->query($sql);
-            case 1:
-        }
-        return true;
-    }
-
     public function install($installedVersion = 0, $targetVersion = 0)
     {
         switch ($installedVersion) {
