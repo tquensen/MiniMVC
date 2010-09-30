@@ -10,15 +10,15 @@ $MiniMVC_tasks['generate.module'] = array(
 $MiniMVC_tasks['install.module'] = array(
     'controller' => 'Dev_Install',
     'action' => 'module',
-    'parameter' => array('module' => false, 'fromVersion' => 0, 'type' => 'install'),
-    'assign' => array('module', 'fromVersion')
+    'parameter' => array('module' => false, 'fromVersion' => 0, 'toVersion' => 0, 'type' => 'install'),
+    'assign' => array('module', 'fromVersion', 'toVersion')
 );
 
 $MiniMVC_tasks['uninstall.module'] = array(
     'controller' => 'Dev_Install',
     'action' => 'module',
-    'parameter' => array('module' => false, 'fromVersion' => 'max', 'type' => 'uninstall'),
-    'assign' => array('module', 'fromVersion')
+    'parameter' => array('module' => false, 'fromVersion' => 0, 'toVersion' => 0, 'type' => 'uninstall'),
+    'assign' => array('module', 'fromVersion', 'toVersion')
 );
 
 $MiniMVC_tasks['generate.model'] = array(

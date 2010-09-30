@@ -43,7 +43,7 @@ class {name}Table extends MiniMVC_Table
     /**
      * Created the table for this model
      */
-    public function install($installedVersion = 0)
+    public function install($installedVersion = 0, $targetVersion = 0)
     {
         switch ($installedVersion) {
             case 0:
@@ -56,7 +56,18 @@ class {name}Table extends MiniMVC_Table
 					) ENGINE=INNODB DEFAULT CHARSET=utf8";
 
                 $this->_db->query($sql);
+                if ($targetVersion == 1) break;
             case 1:
+            /* //for every new version add your code below (including the lines "if ($targetVersion == NEW_VERSION) break;" and "case NEW_VERSION:")
+
+                $sql = "ALTER TABLE {table} (
+					  ADD something varchar(255)";
+
+                $this->_db->query($sql);
+
+                if ($targetVersion == 2) break;
+            case 2:
+             */
         }
         return true;
     }
@@ -64,14 +75,21 @@ class {name}Table extends MiniMVC_Table
     /**
      * Deletes the table for this model
      */
-    public function uninstall($installedVersion = 'max')
+    public function uninstall($installedVersion = 0, $targetVersion = 0)
     {
 
         SWITCH ($installedVersion) {
-            case 'max':
+            case 0:
             case 1:
+                if ($targetVersion == 1) break;
                 $sql = "DROP TABLE {table}";
                 $this->_db->query($sql);
+            /* //for every new version add your code below, beginning with "case NEW_VERSION:" and "if ($targetVersion == NEW_VERSION) break;"
+            case 2:
+                if ($targetVersion == 2) break;
+                $sql = "ALTER TABLE {table} DROP something";
+                $this->_db->query($sql);
+             */
         }
         return true;
     }

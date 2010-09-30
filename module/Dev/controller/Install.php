@@ -21,9 +21,9 @@ class Dev_Install_Controller extends MiniMVC_Controller
         
         $installer = new $class();
         if ($params['type'] == 'install') {
-            return $installer->install($params['fromVersion']) ? 'Modul wurde installiert!' : $installer->getMessage();
+            return $installer->install($params['fromVersion'], $params['toVersion']) ? 'Modul wurde installiert!' : $installer->getMessage();
         } elseif ($params['type'] == 'uninstall') {
-            return $installer->uninstall($params['fromVersion']) ? 'Modul wurde deinstalliert!' : $installer->getMessage();
+            return $installer->uninstall($params['fromVersion'], $params['toVersion']) ? 'Modul wurde deinstalliert!' : $installer->getMessage();
         }
     }
 
