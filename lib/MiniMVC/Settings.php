@@ -2,18 +2,6 @@
 
 /**
  * MiniMVC_Settings is responsible for all individual settings configured in the setting files
- *
- * @property array $config general settings
- * @property array $apps application settings (paths)
- * @property array $db database settings
- * @property array $modules active modules
- * @property array $rights user rights
- * @property array $roles user roles
- * @property array $slots layout slots for widgets or routes
- * @property array $tasks cli tasks
- * @property array $view view related settings
- * @property array $widgets widgets to display in slots
- * @property array $events attached events
  */
 class MiniMVC_Settings
 {
