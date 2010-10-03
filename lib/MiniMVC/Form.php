@@ -15,6 +15,7 @@ class MiniMVC_Form
 
         $this->options['action'] = $_SERVER['REQUEST_URI'];
         $this->options['method'] = 'POST';
+        $this->options['showGlobalErrors'] = true;
         $this->options['redirectOnError'] = true;
         $this->options['csrfProtection'] = true;
         $this->options = array_merge($this->options, (array)$options);
