@@ -11,7 +11,7 @@ class MiniMVC_Form_Validator_File extends MiniMVC_Form_Validator
             return false;
         }
 
-        if (!file_exists($value['tmp_name'])) {
+        if ($value['error'] && $value['error'] != UPLOAD_ERR_NO_FILE && !file_exists($value['tmp_name'])) {
             return false;
         }
         

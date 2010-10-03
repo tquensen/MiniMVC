@@ -161,7 +161,7 @@ class MiniMVC_Form
 
     public function errorRedirect()
     {
-        if (!$this->isValid && $this->getOption('redirectOnError')) {
+        if (!$this->isValid) {
             $sessionData = array();
             foreach ($this->elements as $element) {
                 $sessionData[$element->getName()] = array(
