@@ -117,14 +117,13 @@ class MiniMVC_Form
             $values = $_SESSION['form_' . $this->name . '__' . $this->getOption('action') . '__errorData'];
             unset($_SESSION['form_' . $this->name . '__' . $this->getOption('action') . '__errorData']);
             foreach ($this->elements as $element) {
-                $element->setValue(isset($values[$element->getName()]['value']) ? $values[$element->getName()]['value']
-                                    : null);
+                $_POST[$this->name][$element->getName()] = isset($values[$element->getName()]['value']) ? $values[$element->getName()]['value']
+                                    : null;
                 if (!empty($values[$element->getName()]['hasError'])) {
                     $this->isValid = false;
                     $element->setError($values[$element->getName()]['errorMessage']);
                 }
             }
-            return true;
         }
         $values = (isset($_POST[$this->name]) && is_array($_POST[$this->name])) ? $_POST[$this->name]
                     : array();
@@ -184,7 +183,7 @@ class MiniMVC_Form
 
     public function wasSubmitted()
     {
-        return (isset($_POST[$this->name]) && is_array($_POST[$this->name]));
+        return $this->getOp(isset($_POST[$this->name]) && is_array($_POST[$this->name]));
     }
 
     public function handleAjaxValidation()
