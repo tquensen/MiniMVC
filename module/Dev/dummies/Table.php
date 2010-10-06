@@ -30,11 +30,7 @@ class {name}Table extends MiniMVC_Table
             $model = $this->create();
         }
         $form = new MiniMVC_Form(array('name' => '{name}Form', 'model' => $model));
-        $form->setElement(new MiniMVC_Form_Element_Text('title',
-                        array('label' => $i18n->{namelcfirst}FormTitleLabel),
-                        array(
-                            new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->{namelcfirst}FormTitleError))
-                )));
+        {columns_form}
         $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $i18n->{namelcfirst}FormSubmitLabel)));
 
         return $form;
@@ -47,7 +43,6 @@ class {name}Table extends MiniMVC_Table
     {
         switch ($installedVersion) {
             case 0:
-                if (!$targetVersion) break;
                 $sql = "CREATE TABLE {table} (
                       {columns_sql}
 					  PRIMARY KEY (id)

@@ -127,7 +127,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         $columns = ($params['columns']) ? array_map('trim', explode(',', $params['columns'])) : array('id', 'slug', 'title');
 
         if (false !== ($idColumn = array_search('id', $columns))) {
-            unset($columns['idColumn']);
+            unset($columns[$idColumn]);
         }
         $model = ucfirst($params['model']);
 
@@ -139,7 +139,8 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             '{namelcfirst}',
             '{columns_list}',
             '{columns_sql}',
-            '{columns_phpdoc}'
+            '{columns_phpdoc}',
+            '{columns_form}'
         );
         $replace = array(
             $model,
@@ -147,9 +148,10 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             $params['module'],
             strtolower($params['module']),
             strtolower(substr($model, 0, 1)) . substr($model, 1),
-            '\'id\', '.implode('\', \'', $columns).'\'',
-            "                      id INT(11) NOT NULL AUTO_INCREMENT,                      ".implode(" VARCHAR(255),\n                      ", $columns)." VARCHAR(255),\n",
-            "@property int id\n * @property string ".implode("\n * @property string ", $columns)."\n"
+            '\'id\', \''.implode('\', \'', $columns).'\'',
+            "id INT(11) NOT NULL AUTO_INCREMENT,\n                      ".implode(" VARCHAR(255),\n                      ", $columns)." VARCHAR(255),\n",
+            "@property int id\n * @property string ".implode("\n * @property string ", $columns)."\n",
+            $this->getFormCode($columns, $model)
         );
 
         $path = MODULEPATH . $params['module'].'/model';
@@ -223,5 +225,22 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         return $message;
     }
 
+    protected function getFormCode($columns, $model)
+    {
+        $code = '$form->setElement(new MiniMVC_Form_Element_Text(\'{column}\',
+                        array(\'label\' => $i18n->{namelcfirst}Form{columnucfirst}Label),
+                        array(
+                            new MiniMVC_Form_Validator_Required(array(\'errorMessage\' => $i18n->{namelcfirst}Form{columncc}Error))
+                )));
+        ';
 
+        $output = '';
+        $search = array('{namelcfirst}', '{column}', '{columnucfirst}', '{columncc}');
+
+        foreach ($columns as $column) {
+            $replace = array(strtolower(substr($model, 0, 1)) . substr($model, 1), $column, ucfirst($column), preg_replace('/_(.)/e', 'ucfirst("$1")', $model));
+            $output .= str_replace($search, $replace, $code);
+        }
+        return $output;
+    }
 }
