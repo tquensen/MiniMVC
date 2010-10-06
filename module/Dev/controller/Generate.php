@@ -238,7 +238,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         $search = array('{namelcfirst}', '{columnucfirst}', '{columncc}');
 
         foreach ($columns as $column) {
-            $replace = array(strtolower(substr($model, 0, 1)) . substr($model, 1), ucfirst($column), preg_replace('/_(.)/e', 'ucfirst("$1")', $column));
+            $replace = array(strtolower(substr($model, 0, 1)) . substr($model, 1), ucfirst($column), ucfirst(preg_replace('/_(.)/e', 'ucfirst("$1")', $column)));
             $output .= str_replace($search, $replace, $code);
         }
         return $output;
