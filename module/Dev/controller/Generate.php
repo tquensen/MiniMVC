@@ -228,17 +228,17 @@ class Dev_Generate_Controller extends MiniMVC_Controller
     protected function getFormCode($columns, $model)
     {
         $code = '$form->setElement(new MiniMVC_Form_Element_Text(\'{column}\',
-                        array(\'label\' => $i18n->{namelcfirst}Form{columnucfirst}Label),
+                        array(\'label\' => $i18n->{namelcfirst}Form{columncc}Label),
                         array(
                             new MiniMVC_Form_Validator_Required(array(\'errorMessage\' => $i18n->{namelcfirst}Form{columncc}Error))
                 )));
         ';
 
         $output = '';
-        $search = array('{namelcfirst}', '{column}', '{columnucfirst}', '{columncc}');
+        $search = array('{namelcfirst}', '{columnucfirst}', '{columncc}');
 
         foreach ($columns as $column) {
-            $replace = array(strtolower(substr($model, 0, 1)) . substr($model, 1), $column, ucfirst($column), preg_replace('/_(.)/e', 'ucfirst("$1")', $model));
+            $replace = array(strtolower(substr($model, 0, 1)) . substr($model, 1), ucfirst($column), preg_replace('/_(.)/e', 'ucfirst("$1")', $column));
             $output .= str_replace($search, $replace, $code);
         }
         return $output;
