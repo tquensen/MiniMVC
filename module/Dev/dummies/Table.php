@@ -15,7 +15,7 @@ class {name}Table extends MiniMVC_Table
 	protected $_table = '{table}';
     protected $_model = '{name}';
 
-	protected $_columns = array('id', 'slug', 'title');
+	protected $_columns = array({columns_list});
     protected $_relations = array();
 	protected $_identifier = 'id';
 	protected $_isAutoIncrement = true;
@@ -49,11 +49,8 @@ class {name}Table extends MiniMVC_Table
             case 0:
                 if (!$targetVersion) break;
                 $sql = "CREATE TABLE {table} (
-					  id int(11) NOT NULL auto_increment,
-                      slug varchar(255) NOT NULL,
-                      title varchar(255) NOT NULL,
-					  PRIMARY KEY  (id),
-                      UNIQUE (slug)
+                      {columns_sql}
+					  PRIMARY KEY (id)
 					) ENGINE=INNODB DEFAULT CHARSET=utf8";
 
                 $this->_db->query($sql);
@@ -62,7 +59,7 @@ class {name}Table extends MiniMVC_Table
             /* //for every new version add your code below (including the lines "case NEW_VERSION:" and "if ($targetVersion && $targetVersion <= NEW_VERSION) break;")
 
                 $sql = "ALTER TABLE {table} (
-					  ADD something varchar(255)";
+					  ADD something VARCHAR(255)";
 
                 $this->_db->query($sql);
 
