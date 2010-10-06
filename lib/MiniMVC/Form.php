@@ -120,6 +120,7 @@ class MiniMVC_Form
                 $element->setValue(isset($values[$element->getName()]['value']) ? $values[$element->getName()]['value']
                                     : null);
                 if (!empty($values[$element->getName()]['hasError'])) {
+                    $this->isValid = false;
                     $element->setError($values[$element->getName()]['errorMessage']);
                 }
             }
