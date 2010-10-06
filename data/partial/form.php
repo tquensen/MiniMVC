@@ -1,7 +1,7 @@
 <form id="<?php echo htmlspecialchars($form->getName())?>" action="<?php echo htmlspecialchars($form->getOption('action')) ?>" method="<?php echo strtoupper($form->getOption('method')) == 'GET' ? 'GET' : 'POST' ?>" <?php if (!$form->isValid): ?>class="invalid"<?php endif; ?> <?php if ($form->getOption('enctype')): ?>enctype="<?php echo htmlspecialchars($form->getOption('enctype')) ?>"<?php endif; ?>>
     
     <ol>
-    <?php if (!$form->isValid && $form->showGlobalErrors): ?>
+    <?php if (!$form->isValid() && $form->showGlobalErrors): ?>
         <li id="<?php echo htmlspecialchars($form->getName())?>__errors__wrapper" class="formErrors">
             <?php echo $this->get('form/errors' . $currentElement->getType(), array('elements' => $form->getElements())); ?>
         </li>

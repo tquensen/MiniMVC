@@ -139,6 +139,11 @@ class MiniMVC_Form
         $this->isValid = !$error;
     }
 
+    public function isValid()
+    {
+        return $this->isValid;
+    }
+
     public function validate()
     {
 
