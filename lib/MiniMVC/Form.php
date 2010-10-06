@@ -183,7 +183,7 @@ class MiniMVC_Form
 
     public function wasSubmitted()
     {
-        return $this->getOp(isset($_POST[$this->name]) && is_array($_POST[$this->name]));
+        return (isset($_POST[$this->name]) && is_array($_POST[$this->name]));
     }
 
     public function handleAjaxValidation()
