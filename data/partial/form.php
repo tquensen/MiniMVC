@@ -3,7 +3,7 @@
     <ol>
     <?php if (!$form->isValid() && $form->getOption('showGlobalErrors')): ?>
         <li id="<?php echo htmlspecialchars($form->getName())?>__errors__wrapper" class="formErrors">
-            <?php echo $this->get('form/errors' . $currentElement->getType(), array('elements' => $form->getElements())); ?>
+            <?php echo $this->get('form/errors', array('elements' => $form->getElements())); ?>
         </li>
     <?php endif; ?>
     <?php if (strtoupper($form->getOption('method')) != 'GET' && strtoupper($form->getOption('method')) != 'POST'): ?>
