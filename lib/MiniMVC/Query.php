@@ -71,39 +71,39 @@ class MiniMVC_Query
 
     /**
      *
-     * @param string|null $alias
+     * @param string|null $table
      * @return MiniMVC_Query
      */
-    public function insert($columns = null)
+    public function insert($table = null)
     {
         $this->type = 'INSERT INTO';
-        $this->columns = array_merge($this->columns, array_map('trim', explode(',', $columns)));
+        $this->columns = array_merge($this->columns, array_map('trim', explode(',', $table)));
 
         return $this;
     }
 
     /**
      *
-     * @param string|null $alias
+     * @param string|null $table
      * @return MiniMVC_Query
      */
     public function update($table = null)
     {
         $this->type = 'UPDATE';
-        $this->columns = array_merge($this->columns, array_map('trim', explode(',', $columns)));
+        $this->columns = array_merge($this->columns, array_map('trim', explode(',', $table)));
 
         return $this;
     }
 
     /**
      *
-     * @param string|null $alias
+     * @param string|null $table
      * @return MiniMVC_Query
      */
-    public function delete($columns = null)
+    public function delete($table = null)
     {
         $this->type = 'DELETE';
-        $this->columns = array_merge($this->columns, array_map('trim', explode(',', $columns)));
+        $this->columns = array_merge($this->columns, array_map('trim', explode(',', $table)));
 
         return $this;
     }
@@ -257,7 +257,13 @@ class MiniMVC_Query
                     }
                 }
             } else {
-                $select = $this->columns;
+                foreach ($this->columns as $v) {
+                    if (isset($this->tables[$v])) {
+                        $select[] = $this->tables[$v];
+                    } else {
+                        $select[] = $v;
+                    }
+                }
             }
         }
         $q .= implode(', ', $select);
