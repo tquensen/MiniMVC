@@ -364,10 +364,15 @@ class MiniMVC_Table {
         return false;
 	}
 
-    public function query($alias = null)
+    public function query($alias = null, $select = true)
     {
         $q = new MiniMVC_Query();
-        return $q->select($alias)->from($this, $alias);
+        if ($select === true) {
+            $q->select($alias);
+        } elseif($select) {
+            $q->select($select);
+        }
+        return $q->from($this, $alias);
     }
     
 	public function buildModel($row)
