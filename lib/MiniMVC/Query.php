@@ -266,7 +266,7 @@ class MiniMVC_Query
                 }
             }
         }
-        $q .= implode(', ', $select);
+        $q .= implode(', ', array_unique(array_map('trim', $select)));
         if ($isPreQuery || ($this->type != 'INSERT INTO' && $this->type != 'UPDATE')) {
             $q .= $this->_from($this->from);
         }
