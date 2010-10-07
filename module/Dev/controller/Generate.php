@@ -150,7 +150,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             strtolower(substr($model, 0, 1)) . substr($model, 1),
             '\'id\', \''.implode('\', \'', $columns).'\'',
             "id INT(11) NOT NULL AUTO_INCREMENT,\n                      ".implode(" VARCHAR(255),\n                      ", $columns)." VARCHAR(255),\n",
-            "@property int id\n * @property string ".implode("\n * @property string ", $columns)."\n",
+            "@property int \$id\n * @property string \$".implode("\n * @property string \$", $columns)."\n",
             $this->getFormCode($columns, $model)
         );
 

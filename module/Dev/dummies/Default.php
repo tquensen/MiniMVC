@@ -42,7 +42,7 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         {
             $model = $this->view->form->updateModel();
             if (!$model->save()) {
-                $this->view->form->title->setError($this->view->t->{MODULELCFIRST}FormSaveError);
+                $this->view->form->FormCheck->setError($this->view->t->{MODULELCFIRST}FormSaveError);
                 $this->view->form->errorRedirect();
             }
             return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
@@ -62,7 +62,10 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         if ($this->view->form->validate())
         {
             $model = $this->view->form->updateModel();
-            $model->save();
+            if (!$model->save()) {
+                $this->view->form->FormCheck->setError($this->view->t->{MODULELCFIRST}FormSaveError);
+                $this->view->form->errorRedirect();
+            }
             return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
         }
          */
