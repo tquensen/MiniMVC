@@ -65,7 +65,7 @@ class MiniMVC_Query
     {
         $this->type = 'SELECT';
         $this->columns = array_merge($this->columns, array_map('trim', explode(',', $columns)));
-        
+
         return $this;
     }
 
@@ -125,7 +125,7 @@ class MiniMVC_Query
         }
         $this->from = $alias;
         $this->tables[$alias] = $table;
-        
+
         return $this;
     }
 
@@ -226,7 +226,7 @@ class MiniMVC_Query
 
     /**
      *
-     * @return MiniMVC_Query 
+     * @return MiniMVC_Query
      */
     public function getQueryObject($values = null)
     {
@@ -240,7 +240,7 @@ class MiniMVC_Query
      */
     public function get($values = array(), $isPreQuery = false)
     {
-        
+
         if ($isPreQuery) {
             $q = 'SELECT ';
             $select = array($this->from ? $this->from.'.'.$this->tables[$this->from]->getIdentifier() : $this->tables[$this->from]->getIdentifier());
@@ -277,9 +277,9 @@ class MiniMVC_Query
         if ($this->limit || $this->offset) {
             if (!$isPreQuery && $this->needPreQuery && isset($this->tables[$this->from])) {
                 $limit = '';
-                
+
                 $q .= ($condition ? ' AND ' : ' WHERE ') . $this->_in($this->from, null, $this->_getIdentifiers($values, true));
-                
+
             } else {
                 $limit = ' LIMIT '.(int)$this->limit.' OFFSET '.(int)$this->offset;
             }
@@ -299,6 +299,12 @@ class MiniMVC_Query
         return $q;
     }
 
+    /**
+     *
+     * @param string $count
+     * @param array $values
+     * @return int
+     */
     public function count($count = '*', $values = array())
     {
         if (!is_array($values) && $values !== null) {
@@ -314,7 +320,7 @@ class MiniMVC_Query
         $oldLimit = $this->limit;
         $oldOffset = $this->offset;
 
-        
+
         $this->type = 'SELECT';
         $this->columns = array('COUNT('.$count.')');
         $this->limit = null;
@@ -332,7 +338,7 @@ class MiniMVC_Query
             $count = $stmt->fetchColumn();
             $stmt->closeCursor();
         }
-        
+
         $this->type = $oldType;
         $this->columns = $oldColumns;
         $this->limit = $oldLimit;
@@ -341,6 +347,12 @@ class MiniMVC_Query
         return $count;
     }
 
+    /**
+     *
+     * @param array $values
+     * @param mixed $query
+     * @return PDOStatement
+     */
     public function execute($values = array(), $query = null)
     {
         if (!is_array($values) && $values !== null) {
@@ -350,7 +362,7 @@ class MiniMVC_Query
         if (empty($values) && !empty($this->values)) {
             $values = $this->values;
         }
-        
+
         $sql = ($query !== null) ? $query : $this->get($values);
 
         if (!is_array($values) && $values) {
@@ -370,12 +382,12 @@ class MiniMVC_Query
             $values = array($values);
         }
 
-        $sql = $this->get($values); 
+        $sql = $this->get($values);
 
         if (empty($values) && !empty($this->values)) {
             $values = $this->values;
         }
-        
+
         $stmt = $this->db->prepare($sql);
 
         $stmt->execute($values);
@@ -390,7 +402,7 @@ class MiniMVC_Query
             }
             return $entries;
         }
-        
+
         $aliases = array();
         $relations = array();
         $aliasedIdentifiers = array();
@@ -440,7 +452,7 @@ class MiniMVC_Query
         if (empty($values) && !empty($this->values)) {
             $values = $this->values;
         }
-        
+
         $stmt = $this->db->prepare($sql);
 
         $stmt->execute($values);
@@ -470,7 +482,7 @@ class MiniMVC_Query
             $aliasKeys = array_keys($aliases);
             $return = reset($aliasKeys);
         }
-        
+
         foreach ($this->relations as $relation) {
             if (isset($aliases[$relation[0]]) && isset($aliases[$relation[1]])) {
                 $relations[] = $relation;
@@ -506,7 +518,7 @@ class MiniMVC_Query
         foreach ($row as $k=>$v) {
             if (substr($k, 0, $length) == $prefix) {
                $return[substr($k, $length)] = $v;
-            }           
+            }
         }
         return $return;
     }
@@ -562,7 +574,7 @@ class MiniMVC_Query
         if ($asQuery) {
             return $sql;
         }
-        
+
         if (empty($values) && !empty($this->values)) {
             $values = $this->values;
         }
@@ -570,7 +582,7 @@ class MiniMVC_Query
         if (empty($values) && !empty($this->values)) {
             $values = $this->values;
         }
-        
+
         $stmt = $this->db->prepare($sql);
 
         $stmt->execute($values);
@@ -581,6 +593,6 @@ class MiniMVC_Query
         }
         return $ids;
     }
-    
+
 
 }
