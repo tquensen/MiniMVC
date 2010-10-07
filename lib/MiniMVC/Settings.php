@@ -37,6 +37,10 @@ class MiniMVC_Settings
             }
 
             if ($environment) {
+                if (is_file(DATAPATH . 'settings/default/' . $file . '_' . $environment . '.php')) {
+                    include(DATAPATH . 'settings/default/' . $file . '_' . $environment . '.php');
+                }
+
                 if (is_file(DATAPATH . 'settings/' . $file . '_' . $environment . '.php')) {
                     include(DATAPATH . 'settings/' . $file . '_' . $environment . '.php');
                 }
