@@ -265,7 +265,7 @@ class MiniMVC_Dispatcher
                     $models[$modelKey] = empty($routeData['parameter'][$refProperty]) ? null : $table->loadOneBy($property.' = ?', $routeData['parameter'][$refProperty]);
                 }
             }
-            $routeData['parameter']['model'] = count($models) === 1 ? reset($models) : $models;
+            $routeData['parameter']['model'] = count($models) === 1 && isset($models[0]) ? reset($models) : $models;
         }
 
         return $this->call($routeData['controller'], $routeData['action'], isset($routeData['parameter']) ? $routeData['parameter'] : array());
