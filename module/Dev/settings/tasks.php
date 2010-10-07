@@ -31,15 +31,15 @@ $MiniMVC_tasks['generate.model'] = array(
 $MiniMVC_tasks['install.model'] = array(
     'controller' => 'Dev_Install',
     'action' => 'model',
-    'parameter' => array('model' => false, 'fromVersion' => 0, 'type' => 'install'),
-    'assign' => array('model', 'fromVersion')
+    'parameter' => array('model' => false, 'fromVersion' => 0, 'toVersion' => 0, 'type' => 'install'),
+    'assign' => array('model', 'fromVersion', 'toVersion')
 );
 
 $MiniMVC_tasks['uninstall.model'] = array(
     'controller' => 'Dev_Install',
     'action' => 'model',
-    'parameter' => array('model' => false, 'fromVersion' => 'max', 'type' => 'uninstall'),
-    'assign' => array('model', 'fromVersion')
+    'parameter' => array('model' => false, 'fromVersion' => 0, 'toVersion' => 0, 'type' => 'uninstall'),
+    'assign' => array('model', 'fromVersion', 'toVersion')
 );
 
 $MiniMVC_tasks['generate.controller'] = array(
