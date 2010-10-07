@@ -504,44 +504,53 @@ class MiniMVC_Table {
 
 	public function delete($entry)
 	{
-		if (is_object($entry))
-		{
-			if (!isset($entry->{$this->_identifier}) || !$entry->{$this->_identifier})
-			{
-				return false;
-			}
+        try
+        {
+            $this->_db->beginTransaction();
+            if (is_object($entry))
+            {
+                if (!isset($entry->{$this->_identifier}) || !$entry->{$this->_identifier})
+                {
+                    return false;
+                }
 
-            if ($entry->preDelete() === false) {
-                return false;
+                if ($entry->preDelete() === false) {
+                    $this->_db->rollBack();
+                    return false;
+                }
+
+                $query = new MiniMVC_Query();
+                $result = $query->delete()->from($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry->{$this->_identifier});
+
+                if (isset($this->_entries[$entry->{$this->primary}]))
+                {
+                    unset($this->_entries[$entry->{$this->primary}]);
+                }
+                $entry->clearDatabaseProperties();
+
+                if ($entry->postDelete() === false) {
+                    $this->_db->rollBack();
+                    return false;
+                }
             }
+            else
+            {
+                $query = new MiniMVC_Query();
+                $result = $query->delete()->from($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry);
 
-            $query = new MiniMVC_Query();
-            $result = $query->delete()->from($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry->{$this->_identifier});
-
-			if (isset($this->_entries[$entry->{$this->primary}]))
-			{
-				unset($this->_entries[$entry->{$this->primary}]);
-			}
-            $entry->clearDatabaseProperties();
-
-            if ($entry->postDelete() === false) {
-                return false;
+                if (isset($this->_entries[$entry]))
+                {
+                    unset($this->_entries[$entry]);
+                }
             }
-		}
-		else
-		{
-            $query = new MiniMVC_Query();
-            $result = $query->delete()->from($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry);
-
-			if (isset($this->_entries[$entry]))
-			{
-				unset($this->_entries[$entry]);
-			}
-		}
-        foreach ($this->_relations as $relation => $info) {
-            if (isset($info[3]) && $info[3] !== true) {
-                MiniMVC_Query::create()->delete()->from($info[3])->where($info[1].' = ?')->execute(is_object($entry) ? $entry->{$this->_identifier} : $entry);
+            foreach ($this->_relations as $relation => $info) {
+                if (isset($info[3]) && $info[3] !== true) {
+                    MiniMVC_Query::create()->delete()->from($info[3])->where($info[1].' = ?')->execute(is_object($entry) ? $entry->{$this->_identifier} : $entry);
+                }
             }
+        } catch (PDOException $e) {
+            $this->_db->rollBack();
+            return false;
         }
 		return $result;
 	}
