@@ -87,7 +87,7 @@ class MiniMVC_Query
      * @param string|null $alias
      * @return MiniMVC_Query
      */
-    public function update($columns = null)
+    public function update($table = null)
     {
         $this->type = 'UPDATE';
         $this->columns = array_merge($this->columns, array_map('trim', explode(',', $columns)));
@@ -261,15 +261,18 @@ class MiniMVC_Query
             }
         }
         $q .= implode(', ', $select);
-        if (!$isPreQuery && ($this->type == 'INSERT INTO' || $this->type == 'UPDATE')) {
-            $q .= ' SET '.implode(' , ',$this->set);
-        } else {
+        if ($isPreQuery || ($this->type != 'INSERT INTO' && $this->type != 'UPDATE')) {
             $q .= $this->_from($this->from);
         }
 
         foreach ($this->join as $join => $info) {
             $q .= $this->_join($join, $info[0], isset($info[1]) ? $info[1] : null, isset($info[2]) ? $info[2] : null);
         }
+
+        if (!$isPreQuery && ($this->type == 'INSERT INTO' || $this->type == 'UPDATE')) {
+            $q .= ' SET '.implode(' , ',$this->set);
+        }
+
         $condition = count($this->where) ? implode(' AND ', $this->where) : '';
         if ($condition) {
             $q .= ' WHERE '.$condition.' ';
