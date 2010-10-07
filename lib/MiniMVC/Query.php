@@ -259,7 +259,7 @@ class MiniMVC_Query
             } else {
                 foreach ($this->columns as $v) {
                     if (isset($this->tables[$v])) {
-                        $select[] = $this->tables[$v];
+                        $select[] = $this->tables[$v]->getTableName();
                     } else {
                         $select[] = $v;
                     }
