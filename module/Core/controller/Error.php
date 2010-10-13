@@ -18,7 +18,7 @@ class Core_Error_Controller extends MiniMVC_Controller
 
     public function error500Action($params)
 	{
-        if (isset($params['debug']) && $params['debug']) {
+        if (isset($params['debug']) && $params['debug'] && isset($params['exception'])) {
             $this->view->e = $params['exception'];
             $this->view->setFile('error/error500debug');
         }
