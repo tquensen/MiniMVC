@@ -287,7 +287,7 @@ class MiniMVC_Query
             if (!$isPreQuery && $this->needPreQuery && isset($this->tables[$this->from])) {
                 $limit = '';
 
-                $q .= ($condition ? ' AND ' : ' WHERE ') . $this->_in($this->from, null, $this->_getIdentifiers($values, true), false);
+                $q .= ($condition ? ' AND ' : ' WHERE ') . $this->_in($this->from, null, $this->_getIdentifiers($values));
 
             } else {
                 $limit = ' LIMIT '.(int)$this->limit.' OFFSET '.(int)$this->offset;
@@ -562,7 +562,7 @@ class MiniMVC_Query
         return ' FROM '.(isset($this->tables[$alias]) ? $this->tables[$alias]->getTableName() : '').' '.$alias.' ';
     }
 
-    protected function _in($alias = null, $key = null, $values = array(), $escape = true)
+    protected function _in($alias = null, $key = null, $values = array())
     {
         if (empty($values) || !is_array($values)) {
             $values = (array) $values;
@@ -573,10 +573,7 @@ class MiniMVC_Query
         if ($alias) {
             $key = $alias.'.'.$key;
         }
-        if ($escape) {
-            return ' '.$key.' IN ("'.implode('","',  $values).'") ';
-        }
-        return ' '.$key.' IN ('.implode(',',  $values).') ';
+        return ' '.$key.' IN ("'.implode('","',  $values).'") ';
     }
 
     protected function _getIdentifiers($values = array(), $asQuery = false)
