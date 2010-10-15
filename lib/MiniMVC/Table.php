@@ -85,108 +85,15 @@ class MiniMVC_Table {
         return $this->_table;
     }
 
-    /**
-     * @param mixed $id the identifier of the entry to get
-     * @return Mysql_Model the entry
-     */
-	public function getOne($id)
-	{
-		return (isset($this->_entries[$id])) ? $this->_entries[$id] : null;
-	}
-
-    /**
-     * @param string $field the column to search in
-     * @param mixed $value the value of the column
-     * @param string|bool $order
-     * @param int $offset
-     * @return Mysql_Model
-     */
-	public function getOneBy($field, $value, $order = null, $offset = 0)
-	{
-		return array_shift($this->get($field, $value, $order, 1, $offset));
-	}
-
-    /**
-     * @param string $field the column to search in
-     * @param mixed $value the value of the column
-     * @param string $order
-     * @param int $limit
-     * @param int $offset
-     * @return array
-     */
-	public function get($field = null, $value = null, $order = null, $limit = null, $offset = null)
-	{
-		$return = array();
-        if ($field) {
-            foreach ($this->_entries as $entry)
-            {
-                if (isset($entry->$field) && $entry->$field == $value)
-                {
-                    $return[$entry->{$this->_identifier}] = $entry;
-                }
-            }
-        } else {
-            $return = $this->_entries;
-        }
-		if ($order !== null && $order !== false)
-		{
-			$order = explode(' ', $order, 2);
-			if (!isset($order[1]) || !in_array(strtolower(trim($order[1])), array('asc', 'desc')) || !in_array(trim($order[0], $this->_columns)))
-			{
-				return array();
-			}
-			$return = $this->orderBy($order[0], $order[1], $return);
-		}
-		if ($limit !== null || $offset !== null)
-		{
-			$return = array_splice($return, intval($offset), intval($limit));
-		}
-
-		return $return;
-	}
-
-    /**
-     *
-     * @param bool $reload force database query
-     * @return array
-     */
-	public function getAll($reload = false)
-	{
-		if ($reload || !$this->_entries)
-		{
-			$this->loadAll();
-		}
-		return $this->_entries;
-	}
-
-    /**
-     *
-     * @param Mysql_Model $entry
-     * @return bool
-     */
-	public function set($entry)
-	{
-        if (is_array($entry)) {
-            foreach ($entry as $currentEntry) {
-                $this->set($currentEntry);
-            }
-        }
-		if (!isset($entry->{$this->_identifier}))
-		{
-			return false;
-		}
-		$this->_entries[$entry->{$this->_identifier}] = $entry;
-		return true;
-	}
 
     /**
      *
      * @param mixed $id the identifier
      * @return Mysql_Model
      */
-	public function loadOne($id, $reload = false)
+	public function loadOne($id)
 	{
-		return (isset($this->_entries[$id]) && !$reload) ? $this->_entries[$id] : $this->loadOneBy($this->_identifier . ' = ?', $id);
+		return $this->loadOneBy($this->_identifier . ' = ?', $id);
 	}
 
     /**

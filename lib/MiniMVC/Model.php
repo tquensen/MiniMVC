@@ -161,6 +161,12 @@ class MiniMVC_Model implements ArrayAccess
          */
     }
 
+    /**
+     *
+     * @param string $relation the name of a relation
+     * @param mixed $identifier the identifier of the related model or true to return all stored models of this relation
+     * @return MiniMVC_Model|array
+     */
     public function getRelated($relation, $identifier = true)
     {
         $relationInfo = $this->_table->getRelation($relation);
@@ -176,15 +182,21 @@ class MiniMVC_Model implements ArrayAccess
         return ($identifier === true && (!isset($relationInfo[3]) || $relationInfo[3] !== true)) ? array() : null;
     }
 
+    /**
+     *
+     * @param string $relation the name of a relation
+     * @param MiniMVC_Model $identifier the related model
+     * @param bool $update whether to update the model if it is already stored or not
+     */
     public function setRelated($relation, $identifier = null, $update = true)
     {
         if (is_object($identifier) && $identifier instanceof MiniMVC_Model) {
             if (!$identifier->getIdentifier()) {
                 $this->_relations[$relation][] = $arguments[0];
-                return $this;
+                return true;
             }
             if (!$update && isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
-                return $this;
+                return true;
             }
 
             $this->_relations[$relation]['_'.$identifier->getIdentifier()] = $identifier;
@@ -200,11 +212,19 @@ class MiniMVC_Model implements ArrayAccess
                     $this->{$info[1]} = $identifier->getIdentifier();
                 }
             }
-            return $this;
+            return true;
         }
         throw new InvalidArgumentException('$identifier must be a MiniMVC_Model instance!');
     }
 
+    /**
+     *
+     * @param string $relation the name of a relation
+     * @param mixed $identifier either a model object, an identifier of a related model or true
+     * @param bool $realDelete whether to delete the model from the database (true) or just from this object(false) defaults to true
+     * @param bool $realDeleteLoad if the identifier is true only the related models currently assigned to this object will be deleted. with relaDeleteLoad=true, all related models will be deleted
+     * @param bool $realDeleteCleanRef if relaDeleteLoad is true, set realDeleteCleanRef=true to clean up the ref table (for m:n relations)
+     */
     public function deleteRelated($relation, $identifier = true, $realDelete = true, $realDeleteLoad = false, $realDeleteCleanRef = false)
     {
         if (is_object($identifier)) {
@@ -264,6 +284,16 @@ class MiniMVC_Model implements ArrayAccess
         }
     }
 
+    /**
+     *
+     * @param string $relation the name of a relation
+     * @param string $condition the where-condition
+     * @param array $values values for the placeholders in the condition
+     * @param string $order the order
+     * @param int $limit the limit
+     * @param int $offset the offset
+     * @return MiniMVC_Model|array
+     */
     public function loadRelated($relation, $condition = null, $values = array(), $order = null, $limit = null, $offset = null)
     {
         if (!$data = $this->getTable()->getRelation($relation)) {
@@ -299,6 +329,12 @@ class MiniMVC_Model implements ArrayAccess
         return (isset($data[3]) && $data[3] === true) ? reset($entries) : $entries;
     }
 
+    /**
+     *
+     * @param string $relation the name of a relation
+     * @param mixed $identifier a related model object, the identifier of a related model currently asigned to this model or true to save all related models
+     * @param bool $saveThisOnDemand whether to allow this model to be saved in the database if its new (to generate an auto-increment identifier)
+     */
     public function saveRelated($relation, $identifier = true, $saveThisOnDemand = true)
     {
         if (!$info = $this->_table->getRelation($relation)) {
@@ -400,6 +436,12 @@ class MiniMVC_Model implements ArrayAccess
         }
     }
 
+    /**
+     *
+     * @param string $relation the name of a relation
+     * @param mixed $identifier a related model object, the identifier of a related model
+     * @param bool $loadRelated whether to load the related object (if identifier is not already loaded and assigned to this model)
+     */
     public function linkRelated($relation, $identifier = null, $loadRelated = false)
     {
         if (!$identifier) {
@@ -423,7 +465,7 @@ class MiniMVC_Model implements ArrayAccess
                     $this->_relations[$relation]['_'.$identifier]->{$info[2]} = $this->getIdentifier();
                     $this->_relations[$relation]['_'.$identifier]->save();
                 } else {
-                    if ($loadRelated && $object = $table->getOne($identifier)) {
+                    if ($loadRelated && $object = $table->loadOne($identifier)) {
                         $object->{$info[2]} = $this->getIdentifier();
                         $object->save();
                     } else {
@@ -444,7 +486,7 @@ class MiniMVC_Model implements ArrayAccess
                     $this->{$info[1]} = $this->_relations[$relation]['_'.$identifier]->getIdentifier();
                 } else {
                     $this->{$info[1]} = $identifier;
-                    if ($loadRelated && $object = $table->getOne($identifier)) {
+                    if ($loadRelated && $object = $table->loadOne($identifier)) {
                         $this->_relations[$relation]['_'.$identifier] = $object;
                     }
                 }
@@ -495,6 +537,11 @@ class MiniMVC_Model implements ArrayAccess
         }
     }
 
+    /**
+     *
+     * @param string $relation the name of a relation
+     * @param mixed $identifier a related model object, the identifier of a related model or unlink to save all related models
+     */
     public function unlinkRelated($relation, $identifier = true)
     {
         if (!$info = $this->_table->getRelation($relation)) {

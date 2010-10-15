@@ -1,27 +1,6 @@
 <?php
-
-/**
- * @method {name} getOne() getOne($id)
- * @method {name} getOneBy() getOneBy($field, $value, $order = null, $offset = 0)
- * @method {name} loadOne() loadOne($id, $reload = false)
- * @method {name} loadOneBy() loadOneBy($condition, $value = null, $order = null, $offset = 0)
- * @method {name} loadOneWithRelations() loadOneWithRelations($id, $relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = false)
- * @method {name} loadOneWithRelationsBy() loadOneWithRelationsBy($relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = true)
- * @method {name} create() create($data = array())
- */
-class {name}Table extends MiniMVC_Table
+class {name}Table extends {name}TableBase
 {
-
-	protected $_table = '{table}';
-    protected $_model = '{name}';
-
-	protected $_columns = array({columns_list});
-    protected $_relations = array();
-	protected $_identifier = 'id';
-	protected $_isAutoIncrement = true;
-
-    protected static $_instance = null;
-
     public function getForm($model = null)
     {
         $i18n = $this->registry->helper->i18n->get('{modlc}');
@@ -45,7 +24,7 @@ class {name}Table extends MiniMVC_Table
             case 0:
                 $sql = "CREATE TABLE {table} (
                       {columns_sql}
-					  PRIMARY KEY (id)
+					  PRIMARY KEY ({identifier})
 					) ENGINE=INNODB DEFAULT CHARSET=utf8";
 
                 $this->_db->query($sql);
@@ -85,17 +64,5 @@ class {name}Table extends MiniMVC_Table
                 $this->_db->query($sql);
         }
         return true;
-    }
-
-    /**
-     *
-     * @return {name}Table
-     */
-    public static function getInstance()
-    {
-        if (!isset(self::$_instance)) {
-            self::$_instance = new {name}Table;
-        }
-        return self::$_instance;
     }
 }

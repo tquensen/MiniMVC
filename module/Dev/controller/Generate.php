@@ -109,6 +109,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         file_put_contents($path . '/settings/config.php', str_replace($search, $replace, file_get_contents($dummy . '/config.php')));
         file_put_contents($path . '/settings/routes.php', str_replace($search, $replace, file_get_contents($dummy . '/routes.php')));
         file_put_contents($path . '/settings/widgets.php', str_replace($search, $replace, file_get_contents($dummy . '/widgets.php')));
+        file_put_contents($path . '/model/definition.php', str_replace($search, $replace, file_get_contents($dummy . '/definition.php')));
         //file_put_contents($path . '/settings/slots.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/slots.php')));
         //file_put_contents($path . '/Model/Schema/schema.yml', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/schema.yml')));
 
@@ -124,11 +125,32 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             return 'Kein Modelnamen angegeben!' . "\n";
         }
 
+        $definition = $this->getModelDefinition($params['module'], $params['model']);
+
+        if (!$definition) {
+            return 'No model definition found for '.$params['model'].' in module '.$params['module'].'...' . "\n";
+        }
+
+        if (empty($definition['identifier'])) {
+            $definition['identifier'] = 'id';
+        }
+        if (!isset($definition['autoIncrement'])) {
+            $definition['autoIncrement'] = true;
+        }
+        if (!isset($definition['columns'][$definition['identifier']])) {
+            $definition['columns'][$definition['identifier']] = 'int';
+        }
+        if (!isset($definition['relations'])) {
+            $definition['relations'] = array();
+        }
+
         $columns = ($params['columns']) ? array_map('trim', explode(',', $params['columns'])) : array('id', 'slug', 'title');
 
         if (false !== ($idColumn = array_search('id', $columns))) {
             unset($columns[$idColumn]);
         }
+
+
         $model = ucfirst($params['model']);
 
         $search = array(
@@ -140,7 +162,11 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             '{columns_list}',
             '{columns_sql}',
             '{columns_phpdoc}',
-            '{columns_form}'
+            '{columns_form}',
+            '{auto_increment}',
+            '{identifier}',
+            '{relations_list}',
+            '{relations_methods}'
         );
         $replace = array(
             $model,
@@ -148,10 +174,14 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             $params['module'],
             strtolower($params['module']),
             strtolower(substr($model, 0, 1)) . substr($model, 1),
-            '\'id\', \''.implode('\', \'', $columns).'\'',
-            "id INT(11) NOT NULL AUTO_INCREMENT,\n                      ".implode(" VARCHAR(255),\n                      ", $columns)." VARCHAR(255),\n",
-            "@property int \$id\n * @property string \$".implode("\n * @property string \$", $columns)."\n",
-            $this->getFormCode($columns, $model)
+            '\''.implode('\', \'', array_keys($definition['columns'])).'\'',
+            $this->getSqlCode($definition, $model),
+            $this->getPhpDocCode($definition, $model),
+            $this->getFormCode($definition, $model),
+            $definition['autoIncrement'] ? 'true' : 'false',
+            $definition['identifier'],
+            $this->getRelationsListCode($definition, $model),
+            $this->getRelationsMethodsCode($definition, $model)
         );
 
         $path = MODULEPATH . $params['module'].'/model';
@@ -170,6 +200,13 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         } else {
             $message .= '-> Datei '.$model.'Table.php existiert bereits'."\n";
         }
+
+        file_put_contents($path . '/'.$model.'Base.php', str_replace($search, $replace, file_get_contents($dummy . '/ModelBase.php')));
+        $message .= '-> Datei '.$model.'Base.php erstellt'."\n";
+        file_put_contents($path . '/'.$model.'TableBase.php', str_replace($search, $replace, file_get_contents($dummy . '/TableBase.php')));
+        $message .= '-> Datei '.$model.'TableBase.php erstellt'."\n";
+
+
         return $message;
     }
 
@@ -225,22 +262,181 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         return $message;
     }
 
-    protected function getFormCode($columns, $model)
+    protected function getSqlCode($definition, $model)
     {
-        $code = '$form->setElement(new MiniMVC_Form_Element_Text(\'{column}\',
+        $types = array(
+            'int' => 'INT(11)',
+            'integer' => 'INT(11)',
+            'bool' => 'TINYINT(1) NOT NULL',
+            'boolean' => 'TINYINT(1) NOT NULL',
+            'float' => 'FLOAT',
+            'double' => 'DOUBLE',
+            'string' => 'VARCHAR(255)',
+            'array' => 'TEXT'
+        );
+
+        $return = '';
+        foreach ($definition['columns'] as $column => $type) {
+            $sqlType = isset($types[strtolower($type)]) ? $types[strtolower($type)] : 'VARCHAR(255)';
+            if ($column == $definition['identifier']) {
+                $return = $column . ' ' .$sqlType . ($definition['autoIncrement'] ? ' AUTO INCREMENT ' : '') . "\n" . $return;
+            } else {
+                $return .= '                      ' . $column . ' ' .$sqlType . "\n";
+            }
+        }
+        return $return;
+
+    }
+
+    protected function getPhpDocCode($definition, $model)
+    {
+        $return = '';
+        foreach ($definition['columns'] as $column => $type) {
+            $return .= '@property ' . strtolower($type) . ' ' . $column . "\n * ";
+        }
+        return $return;
+    }
+
+    protected function getFormCode($definition, $model)
+    {
+        $types = array(
+            'int' => 'Text',
+            'integer' => 'Text',
+            'bool' => 'Checkbox',
+            'boolean' => 'Checkbox',
+            'float' => 'Text',
+            'double' => 'Text',
+            'string' => 'Text',
+            'array' => 'Text'
+        );
+
+        $code = '$form->setElement(new MiniMVC_Form_Element_{type}(\'{column}\',
                         array(\'label\' => $i18n->{namelcfirst}Form{columncc}Label),
                         array(
-                            new MiniMVC_Form_Validator_Required(array(\'errorMessage\' => $i18n->{namelcfirst}Form{columncc}Error))
+                            //new MiniMVC_Form_Validator_Required(array(\'errorMessage\' => $i18n->{namelcfirst}Form{columncc}Error))
                 )));
         ';
 
         $output = '';
-        $search = array('{namelcfirst}', '{column}', '{columnucfirst}', '{columncc}');
+        $search = array('{namelcfirst}', '{column}', '{columnucfirst}', '{columncc}', '{type}');
 
-        foreach ($columns as $column) {
-            $replace = array(strtolower(substr($model, 0, 1)) . substr($model, 1), $column, ucfirst($column), ucfirst(preg_replace('/_(.)/e', 'ucfirst("$1")', $column)));
+        foreach ($definition['columns'] as $column => $type) {
+            $replace = array(strtolower(substr($model, 0, 1)) . substr($model, 1), $column, ucfirst($column), ucfirst(preg_replace('/_(.)/e', 'ucfirst("$1")', $column)), isset($types[strtolower($type)]) ? $types[strtolower($type)] : 'Text');
             $output .= str_replace($search, $replace, $code);
         }
         return $output;
+    }
+
+    protected function getRelationsListCode($definition, $model)
+    {
+        $return = array();
+        foreach ($definition['relations'] as $relation => $data) {
+            if (empty($data[0]) || empty($data[1]) || empty($data[2])) {
+                continue;
+            }
+            $return[] = '\''.$relation.'\' => array(\''.$data[0].'\', \''.$data[1].'\', \''.$data[2].'\''.(!empty($data[3]) ? ($data[3] === true ? ', true' : ', \''.$data[3].'\'') : '').')';
+        }
+        return implode(', ', $return);
+    }
+
+    protected function getRelationsMethodsCode($definition, $model)
+    {
+        $code = '
+    /**
+     *
+     * @param mixed $identifier the identifier of the related model or true to return all stored models of this relation
+     * @return {related_model_or_array}
+     */
+    public function get{relation}($identifier = true)
+    {
+        return parent::getRelated(\'{relation}\', $identifier = true);
+    }
+
+    /**
+     *
+     * @param MiniMVC_Model $identifier the related model
+     * @param bool $update whether to update the model if it is already stored or not
+     */
+    public function set{relation}($identifier = null, $update = true)
+    {
+        return parent::setRelated(\'{relation}\', $identifier = null, $update = true);
+    }
+
+    /**
+     *
+     * @param mixed $identifier either a model object, an identifier of a related model or true
+     * @param bool $realDelete whether to delete the model from the database (true) or just from this object(false) defaults to true
+     * @param bool $realDeleteLoad if the identifier is true only the related models currently assigned to this object will be deleted. with relaDeleteLoad=true, all related models will be deleted
+     * @param bool $realDeleteCleanRef if relaDeleteLoad is true, set realDeleteCleanRef=true to clean up the ref table (for m:n relations)
+     */
+    public function delete{relation}($identifier = true, $realDelete = true, $realDeleteLoad = false, $realDeleteCleanRef = false)
+    {
+        return parent::deleteRelated(\'{relation}\', $identifier = true, $realDelete = true, $realDeleteLoad = false, $realDeleteCleanRef = false);
+    }
+
+    /**
+     *
+     * @param string $condition the where-condition
+     * @param array $values values for the placeholders in the condition
+     * @param string $order the order
+     * @param int $limit the limit
+     * @param int $offset the offset
+     * @return {related_model_or_array}
+     */
+    public function load{relation}($condition = null, $values = array(), $order = null, $limit = null, $offset = null)
+    {
+        return parent::loadRelated(\'{relation}\', $condition = null, $values = array(), $order = null, $limit = null, $offset = null);
+        return (isset($data[3]) && $data[3] === true) ? reset($entries) : $entries;
+    }
+
+    /**
+     *
+     * @param mixed $identifier a related model object, the identifier of a related model currently asigned to this model or true to save all related models
+     * @param bool $saveThisOnDemand whether to allow this model to be saved in the database if its new (to generate an auto-increment identifier)
+     */
+    public function save{relation}($identifier = true, $saveThisOnDemand = true)
+    {
+        return parent::saveRelated(\'{relation}\', $identifier = true, $saveThisOnDemand = true);
+    }
+
+    /**
+     *
+     * @param mixed $identifier a related model object, the identifier of a related model
+     * @param bool $loadRelated whether to load the related object (if identifier is not already loaded and assigned to this model)
+     */
+    public function link{relation}($identifier = null, $loadRelated = false)
+    {
+        return parent::linkRelated(\'{relation}\', $identifier = null, $loadRelated = false);
+    }
+
+    /**
+     *
+     * @param mixed $identifier a related model object, the identifier of a related model or unlink to save all related models
+     */
+    public function unlink{relation}($identifier = true)
+    {
+        return parent::unlinkRelated(\'{relation}\', $identifier = true);
+    }
+
+    ';
+
+
+        $return = array();
+        $search = array('{relation}', '{related_model_or_array}');
+        foreach ($definition['relations'] as $relation => $data) {
+            $replace = array($relation, isset($data[3]) && $data[3] === true ? $data[0] : 'array');
+            $return[] = str_replace($search, $replace, $code);
+        }
+        return implode("\n", $return);
+    }
+
+    protected function getModelDefinition($module, $model)
+    {
+        $modelDefinition = array();
+        $file = MODULEPATH . $module.'/model/definition.php';
+        if (file_exists($file)) {
+            include $file;
+        }
+        return isset($modelDefinition[$model]) ? $modelDefinition[$model] : false;
     }
 }
