@@ -33,7 +33,7 @@ class Helper_Partial extends MiniMVC_Helper
             } elseif (file_exists(DATAPATH . 'partial/' . $_partial . '.php')) {
                 $_file = DATAPATH . 'partial/' . $_partial . '.php';
             } elseif (file_exists(MINIMVCPATH . 'data/partial/' . $_partial . '.php')) {
-                $_file = DATAPATH . 'partial/' . $_partial . '.php';
+                $_file = MINIMVCPATH . 'data/partial/' . $_partial . '.php';
             } else {
                 return ob_get_clean();
             }
