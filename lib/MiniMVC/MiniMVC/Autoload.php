@@ -27,6 +27,8 @@ class MiniMVC_Autoload
         $parts = explode('/', $classPath);
 
         foreach ($registry->settings->get('config/autoloadPaths', array()) as $path) {
+            $path = rtrim($path, '/');
+
             if (file_exists($path . '/' . $class . '.php')) {
                 include_once ($path . '/' . $class . '.php');
                 $registry->settings->set('autoload/'.$class, $path . '/' . $class . '.php');
