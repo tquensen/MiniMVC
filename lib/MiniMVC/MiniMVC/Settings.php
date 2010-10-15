@@ -28,8 +28,8 @@ class MiniMVC_Settings
             $varname = 'MiniMVC_' . $file;
             $$varname = array();
 
-            if (is_file(DATAPATH . 'settings/default/' . $file . '.php')) {
-                include(DATAPATH . 'settings/default/' . $file . '.php');
+            if (is_file(MINIMVCPATH . 'data/settings/' . $file . '.php')) {
+                include(MINIMVCPATH . 'data/settings/' . $file . '.php');
             }
 
             if (is_file(DATAPATH . 'settings/' . $file . '.php')) {
@@ -37,8 +37,8 @@ class MiniMVC_Settings
             }
 
             if ($environment) {
-                if (is_file(DATAPATH . 'settings/default/' . $file . '_' . $environment . '.php')) {
-                    include(DATAPATH . 'settings/default/' . $file . '_' . $environment . '.php');
+                if (is_file(MINIMVCPATH . 'data/settings/' . $file . '_' . $environment . '.php')) {
+                    include(MINIMVCPATH . 'data/settings/' . $file . '_' . $environment . '.php');
                 }
 
                 if (is_file(DATAPATH . 'settings/' . $file . '_' . $environment . '.php')) {

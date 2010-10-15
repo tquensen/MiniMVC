@@ -42,6 +42,11 @@ class Helper_I18n extends MiniMVC_Helper
 
                 //load fallback language first (if it differs from current language)
                 if ($language != $fallbackLanguage) {
+                    if (is_file(MINIMVCPATH.'data/i18n/'.$fallbackLanguage.'.php'))
+                    {
+                        include_once(MINIMVCPATH.'data/i18n/'.$fallbackLanguage.'.php');
+                    }
+
                     if (is_file(DATAPATH.'i18n/'.$fallbackLanguage.'.php'))
                     {
                         include_once(DATAPATH.'i18n/'.$fallbackLanguage.'.php');
@@ -65,6 +70,11 @@ class Helper_I18n extends MiniMVC_Helper
                 }
 
                 //overwrite fallback with current language where available
+                if (is_file(MINIMVCPATH.'data/i18n/'.$language.'.php'))
+                {
+                    include_once(MINIMVCPATH.'data/i18n/'.$language.'.php');
+                }
+
                 if (is_file(DATAPATH.'i18n/'.$language.'.php'))
                 {
                     include_once(DATAPATH.'i18n/'.$language.'.php');
