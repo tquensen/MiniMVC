@@ -7,6 +7,7 @@ class MiniMVC_Form
     protected $isValid = true;
     protected $options = array();
     protected $model = null;
+    protected $postValidators = array();
 
     public function __construct($options = array())
     {
@@ -111,6 +112,21 @@ class MiniMVC_Form
         return $this->elements;
     }
 
+    public function setPostValidator($validator)
+    {
+        if (!is_object($validator)) {
+            return false;
+        }
+        $this->postValidators[] = $validator;
+        $validator->setForm($this);
+        return $this;
+    }
+
+    public function getPostValidators()
+    {
+        return $this->postValidators[];
+    }
+
     public function bindValues()
     {
         if (isset($_SESSION['form_' . $this->name . '__' . $this->getOption('action') . '__errorData'])) {
@@ -158,6 +174,15 @@ class MiniMVC_Form
                 $this->isValid = false;
             }
         }
+
+        foreach ($this->postValidators as $validator)
+		{
+			if (!$validator->validate($this->isValid))
+			{
+				$this->isValid = false;
+			}
+		}
+
         if (!$this->isValid && $this->getOption('redirectOnError')) {
             $this->errorRedirect();
         }

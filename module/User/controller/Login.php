@@ -7,29 +7,23 @@ class User_Login_Controller extends MiniMVC_Controller
     {
         $this->view->form = UserTable::getInstance()->getLoginForm(isset($params['widget']) ? $params['widget'] : false);
         if ($this->view->form->validate()) {
-            $user = UserTable::getInstance()->loadOneBy('email = ?', $this->view->form->email->value);
-            if (!$user || !$user->checkPassword($this->view->form->password->value)) {
-                $this->view->form->password->setError('Der Username oder das Passwort ist ungültig');
-                $this->view->form->errorRedirect();
-            } else {
-                $guard = $this->registry->guard;
-                $guard->setUser($user->id, $user->role);
-                $guard->email = $user->email;
-                $guard->name = $user->name;
-                $guard->slug = $user->slug;
+            $user = $this->view->form->getModel();
+            $guard = $this->registry->guard;
+            $guard->setUser($user->id, $user->role);
+            $guard->email = $user->email;
+            $guard->name = $user->name;
+            $guard->slug = $user->slug;
 
-                if ($redirect = $this->registry->settings->get('config/user/loginRedirect')) {
-                    if (is_array($redirect)) {
-                        if (isset($redirect['route'])) {
-                            return $this->redirect($redirect['route'], (isset($redirect['parameter'])) ? $redirect['parameter'] : array(), (isset($redirect['app'])) ? $redirect['app'] : null);
-                        }
-                    } else {
-                        return $this->redirect($redirect);
+            if ($redirect = $this->registry->settings->get('config/user/loginRedirect')) {
+                if (is_array($redirect)) {
+                    if (isset($redirect['route'])) {
+                        return $this->redirect($redirect['route'], (isset($redirect['parameter'])) ? $redirect['parameter'] : array(), (isset($redirect['app'])) ? $redirect['app'] : null);
                     }
+                } else {
+                    return $this->redirect($redirect);
                 }
-
-                return $this->view->prepare('login/loginSuccess');
             }
+            return $this->view->prepare('login/loginSuccess');
         }
         return $this->view->prepare('login/loginForm');
     }

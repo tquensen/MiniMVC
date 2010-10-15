@@ -1,7 +1,7 @@
 <?php
 class MiniMVC_Form_Validator_File extends MiniMVC_Form_Validator
 {
-	public function validate($element, $value)
+	public function validate($value)
 	{
         if (!is_array($value)) {
             return false;

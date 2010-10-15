@@ -13,6 +13,9 @@ class MiniMVC_Form_Element
 		$this->name = $name;
 		$this->options = (array) $options;
 		$this->validators = (is_array($validators)) ? $validators : array($validators);
+        foreach ($this->validators as $validator) {
+            $validator->setElement($this);
+        }
 	}
 
 	public function setForm($form)
@@ -36,6 +39,9 @@ class MiniMVC_Form_Element
 		{
 			$validators = array($validators);
 		}
+        foreach ($this->validators as $validator) {
+            $validator->setElement($this);
+        }
 		$this->validators = array_merge($this->validators, $validators);
 	}
 
@@ -92,7 +98,7 @@ class MiniMVC_Form_Element
 	{
 		foreach ($this->validators as $validator)
 		{
-			if (!$validator->validate($this, $this->value))
+			if (!$validator->validate($this->value))
 			{
 				$errorMessage = $validator->errorMessage;
 				if ($errorMessage)
@@ -116,7 +122,7 @@ class MiniMVC_Form_Element
 
 	public function isValid()
 	{
-		return $this->isValid === null ? true : (bool) $this->isValid;
+		return (bool) $this->isValid;
 	}
 
 	public function wasSubmitted()
