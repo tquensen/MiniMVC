@@ -292,7 +292,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
     {
         $return = '';
         foreach ($definition['columns'] as $column => $type) {
-            $return .= '@property ' . strtolower($type) . ' ' . $column . "\n * ";
+            $return .= '@property ' . strtolower($type) . ' $' . $column . "\n * ";
         }
         return $return;
     }
@@ -321,6 +321,9 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         $search = array('{namelcfirst}', '{column}', '{columnucfirst}', '{columncc}', '{type}');
 
         foreach ($definition['columns'] as $column => $type) {
+            if ($column == $definition['identifier']) {
+                continue;
+            }
             $replace = array(strtolower(substr($model, 0, 1)) . substr($model, 1), $column, ucfirst($column), ucfirst(preg_replace('/_(.)/e', 'ucfirst("$1")', $column)), isset($types[strtolower($type)]) ? $types[strtolower($type)] : 'Text');
             $output .= str_replace($search, $replace, $code);
         }
@@ -349,7 +352,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
      */
     public function get{relation}($identifier = true)
     {
-        return parent::getRelated(\'{relation}\', $identifier = true);
+        return $this->getRelated(\'{relation}\', $identifier = true);
     }
 
     /**
@@ -359,7 +362,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
      */
     public function set{relation}($identifier = null, $update = true)
     {
-        return parent::setRelated(\'{relation}\', $identifier = null, $update = true);
+        return $this->setRelated(\'{relation}\', $identifier = null, $update = true);
     }
 
     /**
@@ -371,7 +374,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
      */
     public function delete{relation}($identifier = true, $realDelete = true, $realDeleteLoad = false, $realDeleteCleanRef = false)
     {
-        return parent::deleteRelated(\'{relation}\', $identifier = true, $realDelete = true, $realDeleteLoad = false, $realDeleteCleanRef = false);
+        return $this->deleteRelated(\'{relation}\', $identifier = true, $realDelete = true, $realDeleteLoad = false, $realDeleteCleanRef = false);
     }
 
     /**
@@ -385,8 +388,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
      */
     public function load{relation}($condition = null, $values = array(), $order = null, $limit = null, $offset = null)
     {
-        return parent::loadRelated(\'{relation}\', $condition = null, $values = array(), $order = null, $limit = null, $offset = null);
-        return (isset($data[3]) && $data[3] === true) ? reset($entries) : $entries;
+        return $this->loadRelated(\'{relation}\', $condition = null, $values = array(), $order = null, $limit = null, $offset = null);
     }
 
     /**
@@ -396,7 +398,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
      */
     public function save{relation}($identifier = true, $saveThisOnDemand = true)
     {
-        return parent::saveRelated(\'{relation}\', $identifier = true, $saveThisOnDemand = true);
+        return $this->saveRelated(\'{relation}\', $identifier = true, $saveThisOnDemand = true);
     }
 
     /**
@@ -406,7 +408,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
      */
     public function link{relation}($identifier = null, $loadRelated = false)
     {
-        return parent::linkRelated(\'{relation}\', $identifier = null, $loadRelated = false);
+        return $this->linkRelated(\'{relation}\', $identifier = null, $loadRelated = false);
     }
 
     /**
@@ -415,7 +417,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
      */
     public function unlink{relation}($identifier = true)
     {
-        return parent::unlinkRelated(\'{relation}\', $identifier = true);
+        return $this->unlinkRelated(\'{relation}\', $identifier = true);
     }
 
     ';
