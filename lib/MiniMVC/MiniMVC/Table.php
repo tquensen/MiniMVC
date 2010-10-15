@@ -297,7 +297,6 @@ class MiniMVC_Table {
             }
         }
         $entry->postLoad();
-        $this->set($entry);
         return $entry;
 	}
 
@@ -311,7 +310,6 @@ class MiniMVC_Table {
         }
 
         $entry->postCreate();
-		$this->set($entry);
 		return $entry;
 	}
 
