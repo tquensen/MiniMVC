@@ -1,5 +1,5 @@
     <label><?php echo htmlspecialchars($element->label) ?></label>
-    <ul class="formRadioGroupList">
+    <ul>
     <?php foreach ($element->elements as $radio => $value): ?>
         <li>
             <input type="radio"

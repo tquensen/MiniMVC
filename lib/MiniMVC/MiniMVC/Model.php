@@ -299,8 +299,8 @@ class MiniMVC_Model implements ArrayAccess
         if (!$data = $this->getTable()->getRelation($relation)) {
             throw new Exception('Unknown relation "'.$relation.'" for model '.$this->_table->getModelName());
         }
-        if (is_string($values)) {
-            $values = array($values);
+        if (!is_array($values)) {
+            $values = (array) $values;
         }
 
         if (isset($data[3]) && $data[3] !== true) {

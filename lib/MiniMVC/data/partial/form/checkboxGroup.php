@@ -1,5 +1,5 @@
     <label><?php echo htmlspecialchars($element->label) ?></label>
-    <ul class="formCheckboxGroupList">
+    <ul>
     <?php foreach ($element->elements as $check => $value): ?>
         <li>
             <input type="checkbox"

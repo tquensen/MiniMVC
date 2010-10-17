@@ -7,7 +7,7 @@ class MiniMVC_Form_Element_Submit extends MiniMVC_Form_Element
 	{
 	}
 
-	public function updateRecord()
+	public function updateModel($model)
 	{
 	}
 
