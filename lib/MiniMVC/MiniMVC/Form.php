@@ -124,7 +124,7 @@ class MiniMVC_Form
 
     public function getPostValidators()
     {
-        return $this->postValidators[];
+        return $this->postValidators;
     }
 
     public function bindValues()
