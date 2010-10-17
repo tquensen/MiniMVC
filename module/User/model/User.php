@@ -35,7 +35,7 @@ class User extends MiniMVC_Model
     public function checkPassword($validator, $isValid)
     {
         $user = $this->getTable()->loadOneBy('email = ?', $validator->getForm()->email->value);
-        if (!$user || md5($validator->getForm()->password->value.$this->salt) != $this->password) {
+        if (!$user || md5($validator->getForm()->password->value.$user->salt) != $this->password) {
             $validator->getForm()->password->setError('Der Username oder das Passwort ist ungültig');
             return false;
         }
