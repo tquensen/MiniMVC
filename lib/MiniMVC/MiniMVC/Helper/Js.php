@@ -173,12 +173,12 @@ class Helper_Js extends MiniMVC_Helper
         foreach ($files as $file) {
             if ($file['combine']) {
                 $combinedFound = true;
-                $data[] = file_get_contents($file);
+                $data[] = file_get_contents($file['file']);
             } else {
                 if ($combinedFound) {
-                    $uncombinedAfter[] = $file;
+                    $uncombinedAfter[] = $file['file'];
                 } else {
-                    $uncombinedBefore[] = $file;
+                    $uncombinedBefore[] = $file['file'];
                 }
             }
             
