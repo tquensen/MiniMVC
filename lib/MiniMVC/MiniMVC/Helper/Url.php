@@ -61,6 +61,15 @@ class Helper_Url extends MiniMVC_Helper
             return $title;
         }
 
+        try
+		{
+			$routeData = $this->registry->dispatcher->getRoute($route, $parameter, $app);
+		}
+		catch (Exception $e)
+		{
+			return $title;
+		}
+
         if (!$method) {
             if (isset($routeData['method'])) {
                 $method = is_array($routeData['method']) ? array_shift($routeData['method']) : $routeData['method'];
