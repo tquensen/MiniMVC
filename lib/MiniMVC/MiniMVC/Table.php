@@ -398,7 +398,6 @@ class MiniMVC_Table {
 
             }
 
-            $this->set($entry);
             if ($entry->postSave() === false) {
                 $this->_db->rollBack();
                 return false;
