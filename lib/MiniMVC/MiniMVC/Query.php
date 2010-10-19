@@ -53,7 +53,7 @@ class MiniMVC_Query
         if (!is_array($values) && $values !== null) {
             $values = array($values);
         }
-        $this->values = $values;
+        $this->values = array_merge($this->values, $values);
     }
 
     /**
@@ -163,11 +163,12 @@ class MiniMVC_Query
      * @param string $condition
      * @return MiniMVC_Query
      */
-    public function where($condition)
+    public function where($condition, $values = array())
     {
         if (trim($condition)) {
             $this->where[] = $condition;
         }
+        $this->setValues($values);
         return $this;
     }
 
@@ -316,13 +317,9 @@ class MiniMVC_Query
      */
     public function count($count = '*', $values = array())
     {
-        if (!is_array($values) && $values !== null) {
-            $values = array($values);
-        }
+        $values = (array) $values;
 
-        if (empty($values) && !empty($this->values)) {
-            $values = $this->values;
-        }
+        $values = array_merge($this->values, $values);
 
         $oldType = $this->type;
         $oldColumns = $this->columns;
@@ -364,19 +361,14 @@ class MiniMVC_Query
      */
     public function execute($values = array(), $query = null)
     {
-        if (!is_array($values) && $values !== null) {
-            $values = array($values);
-        }
+        $values = (array) $values;
 
-        if (empty($values) && !empty($this->values)) {
-            $values = $this->values;
+        if ($query !== null) {
+            $values = array_merge($this->values, $values);
         }
 
         $sql = ($query !== null) ? $query : $this->get($values);
 
-        if (!is_array($values) && $values) {
-            $values = array($values);
-        }
 
         $stmt = $this->db->prepare($sql);
 
@@ -387,15 +379,11 @@ class MiniMVC_Query
 
     public function build($values = array(), $return = false)
     {
-        if (!is_array($values) && $values !== null) {
-            $values = array($values);
-        }
+        $values = (array) $values;
+
+        $values = array_merge($this->values, $values);
 
         $sql = $this->get($values);
-
-        if (empty($values) && !empty($this->values)) {
-            $values = $this->values;
-        }
 
         $stmt = $this->db->prepare($sql);
 
@@ -452,15 +440,11 @@ class MiniMVC_Query
 
     public function buildArray($values = array(), $return = false)
     {
-        if (!is_array($values) && $values !== null) {
-            $values = array($values);
-        }
+        $values = (array) $values;
+
+        $values = array_merge($this->values, $values);
 
         $sql = $this->get($values);
-
-        if (empty($values) && !empty($this->values)) {
-            $values = $this->values;
-        }
 
         $stmt = $this->db->prepare($sql);
 
@@ -564,37 +548,29 @@ class MiniMVC_Query
 
     protected function _in($alias = null, $key = null, $values = array())
     {
-        if (empty($values) || !is_array($values)) {
-            $values = (array) $values;
-        }
+        $values = (array) $values;
+
         if (!$key) {
             $key = $this->tables[$alias]->getIdentifier();
         }
         if ($alias) {
             $key = $alias.'.'.$key;
         }
-        return ' '.$key.' IN ("'.implode('","',  $values).'") ';
+
+        return ' '.$key.' IN ('.implode(',',  array_map(array($this->db, 'quote'), $values)).') ';
     }
 
     protected function _getIdentifiers($values = array(), $asQuery = false)
     {
-        $sql = $this->get($values, true);
+        $sql = $this->get((array) $values, true);
 
         if ($asQuery) {
             return $sql;
         }
 
-        if (empty($values) && !empty($this->values)) {
-            $values = $this->values;
-        }
-
-        if (empty($values) && !empty($this->values)) {
-            $values = $this->values;
-        }
-
         $stmt = $this->db->prepare($sql);
 
-        $stmt->execute($values);
+        $stmt->execute((array) $values);
 
         $ids = array();
         foreach($stmt->fetchAll(PDO::FETCH_NUM) as $row) {
