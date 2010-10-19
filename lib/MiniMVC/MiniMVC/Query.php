@@ -50,10 +50,7 @@ class MiniMVC_Query
 
     public function setValues($values)
     {
-        if (!is_array($values) && $values !== null) {
-            $values = array($values);
-        }
-        $this->values = array_merge($this->values, $values);
+        $this->values = array_merge($this->values, (array) $values);
     }
 
     /**
