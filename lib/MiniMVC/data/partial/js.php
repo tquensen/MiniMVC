@@ -10,7 +10,7 @@
 <?php if (count($inlineFiles)): ?>
     <script>
 <?php foreach ($inlineFiles as $code): ?>
-     <?php echo $file['url']."\n"?>
+     <?php echo $code."\n"?>
 <?php endforeach; ?>
     </script>
 <?php endif; ?>

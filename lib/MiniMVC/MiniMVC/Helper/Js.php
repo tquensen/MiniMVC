@@ -82,7 +82,7 @@ class Helper_Js extends MiniMVC_Helper
         $this->additionalFiles[$module . '/' . $file] = $data;
     }
 
-    public function addInlineFile($file, $module = null, $app = null)
+    public function addInlineFile($filename, $module = null, $app = null)
     {
         if (!$app) {
             $app = $this->registry->settings->get('runtime/currentApp');
@@ -90,17 +90,17 @@ class Helper_Js extends MiniMVC_Helper
 
         $file = null;
         if ($module) {
-            if (file_exists(APPPATH.$app.'/web/'.$module.'/js/'.$file['file'])) {
-                $file = APPPATH.$app.'/web/'.$module.'/js/'.$file['file'];
+            if (file_exists(APPPATH.$app.'/web/'.$module.'/js/'.$filename)) {
+                $file = APPPATH.$app.'/web/'.$module.'/js/'.$filename;
             } else {
-                $file = MODULEPATH.$module.'/web/js/'.$file['file'];
+                $file = MODULEPATH.$module.'/web/js/'.$filename;
             }
         } else {
-            $file = APPPATH.$app.'/web/js/'.$file['file'];
+            $file = APPPATH.$app.'/web/js/'.$filename;
         }
 
         if (file_exists($file)) {
-            $this->inlineFiles[$module . '/' . $file] = file_get_contents($file);
+            $this->inlineFiles[$module . '/' . $filename] = file_get_contents($file);
         }
     }
 
