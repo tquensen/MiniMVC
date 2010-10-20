@@ -126,12 +126,12 @@ class LoggablePDOStatement extends PDOStatement
     protected $db = null;
     protected $params = array();
 
-    public function __construct($db)
+    protected function __construct($db)
     {
         $this->db = $db;
     }
 
-    public function bindParam($parameter, &$variable, $data_type = PDO::PARAM_STR)
+    public function bindParam($parameter, &$variable, $data_type = PDO::PARAM_STR, $length = null, $driver_options = null)
     {
         $this->params[$parameter] = $variable;
         return parent::bindParam($parameter, &$variable, $data_type);
