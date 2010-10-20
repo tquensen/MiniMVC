@@ -18,18 +18,20 @@ class MiniMVC_Pdo
         }
 
         $this->currentConnection = $connection;
-        
+
         $dbSettings = MiniMVC_Registry::getInstance()->settings->get('db');
         if (!$dbSettings || !isset($dbSettings[$connection])) {
             return;
         }
 
-        $this->connections[$connection] = new PDO(
+        $this->connections[$connection] = new LoggablePDO(
             $dbSettings[$connection]['driver'],
             $dbSettings[$connection]['username'],
             $dbSettings[$connection]['password'],
             isset($dbSettings[$connection]['options']) ? array_merge(array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION), $dbSettings[$connection]['options']) : array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
         );
+
+        $this->connections[$connection]->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('LoggablePDOStatement', array($this->connections[$connection])));
 
         if ($this->connections[$connection]->getAttribute(PDO::ATTR_DRIVER_NAME) == 'mysql') {
             $this->connections[$connection]->exec('SET CHARACTER SET utf8');
@@ -81,3 +83,80 @@ class MiniMVC_Pdo
 
 }
 
+
+class LoggablePDO extends PDO
+{
+    protected $log = array();
+
+    public function query($query) {
+        $start = microtime(true);
+        $result = parent::query($query);
+        $time = microtime(true) - $start;
+        $this->log($query, null, round($time * 1000, 3));
+        return $result;
+    }
+
+    public function log($query, $params = null, $time = 0)
+    {
+        $this->log[] = array($query, $params, $time);
+    }
+
+    public function showLog()
+    {
+        $data = '<table border="1"><tr><th>query</th><th>parameters</th><th>time</th></tr>';
+
+        foreach ($this->log as $log) {
+            $params = '';
+            foreach ((array) $log[1] as $key => $value) {
+                $params .= $key.': '.$value.'<br />';
+            }
+            $data .= '<tr><td>'.$log[0].'</td><td>'.$params.'</td><td>'.$log[2].'s</td></tr>';
+        }
+        $data .= '</table>';
+
+        return $data;
+    }
+}
+
+class LoggablePDOStatement extends PDOStatement
+{
+    /**
+     * @var LoggablePDO
+     */
+    protected $db = null;
+    protected $params = array();
+
+    public function __construct($db)
+    {
+        $this->db = $db;
+    }
+
+    public function bindParam($parameter, &$variable, $data_type = PDO::PARAM_STR)
+    {
+        $this->params[$parameter] = $variable;
+        return parent::bindParam($parameter, &$variable, $data_type);
+    }
+
+    public function bindValue($parameter, $value, $data_type = PDO::PARAM_STR)
+    {
+        $this->params[$parameter] = $value;
+        return parent::bindValue($parameter, $value, $data_type);
+    }
+
+    public function execute($input_parameters = null)
+    {
+        $start = microtime(true);
+        if (is_array($input_parameters)) {
+            foreach ($input_parameters as $key => $param) {
+                $this->params[$key + 1] = $param;
+            }
+            $result = parent::execute($input_parameters);
+        } else {
+            $result = parent::execute();
+        }
+        $time = microtime(true) - $start;
+        $this->db->log($this->queryString, $this->params, round($time * 1000, 3));
+
+        return $result;
+    }
+}
