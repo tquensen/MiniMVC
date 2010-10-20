@@ -110,7 +110,7 @@ class LoggablePDO extends PDO
             foreach ((array) $log[1] as $key => $value) {
                 $params .= $key.': '.$value.'<br />';
             }
-            $data .= '<tr><td>'.$log[0].'</td><td>'.$params.'</td><td>'.$log[2].'s</td></tr>';
+            $data .= '<tr><td>'.$log[0].'</td><td>'.$params.'</td><td>'.$log[2].'ms</td></tr>';
         }
         $data .= '</table>';
 
