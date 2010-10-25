@@ -14,7 +14,7 @@ class Helper_Css extends MiniMVC_Helper
     public function get()
     {
         $files = $this->prepareFiles();
-        
+
         $route = $this->registry->settings->get('runtime/currentRoute');
         $format = $this->registry->template->getFormat();
         $layout = $this->registry->template->getLayout();
@@ -138,7 +138,7 @@ class Helper_Css extends MiniMVC_Helper
             if ($file['combine']) {
                 $combinedFound = true;
                 $relativePath = str_replace($baseurls, '', $file['url']); //relative path from web root
-                $urlPrefix = '../' . dirname($relativePath) . '/'; //relative url from cache to original css file folder
+                $urlPrefix = dirname($relativePath) . '/';
                 $filePath = $file['file'];
                 $data = $this->parseFile($filePath, $urlPrefix, $app, $environment);
                 foreach (explode(',', $file['media']) as $media) {
@@ -151,7 +151,7 @@ class Helper_Css extends MiniMVC_Helper
                     $uncombinedBefore[] = $file;
                 }
             }
-            
+
         }
 
 
@@ -163,13 +163,13 @@ class Helper_Css extends MiniMVC_Helper
             $content = implode("\n\n", $mediaFiles);
             $fileHash = md5($content);
             $filename = 'css_'.$fileHash.'.css';
-            
+
             if (!isset($newFiles[$fileHash])) {
                 file_put_contents(CACHEPATH.'public/'.$filename, $content);
 	            $newFiles[$fileHash] = array(
 	                'url' => $this->staticHelper->get('cache/'.$filename, null, $app),
 	                'media' => $media
-	            ); 
+	            );
             } else {
             	$newFiles[$fileHash]['media'] .= ', ' . $media;
             }
@@ -202,11 +202,12 @@ class Helper_Css extends MiniMVC_Helper
                     if ($v == '.') {
                         continue;
                     }
-                    if ($v == '..' && isset($pathNew[$k - 1])) {
-                        unset($pathNew[$k - 1]);
+                    if ($v == '..' && !empty($pathNew)) {
+                        array_pop($pathNew);
+                        //unset($pathNew[$k - 1]);
                         continue;
                     }
-                    $pathNew[$k] = $v;
+                    $pathNew[] = $v;
                 }
                 $search[] = $match[0];
                 $pathNew = implode('/', $pathNew);
