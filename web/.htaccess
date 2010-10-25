@@ -6,7 +6,7 @@ RewriteEngine on
 
 # REWRITE STATIC FILES WITH HASH PREFIX
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^_[0-9a-f]{32}_(.*)$ $1
+RewriteRule ^_[0-9a-f]{32}_/(.*)$ $1
 
 
 # BACKEND (or any other app than the default)
