@@ -113,7 +113,7 @@ class LoggablePDO extends PDO
             $data .= '<tr><td>'.($num + 1).'</td><td>'.$log[0].'</td><td>'.$params.'</td><td>'.$log[2].'ms</td></tr>';
             $time += $log[2];
         }
-        $data .= '<tr><td>=</td><td colspan="2"></td><td>'.round($time / 1000, 3).'s</td></tr>';
+        $data .= '<tr><th>=</th><td colspan="2"></td><th>'.round($time / 1000, 3).'s</th></tr>';
         $data .= '</table>';
 
         return $data;
