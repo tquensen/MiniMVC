@@ -73,11 +73,9 @@ class MiniMVC_Layout
             $this->layout = $this->registry->settings->get('config/defaultLayout', 'default');
         }
 
-        if ($viewName = $this->registry->settings->get('config/classes/view')) {
-            $view = new $viewName('_default');
-        } else {
-            $view = new MiniMVC_View('_default');
-        }
+        $viewName = $this->registry->settings->get('config/classes/view', 'MiniMVC_View');
+        $view = new $viewName('_default');
+
         $view->layout = $this;
 
         $this->addToSlot('main', $content);
@@ -111,7 +109,7 @@ class MiniMVC_Layout
             $this->slots[$slot] = array();
             $this->prepareSlot($slot, $data);
         }
-        if ($gluw === true) {
+        if ($glue === true) {
             return $this->slots[$slot];
         }
         $return = array();
@@ -132,13 +130,46 @@ class MiniMVC_Layout
             if ($slotWidgets === null) {
                 $slotWidgets = $this->getSlotWidgets($currentSlot);
             }
-            foreach ($slotWidgets as $currentWidget) {
+
+            $route = $this->registry->settings->get('runtime/currentRoute');
+            $format = $this->registry->template->getFormat();
+            $layout = $this->registry->template->getLayout();
+            
+            foreach ($slotWidgets as $currentWidget => $widgetData) {
+
+                if (!empty($widgetData['show'])) {
+                    if (is_string($widgetData['show']) && $widgetData['show'] != $route) {
+                        continue;
+                    } elseif(is_array($widgetData['show']) && !in_array($route, $widgetData['show'])) {
+                        continue;
+                    }
+                }
+                if (!empty($widgetData['hide'])) {
+                    if (is_string($widgetData['hide']) && $widgetData['hide'] == $route) {
+                        continue;
+                    } elseif(is_array($widgetData['hide']) && in_array($route, $widgetData['hide'])) {
+                        continue;
+                    }
+                }
+                if (empty($widgetData['format']) || $widgetData['format'] == 'html') {
+                    $widgetData['format'] = null;
+                }
+                if (!is_array($widgetData['format']) && $widgetData['format'] != 'all' && ($widgetData['format'] != $format)) {
+                    continue;
+                } elseif(is_array($widgetData['format']) && !in_array($format ? $format : 'html', $widgetData['format'])) {
+                    continue;
+                }
+                if ($widgetData['layout']) {
+                    if (is_string($widgetData['layout']) && $widgetData['layout'] != 'all' && $widgetData['layout'] != $layout) {
+                        continue;
+                    } elseif(is_array($widgetData['layout']) && !in_array($layout, $widgetData['layout'])) {
+                        continue;
+                    }
+                }
+
                 try {
                     $parameter = array('slot' => $data);
-                    $content = $this->registry->dispatcher->callWidget($currentWidget, $parameter);
-                    if ($content !== null) {
-                        $this->addToSlot($currentSlot, $content);
-                    }
+                    $this->addToSlot($currentSlot, $this->registry->dispatcher->callWidget($currentWidget, $parameter));
                 } catch (Exception $e) {
 
                 }
@@ -160,7 +191,12 @@ class MiniMVC_Layout
             if (is_array($widgetData['slot']) && !in_array($slot, $widgetData['slot'])) {
                 continue;
             }
-            $slotWidgets[] = $widgetName;
+            $slotWidgets[$widgetName] = array(
+                'show' => isset($widgetData['show']) ? $widgetData['show'] : null,
+                'hide' => isset($widgetData['hide']) ? $widgetData['hide'] : null,
+                'format' => isset($widgetData['format']) ? $widgetData['format'] : null,
+                'layout' => isset($widgetData['layout']) ? $widgetData['layout'] : null
+            );
         }
 
         $this->registry->settings->set('widgets/cachedSlots/'.$slot, $slotWidgets);

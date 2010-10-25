@@ -71,58 +71,48 @@ class MiniMVC_Controller
      */
 	protected function delegate($route, $params = array())
 	{
-		return $this->view = $this->registry->dispatcher->callRoute($route, $params, true, true);
+		return $this->view = $this->registry->dispatcher->callRoute($route, $params);
 	}
 
     /**
      *
-     * @return MiniMVC_View returns the prepared view class of the configured 401 action
+     * @param string $message the error message (optional)
+     * @throws Exception with 401 status code
      */
-	protected function delegate401()
+	protected function delegate401($message = 'delegated by controller')
 	{
-		if ($route = $this->registry->settings->get('config/error401Route'))
-		{
-			return $this->delegate($route);
-		}
-		return $this->view->prepareEmpty();
+		throw new Exception($message, 401);
 	}
 
     /**
      *
-     * @return MiniMVC_View returns the prepared view class of the configured 403 action
+     * @param string $message the error message (optional)
+     * @throws Exception with 403 status code
      */
-	protected function delegate403()
+	protected function delegate403($message = 'delegated by controller')
 	{
-		if ($route = $this->registry->settings->get('config/error403Route'))
-		{
-			return $this->delegate($route);
-		}
-		return $this->view->prepareEmpty();
+		throw new Exception($message, 401);
 	}
 
     /**
      *
-     * @return MiniMVC_View returns the prepared view class of the configured 404 action
+     * @param string $message the error message (optional)
+     * @throws Exception with 404 status code
      */
-	protected function delegate404()
+	protected function delegate404($message = 'delegated by controller')
 	{
-		if ($route = $this->registry->settings->get('config/error404Route'))
-		{
-			return $this->delegate($route);
-		}
-		return $this->view->prepareEmpty();
+		throw new Exception($message, 401);
 	}
 	
     /**
      *
-     * @return MiniMVC_View returns the prepared view class of the configured 404 action
+     * @param string $message the error message (optional)
+     * @param int $code the error code (default 500)
+     * @param Exception $previousException a previous exception (optional)
+     * @throws Exception with 50x status code
      */
-	protected function delegate500()
+	protected function delegate500($message = 'delegated by controller', $code = 500, $previousException = null)
 	{
-		if ($route = $this->registry->settings->get('config/error500Route'))
-		{
-			return $this->delegate($route);
-		}
-		return $this->view->prepareEmpty();
+		throw new Exception($message, $code, $previousException);
 	}
 }

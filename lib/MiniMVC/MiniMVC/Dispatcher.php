@@ -81,72 +81,66 @@ class MiniMVC_Dispatcher
 
         $this->registry->settings->set('runtime/requestedRoute', $route);
 
-        $routes = $this->registry->settings->get('routes');
-        $routeData = null;
+        try {
 
-        if (!$route && $route !== false) {
-            $defaultRoute = $this->registry->settings->get('config/defaultRoute');
-            if ($defaultRoute && isset($routes[$defaultRoute])) {
-                $routeName = $defaultRoute;
-                $routeData = $routes[$defaultRoute];
+            $routes = $this->registry->settings->get('routes');
+            $routeData = null;
+
+            if (!$route && $route !== false) {
+                $defaultRoute = $this->registry->settings->get('config/defaultRoute');
+                if ($defaultRoute && isset($routes[$defaultRoute])) {
+                    $routeName = $defaultRoute;
+                    $routeData = $routes[$defaultRoute];
+                } else {
+                    throw new Exception('no route given and no default Route defined!');
+                }
             } else {
-                throw new Exception('no route given and no default Route defined!');
-            }
-        } else {
-            $found = false;
+                $found = false;
 
-            if ($route) {
-                foreach ($routes as $currentRoute => $currentRouteData) {
-                    if (isset($currentRouteData['active']) && !$currentRouteData['active']) {
-                        continue;
-                    }
-                    if (!isset($currentRouteData['route']) || !isset($currentRouteData['controller']) || !isset($currentRouteData['action'])) {
-                        continue;
-                    }
-                    if (isset($currentRouteData['method']) && ((is_string($currentRouteData['method']) && $currentRouteData['method'] != $method) || (is_array($currentRouteData['method']) && !in_array($method, $currentRouteData['method'])))) {
-                        continue;
-                    }
-                    $routePattern = (isset($currentRouteData['routePatternGenerated'])) ? $currentRouteData['routePatternGenerated'] : $this->getRegex($currentRoute, $currentRouteData);
-                    if (preg_match($routePattern, $route, $matches)) {
-                        $params = (isset($currentRouteData['parameter'])) ? $currentRouteData['parameter'] : array();
-                        foreach ($matches as $paramKey => $paramValue) {
-                            if (!is_numeric($paramKey)) {
-                                if ($paramKey == 'anonymousParams') {
+                if ($route) {
+                    foreach ($routes as $currentRoute => $currentRouteData) {
+                        if (isset($currentRouteData['active']) && !$currentRouteData['active']) {
+                            continue;
+                        }
+                        if (!isset($currentRouteData['route']) || !isset($currentRouteData['controller']) || !isset($currentRouteData['action'])) {
+                            continue;
+                        }
+                        if (isset($currentRouteData['method']) && ((is_string($currentRouteData['method']) && $currentRouteData['method'] != $method) || (is_array($currentRouteData['method']) && !in_array($method, $currentRouteData['method'])))) {
+                            continue;
+                        }
+                        $routePattern = (isset($currentRouteData['routePatternGenerated'])) ? $currentRouteData['routePatternGenerated'] : $this->getRegex($currentRoute, $currentRouteData);
+                        if (preg_match($routePattern, $route, $matches)) {
+                            $params = (isset($currentRouteData['parameter'])) ? $currentRouteData['parameter'] : array();
+                            foreach ($matches as $paramKey => $paramValue) {
+                                if (!is_numeric($paramKey)) {
+                                    if ($paramKey == 'anonymousParams') {
 
-                                    foreach (explode('/', $paramValue) as $anonymousParam) {
-                                        $anonymousParam = explode('-', $anonymousParam, 2);
-                                        if (trim($anonymousParam[0]) && !isset($params[urldecode($anonymousParam[0])])) {
-                                            $params[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : '';
+                                        foreach (explode('/', $paramValue) as $anonymousParam) {
+                                            $anonymousParam = explode('-', $anonymousParam, 2);
+                                            if (trim($anonymousParam[0]) && !isset($params[urldecode($anonymousParam[0])])) {
+                                                $params[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : '';
+                                            }
                                         }
+                                    } else {
+                                        $params[urldecode($paramKey)] = urldecode($paramValue);
                                     }
-                                } else {
-                                    $params[urldecode($paramKey)] = urldecode($paramValue);
                                 }
                             }
-                        }
 
-                        $routeName = $currentRoute;
-                        //$routeData = $this->getRoute($currentRoute, $params);
-                        $found = true;
-                        break;
+                            $routeName = $currentRoute;
+                            //$routeData = $this->getRoute($currentRoute, $params);
+                            $found = true;
+                            break;
+                        }
                     }
                 }
-            }
 
-            if (!$found) {
-                $error404Route = $this->registry->settings->get('config/error404Route');
-                if ($error404Route && isset($routes[$error404Route])) {
-                    $routeName = $error404Route;
-                    $routeData = $routes[$error404Route];
-                } else {
-                    throw new Exception('no valid route found and no valid 404 Route defined!');
+                if (!$found) {
+                    throw new Exception('no valid route found!', 404);
                 }
             }
-        }        
 
-        
-        
-        try {
+
             $this->registry->settings->set('runtime/currentRoute', $routeName);
             $this->registry->settings->set('runtime/currentRouteParameter', isset($params) ? $params : array());
 
@@ -154,18 +148,58 @@ class MiniMVC_Dispatcher
 
             $this->registry->db->init();
             
-            $content = $this->callRoute($routeName, (isset($params) ? $params : array()), true, true);
+            $content = $this->callRoute($routeName, (isset($params) ? $params : array()));
             return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'))->parse();
         } catch (Exception $e) {
-            $error500Route = $this->registry->settings->get('config/error500Route');
-            if ($error500Route && isset($routes[$error500Route])) {
-                $routeData = $routes[$error500Route];
+
+            try {
+                //try to handle 401, 403 and 404 exceptions
+                switch ($e->getCode()) {
+                    case 401:
+                        $error401Route = $this->registry->settings->get('config/error401Route');
+                        if ($error401Route && isset($routes[$error401Route])) {
+                            $routeData = $routes[$error401Route];
+                        } else {
+                            throw new Exception('Not logged in and no 401 Route defined!');
+                        }
+                        break;
+                    case 403:
+                        $error403Route = $this->registry->settings->get('config/error403Route');
+                        if ($error403Route && isset($routes[$error403Route])) {
+                            $routeData = $routes[$error403Route];
+                        } else {
+                            throw new Exception('Insufficient rights and no 403 Route defined!');
+                        }
+                        break;
+                    case 404:
+                        $error404Route = $this->registry->settings->get('config/error404Route');
+                        if ($error404Route && isset($routes[$error404Route])) {
+                            $routeData = $routes[$error404Route];
+                        } else {
+                            throw new Exception('no valid route found and no valid 404 Route defined!');
+                        }
+                        break;
+                    default:
+                        //server error / rethrow exception
+                        throw $e;
+                }
+
                 $routeData['parameter']['exception'] = $e;
-                $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
+                $content = $this->call($routeData['controller'], $routeData['action'], $routeData['parameter']);
                 return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'), false)->parse();
-            } else {
-                throw new Exception('Exception was thrown and no 500 Route defined!');
-            }
+
+            } catch (Exception $e) {
+                //handle 50x errors
+                $error500Route = $this->registry->settings->get('config/error500Route');
+                if ($error500Route && isset($routes[$error500Route])) {
+                    $routeData = $routes[$error500Route];
+                    $routeData['parameter']['exception'] = $e;
+                    $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
+                    return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'), false)->parse();
+                } else {
+                    throw new Exception('Exception was thrown and no 500 Route defined!');
+                }
+            }           
         }
     }
 
@@ -197,11 +231,10 @@ class MiniMVC_Dispatcher
      *
      * @param string $route the name of an internal route
      * @param array $params the parameters for the route
-     * @param bool $showErrorPages if true, the 401/403 error pages will be called if the user has insuficcient rights
      * @param bool $isMainRoute use or ignore the format/layout/... data of the route to set the layout
      * @return MiniMVC_View the prepared view class of the called action
      */
-    public function callRoute($route, $params = array(), $showErrorPages = true, $isMainRoute = true)
+    public function callRoute($route, $params = array(), $isMainRoute = true)
     {
         $routeData = $this->getRoute($route, $params);
 
@@ -212,7 +245,7 @@ class MiniMVC_Dispatcher
                 $this->registry->template->setFormat($routeData['parameter']['_format']);
             }
 
-            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && !empty($routeData['parameter']['_controller']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
                 $this->registry->template->setLayout(false);
             } elseif (isset($routeData['layout'])) {
                 $this->registry->template->setLayout($routeData['layout']);
@@ -237,20 +270,11 @@ class MiniMVC_Dispatcher
         }
 
 
-        if (isset($routeData['rights']) && $routeData['rights'] && !((int)$routeData['rights'] & $this->registry->guard->getRights())) {
-            if (!$showErrorPages) {
-                return null;
-            }
+        if (isset($routeData['rights']) && $routeData['rights'] && !$this->registry->guard->userHasRight((int)$routeData['rights'])) {
             if ($this->registry->guard->getRole() && $this->registry->guard->getRole() != $this->registry->rights->getRoleByKeyword('guest')) {
-                $error403Route = $this->registry->settings->get('config/error403Route');
-                if (!$error403Route || !$routeData = $this->registry->settings->get('routes/'.$error403Route)) {
-                    throw new Exception('Insufficient rights and no 403 Route defined!');
-                }
+                throw new Exception('Insufficient rights', 403);
             } else {
-                $error401Route = $this->registry->settings->get('config/error401Route');
-                if (!$error401Route ||!$routeData = $this->registry->settings->get('routes/'.$error401Route)) {
-                    throw new Exception('Not logged in and no 401 Route defined!');
-                }
+                throw new Exception('Not logged in', 401);
             }
         }
 
@@ -310,41 +334,8 @@ class MiniMVC_Dispatcher
             throw new Exception('Widget "' . $widget . '" is invalid (controller or action not set!');
         }
 
-        if (isset($widgetData['rights']) && $widgetData['rights'] && !((int)$widgetData['rights'] & $this->registry->guard->getRights())) {
-            return null;
-        }
-        
-        $route = $this->registry->settings->get('runtime/currentRoute');
-        $format = $this->registry->template->getFormat();
-        $layout = $this->registry->template->getLayout();
-        if (isset($widgetData['show']) && $widgetData['show']) {
-            if (is_string($widgetData['show']) && $widgetData['show'] != $route) {
-                return null;
-            } elseif(is_array($widgetData['show']) && !in_array($route, $widgetData['show'])) {
-                return null;
-            }
-        }
-        if (isset($widgetData['hide']) && $widgetData['hide']) {
-            if (is_string($widgetData['hide']) && $widgetData['hide'] == $route) {
-                return null;
-            } elseif(is_array($widgetData['hide']) && in_array($route, $widgetData['hide'])) {
-                return null;
-            }
-        }
-        if (!isset($widgetData['format']) || $widgetData['format'] == 'html') {
-            $widgetData['format'] = null;
-        }
-        if (!is_array($widgetData['format']) && $widgetData['format'] != 'all' && ($widgetData['format'] != $format)) {
-            return null;
-        } elseif(is_array($widgetData['format']) && !in_array($format ? $format : 'html', $widgetData['format'])) {
-            return null;
-        }
-        if (isset($widgetData['layout']) && $widgetData['layout']) {
-            if (is_string($widgetData['layout']) && $widgetData['layout'] != 'all' && $widgetData['layout'] != $layout) {
-                return null;
-            } elseif(is_array($widgetData['layout']) && !in_array($layout, $widgetData['layout'])) {
-                return null;
-            }
+        if (isset($widgetData['rights']) && $widgetData['rights'] && !$this->registry->guard->userHasRight((int) $widgetData['rights'])) {
+            throw new Exception('Insufficient rights to call widget "' . $widget . '"!');
         }
 
         return $this->call($widgetData['controller'], $widgetData['action'], $widgetData['parameter']);
