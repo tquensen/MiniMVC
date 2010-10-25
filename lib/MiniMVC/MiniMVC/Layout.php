@@ -101,7 +101,7 @@ class MiniMVC_Layout
     /**
      *
      * @param string $slot the name of the slot
-     * @param bool $array if the content should be returned as array or as string
+     * @param array $data he date to pass to the slot widgets
      * @param string $glue if returned as string, $glue will be added between the contents
      * @return mixed the contents of the slot as string or array (as set in the $array parameter)
      */
@@ -111,7 +111,14 @@ class MiniMVC_Layout
             $this->slots[$slot] = array();
             $this->prepareSlot($slot, $data);
         }
-        return ($glue === true) ? $this->slots[$slot] : implode($glue, $this->slots[$slot]);
+        if ($gluw === true) {
+            return $this->slots[$slot];
+        }
+        $return = array();
+        foreach ($this->slots[$slot] as $currentSlot) {
+            $return[] = $currentSlot->parse();
+        }
+        return implode($glue, $return);
     }
 
     protected function prepareSlot($slot, $data)

@@ -67,7 +67,7 @@ class MiniMVC_View
 		return (isset($this->vars[$var])) ? $this->vars[$var] : '';
 	}
 
-    public function  __toString()
+    public function parse()
     {
         if ($this->file === null) {
             return (string) $this->content;
@@ -137,7 +137,7 @@ class MiniMVC_View
     public function prepareEmpty()
     {
         $this->file = null;
-        $this->content = $text;
+        $this->content = '';
 
         return $this;
     }

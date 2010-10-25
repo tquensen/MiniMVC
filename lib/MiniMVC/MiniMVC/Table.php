@@ -318,12 +318,14 @@ class MiniMVC_Table {
         try
         {
             $this->_db->beginTransaction();
-            if ($entry->preSave() === false) {
-                $this->_db->rollBack();
-                return false;
-            }
+            
             if ($entry->isNew()) {
                 if ($entry->preInsert() === false) {
+                    $this->_db->rollBack();
+                    return false;
+                }
+
+                if ($entry->preSave() === false) {
                     $this->_db->rollBack();
                     return false;
                 }
@@ -350,6 +352,11 @@ class MiniMVC_Table {
                 foreach ($this->_columns as $column)
                 {
                     $entry->setDatabaseProperty($column, $entry->$column);
+                }
+
+                if ($entry->postSave() === false) {
+                    $this->_db->rollBack();
+                    return false;
                 }
 
                 if ($entry->postInsert() === false) {
@@ -380,6 +387,12 @@ class MiniMVC_Table {
                     $this->_db->rollBack();
                     return false;
                 }
+
+                if ($entry->preSave() === false) {
+                    $this->_db->rollBack();
+                    return false;
+                }
+
                 $values[] = $entry->{$this->_identifier};
 
                 $result = $query->execute($values);
@@ -391,6 +404,12 @@ class MiniMVC_Table {
                         $entry->setDatabaseProperty($column, $entry->$column);
                     }
                 }
+
+                if ($entry->postSave() === false) {
+                    $this->_db->rollBack();
+                    return false;
+                }
+
                 if ($entry->postUpdate() === false) {
                     $this->_db->rollBack();
                     return false;
@@ -398,10 +417,7 @@ class MiniMVC_Table {
 
             }
 
-            if ($entry->postSave() === false) {
-                $this->_db->rollBack();
-                return false;
-            }
+            
             $this->_db->commit();
         } catch (PDOException $e) {
             $this->_db->rollBack();

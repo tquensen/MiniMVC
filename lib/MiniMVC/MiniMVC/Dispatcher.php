@@ -141,7 +141,6 @@ class MiniMVC_Dispatcher
         
         
         try {
-
             $this->registry->settings->set('runtime/currentRoute', $routeName);
             $this->registry->settings->set('runtime/currentRouteParameter', isset($params) ? $params : array());
 
@@ -150,14 +149,14 @@ class MiniMVC_Dispatcher
             $this->registry->db->init();
             
             $content = $this->callRoute($routeName, (isset($params) ? $params : array()), true, true);
-            return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'));
+            return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'))->parse();
         } catch (Exception $e) {
             $error500Route = $this->registry->settings->get('config/error500Route');
             if ($error500Route && isset($routes[$error500Route])) {
                 $routeData = $routes[$error500Route];
                 $routeData['parameter']['exception'] = $e;
                 $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
-                return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'), false);
+                return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'), false)->parse();
             } else {
                 throw new Exception('Exception was thrown and no 500 Route defined!');
             }
@@ -193,6 +192,7 @@ class MiniMVC_Dispatcher
      * @param string $route the name of an internal route
      * @param array $params the parameters for the route
      * @param bool $showErrorPages if true, the 401/403 error pages will be called if the user has insuficcient rights
+     * @param bool $isMainRoute use or ignore the format/layout/... data of the route to set the layout
      * @return MiniMVC_View the prepared view class of the called action
      */
     public function callRoute($route, $params = array(), $showErrorPages = true, $isMainRoute = true)
