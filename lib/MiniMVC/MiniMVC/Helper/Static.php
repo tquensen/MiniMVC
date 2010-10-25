@@ -29,22 +29,22 @@ class Helper_Static extends MiniMVC_Helper
 
         if ($module !== null && file_exists(APPPATH.$app.'/web/'.$module.'/'.$file))
         {
-            $hash = $prefixHash ? '_' . md5(file_get_contents(APPPATH.$app.'/web/'.$module.'/'.$file)) . '_' : '';
-            $url = $baseurl.'app/'.$app.'/'.$module.'/'.$hash.$file;
+            $hash = $prefixHash ? '_' . md5(file_get_contents(APPPATH.$app.'/web/'.$module.'/'.$file)) . '_/' : '';
+            $url = $baseurl.$hash.'app/'.$app.'/'.$module.'/'.$file;
         }
         elseif ($module !== null && file_exists(MODULEPATH.$module.'/web/'.$file))
         {
-            $hash = $prefixHash ? '_' . md5(file_get_contents(MODULEPATH.$module.'/web/'.$file)) . '_' : '';
-            $url = $baseurl.'module/'.$module.'/'.$hash.$file;
+            $hash = $prefixHash ? '_' . md5(file_get_contents(MODULEPATH.$module.'/web/'.$file)) . '_/' : '';
+            $url = $baseurl.$hash.'module/'.$module.'/'.$file;
         }
         elseif (file_exists(APPPATH.$app.'/web/'.$file))
         {
-            $hash = $prefixHash ? '_' . md5(file_get_contents(APPPATH.$app.'/web/'.$file)) . '_' : '';
-            $url = $baseurl.'app/'.$app.'/'.$hash.$file;
+            $hash = $prefixHash ? '_' . md5(file_get_contents(APPPATH.$app.'/web/'.$file)) . '_/' : '';
+            $url = $baseurl.$hash.'app/'.$app.'/'.$file;
         }
         elseif (file_exists(WEBPATH.$file))
         {
-            $hash = $prefixHash ? '_' . md5(file_get_contents(WEBPATH.$file)) . '_' : '';
+            $hash = $prefixHash ? '_' . md5(file_get_contents(WEBPATH.$file)) . '_/' : '';
             $url = $baseurl.$hash.$file;
         }
         else
