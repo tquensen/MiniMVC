@@ -5,8 +5,7 @@ class MiniMVC_Form_Element_File extends MiniMVC_Form_Element
 
     public function setValue($value)
 	{
-        parent::setValue(null);
-
+        $this->value = null;
         
         if (isset($_FILES[$this->getForm()->getName()])) {
             $value = array();
@@ -37,7 +36,7 @@ class MiniMVC_Form_Element_File extends MiniMVC_Form_Element
                 $value['name'] = null;
             }
             
-            $this->value = $value;
+            $this->value = !empty($value) ? $value : null;
         }
 	}
 }

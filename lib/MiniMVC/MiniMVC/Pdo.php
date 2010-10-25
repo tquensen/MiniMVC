@@ -104,14 +104,16 @@ class LoggablePDO extends PDO
     public function showLog()
     {
         $data = '<table border="1"><tr><th>#</th><th>query</th><th>parameters</th><th>time</th></tr>';
-
+        $time = 0;
         foreach ($this->log as $num => $log) {
             $params = '';
             foreach ((array) $log[1] as $key => $value) {
                 $params .= $key.': '.$value.'<br />';
             }
             $data .= '<tr><td>'.($num + 1).'</td><td>'.$log[0].'</td><td>'.$params.'</td><td>'.$log[2].'ms</td></tr>';
+            $time += $log[2];
         }
+        $data .= '<tr><td>=</td><td colspan="2"></td><td>'.($time/1000).'s</td></tr>';
         $data .= '</table>';
 
         return $data;
