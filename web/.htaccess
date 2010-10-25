@@ -2,11 +2,16 @@ RewriteEngine on
 #add trailing slash
 #RewriteCond %{REQUEST_FILENAME} !-d
 #RewriteCond %{REQUEST_FILENAME} !-f
-#RewriteRule ^(.*[^/])$ %{REQUEST_URI}/ [R=301,L]
+#RewriteRule ^(.*)/$ $1 [R=301,L]
+
+# REWRITE STATIC FILES WITH HASH PREFIX
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^_[0-9a-f]{32}_(.*)$ $1
+
 
 # BACKEND (or any other app than the default)
 #RewriteCond %{REQUEST_FILENAME} !-f
-#RewriteRule ^backend(.*)$ backend.php
+#RewriteRule ^backend/(.*)$ backend.php
 
 # FRONTEND (default app)
 RewriteCond %{REQUEST_FILENAME} !-f

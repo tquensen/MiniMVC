@@ -45,13 +45,19 @@ class MiniMVC_Dispatcher
 
         $appurls = $this->registry->settings->get('apps/'.$currentApp);
         if (isset($appurls['baseurlI18n'])) {
-            if (preg_match('#' . str_replace(':lang:', '(?P<lang>[a-z]{2})', $appurls['baseurlI18n']) . '(?P<route>[^\?\#]*).*$#', $url, $matches)) {
+            if (substr($appurls['baseurlI18n'], 0, 1) == '/') {
+                $appurls['baseurlI18n'] = $host . $appurls['baseurlI18n'];
+            }
+            if (preg_match('#^' . str_replace(':lang:', '(?P<lang>[a-z]{2})', $appurls['baseurlI18n']) . '(?P<route>[^\?\#]*)$#', $url, $matches)) {
                 $currentLanguage = $matches['lang'];
                 $route = $matches['route'];
             }
         }
         if ($route === null && isset($appurls['baseurl'])) {
-            if (preg_match('#' . $appurls['baseurl'] . '(?P<route>[^\?\#]*).*$#', $url, $matches)) {
+            if (substr($appurls['baseurl'], 0, 1) == '/') {
+                $appurls['baseurl'] = $host . $appurls['baseurl'];
+            }
+            if (preg_match('#^' . $appurls['baseurl'] . '(?P<route>[^\?\#]*)$#', $url, $matches)) {
                 $route = $matches['route'];
             } else {
                 $route = false;

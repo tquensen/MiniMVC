@@ -5,9 +5,12 @@ $MiniMVC_config['error401Route'] = 'core.error401';
 $MiniMVC_config['error403Route'] = 'core.error403';
 $MiniMVC_config['error404Route'] = 'core.error404';
 $MiniMVC_config['error500Route'] = 'core.error500';
+
 $MiniMVC_config['defaultLanguage'] = 'en';
 $MiniMVC_config['enabledLanguages'] = array('en', 'de');
+
 $MiniMVC_config['defaultLayout'] = 'default';
+
 $MiniMVC_config['autoloadPaths'] = array(BASEPATH.'lib/sfComponents', BASEPATH.'lib', MODULEPATH,  MINIMVCPATH . '/MiniMVC', MINIMVCPATH);
 $MiniMVC_config['registryClasses'] = array(
     'dispatcher' => 'MiniMVC_Dispatcher',
@@ -19,3 +22,4 @@ $MiniMVC_config['registryClasses'] = array(
     'task' => 'MiniMVC_Task',
     'events' => 'MiniMVC_Events'
 );
+
