@@ -43,7 +43,7 @@ class MiniMVC_Pdo
         }
 
         $queryClass = MiniMVC_Registry::getInstance()->settings->get('config/classes/query', 'MiniMVC_Query');
-        $queryClass::setDatabase($this->get());
+        call_user_func(array($queryClass, 'setDatabase'), $this->get());
 
         $this->queryClass = $queryClass;
 
@@ -90,8 +90,7 @@ class MiniMVC_Pdo
      */
     public function query($connection = null)
     {
-        $queryClass = $this->queryClass;
-        return $queryClass::create($this->get($connection));
+        return new $this->queryClass($this->get($connection));
     }
 
     public function setConnection($connection = 'default')
