@@ -1,30 +1,40 @@
 RewriteEngine on
-#add trailing slash
+
+# REMOVE TRAILING SLASH - recommended if none of your routes end with a /
 #RewriteCond %{REQUEST_FILENAME} !-d
 #RewriteCond %{REQUEST_FILENAME} !-f
 #RewriteRule ^(.*)/$ $1 [R=301,L]
 
-# REWRITE STATIC FILES WITH HASH PREFIX
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)_[0-9a-f]{32}_\.([^/]*)$ $1.$2
+
+# REWRITE STATIC FILES WITH HASH PREFIX - required if $MiniMVC_view['static']['prefixHash'] = true
+#RewriteCond %{REQUEST_FILENAME} !-f
+#RewriteRule ^(.*)_[0-9a-f]{32}_\.([^/]*)$ $1.$2
 
 
 # BACKEND (or any other app than the default)
 #RewriteCond %{REQUEST_FILENAME} !-f
 #RewriteRule ^backend/(.*)$ backend.php
 
+
 # FRONTEND (default app)
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ index.php
 
 
+# SET UTF-8
 AddDefaultCharset utf-8
 
+
+# ACTIVATE GZIP
 <IfModule mod_deflate.c>
 #AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript
 SetOutputFilter DEFLATE
 </IfModule>
 
+
+# ADD A FAR FUTURE EXPIRES HEADER - recommended and shouldn't cause any problems
+#                                   as long as you use the Js/Css/Static helpers
+#                                   for all css, js and image files
 <IfModule mod_expires.c>
 <Files ~ "\.(png|gif|jpg|jpeg|js|css|ico|eot|ttf|otf|svg)$">
 ExpiresActive On
@@ -32,12 +42,16 @@ ExpiresDefault "now plus 1 years"
 </Files>
 </IfModule>
 
+
+# DISABLE CACHE FOR HTML AND PHP
 <Files ~ "\.(htm|html|php)$">
     FileETag None
     Header set Cache-Control "no-cache, must-revalidate, max-age=0"
     Header set Pragma "no-cache"
 </Files>
 
+
+# ACTIVATE SHORT OPEN TAG - uncomment if you use it
 <IfModule mod_php5.c>
 #php_flag short_open_tag on
 </IfModule>
