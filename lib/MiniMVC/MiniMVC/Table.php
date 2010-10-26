@@ -265,7 +265,7 @@ class MiniMVC_Table {
         if (!is_array($values) && $values !== null) {
             $values = array($values);
         }
-        if ($stmt = MiniMVC_Query::create()->select('COUNT(*)')->from($this)->where($condition)->execute($values)) {
+        if ($stmt = $this->query(null, 'COUNT(*)')->where($condition)->execute($values)) {
             return $stmt->fetchColumn();
         }
         return false;
@@ -273,7 +273,7 @@ class MiniMVC_Table {
 
     public function query($alias = null, $select = true)
     {
-        $q = new MiniMVC_Query();
+        $q = $this->registry->db->query();
         if ($select === true) {
             $q->select($alias);
         } elseif($select) {
@@ -330,7 +330,7 @@ class MiniMVC_Table {
                     return false;
                 }
 
-                $query = MiniMVC_Query::create()->insert($this->_table);
+                $query = $this->registry->db->query()->insert($this->_table);
 
                 $values = array();
                 foreach ($this->_columns as $column)
@@ -362,7 +362,7 @@ class MiniMVC_Table {
             } else {
                 $update = false;
 
-                $query = MiniMVC_Query::create()->update($this->_table)->where($this->_identifier.' = ?');
+                $query = $this->registry->db->query()->update($this->_table)->where($this->_identifier.' = ?');
 
                 $values = array();
                 foreach ($this->_columns as $column)
@@ -433,7 +433,7 @@ class MiniMVC_Table {
                     return false;
                 }
 
-                $query = new MiniMVC_Query();
+                $query = $this->registry->db->query();
                 $result = $query->delete()->from($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry->{$this->_identifier});
 
                 if (isset($this->_entries[$entry->{$this->primary}]))
@@ -449,7 +449,7 @@ class MiniMVC_Table {
             }
             else
             {
-                $query = new MiniMVC_Query();
+                $query = $this->registry->db->query();
                 $result = $query->delete()->from($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry);
 
                 if (isset($this->_entries[$entry]))
@@ -459,7 +459,7 @@ class MiniMVC_Table {
             }
             foreach ($this->_relations as $relation => $info) {
                 if (isset($info[3]) && $info[3] !== true) {
-                    MiniMVC_Query::create()->delete()->from($info[3])->where($info[1].' = ?')->execute(is_object($entry) ? $entry->{$this->_identifier} : $entry);
+                    $this->registry->db->query()->delete()->from($info[3])->where($info[1].' = ?')->execute(is_object($entry) ? $entry->{$this->_identifier} : $entry);
                 }
             }
         } catch (PDOException $e) {
@@ -471,7 +471,7 @@ class MiniMVC_Table {
 
 	public function deleteBy($condition, $values, $cleanRefTable = false)
 	{
-        $query = new MiniMVC_Query();
+        $query = $this->registry->db->query();
         $result = $query->delete()->from($this)->where($condition)->execute($values);
 
         if ($cleanRefTable) {
@@ -488,7 +488,7 @@ class MiniMVC_Table {
     {
         foreach ($this->_relations as $relation => $info) {
             if (isset($info[3]) && $info[3] !== true) {
-                MiniMVC_Query::create()->delete('a_b')->from($info[3], 'a_b')->join($this->_table, 'a', 'a_b.'.$info[1].' = a.'.$this->_identifier)->where('a.'.$this->_identifier.' IS NULL')->execute();
+                $this->registry->db->query()->delete('a_b')->from($info[3], 'a_b')->join($this->_table, 'a', 'a_b.'.$info[1].' = a.'.$this->_identifier)->where('a.'.$this->_identifier.' IS NULL')->execute();
             }
         }
     }

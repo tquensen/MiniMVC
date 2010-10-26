@@ -7,7 +7,7 @@
  * @property MiniMVC_Layout $template the default layout/template class
  * @property MiniMVC_Guard $guard is responsible for the current user session
  * @property MiniMVC_Rights $rights is responsible for the role/right management
- * @property MiniMVC_Mysqli $db is responsible for the current database connection
+ * @property MiniMVC_Pdo $db is responsible for the current database connection
  * @property MiniMVC_Helpers $helper is the container for individual helper classes
  * @property MiniMVC_Task $task is used to dispatch and call CLI tasks
  * @property MiniMVC_Events $events the event dispatcher

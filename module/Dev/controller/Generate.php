@@ -166,7 +166,9 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             '{auto_increment}',
             '{identifier}',
             '{relations_list}',
-            '{relations_methods}'
+            '{relations_methods}',
+            '{modelClass}',
+            '{tableClass}'
         );
         $replace = array(
             $model,
@@ -181,7 +183,9 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             $definition['autoIncrement'] ? 'true' : 'false',
             $definition['identifier'],
             $this->getRelationsListCode($definition, $model),
-            $this->getRelationsMethodsCode($definition, $model)
+            $this->getRelationsMethodsCode($definition, $model),
+            $this->registry->settings->get('config/classes/model', 'MiniMVC_Model'),
+            $this->registry->settings->get('config/classes/table', 'MiniMVC_Table')
         );
 
         $path = MODULEPATH . $params['module'].'/model';

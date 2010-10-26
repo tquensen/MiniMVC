@@ -6,6 +6,11 @@ class MiniMVC_Pdo
 {
     protected $connections = array();
     protected $currentConnection = '';
+    /**
+     *
+     * @var MiniMVC_Query
+     */
+    protected $queryClass = '';
 
     /**
      *
@@ -37,7 +42,10 @@ class MiniMVC_Pdo
             $this->connections[$connection]->exec('SET CHARACTER SET utf8');
         }
 
-        MiniMVC_Query::setDatabase($this->get());
+        $queryClass = MiniMVC_Registry::getInstance()->settings->get('config/classes/query', 'MiniMVC_Query');
+        $queryClass::setDatabase($this->get());
+
+        $this->queryClass = $queryClass;
 
         $this->registerModels();
     }
@@ -74,6 +82,16 @@ class MiniMVC_Pdo
             $connection = $this->currentConnection;
         }
         return isset($this->connections[$connection]) ? $this->connections[$connection] : null;
+    }
+
+    /**
+     *
+     * @return MiniMVC_Query
+     */
+    public function query($connection = null)
+    {
+        $queryClass = $this->queryClass;
+        return $queryClass::create($this->get($connection));
     }
 
     public function setConnection($connection = 'default')

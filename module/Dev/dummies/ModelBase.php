@@ -5,7 +5,7 @@
  *
  * {columns_phpdoc}
  */
-abstract class {name}Base extends MiniMVC_Model
+abstract class {name}Base extends {modelClass}
 {
 {relations_methods}
 }

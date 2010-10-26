@@ -251,7 +251,7 @@ class MiniMVC_Model implements ArrayAccess
                         $tableName = $data[0].'Table';
                         $table = call_user_func($tableName . '::getInstance');
                         if (isset($data[3]) && $data[3] !== true) {
-                            MiniMVC_Query::create()->delete('b')->from($this->_table->getModelName(), 'a')->join('a.'.$relation, 'b')->where('a.'.$this->_table->getIdentifier().' = ? AND b.'.$table->getIdentifier(). ' IS NOT NULL')->execute($this->getIdentifier());
+                            $this->getTable()->query('a', false)->delete('b')->join('a.'.$relation, 'b')->where('a.'.$this->_table->getIdentifier().' = ? AND b.'.$table->getIdentifier(). ' IS NOT NULL')->execute($this->getIdentifier());
                             if ($realDeleteCleanRef) {
                                 $table->cleanRefTables();
                             }
@@ -307,8 +307,7 @@ class MiniMVC_Model implements ArrayAccess
             array_unshift($values, $this->getIdentifier());
             $tableName = $data[0].'Table';
             $table = call_user_func($tableName . '::getInstance');
-            $query = new MiniMVC_Query();
-            $query->select('a')->from($this->_table, 'b')->join('b.'.$relation, 'a')->where('b.'.$this->_table->getIdentifier().' = ? AND a.'.$table->getIdentifier(). ' IS NOT NULL');
+            $this->getTable()->query('b', 'a')->join('b.'.$relation, 'a')->where('b.'.$this->_table->getIdentifier().' = ? AND a.'.$table->getIdentifier(). ' IS NOT NULL');
             if ($condition) {
                 $query->where($condition);
             }
@@ -405,7 +404,7 @@ class MiniMVC_Model implements ArrayAccess
                     }
                     $this->save();
                 }
-                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ?')->execute($this->getIdentifier());
+                $stmt = MiniMVC_Registry::getInstance()->db->query()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ?')->execute($this->getIdentifier());
                 $rows = array();
                 foreach ($stmt->fetchAll(PDO::FETCH_NUM) as $row) {
                     $rows[$row[2]] = $row[1];
@@ -413,24 +412,24 @@ class MiniMVC_Model implements ArrayAccess
                 foreach ($this->_relations[$relation] as $relation) {
                     $relation->save();
                     if ($relation->getIdentifier() && !isset($rows[$relation->getIdentifier()])) {
-                        MiniMVC_Query::create()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $relation->getIdentifier()));
+                        MiniMVC_Registry::getInstance()->db->query()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $relation->getIdentifier()));
                     }
                 }
             } elseif (is_object($identifier)) {
                 $identifier->save();
-                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
+                $stmt = MiniMVC_Registry::getInstance()->db->query()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
                 if (!$result) {
-                    MiniMVC_Query::create()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
+                    MiniMVC_Registry::getInstance()->db->query()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
                 }
             } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
                 $this->_relations[$relation]['_'.$identifier]->save();
-                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
+                $stmt = MiniMVC_Registry::getInstance()->db->query()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
                 if (!$result) {
-                    MiniMVC_Query::create()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
+                    MiniMVC_Registry::getInstance()->db->query()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
                 }
             }
         }
@@ -469,7 +468,7 @@ class MiniMVC_Model implements ArrayAccess
                         $object->{$info[2]} = $this->getIdentifier();
                         $object->save();
                     } else {
-                        MiniMVC_Query::create()->update($info[0])->set($info[2].' = ?')->where($table->getIdentifier().' = ?')->execute(array($this->getIdentifier(), $identifier));
+                        MiniMVC_Registry::getInstance()->db->query()->update($info[0])->set($info[2].' = ?')->where($table->getIdentifier().' = ?')->execute(array($this->getIdentifier(), $identifier));
                     }
                 }
             } elseif ($info[2] == $table->getIdentifier()) {
@@ -500,11 +499,11 @@ class MiniMVC_Model implements ArrayAccess
                 if (!$identifier->getIdentifier()) {
                     $identifier->save();
                 }
-                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
+                $stmt = MiniMVC_Registry::getInstance()->db->query()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
                 if (!$result) {
-                    MiniMVC_Query::create()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
+                    MiniMVC_Registry::getInstance()->db->query()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
                 }
             } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
                 if (!$this->getIdentifier()) {
@@ -513,11 +512,11 @@ class MiniMVC_Model implements ArrayAccess
                 if (!$this->_relations[$relation]['_'.$identifier]->getIdentifier()) {
                      $this->_relations[$relation]['_'.$identifier]->save();
                 }
-                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[1].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
+                $stmt = MiniMVC_Registry::getInstance()->db->query()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[1].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
                 if (!$result) {
-                    MiniMVC_Query::create()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
+                    MiniMVC_Registry::getInstance()->db->query()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
                 }
             } else {
                 if (!$this->getIdentifier()) {
@@ -526,12 +525,12 @@ class MiniMVC_Model implements ArrayAccess
                 if ($loadRelated && $object = $table->loadOne($identifier)) {
                     $this->_relations[$relation]['_'.$identifier] = $object;
                 }
-                $stmt = MiniMVC_Query::create()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier));
+                $stmt = MiniMVC_Registry::getInstance()->db->query()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier));
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
                 
                 if (!$result) {
-                    MiniMVC_Query::create()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier));
+                    MiniMVC_Registry::getInstance()->db->query()->insert($info[3])->set($info[1].' = ?, '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier));
                 }
             }
         }
@@ -567,7 +566,7 @@ class MiniMVC_Model implements ArrayAccess
                     if (!$this->getIdentifier()) {
                         return false;
                     }
-                    MiniMVC_Query::create()->update($info[0])->set($info[2].' = ?')->where($info[2].' = ?')->execute(array(null, $this->getIdentifier()));
+                    MiniMVC_Registry::getInstance()->db->query()->update($info[0])->set($info[2].' = ?')->where($info[2].' = ?')->execute(array(null, $this->getIdentifier()));
                     foreach ($table->get($info[2], $this->getIdentifier()) as $object) {
                         $object->{$info[2]} = null;
                     }
@@ -576,7 +575,7 @@ class MiniMVC_Model implements ArrayAccess
                         $object->{$info[2]} = null;
                         $object->save();
                     } else {
-                        MiniMVC_Query::create()->update($info[0])->set($info[2].' = ?')->where($table->getIdentifier().' = ?')->execute(array(null, $identifier));
+                        MiniMVC_Registry::getInstance()->db->query()->update($info[0])->set($info[2].' = ?')->where($table->getIdentifier().' = ?')->execute(array(null, $identifier));
                     }
                 }
             } elseif ($info[2] == $table->getIdentifier()) {
@@ -598,7 +597,7 @@ class MiniMVC_Model implements ArrayAccess
                 return false;
             }
             if ($identifier === true) {
-                MiniMVC_Query::create()->delete()->from($info[3])->where($info[1].' = ?')->execute($this->getIdentifier());
+                MiniMVC_Registry::getInstance()->db->query()->delete()->from($info[3])->where($info[1].' = ?')->execute($this->getIdentifier());
                 unset($this->_relations[$relation]);
             } else {
                 if (is_object($identifier)) {
@@ -610,7 +609,7 @@ class MiniMVC_Model implements ArrayAccess
                         unset($this->_relations[$relation]['_'.$identifier]);
                     }
                 }
-                MiniMVC_Query::create()->delete()->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), is_object($identifier) ? $identifier->getIdentifier() : $identifier));
+                MiniMVC_Registry::getInstance()->db->query()->delete()->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), is_object($identifier) ? $identifier->getIdentifier() : $identifier));
             }
         }
     }

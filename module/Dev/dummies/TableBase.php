@@ -7,7 +7,7 @@
  * @method {name} loadOneWithRelationsBy() loadOneWithRelationsBy($relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = true)
  * @method {name} create() create($data = array())
  */
-abstract class {name}TableBase extends MiniMVC_Table
+abstract class {name}TableBase extends {tableClass}
 {
 
 	protected $_table = '{table}';

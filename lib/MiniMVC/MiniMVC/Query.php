@@ -254,6 +254,10 @@ class MiniMVC_Query
                         $select[] = $v;
                     }
                 }
+            } elseif ($this->type == 'DELETE') {
+                foreach ($this->columns as $v) {
+                    $select[] = $v;
+                }
             } else {
                 foreach ($this->columns as $v) {
                     if (isset($this->tables[$v])) {
