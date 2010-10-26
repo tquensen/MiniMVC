@@ -191,16 +191,31 @@ class MiniMVC_Layout
             if (is_array($widgetData['slot']) && !in_array($slot, $widgetData['slot'])) {
                 continue;
             }
+
+            if (!empty($widgetData['position']) && is_array($widgetData['position'])) {
+                $widgetData['position'] = isset($widgetData['position'][$slot]) ? (int) $widgetData['position'][$slot] : 0;
+            }
             $slotWidgets[$widgetName] = array(
                 'show' => isset($widgetData['show']) ? $widgetData['show'] : null,
                 'hide' => isset($widgetData['hide']) ? $widgetData['hide'] : null,
                 'format' => isset($widgetData['format']) ? $widgetData['format'] : null,
-                'layout' => isset($widgetData['layout']) ? $widgetData['layout'] : null
+                'layout' => isset($widgetData['layout']) ? $widgetData['layout'] : null,
+                'position' => isset($widgetData['position']) ? (int) $widgetData['position'] : 0,
             );
         }
 
+        uasort($slotWidgets, array($this, 'sortSlotWidgets'));
+
         $this->registry->settings->set('widgets/cachedSlots/'.$slot, $slotWidgets);
         return $slotWidgets;
+    }
+
+    public function sortSlotWidgets($a, $b)
+    {
+        if ($a['position'] == $b['position']) {
+            return 0;
+        }
+        return ($a['position'] < $b['position']) ? -1 : 1;
     }
 }
 
