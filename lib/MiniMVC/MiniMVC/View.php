@@ -104,9 +104,14 @@ class MiniMVC_View
         $h = $this->helper;
         $t = $this->t;
         $o = $this->helper->text;
-		ob_start();
-		include ($path);
-		return ob_get_clean();
+        try {
+            ob_start();
+            include ($path);
+            return ob_get_clean();
+        } catch (Exception $e) {
+            ob_end_clean();
+            throw $e;
+        }
     }
 
     public function setFile($file = null, $module = null) {

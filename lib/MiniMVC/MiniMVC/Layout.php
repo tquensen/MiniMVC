@@ -78,7 +78,8 @@ class MiniMVC_Layout
 
         $view->layout = $this;
 
-        $this->addToSlot('main', $content);
+        $this->slots['main'][] = $content;
+        //$this->addToSlot('main', $content);
 
         return $view->prepare($this->layout);
     }
