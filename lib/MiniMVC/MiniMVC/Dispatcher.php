@@ -185,7 +185,7 @@ class MiniMVC_Dispatcher
 
                 $routeData['parameter']['exception'] = $e;
                 $content = $this->call($routeData['controller'], $routeData['action'], $routeData['parameter']);
-                return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'), false)->parse();
+                return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'))->parse();
 
             } catch (Exception $e) {
                 //handle 50x errors
@@ -194,7 +194,7 @@ class MiniMVC_Dispatcher
                     $routeData = $routes[$error500Route];
                     $routeData['parameter']['exception'] = $e;
                     $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
-                    return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'), false)->parse();
+                    return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'))->parse();
                 } else {
                     throw new Exception('Exception was thrown and no 500 Route defined!');
                 }
