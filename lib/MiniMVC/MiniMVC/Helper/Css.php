@@ -65,8 +65,20 @@ class Helper_Css extends MiniMVC_Helper
         }
         $data = array();
 
+        if ($module) {
+            if (file_exists(APPPATH.$app.'/web/'.$module.'/css/'.$file)) {
+                $data['file'] = APPPATH.$app.'/web/'.$module.'/css/'.$file;
+            } else {
+                $data['file'] = MODULEPATH.$module.'/web/css/'.$file;
+            }
+        } elseif (APPPATH.$app.'/web/css/'.$file) {
+            $data['file'] = APPPATH.$app.'/web/css/'.$file;
+        } else {
+            $data['file'] = WEBPATH.'css/'.$file;
+        }
         $data['url'] = $this->staticHelper->get('css/' . $file, $module, $app);
         $data['media'] = $media;
+        $data['combine'] = false;
 
         $this->additionalFiles[$module . '/' . $file] = $data;
     }
@@ -74,11 +86,10 @@ class Helper_Css extends MiniMVC_Helper
     public function prepareFiles()
     {
         if ($cache = $this->registry->settings->get('view/cssCached')) {
-            return $cache;
+            return array_merge($cache, $this->additionalFiles);
         }
 
         $files = $this->registry->settings->get('view/css', array());
-        $files = array_merge($files, $this->additionalFiles);
         $preparedFiles = array();
         foreach ($files as $file) {
             $data = array();
@@ -96,19 +107,21 @@ class Helper_Css extends MiniMVC_Helper
                 } else {
                     $data['file'] = MODULEPATH.$module.'/web/css/'.$file['file'];
                 }
-            } else {
+            } elseif (APPPATH.$app.'/web/css/'.$file['file']) {
                 $data['file'] = APPPATH.$app.'/web/css/'.$file['file'];
+            } else {
+                $data['file'] = WEBPATH.'css/'.$file['file'];
             }
             $data['url'] = $this->staticHelper->get('css/' . $file['file'], $module, $app);
             $data['media'] = (isset($file['media'])) ? $file['media'] : 'screen';
             $data['combine'] = (isset($file['combine'])) ? $file['combine'] : true;
-            $preparedFiles[$module . '/' . $file['file']] = $data;
+            $preparedFiles[$app.'/'.$module . '/' . $file['file']] = $data;
         }
 
         $combinedFiles = $this->combineFiles($preparedFiles);
         $this->registry->settings->set('view/cssCached', $combinedFiles);
 
-        return $combinedFiles;
+        return array_merge($combinedFiles, $this->additionalFiles);
     }
 
     public function combineFiles($files, $app = null, $environment = null)
@@ -167,6 +180,7 @@ class Helper_Css extends MiniMVC_Helper
             if (!isset($newFiles[$fileHash])) {
                 file_put_contents(CACHEPATH.'public/'.$filename, $content);
 	            $newFiles[$fileHash] = array(
+                    'file' => CACHEPATH.'public/'.$filename,
 	                'url' => $this->staticHelper->get('cache/'.$filename, null, $app),
 	                'media' => $media
 	            );
