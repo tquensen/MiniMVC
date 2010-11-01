@@ -46,30 +46,6 @@ class MiniMVC_Pdo
         call_user_func(array($queryClass, 'setDatabase'), $this->get());
 
         $this->queryClass = $queryClass;
-
-        $this->registerModels();
-    }
-
-    /**
-     *
-     * @return null
-     */
-    protected function registerModels()
-    {
-        $registry = MiniMVC_Registry::getInstance();
-        if ($registry->settings->get('config/modelPathsLoaded')) {
-            return;
-        }
-
-        $autoloadPaths = $registry->settings->get('config/autoloadPaths', array());
-
-        foreach (array_reverse($registry->settings->get('modules', array())) as $module) {
-            if (!in_array(MODULEPATH . $module . '/model', $autoloadPaths)) {
-                $autoloadPaths[] = MODULEPATH . $module . '/model';
-            }
-        }
-        $registry->settings->set('config/modelPathsLoaded', true);
-        $registry->settings->set('config/autoloadPaths', $autoloadPaths);
     }
 
     /**
@@ -80,6 +56,9 @@ class MiniMVC_Pdo
     {
         if (!$connection) {
             $connection = $this->currentConnection;
+        }
+        if (!isset($this->connections[$connection])) {
+            $this->init($connection);
         }
         return isset($this->connections[$connection]) ? $this->connections[$connection] : null;
     }

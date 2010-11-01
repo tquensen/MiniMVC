@@ -83,8 +83,6 @@ class MiniMVC_Dispatcher
 
         try {
 
-            $this->registry->db->init();
-
             $routes = $this->registry->settings->get('routes');
             $routeData = null;
 
