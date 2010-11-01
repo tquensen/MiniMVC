@@ -85,16 +85,22 @@ class LoggablePDO extends PDO
     protected $log = array();
 
     public function query($query) {
+        $this->log($query);
         $start = microtime(true);
         $result = parent::query($query);
         $time = microtime(true) - $start;
-        $this->log($query, null, round($time * 1000, 3));
+        $this->updateLogTime(round($time * 1000, 3));
         return $result;
     }
 
     public function log($query, $params = null, $time = 0)
     {
         $this->log[] = array($query, $params, $time);
+    }
+
+    public function updateLogTime($time)
+    {
+        $this->log[count($this->log)-1][2] = $time;
     }
 
     public function showLog()
@@ -143,6 +149,7 @@ class LoggablePDOStatement extends PDOStatement
 
     public function execute($input_parameters = null)
     {
+        $this->db->log($this->queryString, $this->params);
         $start = microtime(true);
         if (is_array($input_parameters)) {
             foreach ($input_parameters as $key => $param) {
@@ -153,7 +160,7 @@ class LoggablePDOStatement extends PDOStatement
             $result = parent::execute();
         }
         $time = microtime(true) - $start;
-        $this->db->log($this->queryString, $this->params, round($time * 1000, 3));
+        $this->db->updateLogTime(round($time * 1000, 3));
 
         return $result;
     }
