@@ -149,14 +149,15 @@ class LoggablePDOStatement extends PDOStatement
 
     public function execute($input_parameters = null)
     {
-        $this->db->log($this->queryString, $this->params);
         $start = microtime(true);
         if (is_array($input_parameters)) {
             foreach ($input_parameters as $key => $param) {
                 $this->params[$key + 1] = $param;
             }
+            $this->db->log($this->queryString, $this->params);
             $result = parent::execute($input_parameters);
         } else {
+            $this->db->log($this->queryString, $this->params);
             $result = parent::execute();
         }
         $time = microtime(true) - $start;

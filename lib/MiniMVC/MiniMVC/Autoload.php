@@ -90,26 +90,26 @@ class MiniMVC_Autoload
             }
 
             if (file_exists(APPPATH . $app . '/module/lib/' . $classPath . '.php')) {
-                include_once (APPPATH . $app . '/module/lib' . $classPath . '.php');
-                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/lib' . $classPath . '.php');
+                include_once (APPPATH . $app . '/module/lib/' . $classPath . '.php');
+                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/lib/' . $classPath . '.php');
                 return;
             }
 
             if (file_exists(APPPATH . $app . '/module/lib/' . $class . '.php')) {
-                include_once (APPPATH . $app . '/module/lib' . $class . '.php');
-                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/lib' . $class . '.php');
+                include_once (APPPATH . $app . '/module/lib/' . $class . '.php');
+                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/lib/' . $class . '.php');
                 return;
             }
 
-            if (file_exists(APPPATH . $app . '/module/model' . $classPath . '.php')) {
-                include_once (APPPATH . $app . '/module/model' . $classPath . '.php');
-                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/model' . $classPath . '.php');
+            if (file_exists(APPPATH . $app . '/module/model/' . $classPath . '.php')) {
+                include_once (APPPATH . $app . '/module/model/' . $classPath . '.php');
+                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/model/' . $classPath . '.php');
                 return;
             }
 
-            if (file_exists(APPPATH . $app . '/module/model' . $class . '.php')) {
-                include_once (APPPATH . $app . '/module/model' . $class . '.php');
-                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/model' . $class . '.php');
+            if (file_exists(APPPATH . $app . '/module/model/' . $class . '.php')) {
+                include_once (APPPATH . $app . '/module/model/' . $class . '.php');
+                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/model/' . $class . '.php');
                 return;
             }
 
