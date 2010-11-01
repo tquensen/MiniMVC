@@ -7,11 +7,6 @@ class MiniMVC_Query
      * @var PDO
      */
     protected $db = null;
-    /**
-     *
-     * @var PDO
-     */
-    protected static $database = null;
     protected $type = 'SELECT';
     protected $columns = array();
     protected $from = null;
@@ -27,11 +22,6 @@ class MiniMVC_Query
     protected $relations = array();
     protected $values = array();
 
-    public static function setDatabase($db)
-    {
-        self::$database = $db;
-    }
-
     /**
      *
      * @param PDO $db
@@ -45,7 +35,7 @@ class MiniMVC_Query
 
     public function __construct($db = null)
     {
-        $this->db = $db ? $db : self::$database;
+        $this->db = $db ? $db : MiniMVC_Registry::getInstance()->db->get();
     }
 
     public function setValues($values)

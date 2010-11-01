@@ -43,7 +43,7 @@ class MiniMVC_Pdo
         }
 
         $queryClass = MiniMVC_Registry::getInstance()->settings->get('config/classes/query', 'MiniMVC_Query');
-        call_user_func(array($queryClass, 'setDatabase'), $this->get());
+//        call_user_func(array($queryClass, 'setDatabase'), $this->get());
 
         $this->queryClass = $queryClass;
     }
