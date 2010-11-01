@@ -5,7 +5,7 @@
 class MiniMVC_Pdo
 {
     protected $connections = array();
-    protected $currentConnection = '';
+    protected $currentConnection = 'default';
     /**
      *
      * @var MiniMVC_Query
