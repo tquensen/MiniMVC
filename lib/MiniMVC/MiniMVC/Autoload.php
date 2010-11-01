@@ -76,40 +76,41 @@ class MiniMVC_Autoload
                 $registry->settings->set('autoload/'.$class, MODULEPATH . $parts[0] . '/controller/' . $parts[1] . '.php');
                 return;
             }
-        } else {
-            if (file_exists(APPPATH . $app . '/module/' . $classPath . '.php')) {
-                include_once (APPPATH . $app . '/module/' . $classPath . '.php');
-                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/' . $classPath . '.php');
+        }
+        foreach (array_reverse($registry->settings->get('modules', array())) as $module) {
+            if (file_exists(APPPATH . $app . '/module/' . $module . '/' . $classPath . '.php')) {
+                include_once (APPPATH . $app . '/module/' . $module . '/' . $classPath . '.php');
+                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/' . $module . '/' . $classPath . '.php');
                 return;
             }
 
-            if (file_exists(APPPATH . $app . '/module/' . $class . '.php')) {
-                include_once (APPPATH . $app . '/module/' . $class . '.php');
-                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/' . $class . '.php');
+            if (file_exists(APPPATH . $app . '/module/' . $module . '/' . $class . '.php')) {
+                include_once (APPPATH . $app . '/module/' . $module . '/' . $class . '.php');
+                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/' . $module . '/' . $class . '.php');
                 return;
             }
 
-            if (file_exists(APPPATH . $app . '/module/lib/' . $classPath . '.php')) {
-                include_once (APPPATH . $app . '/module/lib/' . $classPath . '.php');
-                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/lib/' . $classPath . '.php');
+            if (file_exists(APPPATH . $app . '/module/' . $module . '/lib/' . $classPath . '.php')) {
+                include_once (APPPATH . $app . '/module/' . $module . '/lib/' . $classPath . '.php');
+                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/' . $module . '/lib/' . $classPath . '.php');
                 return;
             }
 
-            if (file_exists(APPPATH . $app . '/module/lib/' . $class . '.php')) {
-                include_once (APPPATH . $app . '/module/lib/' . $class . '.php');
-                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/lib/' . $class . '.php');
+            if (file_exists(APPPATH . $app . '/module/' . $module . '/lib/' . $class . '.php')) {
+                include_once (APPPATH . $app . '/module/' . $module . '/lib/' . $class . '.php');
+                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/' . $module . '/lib/' . $class . '.php');
                 return;
             }
 
-            if (file_exists(APPPATH . $app . '/module/model/' . $classPath . '.php')) {
-                include_once (APPPATH . $app . '/module/model/' . $classPath . '.php');
-                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/model/' . $classPath . '.php');
+            if (file_exists(APPPATH . $app . '/module/' . $module . '/model/' . $classPath . '.php')) {
+                include_once (APPPATH . $app . '/module/' . $module . '/model/' . $classPath . '.php');
+                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/' . $module . '/model/' . $classPath . '.php');
                 return;
             }
 
-            if (file_exists(APPPATH . $app . '/module/model/' . $class . '.php')) {
-                include_once (APPPATH . $app . '/module/model/' . $class . '.php');
-                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/model/' . $class . '.php');
+            if (file_exists(APPPATH . $app . '/module/' . $module . '/model/' . $class . '.php')) {
+                include_once (APPPATH . $app . '/module/' . $module . '/model/' . $class . '.php');
+                $registry->settings->set('autoload/'.$class, APPPATH . $app . '/module/' . $module . '/model/' . $class . '.php');
                 return;
             }
 
@@ -125,27 +126,27 @@ class MiniMVC_Autoload
                 return;
             }
 
-            if (file_exists(MODULEPATH . 'lib/' . $classPath . '.php')) {
-                include_once (MODULEPATH . 'lib/' . $classPath . '.php');
-                $registry->settings->set('autoload/'.$class, MODULEPATH . 'lib/' . $classPath . '.php');
+            if (file_exists(MODULEPATH . $module . '/lib/' . $classPath . '.php')) {
+                include_once (MODULEPATH . $module . '/lib/' . $classPath . '.php');
+                $registry->settings->set('autoload/'.$class, MODULEPATH . $module . '/lib/' . $classPath . '.php');
                 return;
             }
 
-            if (file_exists(MODULEPATH . 'lib/' . $class . '.php')) {
-                include_once (MODULEPATH . 'lib/' . $class . '.php');
-                $registry->settings->set('autoload/'.$class, MODULEPATH . 'lib/' . $class . '.php');
+            if (file_exists(MODULEPATH . $module . '/lib/' . $class . '.php')) {
+                include_once (MODULEPATH . $module . '/lib/' . $class . '.php');
+                $registry->settings->set('autoload/'.$class, MODULEPATH . $module . '/lib/' . $class . '.php');
                 return;
             }
 
-            if (file_exists(MODULEPATH . 'model/' . $classPath . '.php')) {
-                include_once (MODULEPATH . 'model/' . $classPath . '.php');
-                $registry->settings->set('autoload/'.$class, MODULEPATH . 'model/' . $classPath . '.php');
+            if (file_exists(MODULEPATH . $module . '/model/' . $classPath . '.php')) {
+                include_once (MODULEPATH . $module . '/model/' . $classPath . '.php');
+                $registry->settings->set('autoload/'.$class, MODULEPATH . $module . '/model/' . $classPath . '.php');
                 return;
             }
 
-            if (file_exists(MODULEPATH . 'model/' . $class . '.php')) {
-                include_once (MODULEPATH . 'model/' . $class . '.php');
-                $registry->settings->set('autoload/'.$class, MODULEPATH . 'model/' . $class . '.php');
+            if (file_exists(MODULEPATH . $module . '/model/' . $class . '.php')) {
+                include_once (MODULEPATH . $module . '/model/' . $class . '.php');
+                $registry->settings->set('autoload/'.$class, MODULEPATH . $module . '/model/' . $class . '.php');
                 return;
             }
         }
