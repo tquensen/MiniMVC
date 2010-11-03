@@ -30,6 +30,10 @@ class MiniMVC_Task
             $this->registry->settings->set('runtime/currentApp', $params['app']);
         }
 
+        if (isset($params['env'])) {
+            $this->registry->settings->set('runtime/currentEnvironment', $params['env']);
+        }
+
         $this->registry->settings->set('runtime/currentLanguage', '');
 
         if (!$taskName) {
@@ -44,6 +48,9 @@ class MiniMVC_Task
             $this->registry->db->init();
             return $this->registry->dispatcher->callTask($taskName, $params)->parse();
         } catch (Exception $e) {
+            if (!empty($params['debug'])) {
+                return 'error: ' . $e;
+            }
             return 'error: ' . $e->getMessage();
         }
     }

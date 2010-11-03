@@ -111,14 +111,15 @@ class MiniMVC_Dispatcher
                         $routePattern = (isset($currentRouteData['routePatternGenerated'])) ? $currentRouteData['routePatternGenerated'] : $this->getRegex($currentRoute, $currentRouteData);
                         if (preg_match($routePattern, $route, $matches)) {
                             $params = (isset($currentRouteData['parameter'])) ? $currentRouteData['parameter'] : array();
+                            $anonymousParams = array();
                             foreach ($matches as $paramKey => $paramValue) {
                                 if (!is_numeric($paramKey)) {
                                     if ($paramKey == 'anonymousParams') {
-
                                         foreach (explode('/', $paramValue) as $anonymousParam) {
                                             $anonymousParam = explode('-', $anonymousParam, 2);
                                             if (trim($anonymousParam[0]) && !isset($params[urldecode($anonymousParam[0])])) {
-                                                $params[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : '';
+                                                $params[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : true;
+                                                $anonymousParams[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : true;
                                             }
                                         }
                                     } else {
@@ -126,6 +127,8 @@ class MiniMVC_Dispatcher
                                     }
                                 }
                             }
+
+                            $params = array_merge($params, $anonymousParams);
 
                             $routeName = $currentRoute;
                             //$routeData = $this->getRoute($currentRoute, $params);
@@ -143,6 +146,7 @@ class MiniMVC_Dispatcher
 
             $this->registry->settings->set('runtime/currentRoute', $routeName);
             $this->registry->settings->set('runtime/currentRouteParameter', isset($params) ? $params : array());
+            $this->registry->settings->set('runtime/currentRouteAnonymousParameter', isset($anonymousParams) ? $anonymousParams : array());
 
             $this->registry->events->notify(new sfEvent($this, 'minimvc.init'));            
             $content = $this->callRoute($routeName, (isset($params) ? $params : array()));
@@ -434,7 +438,7 @@ class MiniMVC_Dispatcher
      */
     protected function getRegex($route, $routeData)
     {
-        $routePattern = isset($routeData['routePattern']) ? $routeData['routePattern'] : str_replace(array('(',')','[',']','.','?'), array('\\(','\\)','\\[','\\]','\\.','\\?'), $routeData['route']);
+        $routePattern = isset($routeData['routePattern']) ? $routeData['routePattern'] : str_replace(array('(',')','[',']','.','?'), array('','','\\[','\\]','\\.','\\?'), $routeData['route']);
         if (isset($routeData['parameterPatterns'])) {
             $search = array();
             $replace = array();

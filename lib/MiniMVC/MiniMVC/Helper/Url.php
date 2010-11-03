@@ -2,7 +2,7 @@
 
 class Helper_Url extends MiniMVC_Helper
 {	
-	public function get($route, $parameter = array(), $app = null)
+	public function get($route, $parameter = array(), $anonymousParameter = array(), $app = null)
 	{
 		$app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
 		try
@@ -51,12 +51,24 @@ class Helper_Url extends MiniMVC_Helper
         }
 		$url = str_replace($search, $replace, $url);
 
+        if (!empty($routeData['allowAnonymous']) && count($anonymousParameter)) {
+            $anonymous = array();
+            foreach ($anonymousParameter as $param => $value) {
+                $anonymous[] = urlencode($param) . '-' . urlencode($value);
+            }
+            if (substr($url, -1) == '/') {
+                $url .= implode('/', $anonymous) . '/';
+            } else {
+                $url .= '/' . implode('/', $anonymous);
+            }
+        }
+
         return $baseurl.$url;
 	}
 
-    public function link($title, $route, $parameter = array(), $attrs = '', $method = null, $app = null)
+    public function link($title, $route, $parameter = array(), $anonymousParameter = array(), $attrs = '', $method = null, $app = null)
     {
-        $url = $this->get($route, $parameter, $app);
+        $url = $this->get($route, $parameter, $anonymousParameter, $app);
         if (!$url) {
             return $title;
         }

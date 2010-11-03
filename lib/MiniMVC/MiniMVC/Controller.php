@@ -48,12 +48,13 @@ class MiniMVC_Controller
      *
      * @param string $route an internal route name
      * @param array $params parameter for the route
+     * @param array $anonymousParams additional params that will be appended to the route (if the route allows this)
      * @param mixed $app the name of the app or null for current app
      * @return null
      */
-    protected function redirect($route, $params = array(), $app = null)
+    protected function redirect($route, $params = array(), $anonymousParams = array(), $app = null)
     {
-        $url = $this->registry->helper->url->get($route, $params, $app);
+        $url = $this->registry->helper->url->get($route, $params, $anonymousParams, $app);
         if ($url)
         {
             header('Location: '.$url);
