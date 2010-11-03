@@ -172,7 +172,7 @@ class MiniMVC_Settings
         $environment = ($environment) ? $environment : $this->get('runtime/currentEnvironment');
 
         if ($this->get('runtime/useCache')) {
-            file_put_contents(CACHEPATH.'settings_' . $app . '_' . $environment . '.php', '<?php ' . "\n" . $this->varExport($this->settings[$app . '_' . $environment], '$MiniMVC_settings', 100));
+            file_put_contents(CACHEPATH.'settings_' . $app . '_' . $environment . '.php', '<?php ' . "\n" . $this->varExport($this->settings[$app . '_' . $environment], '$MiniMVC_settings', 100), LOCK_EX);
         }
     }
 
