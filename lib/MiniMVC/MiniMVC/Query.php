@@ -11,7 +11,6 @@ class MiniMVC_Query
     protected $columns = array();
     protected $from = null;
     protected $join = array();
-    protected $set = array();
     protected $where = array();
     protected $order = '';
     protected $group = '';
@@ -51,7 +50,8 @@ class MiniMVC_Query
     public function select($columns = null)
     {
         $this->type = 'SELECT';
-        $this->columns = array_merge($this->columns, array_map('trim', explode(',', $columns)));
+        $this->set($columns);
+        //$this->columns = array_merge($this->columns, array_map('trim', explode(',', $columns)));
 
         return $this;
     }
@@ -59,25 +59,36 @@ class MiniMVC_Query
     /**
      *
      * @param string|null $table
+     * @param array $columns
      * @return MiniMVC_Query
      */
-    public function insert($table = null)
+    public function insert($columns = array(), $table = null)
     {
         $this->type = 'INSERT INTO';
-        $this->columns = array_merge($this->columns, array_map('trim', explode(',', $table)));
-
+        if ($table) {
+            $this->from($table);
+        }
+        $this->set($columns);
+        //$this->columns = array_merge($this->columns, array_map('trim', explode(',', $table)));
+        //$this->columns = (array) $columns;
         return $this;
     }
 
     /**
      *
      * @param string|null $table
+     * @param array $columns
      * @return MiniMVC_Query
      */
-    public function update($table = null)
+    public function update($columns = array(), $table = null)
     {
         $this->type = 'UPDATE';
-        $this->columns = array_merge($this->columns, array_map('trim', explode(',', $table)));
+        if ($table) {
+            $this->from($table);
+        }
+        $this->set($columns);
+        //$this->columns = (array) $columns;
+        //$this->columns = array_merge($this->columns, array_map('trim', explode(',', $table)));
 
         return $this;
     }
@@ -90,7 +101,12 @@ class MiniMVC_Query
     public function delete($table = null)
     {
         $this->type = 'DELETE';
-        $this->columns = array_merge($this->columns, array_map('trim', explode(',', $table)));
+
+        //$this->set($tables);
+        if ($table) {
+            $this->from($table);
+        }
+        //$this->columns = array_merge($this->columns, array_map('trim', explode(',', $table)));
 
         return $this;
     }
@@ -112,6 +128,30 @@ class MiniMVC_Query
         }
         $this->from = $alias;
         $this->tables[$alias] = $table;
+
+        return $this;
+    }
+
+    /**
+     *
+     * @param MiniMVC_Table $table
+     * @return MiniMVC_Query
+     */
+    public function in($table)
+    {
+        $this->from($table);
+
+        return $this;
+    }
+
+    /**
+     *
+     * @param MiniMVC_Table $table
+     * @return MiniMVC_Query
+     */
+    public function into($table)
+    {
+        $this->from($table);
 
         return $this;
     }
@@ -161,13 +201,15 @@ class MiniMVC_Query
 
     /**
      *
-     * @param string $data
+     * @param string $columns
      * @return MiniMVC_Query
      */
-    public function set($data)
+    public function set($columns)
     {
-        if (trim($data)) {
-            $this->set[] = $data;
+        if (is_array($columns)) {
+            $this->columns = array_merge($this->columns, $columns);
+        } elseif (trim($columns)) {
+            $this->columns = array_merge($this->columns, array_map('trim', explode(',', $columns)));
         }
         return $this;
     }
@@ -244,31 +286,41 @@ class MiniMVC_Query
                         $select[] = $v;
                     }
                 }
-            } elseif ($this->type == 'DELETE') {
-                foreach ($this->columns as $v) {
-                    $select[] = $v;
-                }
-            } else {
-                foreach ($this->columns as $v) {
-                    if (isset($this->tables[$v])) {
-                        $select[] = $this->tables[$v]->getTableName();
-                    } else {
-                        $select[] = $v;
-                    }
-                }
+//            } elseif ($this->type == 'DELETE') {
+//                foreach ($this->columns as $v) {
+//                    $select[] = $v;
+//                }
+//            } else {
+//                foreach ($this->columns as $v) {
+//                    if (isset($this->tables[$v])) {
+//                        $select[] = $this->tables[$v]->getTableName();
+//                    } else {
+//                        $select[] = $v;
+//                    }
+//                }
             }
         }
         $q .= implode(', ', array_unique(array_map('trim', $select)));
-        if ($isPreQuery || ($this->type != 'INSERT INTO' && $this->type != 'UPDATE')) {
-            $q .= $this->_from($this->from);
-        }
+
+        $q .= $this->_from($this->from, ($this->type != 'INSERT INTO' && $this->type != 'UPDATE'));
+        
 
         foreach ($this->join as $join => $info) {
             $q .= $this->_join($join, $info[0], isset($info[1]) ? $info[1] : null, isset($info[2]) ? $info[2] : null);
         }
 
-        if (!$isPreQuery && ($this->type == 'INSERT INTO' || $this->type == 'UPDATE')) {
-            $q .= ' SET '.implode(' , ',$this->set);
+        if (!$isPreQuery && $this->type == 'UPDATE' && count($this->columns)) { //($this->type == 'INSERT INTO' || $this->type == 'UPDATE')) {
+            $q .= ' SET '.implode(' = ? , ',$this->columns). ' = ? ';
+        }
+
+        if (!$isPreQuery && $this->type == 'INSERT INTO' && count($this->columns)) { //($this->type == 'INSERT INTO' || $this->type == 'UPDATE')) {
+            $q .= ' ( '.implode(' , ',$this->columns).' ) VALUES (';
+            $tmp = array();
+            foreach ($this->columns as $column) {
+                $tmp[] = '?';
+            }
+            $q .= implode(',',$tmp);
+            $q .= ') ';
         }
 
         $condition = count($this->where) ? implode(' AND ', $this->where) : '';
@@ -350,7 +402,7 @@ class MiniMVC_Query
      * @param mixed $query
      * @return PDOStatement
      */
-    public function execute($values = array(), $query = null)
+    public function prepare($values = array(), $query = null)
     {
         $values = (array) $values;
 
@@ -361,7 +413,18 @@ class MiniMVC_Query
         $sql = ($query !== null) ? $query : $this->get($values);
 
 
-        $stmt = $this->db->prepare($sql);
+        return $this->db->prepare($sql);
+    }
+
+    /**
+     *
+     * @param array $values
+     * @param mixed $query
+     * @return PDOStatement
+     */
+    public function execute($values = array(), $query = null)
+    {
+        $stmt = $this->prepare($values, $query);
 
         $result = $stmt->execute($values);
 
@@ -532,9 +595,9 @@ class MiniMVC_Query
         return ' '.$type.' JOIN '.$table.' '.$alias.' '.($on ? 'ON '.$on : '').' ';
     }
 
-    protected function _from($alias = null)
+    protected function _from($alias = null, $from = true)
     {
-        return ' FROM '.(isset($this->tables[$alias]) ? $this->tables[$alias]->getTableName() : '').' '.$alias.' ';
+        return ' ' . ($from ? 'FROM ' : '') . (isset($this->tables[$alias]) ? $this->tables[$alias]->getTableName() : '').' '.$alias.' ';
     }
 
     protected function _in($alias = null, $key = null, $values = array())

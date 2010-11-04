@@ -330,17 +330,21 @@ class MiniMVC_Table {
                     return false;
                 }
 
-                $query = $this->registry->db->query()->insert($this->_table);
 
+                $fields = array();
                 $values = array();
                 foreach ($this->_columns as $column)
                 {
                     if (isset($entry->$column) && $entry->$column !== null)
                     {
-                        $query->set(' '.$column.' = ? ');
+                        $fields[] = $column;
+                        //$query->set(' '.$column.' = ? ');
                         $values[] = $entry->$column;
                     }
                 }
+
+                $query = $this->query(null, false)->insert($fields);
+
 
                 $result = $query->execute($values);
 
@@ -362,18 +366,21 @@ class MiniMVC_Table {
             } else {
                 $update = false;
 
-                $query = $this->registry->db->query()->update($this->_table)->where($this->_identifier.' = ?');
-
+                $fields = array();
                 $values = array();
                 foreach ($this->_columns as $column)
                 {
                     if ($entry->$column !== $entry->getDatabaseProperty($column))
                     {
-                        $query->set(' '.$column.' = ? ');
+                        $fields[] = $column;
+                        //$query->set(' '.$column.' = ? ');
                         $values[] = $entry->$column;
                         $update = true;
                     }
                 }
+
+                $query = $this->query(null, false)->update($fields)->where($this->_identifier.' = ?');
+
                 if (!$update) {
                     $this->_db->rollBack();
                     return true;
@@ -434,7 +441,7 @@ class MiniMVC_Table {
                 }
 
                 $query = $this->registry->db->query();
-                $result = $query->delete()->from($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry->{$this->_identifier});
+                $result = $query->delete($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry->{$this->_identifier});
 
                 if (isset($this->_entries[$entry->{$this->primary}]))
                 {
@@ -450,7 +457,7 @@ class MiniMVC_Table {
             else
             {
                 $query = $this->registry->db->query();
-                $result = $query->delete()->from($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry);
+                $result = $query->delete($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry);
 
                 if (isset($this->_entries[$entry]))
                 {
@@ -459,7 +466,7 @@ class MiniMVC_Table {
             }
             foreach ($this->_relations as $relation => $info) {
                 if (isset($info[3]) && $info[3] !== true) {
-                    $this->registry->db->query()->delete()->from($info[3])->where($info[1].' = ?')->execute(is_object($entry) ? $entry->{$this->_identifier} : $entry);
+                    $this->registry->db->query()->delete($info[3])->where($info[1].' = ?')->execute(is_object($entry) ? $entry->{$this->_identifier} : $entry);
                 }
             }
         } catch (PDOException $e) {
@@ -472,7 +479,7 @@ class MiniMVC_Table {
 	public function deleteBy($condition, $values, $cleanRefTable = false)
 	{
         $query = $this->registry->db->query();
-        $result = $query->delete()->from($this)->where($condition)->execute($values);
+        $result = $query->delete($this)->where($condition)->execute($values);
 
         if ($cleanRefTable) {
             $this->cleanRefTables();
@@ -487,8 +494,11 @@ class MiniMVC_Table {
     public function cleanRefTables()
     {
         foreach ($this->_relations as $relation => $info) {
-            if (isset($info[3]) && $info[3] !== true) {
-                $this->registry->db->query()->delete('a_b')->from($info[3], 'a_b')->join($this->_table, 'a', 'a_b.'.$info[1].' = a.'.$this->_identifier)->where('a.'.$this->_identifier.' IS NULL')->execute();
+            $stmt = $this->registry->db->query()->select('a_b.id')->from($info[3], 'a_b')->join($this->_table, 'a', 'a_b.'.$info[1].' = a.'.$this->_identifier)->where('a.'.$this->_identifier.' IS NULL')->execute();
+            $refTableIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $deleteStmt = $this->registry->db->query()->delete($info[3])->where('id = ?')->prepare();
+            foreach ($refTableIds as $refTableId) {
+                $deleteStmt->execute(array($refTableId));
             }
         }
     }
