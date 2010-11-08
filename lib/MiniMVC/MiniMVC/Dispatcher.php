@@ -31,7 +31,7 @@ class MiniMVC_Dispatcher
         $method = (!empty($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : 'GET';
 
         $currentLanguage = null;
-        $currentApp = $this->registry->settings->get('runtime/currentApp');
+        $currentApp = $this->registry->settings->get('currentApp');
         $route = null;
 
         if (!$currentApp || !$this->registry->settings->get('apps/'.$currentApp)) {
@@ -150,7 +150,7 @@ class MiniMVC_Dispatcher
 
             $this->registry->events->notify(new sfEvent($this, 'minimvc.init'));            
             $content = $this->callRoute($routeName, (isset($params) ? $params : array()));
-            return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'))->parse();
+            return $this->registry->template->prepare($content, $this->registry->settings->get('currentApp'))->parse();
         } catch (Exception $e) {
 
             try {
@@ -187,7 +187,7 @@ class MiniMVC_Dispatcher
 
                 $routeData['parameter']['exception'] = $e;
                 $content = $this->call($routeData['controller'], $routeData['action'], $routeData['parameter']);
-                return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'))->parse();
+                return $this->registry->template->prepare($content, $this->registry->settings->get('currentApp'))->parse();
 
             } catch (Exception $e) {
                 //handle 50x errors
@@ -196,7 +196,7 @@ class MiniMVC_Dispatcher
                     $routeData = $routes[$error500Route];
                     $routeData['parameter']['exception'] = $e;
                     $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
-                    return $this->registry->template->prepare($content, $this->registry->settings->get('runtime/currentApp'))->parse();
+                    return $this->registry->template->prepare($content, $this->registry->settings->get('currentApp'))->parse();
                 } else {
                     throw new Exception('Exception was thrown and no 500 Route defined!');
                 }
@@ -213,7 +213,7 @@ class MiniMVC_Dispatcher
      */
     public function getRoute($route, $params = array(), $app = null)
     {
-        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
+        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
 
         if (!$routeData = $this->registry->settings->get('routes/'.$route, array(), $app)) {
             throw new Exception('Route "' . $route . '" does not exist!');
@@ -311,7 +311,7 @@ class MiniMVC_Dispatcher
      */
     public function getWidget($widget, $params = array(), $app = null)
     {
-        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
+        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
 
         if (!$widgetData = $this->registry->settings->get('widgets/'.$widget, array(), $app)) {
             throw new Exception('Widget "' . $widget . '" does not exist!');
@@ -351,7 +351,7 @@ class MiniMVC_Dispatcher
      */
     public function getTask($task, $params = array(), $app = null)
     {
-        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
+        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         if (!$taskData = $this->registry->settings->get('tasks/'.$task, array(), $app)) {
             throw new Exception('Task "' . $task . '" does not exist!');
         }

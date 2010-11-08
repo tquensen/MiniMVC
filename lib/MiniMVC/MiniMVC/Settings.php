@@ -23,7 +23,8 @@ class MiniMVC_Settings
 
     protected function scanConfigFiles($app, $environment)
     {
-        $this->settings[$app . '_' . $environment] = array();
+
+        //$this->settings[$app . '_' . $environment] = array();
         foreach ($this->files as $file) {
             $varname = 'MiniMVC_' . $file;
             $$varname = array();
@@ -73,6 +74,8 @@ class MiniMVC_Settings
         }
 
         $this->save($app, $environment);
+
+        
     }
 
     /**
@@ -91,13 +94,27 @@ class MiniMVC_Settings
 
         $parts = explode('/', $key);
 
-        $app = ($app) ? $app : $this->get('runtime/currentApp');
-        $environment = ($environment) ? $environment : $this->get('runtime/currentEnvironment');
+        $app = ($app) ? $app : $this->get('currentApp');
+        $environment = ($environment) ? $environment : $this->get('currentEnvironment');
 
         if (!isset($this->settings[$app . '_' . $environment])) {
-            if ($this->get('runtime/useCache') && is_file(CACHEPATH . 'settings_' . $app . '_' . $environment . '.php')) {
-                include(CACHEPATH . 'settings_' . $app . '_' . $environment . '.php');
-                $this->settings[$app . '_' . $environment] = $MiniMVC_settings;
+            if ($this->get('useCache')) {
+                if (file_exists(CACHEPATH.'settings_' . $app . '_' . $environment . '.lock')) {
+                    for ($i=0; $i<10; $i++) {
+                        usleep(50000);
+                        if (!file_exists(CACHEPATH.'settings_' . $app . '_' . $environment . '.lock')) {
+                            continue;
+                        }
+                    }
+                }
+                if (file_exists(CACHEPATH.'settings_' . $app . '_' . $environment . '.php')) {
+                    include(CACHEPATH . 'settings_' . $app . '_' . $environment . '.php');
+                    $this->settings[$app . '_' . $environment] = $MiniMVC_settings;
+                } else {
+                    file_put_contents(CACHEPATH.'settings_' . $app . '_' . $environment . '.lock', 'locked');
+                    $this->scanConfigFiles($app, $environment);
+                    unlink(CACHEPATH.'settings_' . $app . '_' . $environment . '.lock');
+                }
             } else {
                 $this->scanConfigFiles($app, $environment);
             }
@@ -131,8 +148,8 @@ class MiniMVC_Settings
             return true;
         }
 
-        $app = ($app) ? $app : $this->get('runtime/currentApp');
-        $environment = ($environment) ? $environment : $this->get('runtime/currentEnvironment');
+        $app = ($app) ? $app : $this->get('currentApp');
+        $environment = ($environment) ? $environment : $this->get('currentEnvironment');
 
         if (!isset($this->settings[$app . '_' . $environment])) {
             return false;
@@ -168,10 +185,10 @@ class MiniMVC_Settings
      */
     public function save($app = null, $environment = null)
     {
-        $app = ($app) ? $app : $this->get('runtime/currentApp');
-        $environment = ($environment) ? $environment : $this->get('runtime/currentEnvironment');
+        $app = ($app) ? $app : $this->get('currentApp');
+        $environment = ($environment) ? $environment : $this->get('currentEnvironment');
 
-        if ($this->get('runtime/useCache')) {
+        if ($this->get('useCache')) {
             file_put_contents(CACHEPATH.'settings_' . $app . '_' . $environment . '.php', '<?php ' . "\n" . $this->varExport($this->settings[$app . '_' . $environment], '$MiniMVC_settings', 100), LOCK_EX);
         }
     }
@@ -181,13 +198,27 @@ class MiniMVC_Settings
      */
     public function __destruct()
     {
-        if ($this->get('runtime/useCache') && count($this->changed)) {
+        if ($this->get('useCache') && count($this->changed)) {
             foreach ($this->changed as $key => $changed) {
                 list($app, $env) = explode('_', $key, 2);
                 if (!is_file(CACHEPATH.'settings_' . $key . '.php')) {
                     continue;
                 }
+
+                //check for lock / wait until the lock is removed
+                if (file_exists(CACHEPATH.'settings_' . $key . '.lock')) {
+                    for ($i=0; $i<10; $i++) {
+                        usleep(50000);
+                        if (!file_exists(CACHEPATH.'settings_' . $key . '.lock')) {
+                            continue;
+                        }
+                    }
+                }
+
+                //create lock
+                file_put_contents(CACHEPATH.'settings_' . $key . '.lock', 'locked');
                 include(CACHEPATH . 'settings_' . $key . '.php');
+
                 if (!isset($MiniMVC_settings)) {
                     continue;
                 }
@@ -208,6 +239,9 @@ class MiniMVC_Settings
                 }
                 $this->settings[$key] = $MiniMVC_settings;
                 $this->save($app, $env);
+
+                //remove lock
+                unlink(CACHEPATH.'settings_' . $key . '.lock');
             }
         }
     }

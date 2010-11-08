@@ -8,7 +8,7 @@ class Helper_Static extends MiniMVC_Helper
         {
             $module = $this->module;
         }
-        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
+        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
 
         if ($cache = $this->registry->settings->get('view/staticCached/'.$app.'_'.$module.'_'.str_replace('/', '__', $file)))
         {

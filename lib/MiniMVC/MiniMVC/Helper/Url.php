@@ -4,7 +4,7 @@ class Helper_Url extends MiniMVC_Helper
 {	
 	public function get($route, $parameter = array(), $anonymousParameter = array(), $app = null)
 	{
-		$app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
+		$app = ($app) ? $app : $this->registry->settings->get('currentApp');
 		try
 		{
 			$routeData = $this->registry->dispatcher->getRoute($route, $parameter, $app);
@@ -17,7 +17,7 @@ class Helper_Url extends MiniMVC_Helper
 		{
 			return false;
 		}
-        $language = $this->registry->settings->get('runtime/currentLanguage');
+        $language = $this->registry->settings->get('currentLanguage');
         if ($language == $this->registry->settings->get('config/defaultLanguage') || !in_array($language, $this->registry->settings->get('config/enabledLanguages', array()))) {
             $language = false;
         }

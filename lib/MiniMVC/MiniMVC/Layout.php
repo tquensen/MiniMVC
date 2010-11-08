@@ -65,7 +65,7 @@ class MiniMVC_Layout
      */
     public function prepare($content, $app = null)
     {
-        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
+        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         if ($this->layout === false) {
             return $content; //$this->getSlot('main');
         }
@@ -132,7 +132,7 @@ class MiniMVC_Layout
                 $slotWidgets = $this->getSlotWidgets($currentSlot);
             }
 
-            $route = $this->registry->settings->get('runtime/currentRoute');
+            $route = $this->registry->settings->get('currentRoute');
             $format = $this->registry->template->getFormat();
             $layout = $this->registry->template->getLayout();
             

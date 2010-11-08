@@ -8,7 +8,7 @@ class Helper_Partial extends MiniMVC_Helper
         if ($_module === null) {
             $_module = $this->module;
         }
-        $_app = ($_app) ? $_app : $this->registry->settings->get('runtime/currentApp');
+        $_app = ($_app) ? $_app : $this->registry->settings->get('currentApp');
 
         $_format = $this->registry->template->getFormat();
 

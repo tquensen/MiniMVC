@@ -75,7 +75,7 @@ class MiniMVC_View
 
         $file = $this->file;
         
-		$app = $this->registry->settings->get('runtime/currentApp');
+		$app = $this->registry->settings->get('currentApp');
 
         $format = $this->registry->template->getFormat();
         $formatString = ($format) ? '.'.$format : '';

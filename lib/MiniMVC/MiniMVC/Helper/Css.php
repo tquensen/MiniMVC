@@ -15,7 +15,7 @@ class Helper_Css extends MiniMVC_Helper
     {
         $files = $this->prepareFiles();
 
-        $route = $this->registry->settings->get('runtime/currentRoute');
+        $route = $this->registry->settings->get('currentRoute');
         $format = $this->registry->template->getFormat();
         $layout = $this->registry->template->getLayout();
 
@@ -61,7 +61,7 @@ class Helper_Css extends MiniMVC_Helper
     public function addFile($file, $module = null, $media = 'screen', $app = null)
     {
         if (!$app) {
-            $app = $this->registry->settings->get('runtime/currentApp');
+            $app = $this->registry->settings->get('currentApp');
         }
         $data = array();
 
@@ -99,7 +99,7 @@ class Helper_Css extends MiniMVC_Helper
                 continue;
             }
             $module = (isset($file['module'])) ? $file['module'] : null;
-            $app = (isset($file['app'])) ? $file['app'] : $this->registry->settings->get('runtime/currentApp');
+            $app = (isset($file['app'])) ? $file['app'] : $this->registry->settings->get('currentApp');
 
             if ($module) {
                 if (file_exists(APPPATH.$app.'/web/'.$module.'/css/'.$file['file'])) {
@@ -127,8 +127,8 @@ class Helper_Css extends MiniMVC_Helper
     public function combineFiles($files, $app = null, $environment = null)
     {
 
-        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
-        $environment = ($environment) ? $environment : $this->registry->settings->get('runtime/currentEnvironment');
+        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
+        $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
         $baseurls = array();
         if ($baseurl = $this->registry->settings->get('apps/'.$app.'/baseurlStatic')) {
@@ -193,8 +193,8 @@ class Helper_Css extends MiniMVC_Helper
 
     public function parseFile($file, $urlPrefix, $app = null, $environment = null)
     {
-        $app = ($app) ? $app : $this->registry->settings->get('runtime/currentApp');
-        $environment = ($environment) ? $environment : $this->registry->settings->get('runtime/currentEnvironment');
+        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
+        $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
         $activeModules = $this->registry->settings->get('modules', null, $app, $environment);
 
         if (!is_file($file) || !is_readable($file)) {

@@ -57,7 +57,7 @@ class MiniMVC_Autoload
         }
 
         //if (in_array($parts[0], $registry->settings->get('modules'))) {
-        $app = $registry->settings->get('runtime/currentApp');
+        $app = $registry->settings->get('currentApp');
         if (isset($parts[2]) && $parts[2] == 'Controller') {
             if (file_exists(APPPATH . $app . '/module/' . $parts[0] . '/controller/' . $parts[1] . '.php')) {
                 include_once (APPPATH . $app . '/module/' . $parts[0] . '/controller/' . $parts[1] . '.php');
