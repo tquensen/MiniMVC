@@ -149,7 +149,8 @@ class MiniMVC_Settings
     {
         $parts = explode('/', $key);
         if (!$app && !$environment && $parts[0] === 'runtime') {
-            $this->settings['runtime'][$key] = $value;
+            array_shift($parts);
+            $this->settings['runtime'][implode('/', $parts)] = $value;
             return true;
         }
 

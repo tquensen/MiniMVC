@@ -271,6 +271,12 @@ class MiniMVC_Table {
         return false;
 	}
 
+    /**
+     *
+     * @param string $alias the alias of this model
+     * @param bool $select true to add a $query->select($alias)
+     * @return MiniMVC_Query
+     */
     public function query($alias = null, $select = true)
     {
         $q = $this->registry->db->query();

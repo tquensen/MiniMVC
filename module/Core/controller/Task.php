@@ -8,7 +8,7 @@ class Core_Task_Controller extends MiniMVC_Controller
         $status = $this->clearDirectory(CACHEPATH, true);
         if ($status === true && $apps) {
             $cache = $this->registry->settings->get('useCache');
-            $this->registry->settings->set('useCache', true);
+            $this->registry->settings->set('runtime/useCache', true);
             $envs = !empty($params['rebuild']) ? array_map('trim', explode(',', $params['rebuild'])) : array();
             foreach ($apps as $app => $appdata) {
                 foreach ($envs as $env) {
@@ -18,7 +18,7 @@ class Core_Task_Controller extends MiniMVC_Controller
                     $this->registry->settings->scanConfigFiles($app, $env);
                 }
             }
-            $this->registry->settings->set('useCache', $cache);
+            $this->registry->settings->set('runtime/useCache', $cache);
         }
         return ($status === true) ? 'cache directory cleared!' : 'error: clearing cache directory failed: '.$status;
     }
