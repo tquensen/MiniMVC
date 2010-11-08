@@ -74,8 +74,6 @@ class MiniMVC_Settings
         }
 
         $this->save($app, $environment);
-
-        
     }
 
     /**
@@ -99,21 +97,28 @@ class MiniMVC_Settings
 
         if (!isset($this->settings[$app . '_' . $environment])) {
             if ($this->get('useCache')) {
-                if (file_exists(CACHEPATH.'settings_' . $app . '_' . $environment . '.lock')) {
-                    for ($i=0; $i<10; $i++) {
+                if (file_exists(CACHEPATH . 'settings_' . $app . '_' . $environment . '.php')) {
+                    include(CACHEPATH . 'settings_' . $app . '_' . $environment . '.php');
+                    $this->settings[$app . '_' . $environment] = $MiniMVC_settings;
+                } elseif (file_exists(CACHEPATH . 'settings_' . $app . '_' . $environment . '.lock')) {
+                    for ($i = 0; $i < 10; $i++) {
                         usleep(50000);
-                        if (!file_exists(CACHEPATH.'settings_' . $app . '_' . $environment . '.lock')) {
+                        if (!file_exists(CACHEPATH . 'settings_' . $app . '_' . $environment . '.lock')) {
                             continue;
                         }
                     }
-                }
-                if (file_exists(CACHEPATH.'settings_' . $app . '_' . $environment . '.php')) {
-                    include(CACHEPATH . 'settings_' . $app . '_' . $environment . '.php');
-                    $this->settings[$app . '_' . $environment] = $MiniMVC_settings;
+                    if (file_exists(CACHEPATH . 'settings_' . $app . '_' . $environment . '.php')) {
+                        include(CACHEPATH . 'settings_' . $app . '_' . $environment . '.php');
+                        $this->settings[$app . '_' . $environment] = $MiniMVC_settings;
+                    } else {
+                        file_put_contents(CACHEPATH . 'settings_' . $app . '_' . $environment . '.lock', 'locked');
+                        $this->scanConfigFiles($app, $environment);
+                        unlink(CACHEPATH . 'settings_' . $app . '_' . $environment . '.lock');
+                    }
                 } else {
-                    file_put_contents(CACHEPATH.'settings_' . $app . '_' . $environment . '.lock', 'locked');
+                    file_put_contents(CACHEPATH . 'settings_' . $app . '_' . $environment . '.lock', 'locked');
                     $this->scanConfigFiles($app, $environment);
-                    unlink(CACHEPATH.'settings_' . $app . '_' . $environment . '.lock');
+                    unlink(CACHEPATH . 'settings_' . $app . '_' . $environment . '.lock');
                 }
             } else {
                 $this->scanConfigFiles($app, $environment);
@@ -172,7 +177,7 @@ class MiniMVC_Settings
         } else {
             $pointer[$index] = $value;
         }
-        
+
         $this->changed[$app . '_' . $environment][$key] = $key;
 
         return true;
@@ -189,7 +194,8 @@ class MiniMVC_Settings
         $environment = ($environment) ? $environment : $this->get('currentEnvironment');
 
         if ($this->get('useCache')) {
-            file_put_contents(CACHEPATH.'settings_' . $app . '_' . $environment . '.php', '<?php ' . "\n" . $this->varExport($this->settings[$app . '_' . $environment], '$MiniMVC_settings', 100), LOCK_EX);
+            file_put_contents(CACHEPATH . 'settings_' . $app . '_' . $environment . '_tmp.php', '<?php ' . "\n" . $this->varExport($this->settings[$app . '_' . $environment], '$MiniMVC_settings', 100), LOCK_EX);
+            rename(CACHEPATH . 'settings_' . $app . '_' . $environment . '_tmp.php', CACHEPATH . 'settings_' . $app . '_' . $environment . '.php');
         }
     }
 
@@ -201,22 +207,22 @@ class MiniMVC_Settings
         if ($this->get('useCache') && count($this->changed)) {
             foreach ($this->changed as $key => $changed) {
                 list($app, $env) = explode('_', $key, 2);
-                if (!is_file(CACHEPATH.'settings_' . $key . '.php')) {
+                if (!is_file(CACHEPATH . 'settings_' . $key . '.php')) {
                     continue;
                 }
 
                 //check for lock / wait until the lock is removed
-                if (file_exists(CACHEPATH.'settings_' . $key . '.lock')) {
-                    for ($i=0; $i<10; $i++) {
+                if (file_exists(CACHEPATH . 'settings_' . $key . '.lock')) {
+                    for ($i = 0; $i < 10; $i++) {
                         usleep(50000);
-                        if (!file_exists(CACHEPATH.'settings_' . $key . '.lock')) {
+                        if (!file_exists(CACHEPATH . 'settings_' . $key . '.lock')) {
                             continue;
                         }
                     }
                 }
 
                 //create lock
-                file_put_contents(CACHEPATH.'settings_' . $key . '.lock', 'locked');
+                file_put_contents(CACHEPATH . 'settings_' . $key . '.lock', 'locked');
                 include(CACHEPATH . 'settings_' . $key . '.php');
 
                 if (!isset($MiniMVC_settings)) {
@@ -241,20 +247,21 @@ class MiniMVC_Settings
                 $this->save($app, $env);
 
                 //remove lock
-                unlink(CACHEPATH.'settings_' . $key . '.lock');
+                unlink(CACHEPATH . 'settings_' . $key . '.lock');
             }
         }
     }
 
-    public function varExport($data, $varname, $maxDepth = 2, $depth = 0) {
+    public function varExport($data, $varname, $maxDepth = 2, $depth = 0)
+    {
         if (is_array($data) && $depth < $maxDepth) {
             $output = '';
             if ($depth == 0) {
-                $output .= $varname.' = array();'."\n";
+                $output .= $varname . ' = array();' . "\n";
                 $output .= "\n";
             }
             if (!count($data)) {
-                $output .= $varname.' = array();'."\n";
+                $output .= $varname . ' = array();' . "\n";
             }
             foreach ($data as $key => $value) {
                 $output .= $this->varExport($value, $varname . '[' . var_export($key, true) . ']', $maxDepth, $depth + 1);
