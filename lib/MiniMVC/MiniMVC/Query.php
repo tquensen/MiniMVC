@@ -208,7 +208,9 @@ class MiniMVC_Query
     {
         if (is_array($columns)) {
             $this->columns = array_merge($this->columns, $columns);
-        } elseif (trim($columns)) {
+        } elseif (is_null($columns)) {
+            $this->columns = array_merge($this->columns, array(null));
+        } else {
             $this->columns = array_merge($this->columns, array_map('trim', explode(',', $columns)));
         }
         return $this;
