@@ -21,7 +21,7 @@ class MiniMVC_Settings
         $this->set('runtime/useCache', $useCache);
     }
 
-    protected function scanConfigFiles($app, $environment)
+    public function scanConfigFiles($app, $environment)
     {
 
         //$this->settings[$app . '_' . $environment] = array();
