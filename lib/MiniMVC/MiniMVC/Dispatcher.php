@@ -25,6 +25,8 @@ class MiniMVC_Dispatcher
 		$host = $protocol.'://'.$_SERVER['HTTP_HOST'];
         $url = $host . $_SERVER['REQUEST_URI'];
 
+        $this->registry->settings->set('currentUlr', $url);
+
         if (isset($_POST['REQUEST_METHOD'])) {
             $_SERVER['REQUEST_METHOD'] = strtoupper($_POST['REQUEST_METHOD']);
         }

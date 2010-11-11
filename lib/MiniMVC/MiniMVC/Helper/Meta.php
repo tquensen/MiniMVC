@@ -2,7 +2,7 @@
 
 class Helper_Meta extends MiniMVC_Helper
 {
-    protected $title = null;
+    protected $title = array();
     protected $meta = array();
     protected $titleSeparator = '';
     protected $titleAlign = '';
@@ -13,7 +13,7 @@ class Helper_Meta extends MiniMVC_Helper
         parent::__construct($module);
 
         $i18n = $this->registry->helper->i18n->get('_default');
-        $this->title = $i18n->pageTitle;
+        $this->title = array($i18n->pageTitle);
         $this->setMeta('description', $i18n->pageDescription);
 
         $this->titleSeparator = $this->registry->settings->get('view/meta/titleSeparator', ' ');
@@ -25,18 +25,18 @@ class Helper_Meta extends MiniMVC_Helper
     {
         if ($append) {
             if ($this->titleAlign == 'ltr') {
-                $this->title .= $this->titleSeparator . $title;
+                array_push($this->title, $title);
             } else {
-                $this->title = $title . $this->titleSeparator . $this->title;
+                array_unshift($this->title, $title);
             }
         } else {
-            $this->title = $title;
+            $this->title = array($title);
         }
     }
 
     public function getTitle($array = false)
     {
-        return ($array) ? explode($this->titleSeparator, $this->title) : $this->title;
+        return ($array) ? $this->title : implode($this->titleSeparator, $this->title);
     }
 
     public function setMeta($name, $content, $isHttpEquiv=false)

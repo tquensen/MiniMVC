@@ -6,7 +6,7 @@
         else:
         ?><span><?php echo htmlspecialchars($entry['title'])?></span><?php
         endif; ?>
-        <?php if (!empty($entry['submenu'])) echo $this->get('navi', array('navi' => $entry['submenu'])); ?>
+        <?php if (!empty($entry['submenu'])) echo $this->get($_partial, array('navi' => $entry['submenu']), $_module, $_app); ?>
     </li>
 <?php endforeach; ?></ul>
 <?php endif; ?>

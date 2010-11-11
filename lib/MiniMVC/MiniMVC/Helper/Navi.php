@@ -3,17 +3,32 @@
 class Helper_Navi extends MiniMVC_Helper
 {
 
-    public function getHtml($navi)
+    protected $navis = array();
+    
+    public function addBreadcrumb($title, $url = null, $active = null)
+    {
+        if (empty($url)) { 
+            $active = ($active !== false) ? true : false;
+        }
+        if (empty($this->navis['breadcrumb'])) {
+            $this->get('breadcrumb');
+        }
+        $this->navis['breadcrumb'][] = array('title' => $title, 'url' => $url, 'active' => (bool) $active);
+    }
+
+    public function getHtml($navi, $partial = 'navi', $module = null)
     {
         $navi = $this->get($navi);
-        return $this->registry->helper->partial->get('navi', array('navi' => $navi), $this->module);
+        return $this->registry->helper->partial->get($partial, array('navi' => $navi), $module ? $module : $this->module);
     }
 
     public function get($navi)
     {
-        $navi = $this->registry->settings->get('view/navi/' . $navi, array());
-        $naviData = $this->buildNavi($navi);
-        return $naviData[0];
+        if (!isset($this->navis[$navi])) {
+            $naviData = $this->buildNavi($this->registry->settings->get('view/navi/' . $navi, array()));
+            $this->navis[$navi] = $naviData[0];
+        }
+        return $this->navis[$navi];
     }
 
     protected function buildNavi($navi)
