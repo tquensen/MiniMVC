@@ -372,6 +372,11 @@ class MiniMVC_Table {
             } else {
                 $update = false;
 
+                if ($entry->preUpdate() === false) {
+                    $this->_db->rollBack();
+                    return false;
+                }
+                
                 $fields = array();
                 $values = array();
                 foreach ($this->_columns as $column)
@@ -390,10 +395,6 @@ class MiniMVC_Table {
                 if (!$update) {
                     $this->_db->rollBack();
                     return true;
-                }
-                if ($entry->preUpdate() === false) {
-                    $this->_db->rollBack();
-                    return false;
                 }
 
                 $values[] = $entry->{$this->_identifier};
