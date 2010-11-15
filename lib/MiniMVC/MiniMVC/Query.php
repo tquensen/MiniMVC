@@ -441,7 +441,7 @@ class MiniMVC_Query
     {
         $stmt = $this->prepare($values, $query);
 
-        $result = $stmt->execute($values);
+        $result = $stmt->execute((array) $values);
 
         return $result !== false ? $stmt : false;
     }
