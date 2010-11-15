@@ -201,6 +201,19 @@ class MiniMVC_Query
 
     /**
      *
+     * @param string $key
+     * @return MiniMVC_Query
+     */
+    public function whereIn($key, $values = array())
+    {
+        if (trim($key)) {
+            $this->where[] = $this->_in(null, $key, (array) $values);
+        }
+        return $this;
+    }
+
+    /**
+     *
      * @param string $columns
      * @return MiniMVC_Query
      */
@@ -606,6 +619,10 @@ class MiniMVC_Query
     {
         $values = (array) $values;
 
+        if (!count($values)) {
+            return ' 0 ';
+        }
+        
         if (!$key) {
             $key = $this->tables[$alias]->getIdentifier();
         }

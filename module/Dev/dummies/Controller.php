@@ -14,7 +14,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         $this->view->pager = $this->registry->helper->pager->get(
                 $query->count(),
                 $showPerPage,
-                $this->registry->helper->url->get('MODLC.defaultIndex') . '(?p={page})',
+                $this->registry->helper->url->get('MODLC.CONTROLLERLCIndex') . '(?p={page})',
                 $currentPage,
                 7,
                 false
@@ -45,7 +45,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
                 $this->view->form->FormCheck->setError($this->view->t->CONTROLLERLCFIRSTFormSaveError);
                 $this->view->form->errorRedirect();
             }
-            return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
+            return $this->redirect('MODLC.CONTROLLERLCShow', array('id' => $model->id));
         }
          */
 
@@ -66,11 +66,25 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
                 $this->view->form->FormCheck->setError($this->view->t->CONTROLLERLCFIRSTFormSaveError);
                 $this->view->form->errorRedirect();
             }
-            return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
+            return $this->redirect('MODLC.CONTROLLERLCShow', array('id' => $model->id));
         }
          */
 
         //return $this->view->prepare('CONTROLLERLC/edit', 'MODULE');
+    }
+
+    public function deleteAction($params)
+    {
+        /*
+        if (!$params['model']) {
+            return $this->delegate404();
+        }
+        if (!$params['model']->delete()) {
+            //TODO: add success/failure message
+        }
+
+        return $this->redirect('MODLC.CONTROLLERLCIndex'); 
+         */
     }
 
     public function widgetAction($params)

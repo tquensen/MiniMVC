@@ -73,6 +73,20 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         //return $this->view->prepare('default/edit', 'MODULE');
     }
 
+    public function deleteAction($params)
+    {
+        /*
+        if (!$params['model']) {
+            return $this->delegate404();
+        }
+        if (!$params['model']->delete()) {
+            //TODO: add success/failure message
+        }
+
+        return $this->redirect('MODLC.defaultIndex');
+         */
+    }
+
     public function widgetAction($params)
     {
         //return $this->view->prepare('default/widget', 'MODULE');
