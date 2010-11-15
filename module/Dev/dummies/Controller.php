@@ -14,7 +14,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         $this->view->pager = $this->registry->helper->pager->get(
                 $query->count(),
                 $showPerPage,
-                $this->registry->helper->url->get('MODLC.CONTROLLERLCIndex') . '(?p={page})',
+                $this->registry->helper->url->get('MODLC.CONTROLLERLCFIRSTIndex') . '(?p={page})',
                 $currentPage,
                 7,
                 false
@@ -45,7 +45,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
                 $this->view->form->FormCheck->setError($this->view->t->CONTROLLERLCFIRSTFormSaveError);
                 $this->view->form->errorRedirect();
             }
-            return $this->redirect('MODLC.CONTROLLERLCShow', array('id' => $model->id));
+            return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
         }
          */
 
@@ -66,7 +66,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
                 $this->view->form->FormCheck->setError($this->view->t->CONTROLLERLCFIRSTFormSaveError);
                 $this->view->form->errorRedirect();
             }
-            return $this->redirect('MODLC.CONTROLLERLCShow', array('id' => $model->id));
+            return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
         }
          */
 
@@ -83,7 +83,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             //TODO: add success/failure message
         }
 
-        return $this->redirect('MODLC.CONTROLLERLCIndex'); 
+        return $this->redirect('MODLC.CONTROLLERLCFIRSTIndex');
          */
     }
 
