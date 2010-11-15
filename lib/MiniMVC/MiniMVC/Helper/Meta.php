@@ -3,7 +3,8 @@
 class Helper_Meta extends MiniMVC_Helper
 {
     protected $title = array();
-    protected $meta = array();
+    protected $metas = array();
+    protected $links = array();
     protected $titleSeparator = '';
     protected $titleAlign = '';
 
@@ -41,15 +42,25 @@ class Helper_Meta extends MiniMVC_Helper
 
     public function setMeta($name, $content, $isHttpEquiv=false)
     {
-        $this->meta[$name] = $isHttpEquiv ? array('http-equiv' => $name, 'content' => $content) : array('name' => $name, 'content' => $content);
+        $this->metas[$name] = $isHttpEquiv ? array('http-equiv' => $name, 'content' => $content) : array('name' => $name, 'content' => $content);
     }
 
     public function getMeta($name = null, $contentOnly = true)
     {
         if ($name === null) {
-            return $this->meta;
+            return $this->metas;
         }
-        return isset($this->meta[$name]) ? ($contentOnly ? $this->meta[$name]['content'] : $this->meta[$name]) : null;
+        return isset($this->metas[$name]) ? ($contentOnly ? $this->metas[$name]['content'] : $this->metas[$name]) : null;
+    }
+
+    public function setLink($rel, $href = null, $title = null, $type = null)
+    {
+        $this->links[] = array('rel' => $rel, 'href' => $href, 'title' => $title, 'type' => $type);
+    }
+
+    public function getLinks()
+    {
+        return $this->links;
     }
 
     public function setDescription($content)
@@ -72,9 +83,14 @@ class Helper_Meta extends MiniMVC_Helper
         return $this->getMeta('keywords');
     }
 
+    public function get()
+    {
+        return array('title' => $this->getTitle(), 'metas' => $this->getMeta(), 'links' => $this->getLinks());
+    }
+
     public function getHtml()
     {
-        return $this->registry->helper->partial->get('meta', array('title' => $this->getTitle(), 'meta' => $this->getMeta()), $this->module);
+        return $this->registry->helper->partial->get('meta', $this->get(), $this->module);
     }
 
 
