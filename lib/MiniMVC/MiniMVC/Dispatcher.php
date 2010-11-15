@@ -51,7 +51,7 @@ class MiniMVC_Dispatcher
                 $appurls['baseurlI18n'] = $host . $appurls['baseurlI18n'];
             }
             $languageFormat = $this->registry->settings->get('config/languageFormat', '[a-z]{2}_[A-Z][2}');
-            if (preg_match('#^' . str_replace(':lang:', '(?P<lang>'.$localeFormat.')', $appurls['baseurlI18n']) . '(?P<route>[^\?\#]*)$#', $url, $matches)) {
+            if (preg_match('#^' . str_replace(':lang:', '(?P<lang>'.$languageFormat.')', $appurls['baseurlI18n']) . '(?P<route>[^\?\#]*)$#', $url, $matches)) {
                 $currentLanguage = $matches['lang'];
                 $route = $matches['route'];
             }
