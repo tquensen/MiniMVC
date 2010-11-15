@@ -35,6 +35,7 @@ class MiniMVC_Task
         }
 
         $this->registry->settings->set('runtime/currentLanguage', '');
+        setlocale(LC_ALL, $this->registry->settings->get('config/defaultLanguage', ''));
 
         if (!$taskName) {
             return 'error: no task specified!';

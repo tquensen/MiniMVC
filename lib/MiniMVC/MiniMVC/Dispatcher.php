@@ -80,7 +80,9 @@ class MiniMVC_Dispatcher
             }
         }
         $this->registry->settings->set('runtime/currentLanguage', $currentLanguage);
-
+        
+        setlocale(LC_ALL, $currentLanguage);
+        
         $this->registry->settings->set('runtime/requestedRoute', $route);
 
         try {
