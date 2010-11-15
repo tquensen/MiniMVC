@@ -313,7 +313,7 @@ class MiniMVC_Model implements ArrayAccess
             array_unshift($values, $this->getIdentifier());
             $tableName = $data[0].'Table';
             $table = call_user_func($tableName . '::getInstance');
-            $this->getTable()->query('b', 'a')->join('b.'.$relation, 'a')->where('b.'.$this->_table->getIdentifier().' = ? AND a.'.$table->getIdentifier(). ' IS NOT NULL');
+            $query = $this->getTable()->query('b', 'a')->join('b.'.$relation, 'a')->where('b.'.$this->_table->getIdentifier().' = ? AND a.'.$table->getIdentifier(). ' IS NOT NULL');
             if ($condition) {
                 $query->where($condition);
             }
