@@ -50,7 +50,7 @@ class MiniMVC_Dispatcher
             if (substr($appurls['baseurlI18n'], 0, 1) == '/') {
                 $appurls['baseurlI18n'] = $host . $appurls['baseurlI18n'];
             }
-            $languageFormat = $this->registry->settings->get('config/languageFormat', '[a-z]{2}_[A-Z][2}');
+            $languageFormat = $this->registry->settings->get('config/languageFormat', '[a-z]{2}_[A-Z]{2}');
             if (preg_match('#^' . str_replace(':lang:', '(?P<lang>'.$languageFormat.')', $appurls['baseurlI18n']) . '(?P<route>[^\?\#]*)$#', $url, $matches)) {
                 $currentLanguage = $matches['lang'];
                 $route = $matches['route'];
