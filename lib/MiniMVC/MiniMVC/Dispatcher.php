@@ -25,7 +25,7 @@ class MiniMVC_Dispatcher
 		$host = $protocol.'://'.$_SERVER['HTTP_HOST'];
         $url = $host . $_SERVER['REQUEST_URI'];
 
-        $this->registry->settings->set('currentUlr', $url);
+        $this->registry->settings->set('currentUrl', $url);
 
         if (isset($_POST['REQUEST_METHOD'])) {
             $_SERVER['REQUEST_METHOD'] = strtoupper($_POST['REQUEST_METHOD']);
@@ -50,7 +50,8 @@ class MiniMVC_Dispatcher
             if (substr($appurls['baseurlI18n'], 0, 1) == '/') {
                 $appurls['baseurlI18n'] = $host . $appurls['baseurlI18n'];
             }
-            if (preg_match('#^' . str_replace(':lang:', '(?P<lang>[a-z]{2})', $appurls['baseurlI18n']) . '(?P<route>[^\?\#]*)$#', $url, $matches)) {
+            $languageFormat = $this->registry->settings->get('config/languageFormat', '[a-z]{2}_[A-Z][2}');
+            if (preg_match('#^' . str_replace(':lang:', '(?P<lang>'.$localeFormat.')', $appurls['baseurlI18n']) . '(?P<route>[^\?\#]*)$#', $url, $matches)) {
                 $currentLanguage = $matches['lang'];
                 $route = $matches['route'];
             }

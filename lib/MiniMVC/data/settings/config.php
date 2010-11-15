@@ -6,8 +6,9 @@ $MiniMVC_config['error403Route'] = 'core.error403';
 $MiniMVC_config['error404Route'] = 'core.error404';
 $MiniMVC_config['error500Route'] = 'core.error500';
 
-$MiniMVC_config['defaultLanguage'] = 'en';
-$MiniMVC_config['enabledLanguages'] = array('en', 'de');
+$MiniMVC_config['defaultLanguage'] = 'en_EN';
+$MiniMVC_config['enabledLanguages'] = array('en_EN', 'de_DE');
+$MiniMVC_config['languageFormat'] = '[a-z]{2}_[A-Z][2}';
 
 $MiniMVC_config['defaultLayout'] = 'default';
 
