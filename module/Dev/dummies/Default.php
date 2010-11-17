@@ -48,7 +48,7 @@ class MODULE_Default_Controller extends MiniMVC_Controller
             return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
         }
 
-        $this->registry->guard->setMessage($this->view->t->MODULELCFIRSTCreateSuccessMessage, 'success');
+        $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTCreateSuccessMessage, 'success');
          */
 
         //return $this->view->prepare('default/create', 'MODULE');
@@ -71,7 +71,7 @@ class MODULE_Default_Controller extends MiniMVC_Controller
             return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
         }
 
-        $this->registry->guard->setMessage($this->view->t->MODULELCFIRSTEditSuccessMessage, 'success');
+        $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTEditSuccessMessage, 'success');
          */
 
         //return $this->view->prepare('default/edit', 'MODULE');
@@ -84,9 +84,9 @@ class MODULE_Default_Controller extends MiniMVC_Controller
             return $this->delegate404();
         }
         if (!$params['model']->delete()) {
-            $this->registry->guard->setMessage($this->view->t->MODULELCFIRSTDeleteErrorMessage, 'error');
+            $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTDeleteErrorMessage, 'error');
         } else {
-            $this->registry->guard->setMessage($this->view->t->MODULELCFIRSTDeleteSuccessMessage, 'success');
+            $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTDeleteSuccessMessage, 'success');
         }
 
         return $this->redirect('MODLC.defaultIndex');

@@ -16,7 +16,7 @@ class Helper_Navi extends MiniMVC_Helper
         $this->navis['breadcrumb'][] = array('title' => $title, 'url' => $url, 'active' => (bool) $active);
     }
 
-    public function getHtml($navi, $partial = 'navi', $module = null)
+    public function getHtml($navi, $module = null, $partial = 'navi')
     {
         $navi = $this->get($navi);
         return $this->registry->helper->partial->get($partial, array('navi' => $navi), $module ? $module : $this->module);

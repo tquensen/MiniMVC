@@ -88,9 +88,9 @@ class Helper_Meta extends MiniMVC_Helper
         return array('title' => $this->getTitle(), 'metas' => $this->getMeta(), 'links' => $this->getLinks());
     }
 
-    public function getHtml()
+    public function getHtml($module = null, $partial = 'meta')
     {
-        return $this->registry->helper->partial->get('meta', $this->get(), $this->module);
+        return $this->registry->helper->partial->get($partial, $this->get(), $module ? $module : $this->module);
     }
 
 

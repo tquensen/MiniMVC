@@ -14,6 +14,8 @@
     <!--[if IE 9 ]>    <body class="ie ie9 gtie6 gtie7 gtie8">     <![endif]-->
     <!--[if !IE]><!--> <body class="noie gtie6 gtie7 gtie8">   <!--<![endif]-->
 
+        <?php echo $helper->messages->getHtml() ?>
+
         <?php echo $helper->navi->getHtml('main') ?>
 
         <?php echo $layout->getSlot('main') ?>

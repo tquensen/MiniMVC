@@ -65,9 +65,9 @@ class Helper_Js extends MiniMVC_Helper
         return $this->vars;
     }
 
-    public function getHtml()
+    public function getHtml($module = null, $partial = 'js')
     {
-        return $this->registry->helper->partial->get('js', array('files' => $this->get(), 'inlineFiles' => $this->getInlineFiles(), 'vars' => $this->getVars()), $this->module);
+        return $this->registry->helper->partial->get($partial, array('files' => $this->get(), 'inlineFiles' => $this->getInlineFiles(), 'vars' => $this->getVars()), $module ? $module : $this->module);
     }
 
     public function addFile($file, $module = null, $app = null)

@@ -53,9 +53,9 @@ class Helper_Css extends MiniMVC_Helper
         return array_merge($files, $this->additionalFiles);
     }
 
-    public function getHtml()
+    public function getHtml($module = null, $partial = 'css')
     {
-        return $this->registry->helper->partial->get('css', array('files' => $this->get()), $this->module);
+        return $this->registry->helper->partial->get($partial, array('files' => $this->get()), $module ? $module : $this->module);
     }
 
     public function addFile($file, $module = null, $media = 'screen', $app = null)

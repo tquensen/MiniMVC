@@ -109,9 +109,9 @@ class Helper_Pager extends MiniMVC_Helper
      * @param string $module the module to look for the pager partial. pass null to use the default partial in /Partial/
      * @return string the html output of the pager partial
      */
-    public function getHtml($module = null)
+    public function getHtml($module = null, $partial = 'pager')
     {
-        return $this->registry->helper->partial->get('pager', $this->getForPartial(), $module);
+        return $this->registry->helper->partial->get($partial, $this->getForPartial(), $module ? $module : $this->module);
     }
 
     /**
