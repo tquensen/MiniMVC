@@ -106,6 +106,11 @@ class MiniMVC_Form_Element
 					$this->errorMessage = $errorMessage;
 				}
 				$this->isValid = false;
+
+                if ($this->globalErrors) {
+                    $this->getForm()->setError($this->errorMessage);
+                }
+
 				break;
 			}
 		}
@@ -113,11 +118,16 @@ class MiniMVC_Form_Element
 		return $this->isValid;
 	}
 
-	public function setError($errorMessage, $error = true)
+	public function setError($errorMessage)
 	{
 		$this->errorMessage = $errorMessage;
 		$this->isValid = !$error;
-        $this->getForm()->setError($error);
+        if ($this->globalErrors) {
+            $this->getForm()->setError($this->errorMessage);
+        } else {
+            $this->getForm()->setError();
+        }
+        
 	}
 
 	public function isValid()

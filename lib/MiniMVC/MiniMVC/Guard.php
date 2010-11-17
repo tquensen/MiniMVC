@@ -95,7 +95,7 @@ class MiniMVC_Guard
     public function clearData()
     {
         $this->data = array();
-        $_SESSION['guardData'] = array();
+        $this->persistData();
     }
 
     /**
@@ -126,8 +126,13 @@ class MiniMVC_Guard
             return true;
         }
         $this->data[$key] = $value;
-        $_SESSION['guardData'] = $this->data;
+        $this->persistData();
         return true;
+    }
+
+    protected function persistData()
+    {
+        $_SESSION['guardData'] = $this->data;
     }
 
     /**
@@ -144,6 +149,50 @@ class MiniMVC_Guard
             $right = $this->registry->rights->getRights($right);
         }
         return (bool) ((int) $this->rights & (int) $right);
+    }
+
+    /**
+     *
+     * @param mixed $message the message to store
+     * @param string $type the message type, (notice, warning, error, ...)
+     */
+    public function setMessage($message, $type = 'notice')
+    {
+        $this->data['messages'][$type][] = $message;
+        $this->persistData();
+    }
+
+    /**
+     *
+     * @param string|bool $type the messagetype to check or false to check any type
+     * @return bool
+     */
+    public function hasMessages($type = 'notice')
+    {
+        if (!$type) {
+            return !empty($this->data['messages']);
+        }
+        return !empty($this->data['messages'][$type]);
+    }
+
+    /**
+     *
+     * @param string|bool $type the messagetype to return or false to return any types
+     * @param bool $remove whether to remove the messages after returning (default true)
+     * @return array an array of all messages of the requested type or an array of all types
+     */
+    public function getMessages($type = 'notice', $remove = true)
+    {
+        $messages = array();
+        if (!$type) {
+            $messages = isset($this->data['messages']) ? $this->data['messages'] : array();
+            unset($this->data['messages']);          
+        } else {
+            $messages = isset($this->data['messages'][$type]) ? $this->data['messages'][$type] : array();
+            unset($this->data['messages'][$type]);
+        }
+        $this->persistData();
+        return $messages;
     }
 
 }

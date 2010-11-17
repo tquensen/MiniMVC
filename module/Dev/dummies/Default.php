@@ -42,11 +42,13 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         {
             $model = $this->view->form->updateModel();
             if (!$model->save()) {
-                $this->view->form->FormCheck->setError($this->view->t->MODULELCFIRSTFormSaveError);
+                $this->view->form->setError($this->view->t->MODULELCFIRSTFormSaveError);
                 $this->view->form->errorRedirect();
             }
             return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
         }
+
+        $this->registry->guard->setMessage($this->view->t->MODULELCFIRSTCreateSuccessMessage, 'success');
          */
 
         //return $this->view->prepare('default/create', 'MODULE');
@@ -63,11 +65,13 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         {
             $model = $this->view->form->updateModel();
             if (!$model->save()) {
-                $this->view->form->FormCheck->setError($this->view->t->MODULELCFIRSTFormSaveError);
+                $this->view->form->setError($this->view->t->MODULELCFIRSTFormSaveError);
                 $this->view->form->errorRedirect();
             }
             return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
         }
+
+        $this->registry->guard->setMessage($this->view->t->MODULELCFIRSTEditSuccessMessage, 'success');
          */
 
         //return $this->view->prepare('default/edit', 'MODULE');
@@ -80,7 +84,9 @@ class MODULE_Default_Controller extends MiniMVC_Controller
             return $this->delegate404();
         }
         if (!$params['model']->delete()) {
-            //TODO: add success/failure message
+            $this->registry->guard->setMessage($this->view->t->MODULELCFIRSTDeleteErrorMessage, 'error');
+        } else {
+            $this->registry->guard->setMessage($this->view->t->MODULELCFIRSTDeleteSuccessMessage, 'success');
         }
 
         return $this->redirect('MODLC.defaultIndex');

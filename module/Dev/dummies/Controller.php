@@ -42,11 +42,13 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         {
             $model = $this->view->form->updateModel();
             if (!$model->save()) {
-                $this->view->form->FormCheck->setError($this->view->t->CONTROLLERLCFIRSTFormSaveError);
+                $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTFormSaveError);
                 $this->view->form->errorRedirect();
             }
             return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
         }
+
+        $this->registry->guard->setMessage($this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage, 'success');
          */
 
         //return $this->view->prepare('CONTROLLERLC/create', 'MODULE');
@@ -63,11 +65,14 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         {
             $model = $this->view->form->updateModel();
             if (!$model->save()) {
-                $this->view->form->FormCheck->setError($this->view->t->CONTROLLERLCFIRSTFormSaveError);
+                $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTFormSaveError);
                 $this->view->form->errorRedirect();
             }
             return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
         }
+
+        $this->registry->guard->setMessage($this->view->t->CONTROLLERLCFIRSTEditSuccessMessage, 'success');
+
          */
 
         //return $this->view->prepare('CONTROLLERLC/edit', 'MODULE');
@@ -80,7 +85,9 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             return $this->delegate404();
         }
         if (!$params['model']->delete()) {
-            //TODO: add success/failure message
+            $this->registry->guard->setMessage($this->view->t->CONTROLLERLCFIRSTDeleteErrorMessage, 'error');
+        } else {
+            $this->registry->guard->setMessage($this->view->t->CONTROLLERLCFIRSTDeleteSuccessMessage, 'success');
         }
 
         return $this->redirect('MODLC.CONTROLLERLCFIRSTIndex');

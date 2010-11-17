@@ -5,6 +5,7 @@ class MiniMVC_Form
     protected $elements = array();
     protected $name = null;
     protected $isValid = true;
+    protected $errors = array();
     protected $options = array();
     protected $model = null;
     protected $postValidators = array();
@@ -32,7 +33,7 @@ class MiniMVC_Form
             $this->setElement(
                     new MiniMVC_Form_Element_Hidden(
                             'CsrfToken',
-                            array('defaultValue' => $csrfToken, 'alwaysDisplayDefault' => true, 'errorMessage' => $t->errorCsrf),
+                            array('defaultValue' => $csrfToken, 'alwaysDisplayDefault' => true, 'errorMessage' => $t->errorCsrf, 'globalErrors' => true),
                             array(new MiniMVC_Form_Validator_Required(), new MiniMVC_Form_Validator_Equals(array('value' => $oldCsrfToken)))
                     )
             );
@@ -94,6 +95,9 @@ class MiniMVC_Form
         }
         $this->elements[$element->getName()] = $element;
         $element->setForm($this);
+        if ($this->getOption('forceGlobalErrors')) {
+            $element->globalErrors = true;
+        }
         return $this;
     }
 
@@ -131,6 +135,12 @@ class MiniMVC_Form
     {
         if (isset($_SESSION['form_' . $this->name . '__' . $this->getOption('action') . '__errorData'])) {
             $values = $_SESSION['form_' . $this->name . '__' . $this->getOption('action') . '__errorData'];
+            
+            if (isset($values['_form'])) {
+                $this->errors = $values['_form'];
+                $this->isValid = false;
+            }
+
             unset($_SESSION['form_' . $this->name . '__' . $this->getOption('action') . '__errorData']);
             foreach ($this->elements as $element) {
                 $_POST[$this->name][$element->getName()] = isset($values[$element->getName()]['value']) ? $values[$element->getName()]['value']
@@ -150,9 +160,22 @@ class MiniMVC_Form
         return true;
     }
 
-    public function setError($error = true)
+    public function setError($errorMessage = null)
     {
-        $this->isValid = !$error;
+        $this->isValid = false;
+        if ($errorMessage) {
+            $this->errors[] = $errorMessage;
+        }
+    }
+
+    public function getErrors()
+    {
+        return $this->errors;
+    }
+
+    public function hasErrors()
+    {
+        return (bool) count($this->errors);
     }
 
     public function isValid()
