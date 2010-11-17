@@ -107,4 +107,19 @@ class Helper_Url extends MiniMVC_Helper
             $return.= '</form>';
         }
     }
+
+    public function userCanCall($route, $params = array(), $app = null)
+    {
+        try {
+            $routeData = $this->registry->dispatcher->getRoute($route, $params, $app);
+        } catch (Exception $e) {
+            return false;
+        }
+
+        if (isset($routeData['rights']) && $routeData['rights'] && !$this->userHasRight((int)$routeData['rights'])) {
+            return false;
+        }
+        
+        return true;
+    }
 }

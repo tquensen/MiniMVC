@@ -16,4 +16,7 @@
 <?php else: ?>
     <p><?php echo $t->noEntries; ?></p>
 <?php endif; ?>
+<?php if ($h->url->userCanCall('MODLC.CONTROLLERLCFIRSTCreate')): ?>
+    <p><?php echo $h->url->link($t->CONTROLLERLCFIRSTCreateLink, 'MODLC.CONTROLLERLCFIRSTCreate'); ?></p>
+<?php endif; ?>
  */ ?>
