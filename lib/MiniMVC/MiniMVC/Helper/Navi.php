@@ -60,7 +60,7 @@ class Helper_Navi extends MiniMVC_Helper
             if (isset($entry['url'])) {
                 $current['url'] = $entry['url'];
             } elseif (isset($entry['route'])) {
-                $current['url'] = $this->registry->helper->url->get($entry['route'], isset($entry['parameter']) ? $entry['parameter'] : array(), isset($entry['anonymousParameter']) ? $entry['anonymousParameter'] : array(), isset($entry['app']) ? $entry['app'] : null);
+                $current['url'] = $this->registry->helper->url->get($entry['route'], isset($entry['parameter']) ? $entry['parameter'] : array(), isset($entry['app']) ? $entry['app'] : null);
                 if ($entry['route'] == $this->registry->settings->get('currentRoute')) {
                     $current['active'] = (!isset($entry['parameter']) || $entry['parameter'] == $this->registry->settings->get('currentRouteParameter')) ? true : false;
                 }

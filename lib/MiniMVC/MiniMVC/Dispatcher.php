@@ -30,7 +30,7 @@ class MiniMVC_Dispatcher
         if (isset($_POST['REQUEST_METHOD'])) {
             $_SERVER['REQUEST_METHOD'] = strtoupper($_POST['REQUEST_METHOD']);
         }
-        $method = (!empty($_SERVER['REQUEST_METHOD'])) ? $_SERVER['REQUEST_METHOD'] : 'GET';
+        $method = (!empty($_SERVER['REQUEST_METHOD'])) ? strtoupper($_SERVER['REQUEST_METHOD']) : 'GET';
 
         $currentLanguage = null;
         $currentApp = $this->registry->settings->get('currentApp');
@@ -110,7 +110,7 @@ class MiniMVC_Dispatcher
                         if (!isset($currentRouteData['route']) || !isset($currentRouteData['controller']) || !isset($currentRouteData['action'])) {
                             continue;
                         }
-                        if (isset($currentRouteData['method']) && ((is_string($currentRouteData['method']) && $currentRouteData['method'] != $method) || (is_array($currentRouteData['method']) && !in_array($method, $currentRouteData['method'])))) {
+                        if (isset($currentRouteData['method']) && ((is_string($currentRouteData['method']) && strtoupper($currentRouteData['method']) != $method) || (is_array($currentRouteData['method']) && !in_array($method, array_map('strtoupper', $currentRouteData['method']))))) {
                             continue;
                         }
                         $routePattern = (isset($currentRouteData['routePatternGenerated'])) ? $currentRouteData['routePatternGenerated'] : $this->getRegex($currentRoute, $currentRouteData);
@@ -151,7 +151,6 @@ class MiniMVC_Dispatcher
 
             $this->registry->settings->set('runtime/currentRoute', $routeName);
             $this->registry->settings->set('runtime/currentRouteParameter', isset($params) ? $params : array());
-            $this->registry->settings->set('runtime/currentRouteAnonymousParameter', isset($anonymousParams) ? $anonymousParams : array());
 
             $this->registry->events->notify(new sfEvent($this, 'minimvc.init'));            
             $content = $this->callRoute($routeName, (isset($params) ? $params : array()));

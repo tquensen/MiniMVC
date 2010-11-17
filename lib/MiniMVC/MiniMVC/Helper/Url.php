@@ -2,7 +2,7 @@
 
 class Helper_Url extends MiniMVC_Helper
 {	
-	public function get($route, $parameter = array(), $anonymousParameter = array(), $app = null)
+	public function get($route, $parameter = array(), $app = null)
 	{
 		$app = ($app) ? $app : $this->registry->settings->get('currentApp');
 		try
@@ -34,7 +34,10 @@ class Helper_Url extends MiniMVC_Helper
 
 		$search = array('(',')');
 		$replace = array('','');
+        $anonymous = array();
         $regexSearch =  array();
+
+        $url = $routeData['route'];
 
         $allParameter = array_merge(isset($routeData['parameter']) ? $routeData['parameter'] : array(), $parameter);
 		foreach ($allParameter as $param=>$value)
@@ -42,20 +45,20 @@ class Helper_Url extends MiniMVC_Helper
             if (!$value || (isset($parameter[$param]) && !$parameter[$param]) || (isset($routeData['parameterPatterns'][$param]) && !isset($parameter[$param]) && !preg_match('#^'.$routeData['parameterPatterns'][$param].'$#', $value))) {
                 $regexSearch[] = '#\([^:\)]*:'.$param.':[^\)]*\)#u';
             }
-            $search[] = ':'.$param.':';
-            $replace[] = urlencode($value);
+            $currentSearch = ':'.$param.':';
+            if (isset($parameter[$param]) && strpos($url, $currentSearch) === false) {
+                $anonymous[] = urlencode($param) . '-' . urlencode($value);
+            } else {
+                $search[] = $currentSearch;
+                $replace[] = urlencode($value);
+            }
 		}
-        $url = $routeData['route'];
         if (count($regexSearch)) {
             $url = preg_replace($regexSearch, '', $url);
         }
 		$url = str_replace($search, $replace, $url);
 
-        if (!empty($routeData['allowAnonymous']) && count($anonymousParameter)) {
-            $anonymous = array();
-            foreach ($anonymousParameter as $param => $value) {
-                $anonymous[] = urlencode($param) . '-' . urlencode($value);
-            }
+        if (!empty($routeData['allowAnonymous']) && count($anonymous)) {
             if (substr($url, -1) == '/') {
                 $url .= implode('/', $anonymous) . '/';
             } else {
@@ -66,9 +69,9 @@ class Helper_Url extends MiniMVC_Helper
         return $baseurl.$url;
 	}
 
-    public function link($title, $route, $parameter = array(), $anonymousParameter = array(), $attrs = '', $method = null, $app = null)
+    public function link($title, $route, $parameter = array(), $method = null, $attrs = '', $confirm = null, $postData = array(), $app = null)
     {
-        $url = $this->get($route, $parameter, $anonymousParameter, $app);
+        $url = $this->get($route, $parameter, $app);
         if (!$url) {
             return $title;
         }
@@ -88,17 +91,20 @@ class Helper_Url extends MiniMVC_Helper
             } else {
                 $method = 'GET';
             }
-        } elseif (isset($routeData['method']) && ((is_string($routeData['method']) && $routeData['method'] != $method) || (is_array($routeData['method']) && !in_array($method, $routeData['method'])))) {
+        } elseif (isset($routeData['method']) && ((is_string($routeData['method']) && strtoupper($routeData['method']) != strtoupper($method)) || (is_array($routeData['method']) && !in_array(strtoupper($method), array_map('strtoupper', $routeData['method']))))) {
             return false;
         }
 
         if ($method == 'GET') {
-            return '<a href="'.htmlspecialchars($url).'"'.($attrs ? ' '.$attrs : '').'>'.$title.'</a>';
+            return '<a href="'.htmlspecialchars($url).'"'.($attrs ? ' '.$attrs : '').($confirm ? ' onclick="return confirm(\''.htmlspecialchars($confirm).'\')' : '').'>'.$title.'</a>';
         } else {
-            return '<form class="minimvcInlineForm" action="" method="POST">'.
-                   (strtoupper($method) != 'POST' ? '<input type="hidden" name="REQUEST_METHOD" value="'.htmlspecialchars($method).'" />' : '').
-                   '<button type="submit"'.($attrs ? ' '.$attrs : '').'>'.$title.'</button>'.
-                   '</form>';
+            $return = '<form class="minimvcInlineForm" action="'.htmlspecialchars($url).'" method="POST"'.($confirm ? ' onsubmit="return confirm(\''.htmlspecialchars($confirm).'\')' : '').'>'.
+                      (strtoupper($method) != 'POST' ? '<input type="hidden" name="REQUEST_METHOD" value="'.htmlspecialchars(strtoupper($method)).'" />' : '').
+                      '<button type="submit"'.($attrs ? ' '.$attrs : '').'>'.$title.'</button>';
+            foreach ((array) $postData as $postKey => $postValue) {
+                $return .= '<input type="hidden" name="'.htmlspecialchars($postKey).'" value="'.htmlspecialchars($postValue).'" />';
+            }
+            $return.= '</form>';
         }
     }
 }

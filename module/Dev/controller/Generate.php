@@ -135,7 +135,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             $definition['identifier'] = 'id';
         }
         if (!isset($definition['autoIncrement'])) {
-            $definition['autoIncrement'] = true;
+            $definition['autoIncrement'] = false;
         }
         if (!isset($definition['columns'][$definition['identifier']])) {
             $definition['columns'][$definition['identifier']] = 'int';

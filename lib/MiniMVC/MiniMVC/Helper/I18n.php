@@ -154,7 +154,7 @@ class Helper_I18n extends MiniMVC_Helper
         if ($preferredLanguage && in_array($preferredLanguage, $this->registry->settings->get('config/enabledLanguages', array()))) {
             if ($currentLanguage != $preferredLanguage) {
                 $this->registry->settings->set('runtime/currentLanguage', $preferredLanguage);
-                header('Location: ' . $this->registry->helper->url->get($this->registry->settings->get('currentRoute'), $this->registry->settings->get('currentRouteParameter', array()), $this->registry->settings->get('currentRouteAnonymousParameter', array())));
+                header('Location: ' . $this->registry->helper->url->get($this->registry->settings->get('currentRoute'), $this->registry->settings->get('currentRouteParameter', array())));
                 exit;
             }
         }
