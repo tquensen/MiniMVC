@@ -69,7 +69,7 @@ class Helper_Messages extends MiniMVC_Helper
     public function getHtml($type = false, $remove = true, $module = null, $partial = 'messages')
     {
         $messages = $this->get($type, $remove);
-        return $this->registry->helper->partial->get($partial, $type ? array($type => $messages) : $messages, $module ? $module : $this->module);
+        return $this->registry->helper->partial->get($partial, array('messages' => $type ? array($type => $messages) : $messages), $module ? $module : $this->module);
     }
 
 }
