@@ -92,7 +92,7 @@ class UserTable extends MiniMVC_Table
                         array('label' => 'E-Mail Adresse:'),
                         array(
                             new MiniMVC_Form_Validator_Required(array('errorMessage' => 'Kein Username angegeben!')),
-                            new MiniMVC_Form_Validator_Exists(array('errorMessage' => 'Dieser user existiert nicht'))
+//                            new MiniMVC_Form_Validator_Exists(array('errorMessage' => 'Dieser User existiert nicht'))
                         )
                 )
         );
@@ -107,7 +107,7 @@ class UserTable extends MiniMVC_Table
 
         $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => 'einloggen')));
 
-        $form->setPostValidator(new MiniMVC_Form_Validator_Callback(array('callback' => array($user, 'checkPassword'))));
+        $form->setPostValidator(new MiniMVC_Form_Validator_Callback(array('callback' => array($user, 'checkPassword'), 'errorMessage' => 'Der Username oder das Passwort ist ungültig')));
 
         return $form;
     }

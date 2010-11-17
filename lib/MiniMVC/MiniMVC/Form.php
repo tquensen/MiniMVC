@@ -202,6 +202,11 @@ class MiniMVC_Form
 		{
 			if (!$validator->validate($this->isValid))
 			{
+                $errorMessage = $validator->errorMessage;
+				if ($errorMessage)
+				{
+					$this->setError($errorMessage);
+				}
 				$this->isValid = false;
 			}
 		}
