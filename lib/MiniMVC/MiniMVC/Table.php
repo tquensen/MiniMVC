@@ -450,9 +450,9 @@ class MiniMVC_Table {
                 $query = $this->registry->db->query();
                 $result = $query->delete($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry->{$this->_identifier});
 
-                if (isset($this->_entries[$entry->{$this->primary}]))
+                if (isset($this->_entries[$entry->{$this->_identifier}]))
                 {
-                    unset($this->_entries[$entry->{$this->primary}]);
+                    unset($this->_entries[$entry->{$this->_identifier}]);
                 }
                 $entry->clearDatabaseProperties();
 
@@ -476,6 +476,8 @@ class MiniMVC_Table {
                     $this->registry->db->query()->delete($info[3])->where($info[1].' = ?')->execute(is_object($entry) ? $entry->{$this->_identifier} : $entry);
                 }
             }
+
+            $this->_db->commit();
         } catch (PDOException $e) {
             $this->_db->rollBack();
             return false;
