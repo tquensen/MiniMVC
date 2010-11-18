@@ -52,7 +52,7 @@ class MiniMVC_Form
     public function generateCsrfToken($route)
     {
         $this->csrfToken = md5($this->name . time() . rand(1000, 9999));
-        $_SESSION[$this->options['route'] . '_csrf_token'] = $csrfToken;
+        $_SESSION[$this->options['route'] . '_csrf_token'] = $this->csrfToken;
     }
 
     public function getCsrfToken()
