@@ -121,7 +121,7 @@ class MiniMVC_Form_Element
 	public function setError($errorMessage)
 	{
 		$this->errorMessage = $errorMessage;
-		$this->isValid = !$error;
+		$this->isValid = false;
         if ($this->globalErrors) {
             $this->getForm()->setError($this->errorMessage);
         } else {

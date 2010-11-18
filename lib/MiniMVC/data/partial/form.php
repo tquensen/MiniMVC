@@ -8,6 +8,11 @@
             <input type="hidden" name="REQUEST_METHOD" id="<?php echo htmlspecialchars($form->getName() . '__REQUEST_METHOD') ?>" value="<?php echo htmlspecialchars(strtoupper($form->getOption('method'))) ?>" />
         </div>
     <?php endif; ?>
+    <?php if ($form->getOption('csrfProtection')): ?>
+        <div id="<?php echo htmlspecialchars($form->getName())?>___CSRF_TOKEN__wrapper" class="formHiddenWrapper">
+            <input type="hidden" name="_csrf_token" id="<?php echo htmlspecialchars($form->getName() . '___csrf_token') ?>" value="<?php echo htmlspecialchars($form->getCsrfToken()) ?>" />
+        </div>
+    <?php endif; ?>
     <?php foreach ($form->getElements() as $currentElement): ?>
         <?php if (!in_array($currentElement->getType(), array('fieldset', 'fieldsetend', 'custom'))): ?>
         <div id="<?php echo htmlspecialchars($form->getName())?>__<?php echo htmlspecialchars($currentElement->getName())?>__wrapper" class="form<?php echo ucfirst($currentElement->getType())?>Wrapper<?php if (!$currentElement->isValid()):?> invalid<?php elseif($form->wasSubmitted()): ?> valid<?php endif; ?><?php if ($currentElement->class): ?> <?php echo $currentElement->class; ?><?php endif; ?>" <?php if ($currentElement->attributes): foreach ((array) $currentElement->attributes as $attr => $attrValue): ?> <?php echo ' '.$attr.'="'.$attrValue.'"'; ?><?php endforeach; endif; ?>>

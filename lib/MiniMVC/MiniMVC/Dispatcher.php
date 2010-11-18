@@ -147,12 +147,12 @@ class MiniMVC_Dispatcher
                     throw new Exception('no valid route found!', 404);
                 }
 
-                if ($method != 'GET' && $this->registry->settings->get('routes/'.$routeName.'/csrfProtection', true)) {
+                if ($method != 'GET') {
                     $csrfData = array(
-                        'required' => true,
                         'expected' => isset($_SESSION[$routeName.'_csrf_token']) ? $_SESSION[$routeName.'_csrf_token'] : null,
                         'submitted' => isset($_POST['_csrf_token']) ? $_POST['_csrf_token'] : null
                     );
+                    unset($_SESSION[$routeName.'_csrf_token']);
                     $this->registry->settings->set('csrfToken', $csrfData);
                 }
             }
