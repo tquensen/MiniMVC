@@ -32,8 +32,8 @@ class Dev_Generate_Controller extends MiniMVC_Controller
 
         file_put_contents($path . '/view/default.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.php')));
         file_put_contents($path . '/view/default.json.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.json.php')));
-        file_put_contents($path . '/i18n/de.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/de_app.php')));
-        file_put_contents($path . '/i18n/en.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/en_app.php')));
+        file_put_contents($path . '/i18n/de_DE.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/de_DE_app.php')));
+        file_put_contents($path . '/i18n/en_US.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/en_US_app.php')));
         //file_put_contents($path . '/settings/slots.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/slots_app.php')));
         file_put_contents($path . '/settings/view.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/view.php')));
         file_put_contents($path . '/settings/config.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/config_app.php')));
@@ -98,8 +98,8 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         );
         file_put_contents($path . '/controller/Default.php', str_replace($search, $replace, file_get_contents($dummy . '/Default.php')));
         file_put_contents($path . '/Installer.php', str_replace($search, $replace, file_get_contents($dummy . '/Installer.php')));
-        file_put_contents($path . '/i18n/de.php', str_replace($search, $replace, file_get_contents($dummy . '/de.php')));
-        file_put_contents($path . '/i18n/en.php', str_replace($search, $replace, file_get_contents($dummy . '/en.php')));
+        file_put_contents($path . '/i18n/de_DE.php', str_replace($search, $replace, file_get_contents($dummy . '/de_DE.php')));
+        file_put_contents($path . '/i18n/en_US.php', str_replace($search, $replace, file_get_contents($dummy . '/en_US.php')));
         file_put_contents($path . '/view/default/index.php', str_replace($search, $replace, file_get_contents($dummy . '/index.php')));
         file_put_contents($path . '/view/default/index.json.php', str_replace($search, $replace, file_get_contents($dummy . '/index.json.php')));
         file_put_contents($path . '/view/default/widget.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.php')));
