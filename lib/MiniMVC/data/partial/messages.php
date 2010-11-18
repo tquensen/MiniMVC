@@ -1,4 +1,4 @@
-<?php foreach ($messages as $type => $typeMessages): ?>
+<?php var_dump($messages); foreach ($messages as $type => $typeMessages): ?>
     <?php if (count($typeMessages)): ?>
     <ul class="messages <?php echo $type; ?>Messages">
         <?php foreach ($typeMessages as $message): ?>
