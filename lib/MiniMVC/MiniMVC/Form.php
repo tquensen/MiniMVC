@@ -211,7 +211,6 @@ class MiniMVC_Form
 
     public function validate()
     {
-
         $this->handleAjaxValidation();
 
         $this->bindValues();

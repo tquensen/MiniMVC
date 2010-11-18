@@ -140,7 +140,7 @@ class MiniMVC_Guard
      */
     public function checkCsrfProtection($throwException = true)
     {
-        $csrfData = $this->registry->settings->get('csrfData');
+        $csrfData = $this->registry->settings->get('csrfToken');
         if (empty($csrfData['expected']) || empty($csrfData['submitted']) || $csrfData['expected'] != $csrfData['submitted']) {
             if ($throwException) {
                 throw new Exception('invalid csrf token!', 401);
