@@ -96,7 +96,7 @@ class Helper_Url extends MiniMVC_Helper
         }
 
         if ($method == 'GET') {
-            return '<a href="'.htmlspecialchars($url).'"'.($attrs ? ' '.$attrs : '').($confirm ? ' onclick="return confirm(\''.htmlspecialchars($confirm).'\')' : '').'>'.$title.'</a>';
+            return '<a href="'.htmlspecialchars($url).'"'.($attrs ? ' '.$attrs : '').($confirm ? ' onclick="return confirm(\''.htmlspecialchars($confirm).'\')"' : '').'>'.$title.'</a>';
         } else {
             $form = new MiniMVC_Form(array(
                 'name' => md5($url).'Form',
@@ -105,6 +105,9 @@ class Helper_Url extends MiniMVC_Helper
                 'method' => strtoupper($method),
                 'class' => 'minimvcInlineForm'                
             ));
+            if ($confirm) {
+                $form->setOption('attributes', array('onclick' => 'return confirm(\''.htmlspecialchars($confirm).'\')'));
+            }
             $form->setElement(new MiniMVC_Form_Element_Button('_submit', array('label' => $title, 'attributes' => $attrs ? $attrs : array())));
             foreach ((array) $postData as $postKey => $postValue) {
                 $form->setElement(new MiniMVC_Form_Element_Hidden($postKey, array('alwaysDisplayDefault' => true, 'defaultValue' => $postValue)));
