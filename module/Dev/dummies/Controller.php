@@ -81,10 +81,11 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
     public function deleteAction($params)
     {
         /*
+
         if (!$params['model']) {
             return $this->delegate404();
         }
-        if (!$params['model']->delete()) {
+        if (!$this->registry->guard->checkCsrfProtection(false) || !$params['model']->delete()) {
             $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTDeleteErrorMessage, 'error');
         } else {
             $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTDeleteSuccessMessage, 'success');

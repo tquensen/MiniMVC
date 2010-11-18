@@ -83,7 +83,7 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         if (!$params['model']) {
             return $this->delegate404();
         }
-        if (!$params['model']->delete()) {
+        if (!$this->registry->guard->checkCsrfProtection(false) || !$params['model']->delete()) {
             $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTDeleteErrorMessage, 'error');
         } else {
             $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTDeleteSuccessMessage, 'success');

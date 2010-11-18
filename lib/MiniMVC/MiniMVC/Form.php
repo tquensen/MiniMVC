@@ -15,29 +15,36 @@ class MiniMVC_Form
         $this->name = (isset($options['name'])) ? $options['name'] : $this->name;
         $this->model = (isset($options['model'])) ? $options['model'] : $this->model;
 
-        $this->options['action'] = $_SERVER['REQUEST_URI'];
+        $this->options['route'] = MiniMVC_Registry::getInstance()->settings->get('currentRoute');
+        $this->options['routeParameter'] = MiniMVC_Registry::getInstance()->settings->get('currentRouteParameter');
         $this->options['method'] = 'POST';
         $this->options['showGlobalErrors'] = true;
         $this->options['redirectOnError'] = true;
         $this->options['csrfProtection'] = true;
         $this->options = array_merge($this->options, (array)$options);
 
+        if (empty($this->options['action'])) {
+            $this->options['action'] = MiniMVC_Registry::getInstance()->helper->url->get($this->options['route'], !empty($this->options['routeParameter']) ? $this->options['routeParameter'] : array());
+        }
+
         $this->setElement(new MiniMVC_Form_Element_Hidden('FormCheck', array('defaultValue' => 1, 'alwaysDisplayDefault' => true), array(new MiniMVC_Form_Validator_Required())));
 
         $t = MiniMVC_Registry::getInstance()->helper->i18n->get('_form');
 
         if ($this->getOption('csrfProtection')) {
+            $csrfToken = md5($this->name . time() . rand(1000, 9999));
+
             $oldCsrfToken = (isset($_SESSION['Form_' . $this->name . '_CsrfToken']))
                         ? $_SESSION['Form_' . $this->name . '_CsrfToken'] : null;
-            $csrfToken = md5($this->name . time() . rand(1000, 9999));
             $this->setElement(
                     new MiniMVC_Form_Element_Hidden(
-                            'CsrfToken',
-                            array('defaultValue' => $csrfToken, 'alwaysDisplayDefault' => true, 'errorMessage' => $t->errorCsrf, 'globalErrors' => true),
+                            '_csrf_token',
+                            array('defaultValue' => $csrfToken, 'alwaysDisplayDefault' => true, 'errorMessage' => $t->errorCsrf, 'globalErrors' => true, 'forceName' => '_csrf_token'),
                             array(new MiniMVC_Form_Validator_Required(), new MiniMVC_Form_Validator_Equals(array('value' => $oldCsrfToken)))
                     )
             );
-            $_SESSION['Form_' . $this->name . '_CsrfToken'] = $csrfToken;
+            $_SESSION['Form_' . $this->name . '_CsrfToken'] = $csrfToken; //for this form
+            $_SESSION[$this->options['route'] . '_csrf_token'] = $csrfToken; //for the dispatcher csrf check
         }
     }
 

@@ -98,13 +98,17 @@ class Helper_Url extends MiniMVC_Helper
         if ($method == 'GET') {
             return '<a href="'.htmlspecialchars($url).'"'.($attrs ? ' '.$attrs : '').($confirm ? ' onclick="return confirm(\''.htmlspecialchars($confirm).'\')' : '').'>'.$title.'</a>';
         } else {
-            $return = '<form class="minimvcInlineForm" action="'.htmlspecialchars($url).'" method="POST"'.($confirm ? ' onsubmit="return confirm(\''.htmlspecialchars($confirm).'\')' : '').'>'.
-                      (strtoupper($method) != 'POST' ? '<input type="hidden" name="REQUEST_METHOD" value="'.htmlspecialchars(strtoupper($method)).'" />' : '').
-                      '<button type="submit"'.($attrs ? ' '.$attrs : '').'>'.$title.'</button>';
+            $form = new MiniMVC_Form(array(
+                'name' => $route.'Form',
+                'action' => $url,
+                'method' => strtoupper($method),
+                'class' => 'minimvcInlineForm'                
+            ));
+            $form->setElement(new MiniMVC_Form_Element_Button('_submit', array('label' => $title, 'attributes' => $attrs ? $attrs : array())));
             foreach ((array) $postData as $postKey => $postValue) {
-                $return .= '<input type="hidden" name="'.htmlspecialchars($postKey).'" value="'.htmlspecialchars($postValue).'" />';
+                $form->setElement(new MiniMVC_Form_Element_Hidden($postKey, array('alwaysDisplayDefault' => true, 'defaultValue' => $postValue)));
             }
-            $return.= '</form>';
+            return $this->registry->helper->partial->get('form', array('form' => $form));
         }
     }
 

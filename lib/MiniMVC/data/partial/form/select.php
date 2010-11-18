@@ -1,7 +1,7 @@
     <label
         for="<?php echo htmlspecialchars($element->getForm()->getName() . '__' . $element->getName()) ?>"><?php echo htmlspecialchars($element->label) ?></label>
     <select
-        name="<?php echo htmlspecialchars($element->getForm()->getName() . '[' . $element->getName() . ']') ?>"
+        name="<?php echo $element->forceName ? htmlspecialchars($element->forceName) : htmlspecialchars($element->getForm()->getName() . '[' . $element->getName() . ']') ?>"
         id="<?php echo htmlspecialchars($element->getForm()->getName() . '__' . $element->getName()) ?>">
             <?php foreach ($element->options as $option => $value): ?>
                     <option value="<?php echo htmlspecialchars($option) ?>"

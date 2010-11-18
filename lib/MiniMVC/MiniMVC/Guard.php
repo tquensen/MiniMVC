@@ -136,6 +136,21 @@ class MiniMVC_Guard
     }
 
     /**
+     * Check the csrfProtection of the current request
+     */
+    public function checkCsrfProtection($throwException = true)
+    {
+        $csrfData = $this->registry->settings->get('csrfData');
+        if (!empty($csrfData['required']) && (empty($csrfData['expected']) || empty($csrfData['submitted']) || $csrfData['required'] != $csrfData['submitted'])) {
+            if ($throwException) {
+                throw new Exception('invalid csrf token!', 401);
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
      *
      * @param string|int $right the right to check, either as the name of the right as string ('user', 'administrator', ..) or as the key as int (2, 1024, ..)
      * @return bool whether the current user has the required right or not / returns true if the right is 0

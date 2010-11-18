@@ -3,7 +3,7 @@
     <?php foreach ($element->elements as $check => $value): ?>
         <li>
             <input type="checkbox"
-                   name="<?php echo htmlspecialchars($element->getForm()->getName() . '[' . $element->getName().']') ?>[]"
+                   name="<?php echo $element->forceName ? htmlspecialchars($element->forceName) : htmlspecialchars($element->getForm()->getName() . '[' . $element->getName().']') ?>[]"
                    id="<?php echo htmlspecialchars($element->getForm()->getName() . '__' . $element->getName() . '__' . $check) ?>"
                    value="<?php echo htmlspecialchars($check) ?>"
                    <?php if (is_array($element->value) && in_array($check, $element->value)): ?>checked="checked"<?php endif; ?> />
