@@ -17,7 +17,7 @@ class Helper_Messages extends MiniMVC_Helper
     public function add($message, $type = 'notice', $persistent = true)
     {
         $this->messages[$type][] = $message;
-        if ($presistent) {
+        if ($persistent) {
             $_SESSION['helper_messages'][$type][] = $message;
         }
     }
