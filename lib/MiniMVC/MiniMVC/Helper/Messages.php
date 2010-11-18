@@ -4,8 +4,9 @@ class Helper_Messages extends MiniMVC_Helper
 {
     protected $messages = array();
 
-    public function __construct()
+    public function __construct($module = null)
     {
+        parent::__construct($module);
         $this->messages = !empty($_SESSION['helper_messages']) ? $_SESSION['helper_messages'] : array();
     }
     /**
