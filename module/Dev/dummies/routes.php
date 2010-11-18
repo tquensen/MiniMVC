@@ -31,7 +31,9 @@ $MiniMVC_routes['MODLC.defaultShow'] = array(
     'controller' => 'MODULE_Default',
     'action' => 'show',
     'method' => 'GET',
-    //'model' => array('MODULE', 'id'), //automatically load a model with the name MODULE by the given field 'id' (or null if not found). in your controller, you can access it with $params['model']
+    //'model' => array('MODULE', 'id'), // array(modelname, property, parameter) or array('model1' => array(modelname, property, parameter),'modelx' => array(modelname, property, parameter))
+                                        //automatically load a model with the name modelname by the field 'property' (defaults to the models identifier) with the value provided py routeparameter :parameter: (defaults to the property)
+                                        // returns null if not found // in your controller, you can access it with $params['model'] (or $params['model']['model1'], $params['model']['modelx'] if multiple models were defined)
     'parameter' => array('id' => false),
     'rights' => 0 //$rights->getRights('user')
 );
@@ -40,7 +42,7 @@ $MiniMVC_routes['MODLC.defaultEdit'] = array(
     'controller' => 'MODULE_Default',
     'action' => 'edit',
     'method' => array('GET', 'POST'),
-    //'model' => array('MODULE', 'id'), //automatically load a model with the name MODULE by the given field 'id' (or null if not found). in your controller, you can access it with $params['model']
+    //'model' => array('MODULE', 'id'),
     'parameter' => array('id' => false),
     'active' => false, //this route must be activated for each app to work
     'rights' => 0 //$rights->getRights('publish')
@@ -50,7 +52,7 @@ $MiniMVC_routes['MODLC.defaultDelete'] = array(
     'controller' => 'MODULE_Default',
     'action' => 'delete',
     'method' => array('DELETE'),
-    //'model' => array('MODULE', 'id'), //automatically load a model with the name MODULE by the given field 'id' (or null if not found). in your controller, you can access it with $params['model']
+    //'model' => array('MODULE', 'id'),
     'parameter' => array('id' => false),
     'active' => false, //this route must be activated for each app to work
     'rights' => 0 //$rights->getRights('publish')

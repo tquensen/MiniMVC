@@ -1,0 +1,17 @@
+form.minimvcInlineForm, form.minimvcInlineForm div {
+    margin: 0;
+    padding: 0;
+    display: inline;
+}
+
+form.minimvcInlineForm button {
+    margin: 0;
+    padding: 0;
+    border: none;
+    display: inline;
+    cursor: pointer;
+}
+
+form.minimvcInlineForm button:hover, form.minimvcInlineForm button:focus {
+    text-decoration: underline;
+}

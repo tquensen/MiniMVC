@@ -99,7 +99,7 @@ class Helper_Url extends MiniMVC_Helper
             return '<a href="'.htmlspecialchars($url).'"'.($attrs ? ' '.$attrs : '').($confirm ? ' onclick="return confirm(\''.htmlspecialchars($confirm).'\')' : '').'>'.$title.'</a>';
         } else {
             $form = new MiniMVC_Form(array(
-                'name' => $route.'Form',
+                'name' => md5(url).'Form',
                 'action' => $url,
                 'method' => strtoupper($method),
                 'class' => 'minimvcInlineForm'                
