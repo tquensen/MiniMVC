@@ -162,7 +162,7 @@ class MiniMVC_Form
         if (isset($_SESSION['form_' . $this->name . '__' . $this->getOption('action') . '__errorData'])) {
             $values = $_SESSION['form_' . $this->name . '__' . $this->getOption('action') . '__errorData'];
             
-            if (isset($values['_form'])) {
+            if (!empty($values['_form'])) {
                 $this->errors = $values['_form'];
                 $this->isValid = false;
             }
@@ -259,6 +259,7 @@ class MiniMVC_Form
                     'errorMessage' => $element->errorMessage
                 );
             }
+            $sessionData['_form'] = $this->errors;
             $_SESSION['form_' . $this->name . '__' . $this->getOption('action') . '__errorData'] = $sessionData;
             header('Location: ' . $this->getOption('action'));
             exit;
