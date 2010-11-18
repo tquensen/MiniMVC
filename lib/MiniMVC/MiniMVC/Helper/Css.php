@@ -107,7 +107,7 @@ class Helper_Css extends MiniMVC_Helper
                 } else {
                     $data['file'] = MODULEPATH.$module.'/web/css/'.$file['file'];
                 }
-            } elseif (APPPATH.$app.'/web/css/'.$file['file']) {
+            } elseif (file_exists(APPPATH.$app.'/web/css/'.$file['file'])) {
                 $data['file'] = APPPATH.$app.'/web/css/'.$file['file'];
             } else {
                 $data['file'] = WEBPATH.'css/'.$file['file'];
