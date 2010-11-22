@@ -130,7 +130,6 @@ class UserTable extends MiniMVC_Table
     {
         switch ($installedVersion) {
             case 0:
-                if (!$targetVersion) break;
                 $sql = "CREATE TABLE user (
 					  id int NOT NULL auto_increment,
 					  slug varchar(255) NOT NULL,

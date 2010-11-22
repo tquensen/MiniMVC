@@ -51,13 +51,13 @@ class MiniMVC_Controller
      * @param mixed $app the name of the app or null for current app
      * @return null
      */
-    protected function redirect($route, $params = array(), $app = null)
+    protected function redirect($route, $params = array(), $code = 302, $app = null)
     {
         $url = $this->registry->helper->url->get($route, $params, $app);
         if ($url)
         {
-            header('Location: '.$url);
-            
+            header('Location: '.$url, null, $code);
+
             $this->registry->template->setLayout(false);
         }
         return $this->view->prepareEmpty();
