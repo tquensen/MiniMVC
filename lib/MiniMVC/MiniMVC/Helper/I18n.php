@@ -66,21 +66,25 @@ class Helper_I18n extends MiniMVC_Helper
     public function getLanguageChooserHtml($module = null, $partial = 'languageChooser')
     {
         $languages = array();
-        $app = $this->registry->settings->get('runtime/currentApp');
+        $app = $this->registry->settings->get('currentApp');
         $defaultLanguage = $this->registry->settings->get('settings/defaultLanguage');
-        $currentLanguage = $this->registry->settings->get('runtime/currentLanguage');
-        $route = $this->registry->settings->get('runtime/requestedRoute');
+        $currentLanguage = $this->registry->settings->get('currentLanguage');
+        $enabledLanguages = $this->registry->settings->get('config/enabledLanguages', array());
+        $route = $this->registry->settings->get('requestedRoute');
         $baseurl = $this->registry->settings->get('apps/'.$app.'/baseurl', '');
         $baseurlI18n = $this->registry->settings->get('apps/'.$app.'/baseurlI18n', $baseurl);
 
+        sort($enabledLanguages);
+
         $i18n = $this->get('_languages', 'misc', 'misc');
 
-        foreach ($this->registry->settings->get('config/enabledLanguages', array()) as $language) {
+        foreach ($enabledLanguages as $language) {
             if ($language == $currentLanguage) {
                 $url = $baseurl.$route;
             } else {
                 $url = str_replace(':lang:', $language, $baseurlI18n).$route;
             }
+            
             $languages[] = array('key' => $language, 'url' => $url, 'title' => $i18n[$language]);
         }
         $data = array('languages' => $languages, 'currentLanguage' => $currentLanguage);
