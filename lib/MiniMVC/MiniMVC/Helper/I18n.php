@@ -79,7 +79,7 @@ class Helper_I18n extends MiniMVC_Helper
         $i18n = $this->get('_languages', 'misc', 'misc');
 
         foreach ($enabledLanguages as $language) {
-            if ($language == $currentLanguage) {
+            if ($language == $defaultLanguage) {
                 $url = $baseurl.$route;
             } else {
                 $url = str_replace(':lang:', $language, $baseurlI18n).$route;
