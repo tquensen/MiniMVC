@@ -59,7 +59,7 @@ class Helper_L10n extends MiniMVC_Helper
             $day = 0;
         }
         if ($day === null || $day > 6 || $day < 0 || !isset($weekdays[$day])) {
-            $month = date('w', $day ? $day : time());
+            $day = date('w', $day ? $day : time());
         }
         return $full ? $weekdays[$day] : substr($weekdays[$day], 0, 3);
     }
