@@ -67,7 +67,7 @@ class Helper_I18n extends MiniMVC_Helper
     {
         $languages = array();
         $app = $this->registry->settings->get('currentApp');
-        $defaultLanguage = $this->registry->settings->get('settings/defaultLanguage');
+        $defaultLanguage = $this->registry->settings->get('config/defaultLanguage');
         $currentLanguage = $this->registry->settings->get('currentLanguage');
         $enabledLanguages = $this->registry->settings->get('config/enabledLanguages', array());
         $route = $this->registry->settings->get('requestedRoute');
