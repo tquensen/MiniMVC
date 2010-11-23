@@ -91,7 +91,7 @@ class MiniMVC_Controller
      */
 	protected function delegate403($message = 'delegated by controller')
 	{
-		throw new Exception($message, 401);
+		throw new Exception($message, 403);
 	}
 
     /**
@@ -101,7 +101,7 @@ class MiniMVC_Controller
      */
 	protected function delegate404($message = 'delegated by controller')
 	{
-		throw new Exception($message, 401);
+		throw new Exception($message, 404);
 	}
 	
     /**

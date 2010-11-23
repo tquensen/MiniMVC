@@ -6,6 +6,7 @@
  * @property Helper_Js $js
  * @property Helper_Navi $navi
  * @property Helper_I18n $i18n
+ * @property Helper_L10n $l10n
  * @property Helper_Partial $partial
  * @property Helper_Static $static
  * @property Helper_Url $url
@@ -18,6 +19,7 @@
  * @method Helper_Js js()
  * @method Helper_Navi navi()
  * @method Helper_I18n i18n()
+ * @method Helper_L10n l10n()
  * @method Helper_Partial partial()
  * @method Helper_Static static()
  * @method Helper_Url url()

@@ -2,7 +2,7 @@
 /**
  * MiniMVC_Translation holds an array of translated data
  */
-class MiniMVC_Translation
+class MiniMVC_Translation implements ArrayAccess
 {
 	protected $translations = array();
 
@@ -25,6 +25,42 @@ class MiniMVC_Translation
         
 		return (isset($this->translations[$realkey])) ? $this->translations[$realkey] : $key;
 	}
+
+    public function __isset($key)
+	{
+        $realkey = is_array($key) ? end($key) : $key;
+        return isset($this->translations[$realkey]);
+	}
+
+    public function __unset($key)
+	{
+        if (isset($this->translations[$key])) {
+            unset($this->translations[$key]);
+        }
+	}
+
+    public function offsetSet($offset, $data)
+    {
+        if ($offset === null) {
+            return;
+        }
+        $this->set($offset, $value);
+    }
+
+    public function offsetGet($offset)
+    {
+        return $this->__get($offset);
+    }
+
+    public function offsetExists($offset)
+    {
+        return $this->_isset($offset);
+    }
+
+    public function offsetUnset($offset)
+    {
+        $this->__unset($offset);
+    }
 
 	public function __call($key, $args)
 	{
