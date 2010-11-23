@@ -6,11 +6,11 @@ class Helper_L10n extends MiniMVC_Helper
 
     /**
      *
-     * @param string|null $language the language to get the l10n data for (null for current language)
      * @param string|null $key if a key is given, return only the specific date instead of an array with all data
+     * @param string|null $language the language to get the l10n data for (null for current language)
      * @return <type>
      */
-    public function getL10nData($language = null, $key = null) {
+    public function getL10nData($key = null, $language = null) {
         $language = $language ? $language : $this->registry->settings->get('currentLanguage');
         if (!isset($this->i18n[$language])) {
             $this->i18n[$language] = $this->registry->helper->i18n->get('_l10n', $language);
@@ -23,29 +23,29 @@ class Helper_L10n extends MiniMVC_Helper
         return number_format(
             (int) $number,
             $decimals,
-            $decimalSeparator ? $decimalSeparator : $this->getL10nData($language, 'numberDecimalSeparator'),
-            $thousandsSeparator ? $thousandsSeparator : $this->getL10nData($language, 'numberThousandsStep')
+            $decimalSeparator ? $decimalSeparator : $this->getL10nData('numberDecimalSeparator', $language),
+            $thousandsSeparator ? $thousandsSeparator : $this->getL10nData('numberThousandsStep', $language)
         );
     }
 
     public function formatDate($timestamp = null, $language = null)
     {
-        return date($this->getL10nData($language, 'formatDate'), $timestamp ? $timestamp : time());
+        return date($this->getL10nData('formatDate', $language), $timestamp ? $timestamp : time());
     }
 
     public function formatTime($timestamp = null, $showSeconds = false, $language = null)
     {
-        return date($this->getL10nData($language, $showSeconds ? 'formatTimeSeconds' : 'formatTime'), $timestamp ? $timestamp : time());
+        return date($this->getL10nData($showSeconds ? 'formatTimeSeconds' : 'formatTime', $language), $timestamp ? $timestamp : time());
     }
 
     public function formatDateTime($timestamp = null, $showSeconds = false, $language = null)
     {
-        return date($this->getL10nData($language, $showSeconds ? 'formatDateTimeSeconds' : 'formatDateTime'), $timestamp ? $timestamp : time());
+        return date($this->getL10nData($showSeconds ? 'formatDateTimeSeconds' : 'formatDateTime', $language), $timestamp ? $timestamp : time());
     }
 
     public function formatMonth($month = null, $full = true, $language = null)
     {
-        $months = $this->getL10nData($language, 'months');
+        $months = $this->getL10nData('months', $language);
         if ($month === null || $month > 12 || $month < 1 || !isset($months[$month])) {
             $month = date('n', $month ? $month : time());
         }
@@ -54,7 +54,7 @@ class Helper_L10n extends MiniMVC_Helper
 
     public function formatDayOfWeek($day = null, $full = true, $language = null)
     {
-        $weekdays = $this->getL10nData($language, 'weekdays');
+        $weekdays = $this->getL10nData('weekdays', $language);
         if ($day == 7) {
             $day = 0;
         }
@@ -62,5 +62,14 @@ class Helper_L10n extends MiniMVC_Helper
             $day = date('w', $day ? $day : time());
         }
         return $full ? $weekdays[$day] : substr($weekdays[$day], 0, 3);
+    }
+
+    public function formatCustom($key = null, $parameter = null, $language = null)
+    {
+        $format = $this->getL10nData('format'.  ucfirst($key), $language);
+        if (is_array($format) && isset($format['callable'])) {
+            return call_user_func_array($format['callable'], array_merge(isset($format['parameter']) ? (array) $format['parameter'] : array(), (array) $parameter));
+        }
+        return date((string) $format, $parameter ? $parameter : time());
     }
 }

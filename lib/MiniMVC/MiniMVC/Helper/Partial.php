@@ -41,6 +41,8 @@ class Helper_Partial extends MiniMVC_Helper
                 $this->registry->settings->set('view/partialCached/'.$_app.'_'.$_module.'_'.$_format.'_'.str_replace('/', '__', $_partial), $_file);
             }
             extract($_data);
+            $h = $this->registry->helper;
+            $o = $h->text;
             include $_file;
             return ob_get_clean();
         } catch (Exception $e) {
