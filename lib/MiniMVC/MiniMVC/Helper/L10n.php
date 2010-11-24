@@ -30,17 +30,17 @@ class Helper_L10n extends MiniMVC_Helper
 
     public function formatDate($timestamp = null, $language = null)
     {
-        return date($this->getL10nData('formatDate', $language), $timestamp ? $timestamp : time());
+        return date($this->getL10nData('formatDate', $language), $timestamp ? (int) $timestamp : time());
     }
 
     public function formatTime($timestamp = null, $showSeconds = false, $language = null)
     {
-        return date($this->getL10nData($showSeconds ? 'formatTimeSeconds' : 'formatTime', $language), $timestamp ? $timestamp : time());
+        return date($this->getL10nData($showSeconds ? 'formatTimeSeconds' : 'formatTime', $language), $timestamp ? (int) $timestamp : time());
     }
 
     public function formatDateTime($timestamp = null, $showSeconds = false, $language = null)
     {
-        return date($this->getL10nData($showSeconds ? 'formatDateTimeSeconds' : 'formatDateTime', $language), $timestamp ? $timestamp : time());
+        return date($this->getL10nData($showSeconds ? 'formatDateTimeSeconds' : 'formatDateTime', $language), $timestamp ? (int) $timestamp : time());
     }
 
     public function formatMonth($month = null, $full = true, $language = null)
@@ -70,6 +70,6 @@ class Helper_L10n extends MiniMVC_Helper
         if (is_array($format) && isset($format['callable'])) {
             return call_user_func_array($format['callable'], array_merge(isset($format['parameter']) ? (array) $format['parameter'] : array(), (array) $parameter));
         }
-        return date((string) $format, $parameter ? $parameter : time());
+        return date((string) $format, $parameter ? (int) $parameter : time());
     }
 }
