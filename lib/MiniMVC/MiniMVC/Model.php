@@ -53,22 +53,34 @@ class MiniMVC_Model implements ArrayAccess
 
 	public function __get($key)
 	{
+        if ($this->getTable()->getRelation($key)) {
+            return $this->getRelated($key);
+        }
         return isset($this->_properties[$key]) ? $this->_properties[$key] : null;
 	}
 
 	public function __set($key, $value)
 	{
-		$this->_properties[$key] = $value;
+		if ($this->getTable()->getRelation($key)) {
+            $this->setRelated($key, $value);
+        } else {
+            $this->_properties[$key] = $value;
+        }
 	}
 
     public function __isset($key)
 	{
+        if ($this->getTable()->getRelation($key)) {
+            return isset($this->_relations[$key]);
+        }
         return isset($this->_properties[$key]);
 	}
 
     public function __unset($key)
 	{
-        if (isset($this->_properties[$key])) {
+        if ($this->getTable()->getRelation($key)) {
+            $this->unlinkRelated($key);
+        } elseif (isset($this->_properties[$key])) {
             unset($this->_properties[$key]);
         }
 	}
@@ -165,18 +177,32 @@ class MiniMVC_Model implements ArrayAccess
      *
      * @param string $relation the name of a relation
      * @param mixed $identifier the identifier of the related model or true to return all stored models of this relation
+     * @param bool $load true (default) to load the related entries from db if not already there
      * @return MiniMVC_Model|array
      */
-    public function getRelated($relation, $identifier = true)
+    public function getRelated($relation, $identifier = true, $load = true)
     {
-        $relationInfo = $this->getTable()->getRelation($relation);
+        if (!$relationInfo = $this->getTable()->getRelation($relation)) {
+            throw new Exception('Unknown relation "'.$relation.'" for model '.$this->getTable()->getModelName());
+        }
         if ($identifier === true) {
             if (isset($this->_relations[$relation])) {
                 return (isset($relationInfo[3]) && $relationInfo[3] === true) ? reset($this->_relations[$relation]) : $this->_relations[$relation];
+            } elseif ($load) {
+                return $this->loadRelated($relation);
             }
         } else {
             if (isset($this->_relations[$relation]['_'.$identifier])) {
                 return $this->_relations[$relation]['_'.$identifier];
+            } elseif ($load && !isset($this->_relations[$relation])) {
+                if ($identifier === true) {
+                    return $this->loadRelated($relation);
+                } else {
+                    $tableName = $relationInfo[0].'Table';
+                    $table = call_user_func($tableName . '::getInstance');
+                    return $this->loadRelated($relation, $table->getIdentifier().' = ?', $identifier);
+                }
+
             }
         }
         return ($identifier === true && (!isset($relationInfo[3]) || $relationInfo[3] !== true)) ? array() : null;
@@ -535,7 +561,7 @@ class MiniMVC_Model implements ArrayAccess
                 $stmt = MiniMVC_Registry::getInstance()->db->query()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier));
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
-                
+
                 if (!$result) {
                     MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), $info[3])->execute(array($this->getIdentifier(), $identifier));
                 }
@@ -617,11 +643,11 @@ class MiniMVC_Model implements ArrayAccess
             }
         }
     }
-    
+
 	public function save($relations = false)
 	{
 		$status = $this->getTable()->save($this);
- 
+
         if ($relations && $status) {
             foreach ($this->_relations as $relation => $info) {
                 $this->saveRelated($relation, true);
@@ -678,7 +704,7 @@ class MiniMVC_Model implements ArrayAccess
 
     public function postDelete()
     {
-        
+
     }
 
     public function postCreate()

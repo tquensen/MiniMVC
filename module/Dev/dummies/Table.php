@@ -32,7 +32,7 @@ class {name}Table extends {name}TableBase
                 if ($targetVersion && $targetVersion <= 1) break;
             /* //for every new version add your code below (including the lines "case NEW_VERSION:" and "if ($targetVersion && $targetVersion <= NEW_VERSION) break;")
 
-                $sql = "ALTER TABLE {table} (
+                $sql = "ALTER TABLE {table}
 					  ADD something VARCHAR(255)";
 
                 $this->_db->query($sql);
