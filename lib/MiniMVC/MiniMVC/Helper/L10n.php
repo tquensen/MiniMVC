@@ -21,7 +21,7 @@ class Helper_L10n extends MiniMVC_Helper
     public function formatNumber($number, $decimals = 0, $language = null, $decimalSeparator = null, $thousandsSeparator = null)
     {
         return number_format(
-            (int) $number,
+            $number,
             $decimals,
             $decimalSeparator ? $decimalSeparator : $this->getL10nData('numberDecimalSeparator', $language),
             $thousandsSeparator ? $thousandsSeparator : $this->getL10nData('numberThousandsStep', $language)
