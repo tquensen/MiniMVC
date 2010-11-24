@@ -62,23 +62,23 @@ class Core_Task_Controller extends MiniMVC_Controller
             if ($file == '.' || $file == '..') {
                 continue;
             }
-            if (is_file($dir.'/'.$file)) {
-                if (!is_writable($dir.'/'.$file)) {
-                   return 'no write permisson for file "'.$dir.'/'.$file.'"';
+            if (is_file($dir.$file)) {
+                if (!is_writable($dir.$file)) {
+                   return 'no write permisson for file "'.$dir.$file.'"';
                 }
-                if (!@unlink($dir.'/'.$file)) {
-                    return 'unlink failed for file "'.$dir.'/'.$file.'"';
+                if (!@unlink($dir.$file)) {
+                    return 'unlink failed for file "'.$dir.$file.'"';
                 }
-            } elseif (is_dir($dir.'/'.$file) && $recursive) {
+            } elseif (is_dir($dir.$file) && $recursive) {
                 if ($level == 1 && $file == 'public') {
                     continue;
                 }
-                $status = $this->clearDirectory($dir.'/'.$file, $recursive, $level + 1);
+                $status = $this->clearDirectory($dir.$file.'/', $recursive, $level + 1);
                 if ($status !== true) {
                     return $status;
                 }
-                if (!@rmdir($dir.'/'.$file)) {
-                    return 'rmdir failed for directory "'.$dir.'/'.$file.'"';
+                if (!@rmdir($dir.$file)) {
+                    return 'rmdir failed for directory "'.$dir.$file.'"';
                 }
             }
         }
