@@ -76,11 +76,11 @@ class MiniMVC_Settings
                 }
             }
 
-            $data[$file] = $$varname;
+            $this->settings[$app . '_' . $environment][$file] = $$varname;
+
         }
 
-        $this->registry->cache->set('settings_'.$app . '_' . $environment, $data);
-        return $data;
+        $this->registry->cache->set('settings_'.$app . '_' . $environment, $this->settings[$app . '_' . $environment]);
     }
 
     /**
@@ -107,7 +107,7 @@ class MiniMVC_Settings
             if ($data !== null) {
                 $this->settings[$app . '_' . $environment] = $data;
             } else {
-                $this->settings[$app . '_' . $environment] = $this->scanConfigFiles($app, $environment);
+                $this->scanConfigFiles($app, $environment);
             }
         }
 
