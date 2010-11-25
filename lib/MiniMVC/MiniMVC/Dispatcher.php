@@ -80,13 +80,13 @@ class MiniMVC_Dispatcher
                 throw new Exception('No default language for App '.$currentApp.' found!');
             }
         }
-        $this->registry->settings->set('runtime/currentLanguage', $currentLanguage);
+        $this->registry->settings->set('currentLanguage', $currentLanguage);
         
-        $this->registry->settings->set('runtime/requestedRoute', $route);
+        $this->registry->settings->set('requestedRoute', $route);
 
         try {
 
-            $routes = $this->registry->settings->get('routes');
+            $routes = $this->getRoutes(); 
             $routeData = null;
 
             if (!$route && $route !== false) {
@@ -111,8 +111,8 @@ class MiniMVC_Dispatcher
                         if (isset($currentRouteData['method']) && ((is_string($currentRouteData['method']) && strtoupper($currentRouteData['method']) != $method) || (is_array($currentRouteData['method']) && !in_array($method, array_map('strtoupper', $currentRouteData['method']))))) {
                             continue;
                         }
-                        $routePattern = (isset($currentRouteData['routePatternGenerated'])) ? $currentRouteData['routePatternGenerated'] : $this->getRegex($currentRoute, $currentRouteData);
-                        if (preg_match($routePattern, $route, $matches)) {
+
+                        if (preg_match($currentRouteData['routePatternGenerated'], $route, $matches)) {
                             $params = (isset($currentRouteData['parameter'])) ? $currentRouteData['parameter'] : array();
                             $anonymousParams = array();
                             foreach ($matches as $paramKey => $paramValue) {
@@ -156,8 +156,8 @@ class MiniMVC_Dispatcher
             }
 
 
-            $this->registry->settings->set('runtime/currentRoute', $routeName);
-            $this->registry->settings->set('runtime/currentRouteParameter', isset($params) ? $params : array());
+            $this->registry->settings->set('currentRoute', $routeName);
+            $this->registry->settings->set('currentRouteParameter', isset($params) ? $params : array());
 
             $this->registry->events->notify(new sfEvent($this, 'minimvc.init'));            
             $content = $this->callRoute($routeName, (isset($params) ? $params : array()));
@@ -447,32 +447,41 @@ class MiniMVC_Dispatcher
      * @param array $routeData information about the route
      * @return string returns a regular expression pattern to parse the called route
      */
-    protected function getRegex($route, $routeData)
+    protected function getRoutes()
     {
-        $routePattern = isset($routeData['routePattern']) ? $routeData['routePattern'] : str_replace(array('(',')','[',']','.','?'), array('','','\\[','\\]','\\.','\\?'), $routeData['route']);
-        if (isset($routeData['parameterPatterns'])) {
-            $search = array();
-            $replace = array();
-            foreach ($routeData['parameterPatterns'] as $param => $regex) {
-                $search[] = ':' . $param . ':';
-                $replace[] = '(?P<' . $param . '>' . $regex . ')';
-            }
+        $cache = $this->registry->cache->get('routes');
 
-            $routePattern = str_replace($search, $replace, $routePattern);
+        if ($cache) {
+            return $cache;
         }
-        $routePattern = preg_replace('#:([^:]+):#i', '(?P<$1>[^\./]+)', $routePattern);
-        if (!empty($routeData['allowAnonymous'])) {
-            if (substr($route, -1) == '/') {
-                $routePattern .= '(?P<anonymousParams>([^-/]+-[^/]+/)*)';
-            } else {
-                $routePattern .= '(?P<anonymousParams>(/[^-/]+-[^/]+)*)';
+
+        $routes = $this->registry->settings->get('routes', array());
+        foreach ($routes as $route => $routeData) {
+            $routePattern = isset($routeData['routePattern']) ? $routeData['routePattern'] : str_replace(array('(',')','[',']','.','?'), array('','','\\[','\\]','\\.','\\?'), $routeData['route']);
+            if (isset($routeData['parameterPatterns'])) {
+                $search = array();
+                $replace = array();
+                foreach ($routeData['parameterPatterns'] as $param => $regex) {
+                    $search[] = ':' . $param . ':';
+                    $replace[] = '(?P<' . $param . '>' . $regex . ')';
+                }
+
+                $routePattern = str_replace($search, $replace, $routePattern);
             }
+            $routePattern = preg_replace('#:([^:]+):#i', '(?P<$1>[^\./]+)', $routePattern);
+            if (!empty($routeData['allowAnonymous'])) {
+                if (substr($route, -1) == '/') {
+                    $routePattern .= '(?P<anonymousParams>([^-/]+-[^/]+/)*)';
+                } else {
+                    $routePattern .= '(?P<anonymousParams>(/[^-/]+-[^/]+)*)';
+                }
+            }
+            $routePattern = '#^' . $routePattern . '$#';
+
+            $routes[$route]['routePatternGenerated'] = $routePattern;
         }
-        $routePattern = '#^' . $routePattern . '$#';
-
-        $this->registry->settings->set('routes/'.$route.'/routePatternGenerated', $routePattern);
-
-        return $routePattern;
+        $this->registry->cache->set('routes', $routes, true);
+        return $routes;
     }
 
 }

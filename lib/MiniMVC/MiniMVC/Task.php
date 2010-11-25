@@ -27,14 +27,14 @@ class MiniMVC_Task
         $params = $this->parseArgs($rawParams);
 
         if (isset($params['app']) && $this->registry->settings->get('apps/' . $params['app'])) {
-            $this->registry->settings->set('runtime/currentApp', $params['app']);
+            $this->registry->settings->set('currentApp', $params['app']);
         }
 
         if (isset($params['env'])) {
-            $this->registry->settings->set('runtime/currentEnvironment', $params['env']);
+            $this->registry->settings->set('currentEnvironment', $params['env']);
         }
 
-        $this->registry->settings->set('runtime/currentLanguage', '');
+        $this->registry->settings->set('currentLanguage', '');
         setlocale(LC_ALL, $this->registry->settings->get('config/defaultLanguage', ''));
 
         if (!$taskName) {

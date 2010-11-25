@@ -5,6 +5,11 @@
  */
 class MiniMVC_Settings
 {
+    /**
+     *
+     * @var MiniMVC_Registry
+     */
+    protected $registry = null;
     protected $settings = array();
     protected $changed = array();
     protected $files = array('modules', 'autoload', 'apps', 'config', 'db', 'events', 'rights', 'roles', 'routes', 'slots', 'tasks', 'widgets', 'view');
@@ -16,15 +21,16 @@ class MiniMVC_Settings
      */
     public function __construct($app = '', $environment = '', $useCache = true)
     {
-        $this->set('runtime/currentApp', $app);
-        $this->set('runtime/currentEnvironment', $environment);
-        $this->set('runtime/useCache', $useCache);
+        $this->registry = MiniMVC_Registry::getInstance();
+        $this->set('currentApp', $app);
+        $this->set('currentEnvironment', $environment);
+        $this->set('useCache', $useCache);
     }
 
     public function scanConfigFiles($app, $environment)
     {
 
-        //$this->settings[$app . '_' . $environment] = array();
+        $data = array();
         foreach ($this->files as $file) {
             $varname = 'MiniMVC_' . $file;
             $$varname = array();
@@ -70,10 +76,11 @@ class MiniMVC_Settings
                 }
             }
 
-            $this->settings[$app . '_' . $environment][$file] = $$varname;
+            $data[$file] = $$varname;
         }
 
-        $this->save($app, $environment);
+        $this->registry->cache->set('settings_'.$app . '_' . $environment, $data);
+        return $data;
     }
 
     /**
@@ -96,32 +103,11 @@ class MiniMVC_Settings
         $environment = ($environment) ? $environment : $this->get('currentEnvironment');
 
         if (!isset($this->settings[$app . '_' . $environment])) {
-            if ($this->get('useCache')) {
-                if (file_exists(CACHEPATH . 'settings_' . $app . '_' . $environment . '.php')) {
-                    include(CACHEPATH . 'settings_' . $app . '_' . $environment . '.php');
-                    $this->settings[$app . '_' . $environment] = $MiniMVC_settings;
-                } elseif (file_exists(CACHEPATH . 'settings_' . $app . '_' . $environment . '.lock')) {
-                    for ($i = 0; $i < 10; $i++) {
-                        usleep(50000);
-                        if (!file_exists(CACHEPATH . 'settings_' . $app . '_' . $environment . '.lock')) {
-                            continue;
-                        }
-                    }
-                    if (file_exists(CACHEPATH . 'settings_' . $app . '_' . $environment . '.php')) {
-                        include(CACHEPATH . 'settings_' . $app . '_' . $environment . '.php');
-                        $this->settings[$app . '_' . $environment] = $MiniMVC_settings;
-                    } else {
-                        file_put_contents(CACHEPATH . 'settings_' . $app . '_' . $environment . '.lock', 'locked');
-                        $this->scanConfigFiles($app, $environment);
-                        unlink(CACHEPATH . 'settings_' . $app . '_' . $environment . '.lock');
-                    }
-                } else {
-                    file_put_contents(CACHEPATH . 'settings_' . $app . '_' . $environment . '.lock', 'locked');
-                    $this->scanConfigFiles($app, $environment);
-                    unlink(CACHEPATH . 'settings_' . $app . '_' . $environment . '.lock');
-                }
+            $data = $this->registry->cache->get('settings_'.$app . '_' . $environment, null, $app, $environment);
+            if ($data !== null) {
+                $this->settings[$app . '_' . $environment] = $data;
             } else {
-                $this->scanConfigFiles($app, $environment);
+                $this->settings[$app . '_' . $environment] = $this->scanConfigFiles($app, $environment);
             }
         }
 
@@ -141,47 +127,11 @@ class MiniMVC_Settings
      *
      * @param string $key the array key. multiple levels are divided by slashes ('modules', 'config/defaultApp', 'routes/home/controller')
      * @param mixed $value the new value
-     * @param string|null $app the app to save the setting for or the current app if null
-     * @param string|null $environment the environment to save the setting for or the current environment if null
      * @return bool whether the save was successful or not
      */
-    public function set($key, $value, $app = null, $environment = null)
+    public function set($key, $value)
     {
-        $parts = explode('/', $key);
-        if (!$app && !$environment && $parts[0] === 'runtime') {
-            array_shift($parts);
-            $this->settings['runtime'][implode('/', $parts)] = $value;
-            return true;
-        }
-
-        $app = ($app) ? $app : $this->get('currentApp');
-        $environment = ($environment) ? $environment : $this->get('currentEnvironment');
-
-        if (!isset($this->settings[$app . '_' . $environment])) {
-            return false;
-        }
-
-        $pointer = &$this->settings[$app . '_' . $environment];
-        while (null !== ($index = array_shift($parts))) {
-            if (count($parts) === 0) {
-                break;
-            }
-            if (!isset($pointer[$index])) {
-                $pointer[$index] = array();
-            }
-            $pointer = &$pointer[$index];
-        }
-        if ($value === null) {
-            if (isset($pointer[$index])) {
-                unset($pointer[$index]);
-            }
-        } else {
-            $pointer[$index] = $value;
-        }
-
-        $this->changed[$app . '_' . $environment][$key] = $key;
-
-        return true;
+        $this->settings['runtime'][$key] = $value;
     }
 
     /**
@@ -189,92 +139,92 @@ class MiniMVC_Settings
      * @param mixed $app the name of the app to use or null for the current app
      * @param mixed $environment the name of the environment to use or null to use the current environment
      */
-    public function save($app = null, $environment = null)
-    {
-        $app = ($app) ? $app : $this->get('currentApp');
-        $environment = ($environment) ? $environment : $this->get('currentEnvironment');
-
-        if ($this->get('useCache')) {
-            file_put_contents(CACHEPATH . 'settings_' . $app . '_' . $environment . '_tmp.php', '<?php ' . "\n" . $this->varExport($this->settings[$app . '_' . $environment], '$MiniMVC_settings', 100), LOCK_EX);
-            rename(CACHEPATH . 'settings_' . $app . '_' . $environment . '_tmp.php', CACHEPATH . 'settings_' . $app . '_' . $environment . '.php');
-        }
-    }
+//    public function save($app = null, $environment = null)
+//    {
+//        $app = ($app) ? $app : $this->get('currentApp');
+//        $environment = ($environment) ? $environment : $this->get('currentEnvironment');
+//
+//        if ($this->get('useCache')) {
+//            file_put_contents(CACHEPATH . 'settings_' . $app . '_' . $environment . '_tmp.php', '<?php ' . "\n" . $this->varExport($this->settings[$app . '_' . $environment], '$MiniMVC_settings', 100), LOCK_EX);
+//            rename(CACHEPATH . 'settings_' . $app . '_' . $environment . '_tmp.php', CACHEPATH . 'settings_' . $app . '_' . $environment . '.php');
+//        }
+//    }
 
     /**
      * save all changes in the cache files
      */
-    public function __destruct()
-    {
-        if ($this->get('useCache') && count($this->changed)) {
-            foreach ($this->changed as $key => $changed) {
-                list($app, $env) = explode('_', $key, 2);
-                if (!is_file(CACHEPATH . 'settings_' . $key . '.php')) {
-                    continue;
-                }
+//    public function __destruct()
+//    {
+//        if ($this->get('useCache') && count($this->changed)) {
+//            foreach ($this->changed as $key => $changed) {
+//                list($app, $env) = explode('_', $key, 2);
+//                if (!is_file(CACHEPATH . 'settings_' . $key . '.php')) {
+//                    continue;
+//                }
+//
+//                //check for lock / wait until the lock is removed
+//                if (file_exists(CACHEPATH . 'settings_' . $key . '.lock')) {
+//                    for ($i = 0; $i < 10; $i++) {
+//                        usleep(50000);
+//                        if (!file_exists(CACHEPATH . 'settings_' . $key . '.lock')) {
+//                            continue;
+//                        }
+//                    }
+//                }
+//
+//                //create lock
+//                file_put_contents(CACHEPATH . 'settings_' . $key . '.lock', 'locked');
+//                include(CACHEPATH . 'settings_' . $key . '.php');
+//
+//                if (!isset($MiniMVC_settings)) {
+//                    continue;
+//                }
+//                foreach ($changed as $changedKey) {
+//                    $value = $this->get($changedKey, null, $app, $env);
+//                    $parts = explode('/', $changedKey);
+//                    $pointer = &$MiniMVC_settings;
+//                    while (null !== ($index = array_shift($parts))) {
+//                        if (count($parts) === 0) {
+//                            break;
+//                        }
+//                        if (!isset($pointer[$index])) {
+//                            $pointer[$index] = array();
+//                        }
+//                        $pointer = &$pointer[$index];
+//                    }
+//                    $pointer[$index] = $value;
+//                }
+//                $this->settings[$key] = $MiniMVC_settings;
+//                $this->save($app, $env);
+//
+//                //remove lock
+//                unlink(CACHEPATH . 'settings_' . $key . '.lock');
+//            }
+//        }
+//    }
 
-                //check for lock / wait until the lock is removed
-                if (file_exists(CACHEPATH . 'settings_' . $key . '.lock')) {
-                    for ($i = 0; $i < 10; $i++) {
-                        usleep(50000);
-                        if (!file_exists(CACHEPATH . 'settings_' . $key . '.lock')) {
-                            continue;
-                        }
-                    }
-                }
-
-                //create lock
-                file_put_contents(CACHEPATH . 'settings_' . $key . '.lock', 'locked');
-                include(CACHEPATH . 'settings_' . $key . '.php');
-
-                if (!isset($MiniMVC_settings)) {
-                    continue;
-                }
-                foreach ($changed as $changedKey) {
-                    $value = $this->get($changedKey, null, $app, $env);
-                    $parts = explode('/', $changedKey);
-                    $pointer = &$MiniMVC_settings;
-                    while (null !== ($index = array_shift($parts))) {
-                        if (count($parts) === 0) {
-                            break;
-                        }
-                        if (!isset($pointer[$index])) {
-                            $pointer[$index] = array();
-                        }
-                        $pointer = &$pointer[$index];
-                    }
-                    $pointer[$index] = $value;
-                }
-                $this->settings[$key] = $MiniMVC_settings;
-                $this->save($app, $env);
-
-                //remove lock
-                unlink(CACHEPATH . 'settings_' . $key . '.lock');
-            }
-        }
-    }
-
-    public function varExport($data, $varname, $maxDepth = 2, $depth = 0)
-    {
-        if (is_array($data) && $depth < $maxDepth) {
-            $output = '';
-            if ($depth == 0) {
-                $output .= $varname . ' = array();' . "\n";
-                $output .= "\n";
-            }
-            if (!count($data)) {
-                $output .= $varname . ' = array();' . "\n";
-            }
-            foreach ($data as $key => $value) {
-                $output .= $this->varExport($value, $varname . '[' . var_export($key, true) . ']', $maxDepth, $depth + 1);
-            }
-            if ($depth == 1) {
-                $output .= "\n";
-            }
-            return $output;
-        } else {
-            return $varname . ' = ' . var_export($data, true) . ";\n";
-        }
-    }
+//    public function varExport($data, $varname, $maxDepth = 2, $depth = 0)
+//    {
+//        if (is_array($data) && $depth < $maxDepth) {
+//            $output = '';
+//            if ($depth == 0) {
+//                $output .= $varname . ' = array();' . "\n";
+//                $output .= "\n";
+//            }
+//            if (!count($data)) {
+//                $output .= $varname . ' = array();' . "\n";
+//            }
+//            foreach ($data as $key => $value) {
+//                $output .= $this->varExport($value, $varname . '[' . var_export($key, true) . ']', $maxDepth, $depth + 1);
+//            }
+//            if ($depth == 1) {
+//                $output .= "\n";
+//            }
+//            return $output;
+//        } else {
+//            return $varname . ' = ' . var_export($data, true) . ";\n";
+//        }
+//    }
 
 }
 

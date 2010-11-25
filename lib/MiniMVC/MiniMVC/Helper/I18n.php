@@ -22,38 +22,12 @@ class Helper_I18n extends MiniMVC_Helper
             return self::$loaded[$currentApp . '_' . $language . '_' . $fallbackLanguage][$module];
         }
 
-        if (empty(self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage])) {
-            if ($this->registry->settings->get('useCache')) {
-                if (file_exists(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '.php')) {
-                    include_once(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '.php');
-                    if (isset($MiniMVC_i18n)) {
-                        self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage] = $MiniMVC_i18n;
-                    }
-                } elseif (file_exists(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '.lock')) {
-                    for ($i = 0; $i < 10; $i++) {
-                        usleep(50000);
-                        if (!file_exists(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '.lock')) {
-                            continue;
-                        }
-                    }
-
-                    if (file_exists(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '.php')) {
-                        include_once(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '.php');
-                        if (isset($MiniMVC_i18n)) {
-                            self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage] = $MiniMVC_i18n;
-                        }
-                    } else {
-                        file_put_contents(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '.lock', 'locked');
-                        $this->scanI18nFiles($currentApp, $language, $fallbackLanguage);
-                        unlink(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '.lock');
-                    }
-                } else {
-                    file_put_contents(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '.lock', 'locked');
-                    $this->scanI18nFiles($currentApp, $language, $fallbackLanguage);
-                    unlink(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '.lock');
-                }
+        if (!isset(self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage])) {
+            $cache = $this->registry->cache->get('i18n_'.$currentApp . '_' . $language . '_' . $fallbackLanguage, null, $currentApp);
+            if ($cache !== null) {
+                self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage] = $cache;
             } else {
-                $this->scanI18nFiles($currentApp, $language, $fallbackLanguage);
+                self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage] = $this->scanI18nFiles($currentApp, $language, $fallbackLanguage);
             }
         }
 
@@ -139,12 +113,15 @@ class Helper_I18n extends MiniMVC_Helper
             }
         }
 
-        self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage] = $MiniMVC_i18n;
+        $this->registry->cache->set('i18n_'.$currentApp . '_' . $language . '_' . $fallbackLanguage, $MiniMVC_i18n);
+        return $MiniMVC_i18n;
 
-        if ($this->registry->settings->get('useCache')) {
-            file_put_contents(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '_tmp.php', '<?php ' . "\n" . $this->registry->settings->varExport($MiniMVC_i18n, '$MiniMVC_i18n', 2));
-            rename(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '_tmp.php', CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '.php');
-        }
+//        self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage] = $MiniMVC_i18n;
+//
+//        if ($this->registry->settings->get('useCache')) {
+//            file_put_contents(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '_tmp.php', '<?php ' . "\n" . $this->registry->settings->varExport($MiniMVC_i18n, '$MiniMVC_i18n', 2));
+//            rename(CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '_tmp.php', CACHEPATH . 'i18n_' . $currentApp . '_' . $language . '_' . $fallbackLanguage . '.php');
+//        }
     }
 
     public function fromArray($input, $default)
@@ -179,7 +156,7 @@ class Helper_I18n extends MiniMVC_Helper
 
         if ($preferredLanguage && in_array($preferredLanguage, $this->registry->settings->get('config/enabledLanguages', array()))) {
             if ($currentLanguage != $preferredLanguage) {
-                $this->registry->settings->set('runtime/currentLanguage', $preferredLanguage);
+                $this->registry->settings->set('currentLanguage', $preferredLanguage);
                 header('Location: ' . $this->registry->helper->url->get($this->registry->settings->get('currentRoute'), $this->registry->settings->get('currentRouteParameter', array())));
                 exit;
             }

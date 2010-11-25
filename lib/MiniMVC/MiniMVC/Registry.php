@@ -3,6 +3,7 @@
  * MiniMVC_Registry is the global registry for some frequently used classes
  *
  * @property MiniMVC_Settings $settings stores the configuration arrays
+ * @property MiniMVC_Cache $cache the caching class
  * @property MiniMVC_Dispatcher $dispatcher is responsible for any route calls
  * @property MiniMVC_Layout $template the default layout/template class
  * @property MiniMVC_Guard $guard is responsible for the current user session

@@ -125,10 +125,13 @@ class MiniMVC_Layout
         if (is_string($slot)) {
             $slot = array($slot);
         }
+
+        $cache = $this->registry->settings->get('cachedSlots');
     
         foreach ($slot as $currentSlot) {
-            $slotWidgets = $this->registry->settings->get('widgets/cachedSlots/'.$currentSlot);
-            if ($slotWidgets === null) {
+            if (isset($cache[$currentSlot])) {
+                $slotWidgets = $cache[$currentSlot];
+            } else {
                 $slotWidgets = $this->getSlotWidgets($currentSlot);
             }
 
@@ -207,7 +210,7 @@ class MiniMVC_Layout
 
         uasort($slotWidgets, array($this, 'sortSlotWidgets'));
 
-        $this->registry->settings->set('widgets/cachedSlots/'.$slot, $slotWidgets);
+        $this->registry->cache->set('cachedSlots', array($slot => $slotWidgets), true);
         return $slotWidgets;
     }
 

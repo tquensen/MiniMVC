@@ -123,7 +123,7 @@ class Helper_Js extends MiniMVC_Helper
 
     public function prepareFiles()
     {
-        if ($cache = $this->registry->settings->get('view/jsCached')) {
+        if ($cache = $this->registry->settings->get('jsCached')) {
             return $cache;
         }
 
@@ -154,7 +154,7 @@ class Helper_Js extends MiniMVC_Helper
         }
 
         $combinedFiles = $this->combineFiles($preparedFiles);
-        $this->registry->settings->set('view/jsCached', $combinedFiles);
+        $this->registry->cache->set('jsCached', $combinedFiles);
 
         return $combinedFiles;
     }

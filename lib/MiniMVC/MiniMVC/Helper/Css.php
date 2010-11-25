@@ -85,7 +85,7 @@ class Helper_Css extends MiniMVC_Helper
 
     public function prepareFiles()
     {
-        if ($cache = $this->registry->settings->get('view/cssCached')) {
+        if ($cache = $this->registry->cache->get('cssCached')) {
             return array_merge($cache, $this->additionalFiles);
         }
 
@@ -119,7 +119,7 @@ class Helper_Css extends MiniMVC_Helper
         }
 
         $combinedFiles = $this->combineFiles($preparedFiles);
-        $this->registry->settings->set('view/cssCached', $combinedFiles);
+        $this->registry->cache->set('cssCached', $combinedFiles);
 
         return array_merge($combinedFiles, $this->additionalFiles);
     }
