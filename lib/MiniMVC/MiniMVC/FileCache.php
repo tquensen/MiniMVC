@@ -9,9 +9,6 @@ class MiniMVC_FileCache extends MiniMVC_Cache
 
     public function get($key, $default = null, $app = null, $environment = null)
     {
-        if (!$this->registry->settings->get('useCache')) {
-            return $default;
-        }
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
@@ -24,9 +21,6 @@ class MiniMVC_FileCache extends MiniMVC_Cache
 
     public function set($key, $value, $merge = false, $app = null, $environment = null)
     {
-        if (!$this->registry->settings->get('useCache')) {
-            return false;
-        }
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
@@ -45,9 +39,6 @@ class MiniMVC_FileCache extends MiniMVC_Cache
 
     public function exists($key, $app = null, $environment = null)
     {
-        if (!$this->registry->settings->get('useCache')) {
-            return false;
-        }
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 

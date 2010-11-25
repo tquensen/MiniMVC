@@ -17,14 +17,14 @@ class MiniMVC_Settings
     /**
      *
      * @param mixed $environment the name of the environment to use or null to not use an environment
-     * @param boolean $useCache if a cache should be used (recommended for production environments)
+     * @param boolean $cache if a cache should be used (recommended for production environments)
      */
-    public function __construct($app = '', $environment = '', $useCache = true)
+    public function __construct($app = '', $environment = '', $cache = null)
     {
         $this->registry = MiniMVC_Registry::getInstance();
+        $this->registry->cache = $cache;
         $this->set('currentApp', $app);
         $this->set('currentEnvironment', $environment);
-        $this->set('useCache', $useCache);
     }
 
     public function scanConfigFiles($app, $environment)

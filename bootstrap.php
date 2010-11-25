@@ -12,4 +12,5 @@ define('CACHEPATH', BASEPATH . 'cache/');
 include MINIMVCPATH.'MiniMVC/Autoload.php';
 include MINIMVCPATH.'MiniMVC/Registry.php';
 include MINIMVCPATH.'MiniMVC/Settings.php';
+include MINIMVCPATH.'MiniMVC/Cache.php';
 spl_autoload_register(array('MiniMVC_Autoload', 'autoload'));

@@ -21,7 +21,6 @@ $MiniMVC_config['registryClasses'] = array(
     'db' => 'MiniMVC_Pdo',
     'helper' => 'MiniMVC_Helpers',
     'task' => 'MiniMVC_Task',
-    'events' => 'MiniMVC_Events',
-    'cache' => 'MiniMVC_FileCache'
+    'events' => 'MiniMVC_Events'
 );
 
