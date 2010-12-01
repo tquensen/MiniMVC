@@ -10,7 +10,8 @@ class MiniMVC_ApcCache extends MiniMVC_Cache
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
-        $data = apc_fetch($this->prefix.'_'.$app.'_'.$environment.'_'.$key, $success = null);
+        $success = null;
+        $data = apc_fetch($this->prefix.'_'.$app.'_'.$environment.'_'.$key, $success);
         return $success ? $data : $default;
     }
 
@@ -20,7 +21,8 @@ class MiniMVC_ApcCache extends MiniMVC_Cache
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
         if ($merge) {
-            $data = apc_fetch($this->prefix.'_'.$app.'_'.$environment.'_'.$key, $success = null);
+            $success = null;
+            $data = apc_fetch($this->prefix.'_'.$app.'_'.$environment.'_'.$key, $success);
             if ($success) {
                 $value = array_merge((array) $data, (array) $value);
             }
