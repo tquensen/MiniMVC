@@ -85,7 +85,7 @@ class Helper_Css extends MiniMVC_Helper
 
     public function prepareFiles()
     {
-        if ($cache = $this->registry->cache->get('cssCached')) {
+        if (null !== ($cache = $this->registry->cache->get('cssCached'))) {
             return array_merge($cache, $this->additionalFiles);
         }
 

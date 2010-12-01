@@ -33,7 +33,7 @@ class Helper_Static extends MiniMVC_Helper
             if ($prefixHash) {
                 $parts = explode('.', $file);
                 $ext = array_pop($parts);
-                $file = implode('.', $parts) . '_' . md5(file_get_contents(APPPATH.$app.'/web/'.$module.'/'.$file)) . '_.' . $ext;
+                $file = implode('.', $parts) . '_' . md5(filemtime(APPPATH.$app.'/web/'.$module.'/'.$file)) . '_.' . $ext;
             }           
             $url = $baseurl.'app/'.$app.'/'.$module.'/'.$file;
         }
@@ -42,7 +42,7 @@ class Helper_Static extends MiniMVC_Helper
             if ($prefixHash) {
                 $parts = explode('.', $file);
                 $ext = array_pop($parts);
-                $file = implode('.', $parts) . '_' . md5(file_get_contents(MODULEPATH.$module.'/web/'.$file)) . '_.' . $ext;
+                $file = implode('.', $parts) . '_' . md5(filemtime(MODULEPATH.$module.'/web/'.$file)) . '_.' . $ext;
             }
             $url = $baseurl.'module/'.$module.'/'.$file;
         }
@@ -51,7 +51,7 @@ class Helper_Static extends MiniMVC_Helper
             if ($prefixHash) {
                 $parts = explode('.', $file);
                 $ext = array_pop($parts);
-                $file = implode('.', $parts) . '_' . md5(file_get_contents(APPPATH.$app.'/web/'.$file)) . '_.' . $ext;
+                $file = implode('.', $parts) . '_' . md5(filemtime(APPPATH.$app.'/web/'.$file)) . '_.' . $ext;
             }
             $url = $baseurl.'app/'.$app.'/'.$file;
         }
@@ -60,7 +60,7 @@ class Helper_Static extends MiniMVC_Helper
             if ($prefixHash) {
                 $parts = explode('.', $file);
                 $ext = array_pop($parts);
-                $file = implode('.', $parts) . '_' . md5(file_get_contents(WEBPATH.$file)) . '_.' . $ext;
+                $file = implode('.', $parts) . '_' . md5(filemtime(WEBPATH.$file)) . '_.' . $ext;
             }
             $url = $baseurl.$file;
         }
