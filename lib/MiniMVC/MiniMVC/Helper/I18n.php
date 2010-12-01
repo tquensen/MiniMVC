@@ -23,7 +23,7 @@ class Helper_I18n extends MiniMVC_Helper
         }
 
         if (!isset(self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage])) {
-            $cache = $this->registry->cache->get('i18n_'.$currentApp . '_' . $language . '_' . $fallbackLanguage, null, $currentApp);
+            $cache = $this->registry->cache->get('i18n_'.$currentApp . '_' . $language . '_' . $fallbackLanguage);
             if ($cache !== null) {
                 self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage] = $cache;
             } else {

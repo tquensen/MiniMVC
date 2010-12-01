@@ -49,6 +49,43 @@ class MiniMVC_FileCache extends MiniMVC_Cache
         return isset($this->data[$app.'_'.$environment][$key]);
     }
 
+    public function delete($key, $app = null, $environment = null)
+    {
+        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
+        $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
+
+        if (file_exists($this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
+            include $this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php';
+            if (isset($data[$key])) {
+                unset($this->data[$app.'_'.$environment][$key]);
+                unset($data[$key]);
+                $this->save($data, $app, $environment);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function clear($all = true, $app = null, $environment = null)
+    {
+        if ($all) {
+            foreach (scandir($this->folder) as $file) {
+                if (is_file($this->folder.$file) && preg_match('#'.preg_quote($this->prefix, '#').'_cache_[\w]+_[\w]+\.php#', $file)) {
+                    unlink($this->folder.$file);
+                }
+            }
+            return true;
+        }
+
+        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
+        $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
+
+        if (file_exists($this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
+            unlink($this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php');
+        }
+        return true;
+    }
+
     protected function load($app, $environment)
     {
         if (!file_exists($this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {

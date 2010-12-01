@@ -6,6 +6,14 @@ class Core_Task_Controller extends MiniMVC_Controller
     {
         //$apps = !empty($params['rebuild']) ? $this->registry->settings->get('apps', array()) : array();
         $status = $this->clearDirectory(CACHEPATH, true);
+
+        if ($params['apc']) {
+            $apcCache = new MiniMVC_ApcCache();
+            $apcStatus = $apcCache->clear();
+            if (!$apcStatus) {
+                $status = $status === true ? 'could not clear APC cache' : $stsatus.' / '.'could not clear APC cache';
+            }
+        }
 //        if ($status === true && $apps) {
 //            $cache = $this->registry->settings->get('useCache');
 //            $this->registry->settings->set('useCache', true);
@@ -20,7 +28,7 @@ class Core_Task_Controller extends MiniMVC_Controller
 //            }
 //            $this->registry->settings->set('useCache', $cache);
 //        }
-        return ($status === true) ? 'cache directory cleared!' : 'error: clearing cache directory failed: '.$status;
+        return ($status === true) ? 'cache directory cleared!' : 'error: clearing cache failed: '.$status;
     }
 
     public function createLinksAction()
@@ -70,11 +78,8 @@ class Core_Task_Controller extends MiniMVC_Controller
                     return 'unlink failed for file "'.$dir.$file.'"';
                 }
             } elseif (is_dir($dir.$file) && $recursive) {
-                if ($level == 1 && $file == 'public') {
-                    continue;
-                }
                 $status = $this->clearDirectory($dir.$file.'/', $recursive, $level + 1);
-                if ($status !== true) {
+                if ($status !== true || ($level == 1 && $file == 'public')) {
                     return $status;
                 }
                 if (!@rmdir($dir.$file)) {
