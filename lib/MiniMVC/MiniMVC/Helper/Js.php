@@ -123,7 +123,7 @@ class Helper_Js extends MiniMVC_Helper
 
     public function prepareFiles()
     {
-        if (null !== ($cache = $this->registry->settings->get('jsCached'))) {
+        if (null !== ($cache = $this->registry->cache->get('jsCached'))) {
             return $cache;
         }
 
