@@ -10,10 +10,12 @@ class Helper_Static extends MiniMVC_Helper
         }
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
 
+        $filekey = $app.'_'.$module.'_'.str_replace('/', '__', $file);
+
         $cache = $this->registry->cache->get('staticCached');
-        if (isset($cache[$app.'_'.$module.'_'.str_replace('/', '__', $file)]))
+        if (isset($cache[$filekey]))
         {
-            return $cache[$app.'_'.$module.'_'.str_replace('/', '__', $file)];
+            return $cache[$filekey];
         }
 
         $prefixHash = $this->registry->settings->get('view/static/prefixHash', false);
@@ -69,7 +71,7 @@ class Helper_Static extends MiniMVC_Helper
             $url = $baseurl.$file;
         }
 
-        $this->registry->cache->set('staticCached', array($app.'_'.$module.'_'.str_replace('/', '__', $file) => $url), true);
+        $this->registry->cache->set('staticCached', array($filekey => $url), true);
 
         return $url;
 	}
