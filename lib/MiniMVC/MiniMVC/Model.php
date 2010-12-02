@@ -211,11 +211,16 @@ class MiniMVC_Model implements ArrayAccess
     /**
      *
      * @param string $relation the name of a relation
-     * @param MiniMVC_Model $identifier the related model
+     * @param MiniMVC_Model|array $identifier the related model or an array of models
      * @param bool $update whether to update the model if it is already stored or not
      */
     public function setRelated($relation, $identifier = null, $update = true)
     {
+        if (is_array($identifier)) {
+            foreach ($identifier as $id) {
+                $this->setRelated($relation, $id, $update);
+            }
+        }
         if (is_object($identifier) && $identifier instanceof MiniMVC_Model) {
             if (!$identifier->getIdentifier()) {
                 $this->_relations[$relation][] = $arguments[0];
@@ -253,6 +258,11 @@ class MiniMVC_Model implements ArrayAccess
      */
     public function deleteRelated($relation, $identifier = true, $realDelete = true, $realDeleteLoad = false, $realDeleteCleanRef = false)
     {
+        if (is_array($identifier)) {
+            foreach ($identifier as $id) {
+                $this->deleteRelated($relation, $id, $realDelete, $realDeleteLoad, $realDeleteCleanRef);
+            }
+        }
         if (is_object($identifier)) {
             if (isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
                 unset($this->_relations[$relation]['_'.$identifier->getIdentifier()]);
@@ -368,9 +378,16 @@ class MiniMVC_Model implements ArrayAccess
      */
     public function saveRelated($relation, $identifier = true, $saveThisOnDemand = true)
     {
+        if (is_array($identifier)) {
+            foreach ($identifier as $id) {
+                $this->saveRelated($relation, $id, $saveThisOnDemand);
+            }
+        }
+        
         if (!$info = $this->getTable()->getRelation($relation)) {
             throw new Exception('Unknown relation "'.$relation.'" for model '.$this->getTable()->getModelName());
         }
+
         //$this->save();
         $tableName = $info[0].'Table';
         $table = call_user_func($tableName . '::getInstance');
@@ -475,12 +492,19 @@ class MiniMVC_Model implements ArrayAccess
      */
     public function linkRelated($relation, $identifier = null, $loadRelated = false)
     {
+        if (is_array($identifier)) {
+            foreach ($identifier as $id) {
+                $this->linkRelated($relation, $id, $loadRelated);
+            }
+        }
+        
         if (!$identifier) {
             throw new Exception('No identifier/related '.$relation.' given for model '.$this->getTable()->getModelName());
         }
         if (!$info = $this->getTable()->getRelation($relation)) {
             throw new Exception('Unknown relation "'.$relation.'" for model '.$this->getTable()->getModelName());
         }
+
         $tableName = $info[0].'Table';
         $table = call_user_func($tableName . '::getInstance');
         if (!isset($info[3]) || $info[3] === true) {
@@ -500,7 +524,7 @@ class MiniMVC_Model implements ArrayAccess
                         $object->{$info[2]} = $this->getIdentifier();
                         $object->save();
                     } else {
-                        $table->query(null, false)->update($info[2])->where($table->getIdentifier().' = ?')->execute(array($this->getIdentifier(), $identifier));
+                        $table->query()->update($info[2])->where($table->getIdentifier().' = ?')->execute(array($this->getIdentifier(), $identifier));
                         //MiniMVC_Registry::getInstance()->db->query()->update($info[0], $info[2])->where($table->getIdentifier().' = ?')->execute(array($this->getIdentifier(), $identifier));
                     }
                 }
@@ -572,10 +596,16 @@ class MiniMVC_Model implements ArrayAccess
     /**
      *
      * @param string $relation the name of a relation
-     * @param mixed $identifier a related model object, the identifier of a related model or unlink to save all related models
+     * @param mixed $identifier a related model object, the identifier of a related model or true to unlink all related models
      */
     public function unlinkRelated($relation, $identifier = true)
     {
+        if (is_array($identifier)) {
+            foreach ($identifier as $id) {
+                $this->unlinkRelated($relation, $id);
+            }
+        }
+
         if (!$info = $this->getTable()->getRelation($relation)) {
             throw new Exception('Unknown relation "'.$relation.'" for model '.$this->getTable()->getModelName());
         }
@@ -599,13 +629,10 @@ class MiniMVC_Model implements ArrayAccess
                     if (!$this->getIdentifier()) {
                         return false;
                     }
-                    $table->query(null, false)->update($info[2])->where($info[2].' = ?')->execute(array(null, $this->getIdentifier()));
+                    $table->query()->update($info[2])->where($info[2].' = ?')->execute(array(null, $this->getIdentifier()));
                     //MiniMVC_Registry::getInstance()->db->query()->update($info[0], $info[2])->where($info[2].' = ?')->execute(array(null, $this->getIdentifier()));
-                    foreach ($table->get($info[2], $this->getIdentifier()) as $object) {
-                        $object->{$info[2]} = null;
-                    }
                 } else {
-                    $table->query(null, false)->update($info[2])->where($table->getIdentifier().' = ?')->execute(array(null, $identifier));
+                    $table->query()->update($info[2])->where($table->getIdentifier().' = ?')->execute(array(null, $identifier));
                     //MiniMVC_Registry::getInstance()->db->query()->update($info[0], $info[2])->where($table->getIdentifier().' = ?')->execute(array(null, $identifier));
                 }
             } elseif ($info[2] == $table->getIdentifier()) {

@@ -25,8 +25,8 @@ class MiniMVC_FileCache extends MiniMVC_Cache
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
         $data = array();
-        if (file_exists($this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
-            include $this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php';
+        if (file_exists(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
+            include CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php';
         }
         if ($merge && isset($data[$key])) {
             $data[$key] = array_merge((array) $data[$key], (array) $value);
@@ -54,8 +54,8 @@ class MiniMVC_FileCache extends MiniMVC_Cache
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
-        if (file_exists($this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
-            include $this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php';
+        if (file_exists(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
+            include CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php';
             if (isset($data[$key])) {
                 unset($this->data[$app.'_'.$environment][$key]);
                 unset($data[$key]);
@@ -70,8 +70,8 @@ class MiniMVC_FileCache extends MiniMVC_Cache
     {
         if ($all) {
             foreach (scandir($this->folder) as $file) {
-                if (is_file($this->folder.$file) && preg_match('#'.preg_quote($this->prefix, '#').'_cache_[\w]+_[\w]+\.php#', $file)) {
-                    unlink($this->folder.$file);
+                if (is_file(CACHEPATH.$file) && preg_match('#'.preg_quote($this->prefix, '#').'_cache_[\w]+_[\w]+\.php#', $file)) {
+                    unlink(CACHEPATH.$file);
                 }
             }
             return true;
@@ -80,29 +80,29 @@ class MiniMVC_FileCache extends MiniMVC_Cache
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
-        if (file_exists($this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
-            unlink($this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php');
+        if (file_exists(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
+            unlink(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php');
         }
         return true;
     }
 
     protected function load($app, $environment)
     {
-        if (!file_exists($this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
-            file_put_contents($this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.tmp.php', '<?php $data = array();');
-            rename($this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.tmp.php', $this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php');
+        if (!file_exists(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
+            file_put_contents(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.tmp.php', '<?php $data = array();');
+            rename(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.tmp.php', CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php');
             $this->data[$app.'_'.$environment] = array();
         } else {
             $data = array();
-            include $this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php';
+            include CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php';
             $this->data[$app.'_'.$environment] = $data;
         }
     }
 
     protected function save($data, $app, $environment)
     {
-        file_put_contents($this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.tmp.php', '<?php ' . "\n" . $this->varExport($data, '$data', 2));
-        rename($this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.tmp.php', $this->folder.$this->prefix.'_cache_'.$app.'_'.$environment.'.php');
+        file_put_contents(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.tmp.php', '<?php ' . "\n" . $this->varExport($data, '$data', 2));
+        rename(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.tmp.php', CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php');
         $this->data[$app.'_'.$environment] = $data;
     }
 

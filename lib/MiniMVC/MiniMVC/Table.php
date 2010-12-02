@@ -349,10 +349,10 @@ class MiniMVC_Table {
                     }
                 }
 
-                $query = $this->query(null, false)->insert($fields);
+                $query = $this->query()->insert($fields, $values);
 
 
-                $result = $query->execute($values);
+                $result = $query->execute();
 
                 if ($this->_isAutoIncrement)
                 {
@@ -390,7 +390,7 @@ class MiniMVC_Table {
                     }
                 }
 
-                $query = $this->query(null, false)->update($fields)->where($this->_identifier.' = ?');
+                $query = $this->query()->update($fields)->where($this->_identifier.' = ?');
 
                 if (!$update) {
                     $this->_db->rollBack();
