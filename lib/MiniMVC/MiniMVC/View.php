@@ -97,6 +97,13 @@ class MiniMVC_View
 		}
 		elseif (!is_file($path))
 		{
+            if ($format == 'json') {
+                $this->prepareJSON();
+                return (string) $this->content;
+            } elseif ($format == 'xml') {
+                $this->prepareXML();
+                return (string) $this->content;
+            }
 			throw new Exception('View "'.$path.'" not found!');
 		}
 
@@ -163,14 +170,14 @@ class MiniMVC_View
         return $this;
 	}
 	
-	public function prepareXML($data)
+	public function prepareXML($data = null)
 	{
 		$xml = new XmlWriter();
 		$xml->openMemory();
 		$xml->startDocument('1.0', 'UTF-8');
 		$xml->startElement('root');
 				
-		$this->writeXML($xml, $data);
+		$this->writeXML($xml, ($data === null) ? $this->vars : $data);
 		
 		$xml->endElement();
 
