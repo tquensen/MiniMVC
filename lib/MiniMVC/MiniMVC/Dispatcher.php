@@ -457,7 +457,7 @@ class MiniMVC_Dispatcher
 
         $routes = $this->registry->settings->get('routes', array());
         foreach ($routes as $route => $routeData) {
-            $routePattern = isset($routeData['routePattern']) ? $routeData['routePattern'] : str_replace(array('(',')','[',']','.','?'), array('','','\\[','\\]','\\.','\\?'), $routeData['route']);
+            $routePattern = isset($routeData['routePattern']) ? $routeData['routePattern'] : str_replace(array('(',')','[',']','.','?'), array('(',')?','\\[','\\]','\\.','\\?'), $routeData['route']);
             if (isset($routeData['parameterPatterns'])) {
                 $search = array();
                 $replace = array();
