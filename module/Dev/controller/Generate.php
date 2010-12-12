@@ -41,7 +41,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         $regex = '#(\$|->)(t|i18n)->([\w])#i';
 
         foreach (scandir($folder) as $file) {
-            if (is_dir($folder.'/'.$file)) {
+            if (is_dir($folder.'/'.$file) && $file !== '.' && $file !== '..') {
                 $found = $this->searchI18n($folder.'/'.$file, $found);
             } elseif (is_file($folder.'/'.$file) && substr($file, -4) == '.php') {
                 $content = file_get_contents($folder.'/'.$file);
