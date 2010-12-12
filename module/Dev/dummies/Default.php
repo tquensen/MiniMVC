@@ -20,7 +20,7 @@ class MODULE_Default_Controller extends MiniMVC_Controller
                 false
         );
 
-        $this->registry->helper->meta->setTitle($this->view->t->MODULELCFIRSTMetaTitle);
+        $this->registry->helper->meta->setTitle($this->view->t->MODULELCFIRSTIndexTitle);
         $this->registry->helper->meta->setDescription($this->view->t->MODULELCFIRSTMetaDescription);
 
         */
@@ -36,7 +36,6 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         $this->view->model = $params['model'];
 
         /*
-        $this->registry->helper->meta->setTitle($this->view->t->MODULELCFIRSTMetaTitle);
         $this->registry->helper->meta->setTitle($this->view->model->title);
         $this->registry->helper->meta->setDescription($this->view->model->description);
         */

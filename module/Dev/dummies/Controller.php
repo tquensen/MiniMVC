@@ -20,7 +20,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
                 false
         );
 
-        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTMetaTitle);
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTIndexTitle);
         $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTMetaDescription);
         */
 
@@ -35,7 +35,6 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         $this->view->model = $params['model'];
 
         /*
-        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTMetaTitle);
         $this->registry->helper->meta->setTitle($this->view->model->title);
         $this->registry->helper->meta->setDescription($this->view->model->description);
         */
@@ -58,7 +57,6 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         }
 
         $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTCreateTitle);
-        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTMetaTitle);
         $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTMetaDescription);
 
         $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage, 'success');

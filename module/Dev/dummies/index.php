@@ -1,4 +1,4 @@
-<h2>CONTROLLER</h2>
+<h2><?php echo $t->CONTROLLERLCFIRSTIndexTitle; ?></h2>
 <?php /* LIST VIEW
 <?php if (count($entries)): ?>
 <ol>

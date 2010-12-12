@@ -474,7 +474,8 @@ class MiniMVC_Query
     {
         $stmt = $this->prepare($values, $query);
 
-        $result = $stmt->execute((array) $values);
+        $values = array_merge($this->values, (array) $values);
+        $result = $stmt->execute($values);
 
         return $result !== false ? $stmt : false;
     }

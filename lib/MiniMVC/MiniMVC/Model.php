@@ -461,7 +461,7 @@ class MiniMVC_Model implements ArrayAccess
                 foreach ($this->_relations[$relation] as $relation) {
                     $relation->save();
                     if ($relation->getIdentifier() && !isset($rows[$relation->getIdentifier()])) {
-                        MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), $info[3])->execute(array($this->getIdentifier(), $relation->getIdentifier()));
+                        MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), array($this->getIdentifier(), $relation->getIdentifier()), $info[3])->execute();
                     }
                 }
             } elseif (is_object($identifier)) {
@@ -470,7 +470,7 @@ class MiniMVC_Model implements ArrayAccess
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
                 if (!$result) {
-                    MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), $info[3])->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
+                    MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), array($this->getIdentifier(), $identifier->getIdentifier()), $info[3])->execute();
                 }
             } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
                 $this->_relations[$relation]['_'.$identifier]->save();
@@ -478,7 +478,7 @@ class MiniMVC_Model implements ArrayAccess
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
                 if (!$result) {
-                    MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), $info[3])->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
+                    MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()), $info[3])->execute();
                 }
             }
         }
@@ -560,7 +560,7 @@ class MiniMVC_Model implements ArrayAccess
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
                 if (!$result) {
-                    MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), $info[3])->execute(array($this->getIdentifier(), $identifier->getIdentifier()));
+                    MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), array($this->getIdentifier(), $identifier->getIdentifier()), $info[3])->execute();
                 }
             } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
                 if (!$this->getIdentifier()) {
@@ -573,7 +573,7 @@ class MiniMVC_Model implements ArrayAccess
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
                 if (!$result) {
-                    MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), $info[3])->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
+                    MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()), $info[3])->execute();
                 }
             } else {
                 if (!$this->getIdentifier()) {
@@ -587,7 +587,7 @@ class MiniMVC_Model implements ArrayAccess
                 $stmt->closeCursor();
 
                 if (!$result) {
-                    MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), $info[3])->execute(array($this->getIdentifier(), $identifier));
+                    MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), array($this->getIdentifier(), $identifier), $info[3])->execute();
                 }
             }
         }
