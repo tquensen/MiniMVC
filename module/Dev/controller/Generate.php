@@ -17,7 +17,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         $activeLanguages = $this->registry->settings->get('config/enabledLanguages', array());
         foreach ($activeLanguages as $language) {
             $MiniMVC_i18n = array();
-            $languages[$language] = array('found' => array());
+            $languages[$language] = array('found' => array(), 'new' => array());
 
             if (file_exists(MODULEPATH . $params['module'].'/i18n/'.$language.'.php')) {
                 include MODULEPATH . $params['module'].'/i18n/'.$language.'.php';
@@ -29,7 +29,27 @@ class Dev_Generate_Controller extends MiniMVC_Controller
 
         $i18nFound = $this->searchI18n(MODULEPATH . $params['module']);
         asort($i18nFound);
-        var_dump($i18nFound);
+
+        foreach ($languages as $currentLanguage => $currentLanguageData) {
+            foreach ($i18nFound as $newI18n) {
+                if (!isset($currentLanguageData['found'][$newI18n])) {
+                    $languages[$currentLanguage]['new'][$newI18n] = '$MiniMVC_i18n[\''.$params['module'].'\'][\''.$newI18n.'\'] = \''.$newI18n.'\'';
+                }
+            }
+        }
+
+        foreach ($languages as $currentLanguage => $currentLanguageData) {
+            if (file_exists(MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php')) {
+                file_put_contents(MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php', implode("\n", $languages[$currentLanguage]['new']), FILE_APPEND);
+                echo 'Datei '.MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php'.' aktualisiert!';
+            } else {
+                file_put_contents(MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php', implode("\n", $languages[$currentLanguage]['new']));            
+                echo 'Datei '.MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php'.' angelegt!';
+            }
+        }
+        
+        echo 'I18n-Dateien erfolgreich generiert!';
+
     }
 
     protected function searchI18n($folder, $found = array())
