@@ -15,11 +15,24 @@ $MiniMVC_view['navi']['main'] = array(
         'route' => $this->get('config/defaultRoute')
     ),
     array(
-        'title' => array('navi.about'), //set an array as title for i18n array(i18nString) or array(i18nString, Module)
-        'route' => 'my.about'
+        'title' => array('naviAbout'), //set an array as title for i18n array(i18nString) or array(i18nString, Module)
+        'route' => 'my.about',
+        'submenu' => array(
+            array('route' => 'my.about.subpage1'), //submenuitems without title won't be shown, but
+            array('route' => 'my.about.subpage2')  //the parent menu item will be marked as active if one of this routes is active
+        )
+    ),
+    array( //real world example
+        'title' => array('NaviTitle', 'News'),
+        'route' => 'news.defaultIndex',
+        'submenu' => array( //"invisible" submenu items to make this menu item also active on single/edit/create pages
+            array('route' => 'news.defaultShow'),
+            array('route' => 'news.defaultCreate'),
+            array('route' => 'news.defaultEdit')
+        )
     ),
     array(
-        'title' => 'Example Menu', //route or url is not required
+        'title' => 'Interesting links', //route or url is not required
         'submenu' => array(
             array(
                 'title' => 'Google.com',

@@ -24,6 +24,10 @@ class MiniMVC_Layout
      */
     public function setLayout($file)
     {
+        if (is_array($file)) {
+            $currentLayout = $this->format === null ? 'html' : $this->format;
+            $file = isset($file[$currentLayout]) ? $file[$currentLayout] : null;
+        }
         $this->layout = ($file === true) ? null : $file;
     }
 
@@ -66,11 +70,12 @@ class MiniMVC_Layout
     public function prepare($content, $app = null)
     {
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-        if ($this->layout === false) {
-            return $content; //$this->getSlot('main');
-        }
         if ($this->layout === null) {
             $this->layout = $this->registry->settings->get('config/defaultLayout', 'default');
+        }
+
+        if ($this->layout === false) {
+            return $content; //$this->getSlot('main');
         }
 
         $viewName = $this->registry->settings->get('config/classes/view', 'MiniMVC_View');

@@ -3,6 +3,54 @@
 class Dev_Generate_Controller extends MiniMVC_Controller
 {
 
+    public function i18nAction($params)
+    {
+        if (!$params['module']) {
+            return 'Kein Modul angegeben!' . "\n";
+        }
+
+        if (!file_exists(MODULEPATH . $params['module'])) {
+            return 'Modul existiert nicht!' . "\n";
+        }
+
+        $languages = array();
+        $activeLanguages = $this->registry->settings->get('config/enabledLanguages', array());
+        foreach ($activeLanguages as $language) {
+            $MiniMVC_i18n = array();
+            $languages[$language] = array('found' => array());
+
+            if (file_exists(MODULEPATH . $params['module'].'/i18n/'.$language.'.php')) {
+                include MODULEPATH . $params['module'].'/i18n/'.$language.'.php';
+                if (isset($MiniMVC_i18n[$params['module']])) {
+                    $languages[$language]['found'] = $MiniMVC_i18n[$params['module']];
+                }
+            }
+        }
+
+        $i18nFound = $this->searchI18n(MODULEPATH . $params['module']);
+    }
+
+    protected function searchI18n($folder, $found = array())
+    {
+        if (!is_dir($folder)) {
+            return $found;
+        }
+
+        $regex = '#(\$|->)(t|i18n)->([\w])#iU';
+
+        foreach (scandir($folder) as $file) {
+            if (is_dir($folder.'/'.$file)) {
+                $found = $this->searchI18n($folder.'/'.$file, $found);
+            } elseif (is_file($folder.'/'.$file) && substr($file, -4) == '.php') {
+                $content = file_get_contents($folder.'/'.$file);
+                $matches = array();
+                if (preg_match_all($regex, $content, $matches)) {
+                    var_dump($matches);exit;
+                }
+            }
+        }
+    }
+
     public function appAction($params)
     {
         if (!$params['app']) {

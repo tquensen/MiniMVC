@@ -7,14 +7,7 @@ $MiniMVC_routes['my.defaultIndex'] = array(
     'parameter' => array(),
     'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('user'))
 );
-$MiniMVC_routes['my.defaultIndex.json'] = array(
-    'route' => 'my/index.json',
-    'controller' => 'My_Default',
-    'action' => 'index',
-    'format' => 'json',
-    'parameter' => array(),
-    'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('user'))
-);
+
 
 $MiniMVC_routes['my.defaultCreate'] = array(
     'route' => 'my/create',

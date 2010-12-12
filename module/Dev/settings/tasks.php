@@ -56,6 +56,13 @@ $MiniMVC_tasks['generate.app'] = array(
     'assign' => 'app'
 );
 
+$MiniMVC_tasks['generate.i18n'] = array(
+    'controller' => 'Dev_Generate',
+    'action' => 'i18n',
+    'parameter' => array('module' => false),
+    'assign' => 'module'
+);
+
 $MiniMVC_tasks['doctrine'] = array(
     'controller' => 'Dev_Doctrine',
     'action' => 'run'

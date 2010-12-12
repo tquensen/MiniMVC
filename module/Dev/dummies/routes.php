@@ -1,22 +1,15 @@
 <?php
 //$rights = MiniMVC_Registry::getInstance()->rights;
 $MiniMVC_routes['MODLC.defaultIndex'] = array(
-    'route' => 'MODLC',
+    'route' => 'MODLC(.:_format:)', // .format is optional (in brackets)
     'controller' => 'MODULE_Default',
     'action' => 'index',
-    'parameter' => array(),
+    'parameter' => array('_format' => 'html'), //set html as default format
+    //'parameterPatterns' => array('_format' => 'json|xml'), //allow xml and json as alternative formats
     'method' => 'GET',
     'rights' => 0 //$rights->getRights('user')
 );
-$MiniMVC_routes['MODLC.defaultIndex.json'] = array(
-    'route' => 'MODLC/index.json',
-    'controller' => 'MODULE_Default',
-    'action' => 'index',
-    'format' => 'json',
-    'method' => 'GET',
-    'parameter' => array(),
-    'rights' => 0 //$rights->getRights('user')
-);
+
 $MiniMVC_routes['MODLC.defaultCreate'] = array(
     'route' => 'MODLC/create',
     'controller' => 'MODULE_Default',
@@ -27,14 +20,14 @@ $MiniMVC_routes['MODLC.defaultCreate'] = array(
     'rights' => 0 //$rights->getRights('publish')
 );
 $MiniMVC_routes['MODLC.defaultShow'] = array(
-    'route' => 'MODLC/:id:',
+    'route' => 'MODLC/:id:(.:_format:)', // .format is optional (in brackets)
     'controller' => 'MODULE_Default',
     'action' => 'show',
     'method' => 'GET',
     //'model' => array('MODULE', 'id'), // array(modelname, property, parameter) or array('model1' => array(modelname, property, parameter),'modelx' => array(modelname, property, parameter))
                                         //automatically load a model with the name modelname by the field 'property' (defaults to the models identifier) with the value provided py routeparameter :parameter: (defaults to the property)
                                         // returns null if not found // in your controller, you can access it with $params['model'] (or $params['model']['model1'], $params['model']['modelx'] if multiple models were defined)
-    'parameter' => array('id' => false),
+    'parameter' => array('id' => false, '_format' => 'html'),
     'rights' => 0 //$rights->getRights('user')
 );
 $MiniMVC_routes['MODLC.defaultEdit'] = array(
@@ -44,6 +37,7 @@ $MiniMVC_routes['MODLC.defaultEdit'] = array(
     'method' => array('GET', 'POST'),
     //'model' => array('MODULE', 'id'),
     'parameter' => array('id' => false),
+    //'parameterPatterns' => array('_format' => 'json|xml'), //allow xml and json as alternative formats
     'active' => false, //this route must be activated for each app to work
     'rights' => 0 //$rights->getRights('publish')
 );

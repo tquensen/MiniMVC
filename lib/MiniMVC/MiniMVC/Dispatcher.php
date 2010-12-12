@@ -257,9 +257,7 @@ class MiniMVC_Dispatcher
                 $this->registry->template->setFormat($routeData['parameter']['_format']);
             }
 
-            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
-                $this->registry->template->setLayout(false);
-            } elseif (isset($routeData['layout'])) {
+            if (isset($routeData['layout'])) {
                 $this->registry->template->setLayout($routeData['layout']);
             }
 

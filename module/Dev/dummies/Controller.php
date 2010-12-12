@@ -19,8 +19,11 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
                 7,
                 false
         );
+
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTMetaTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTMetaDescription);
         */
-        
+
         //return $this->view->prepare('CONTROLLERLC/index', 'MODULE');
     }
 
@@ -30,6 +33,12 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             return $this->delegate404();
         }
         $this->view->model = $params['model'];
+
+        /*
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTMetaTitle);
+        $this->registry->helper->meta->setTitle($this->view->model->title);
+        $this->registry->helper->meta->setDescription($this->view->model->description);
+        */
 
         //return $this->view->prepare('CONTROLLERLC/show', 'MODULE');
     }
@@ -47,6 +56,10 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             }
             return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
         }
+
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTCreateTitle);
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTMetaTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTMetaDescription);
 
         $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage, 'success');
          */
@@ -70,6 +83,9 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             }
             return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
         }
+
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTEditTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTMetaDescription);
 
         $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTEditSuccessMessage, 'success');
 

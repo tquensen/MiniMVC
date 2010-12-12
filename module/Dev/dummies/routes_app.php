@@ -1,6 +1,7 @@
 <?php
 //define layouts for existing routes
-//$MiniMVC_routes['home']['layout'] = 'singleColumn';
+//$MiniMVC_routes['home']['layout'] = 'singleColumn'; //for all formats (including html, json, xml, ...) - but in most cases you don't want that (see below)
+//$MiniMVC_routes['home']['layout'] = array('html' => 'singleColumn'); // or only for specific formats (this will only change the html layout file, json/xml/... will use the default format)
 
 //activate routes for active modules which are needed and are inactive by default
 //$MiniMVC_routes['user.register']['active'] = true;
