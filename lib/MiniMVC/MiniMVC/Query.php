@@ -7,7 +7,7 @@ class MiniMVC_Query
      * @var PDO
      */
     protected $db = null;
-    protected $type = 'SELECT';
+    protected $type = null;
     protected $columns = array();
     protected $from = null;
     protected $join = array();
@@ -49,6 +49,9 @@ class MiniMVC_Query
      */
     public function select($columns = null)
     {
+        if ($this->type && $this->type !== 'SELECT') {
+            $this->columns = array();
+        }
         $this->type = 'SELECT';
         $this->set($columns);
         //$this->columns = array_merge($this->columns, array_map('trim', explode(',', $columns)));
@@ -58,17 +61,30 @@ class MiniMVC_Query
 
     /**
      *
-     * @param string|null $table
-     * @param array $columns
+     * @param string|array $columns the table columns to update as  comma seperated string, numeric array of column names or associative array of columnname => value pairs.
+     * @param string|array $values the values for the columns as array or as string for a single value.
+     * @param MiniMVC_Table|string $table the table to update (as Table object or model-name string
      * @return MiniMVC_Query
      */
-    public function insert($columns = array(), $table = null)
+    public function insert($columns = array(), $values = array(), $table = null)
     {
+        if ($this->type && $this->type !== 'INSERT INTO') {
+            $this->columns = array();
+        }
         $this->type = 'INSERT INTO';
         if ($table) {
             $this->from($table);
         }
+
+        if ($columns && is_array($columns) && !isset($columns[0])) {
+            $values = array_values($columns);
+            $columns = array_keys($columns);
+        }
         $this->set($columns);
+
+        if ($values) {
+            $this->setValues($values);
+        }
         //$this->columns = array_merge($this->columns, array_map('trim', explode(',', $table)));
         //$this->columns = (array) $columns;
         return $this;
@@ -76,17 +92,31 @@ class MiniMVC_Query
 
     /**
      *
-     * @param string|null $table
-     * @param array $columns
+     * @param string|array $columns the table columns to update as  comma seperated string, numeric array of column names or associative array of columnname => value pairs.
+     * @param string|array $values the values for the columns as array or as string for a single value.
+     * @param MiniMVC_Table|string $table the table to update (as Table object or model-name string
      * @return MiniMVC_Query
      */
-    public function update($columns = array(), $table = null)
+    public function update($columns = array(), $values = array(), $table = null)
     {
+        if ($this->type && $this->type !== 'UPDATE') {
+            $this->columns = array();
+        }
         $this->type = 'UPDATE';
+
         if ($table) {
             $this->from($table);
         }
+
+        if ($columns && is_array($columns) && !isset($columns[0])) {
+            $values = array_values($columns);
+            $columns = array_keys($columns);
+        }
         $this->set($columns);
+
+        if ($values) {
+            $this->setValues($values);
+        }
         //$this->columns = (array) $columns;
         //$this->columns = array_merge($this->columns, array_map('trim', explode(',', $table)));
 
@@ -100,6 +130,9 @@ class MiniMVC_Query
      */
     public function delete($table = null)
     {
+        if ($this->type && $this->type !== 'DELETE') {
+            $this->columns = array();
+        }
         $this->type = 'DELETE';
 
         //$this->set($tables);
