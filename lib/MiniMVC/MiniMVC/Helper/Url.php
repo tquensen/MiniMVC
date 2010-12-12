@@ -124,7 +124,7 @@ class Helper_Url extends MiniMVC_Helper
             return false;
         }
 
-        if (isset($routeData['rights']) && $routeData['rights'] && !$this->userHasRight((int)$routeData['rights'])) {
+        if (isset($routeData['rights']) && $routeData['rights'] && !$this->registry->guard->userHasRight((int)$routeData['rights'])) {
             return false;
         }
         
