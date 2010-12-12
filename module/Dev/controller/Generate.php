@@ -38,7 +38,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             return $found;
         }
 
-        $regex = '#(\$|->)(t|i18n)->([\w])+#i';
+        $regex = '#(\$|->)(t|i18n)->([\w]+)#i';
 
         foreach (scandir($folder) as $file) {
             if (is_dir($folder.'/'.$file) && $file !== '.' && $file !== '..') {
