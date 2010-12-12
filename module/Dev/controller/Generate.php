@@ -13,6 +13,8 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             return 'Modul existiert nicht!' . "\n";
         }
 
+        $return = '';
+
         $languages = array();
         $activeLanguages = $this->registry->settings->get('config/enabledLanguages', array());
         foreach ($activeLanguages as $language) {
@@ -33,7 +35,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         foreach ($languages as $currentLanguage => $currentLanguageData) {
             foreach ($i18nFound as $newI18n) {
                 if (!isset($currentLanguageData['found'][$newI18n])) {
-                    $languages[$currentLanguage]['new'][$newI18n] = '$MiniMVC_i18n[\''.$params['module'].'\'][\''.$newI18n.'\'] = \''.$newI18n.'\'';
+                    $languages[$currentLanguage]['new'][$newI18n] = '$MiniMVC_i18n[\''.$params['module'].'\'][\''.$newI18n.'\'] = \''.$newI18n.'\';';
                 }
             }
         }
@@ -41,14 +43,14 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         foreach ($languages as $currentLanguage => $currentLanguageData) {
             if (file_exists(MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php')) {
                 file_put_contents(MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php', implode("\n", $languages[$currentLanguage]['new']), FILE_APPEND);
-                echo 'Datei '.MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php'.' aktualisiert!';
+                $return .= 'Datei '.MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php'.' aktualisiert!'."\n";
             } else {
-                file_put_contents(MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php', implode("\n", $languages[$currentLanguage]['new']));            
-                echo 'Datei '.MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php'.' angelegt!';
+                file_put_contents(MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php', '<?php'."\n".implode("\n", $languages[$currentLanguage]['new']));
+                $return .= 'Datei '.MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php'.' angelegt!'."\n";
             }
         }
         
-        echo 'I18n-Dateien erfolgreich generiert!';
+        return $return .= 'I18n-Dateien erfolgreich generiert!';
 
     }
 
@@ -68,6 +70,9 @@ class Dev_Generate_Controller extends MiniMVC_Controller
                 $matches = array();
                 if (preg_match_all($regex, $content, $matches)) {
                     foreach ($matches[3] as $match) {
+                        if ($match == 'get') {
+                            continue;
+                        }
                         $found[$match] = $match;
                     }
                 }
