@@ -28,6 +28,8 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         }
 
         $i18nFound = $this->searchI18n(MODULEPATH . $params['module']);
+        asort($i18nFound);
+        var_dump($i18nFound);
     }
 
     protected function searchI18n($folder, $found = array())
@@ -36,7 +38,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             return $found;
         }
 
-        $regex = '#(\$|->)(t|i18n)->([\w])#iU';
+        $regex = '#(\$|->)(t|i18n)->([\w])#i';
 
         foreach (scandir($folder) as $file) {
             if (is_dir($folder.'/'.$file)) {
@@ -45,10 +47,13 @@ class Dev_Generate_Controller extends MiniMVC_Controller
                 $content = file_get_contents($folder.'/'.$file);
                 $matches = array();
                 if (preg_match_all($regex, $content, $matches)) {
-                    var_dump($matches);exit;
+                    foreach ($matches[0] as $match) {
+                        $found[$match] = $match;
+                    }
                 }
             }
         }
+        return $found;
     }
 
     public function appAction($params)
