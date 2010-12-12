@@ -47,7 +47,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
                 $content = file_get_contents($folder.'/'.$file);
                 $matches = array();
                 if (preg_match_all($regex, $content, $matches)) {
-                    foreach ($matches[0] as $match) {
+                    foreach ($matches[3] as $match) {
                         $found[$match] = $match;
                     }
                 }
