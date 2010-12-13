@@ -406,7 +406,7 @@ class MiniMVC_Query
      * @param array $values
      * @return int
      */
-    public function count($count = '*', $values = array())
+    public function count($count = null, $values = array())
     {
         $values = (array) $values;
 
@@ -416,14 +416,16 @@ class MiniMVC_Query
         $oldColumns = $this->columns;
         $oldLimit = $this->limit;
         $oldOffset = $this->offset;
+        $oldGroup = $this->group;
 
 
         $this->type = 'SELECT';
-        $this->columns = array('COUNT('.$count.')');
+        $this->columns = array('COUNT('.($count ? $count : 'DISTINCT('.($this->from ? $this->from.'.' : '').$this->tables[$this->from]->getIdentifier().')').')');
         $this->limit = null;
         $this->offset = null;
+        $this->group = null;
 
-        if ($this->needPreQuery) {
+        if ($this->needPreQuery && !$count) {
             $count = count($this->_getIdentifiers($values));
         } else {
             $query = $this->get($values);
@@ -440,6 +442,7 @@ class MiniMVC_Query
         $this->columns = $oldColumns;
         $this->limit = $oldLimit;
         $this->offest = $oldOffset;
+        $this->group = $oldGroup;
 
         return $count;
     }
