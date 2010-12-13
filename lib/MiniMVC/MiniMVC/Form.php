@@ -16,13 +16,16 @@ class MiniMVC_Form
         $this->name = (isset($options['name'])) ? $options['name'] : $this->name;
         $this->model = (isset($options['model'])) ? $options['model'] : $this->model;
 
+        $i18n = MiniMVC_Registry::getInstance()->helper->i18n->get('_form');
+
         $this->options['route'] = MiniMVC_Registry::getInstance()->settings->get('currentRoute');
         $this->options['routeParameter'] = MiniMVC_Registry::getInstance()->settings->get('currentRouteParameter');
         $this->options['method'] = 'POST';
         $this->options['showGlobalErrors'] = true;
         $this->options['redirectOnError'] = true;
         $this->options['csrfProtection'] = true;
-        $this->options['csrfErrorMessage'] = MiniMVC_Registry::getInstance()->helper->i18n->get('_form')->errorCsrf;
+        $this->options['csrfErrorMessage'] = $i18n->errorCsrf;
+        $this->options['requiredMark'] = $i18n->requiredMark;
         $this->options = array_merge($this->options, (array)$options);
 
         if (empty($this->options['action'])) {

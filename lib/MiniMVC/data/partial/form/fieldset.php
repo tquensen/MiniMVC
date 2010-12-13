@@ -1,1 +1,1 @@
-<fieldset><?php if($element->legend): ?><legend><?php echo htmlspecialchars($element->legend)?></legend><?php endif; ?>
+<fieldset><?php if($element->legend): ?><legend><?php echo htmlspecialchars($element->legend)?><?php if ($element->required): ?><?php echo htmlspecialchars($element->getForm()->getOption('requiredMark')); ?><?php endif; ?></legend><?php endif; ?>

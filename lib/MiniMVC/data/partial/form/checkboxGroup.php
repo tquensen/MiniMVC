@@ -1,4 +1,4 @@
-    <label><?php echo htmlspecialchars($element->label) ?></label>
+    <label><?php echo htmlspecialchars($element->label) ?><?php if ($element->required): ?><?php echo htmlspecialchars($element->getForm()->getOption('requiredMark')); ?><?php endif; ?></label>
     <ul>
     <?php foreach ($element->elements as $check => $value): ?>
         <li>
