@@ -1,4 +1,4 @@
-    <label><?php echo htmlspecialchars($element->label) ?><?php if ($element->required): ?><?php echo htmlspecialchars($element->getForm()->getOption('requiredMark')); ?><?php endif; ?></label>
+    <label><?php echo htmlspecialchars($element->label) ?><?php if ($element->required && $element->getForm()->getOption('requiredMark')): ?><?php echo '<span class="requiredMark">'.htmlspecialchars($element->getForm()->getOption('requiredMark')).'</span>'; ?><?php endif; ?></label>
     <ul>
     <?php foreach ($element->elements as $radio => $value): ?>
         <li>
