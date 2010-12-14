@@ -115,6 +115,7 @@ class Helper_Css extends MiniMVC_Helper
             $data['url'] = $this->staticHelper->get('css/' . $file['file'], $module, $app);
             $data['media'] = (isset($file['media'])) ? $file['media'] : 'screen';
             $data['combine'] = (isset($file['combine'])) ? $file['combine'] : true;
+            $data['minify'] = (isset($file['minify'])) ? $file['minify'] : $data['combine'];
             $preparedFiles[$app.'/'.$module . '/' . $file['file']] = $data;
         }
 

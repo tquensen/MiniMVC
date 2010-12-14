@@ -134,6 +134,15 @@ class Helper_Pager extends MiniMVC_Helper
 
     /**
      *
+     * @return integer the current page
+     */
+    public function getPage()
+    {
+        return $this->pages;
+    }
+
+    /**
+     *
      * @return array an array with the links to display
      */
     public function getLinks()
@@ -349,6 +358,24 @@ class Helper_Pager extends MiniMVC_Helper
     public function getLimit()
     {
         return $this->entriesPerPage;
+    }
+
+    /**
+     *
+     * @return integer the number of total entries
+     */
+    public function getNumEntries()
+    {
+        return $this->entries;
+    }
+
+    /**
+     *
+     * @return integer the number of entries for the current page
+     */
+    public function getPageEntries()
+    {
+        return $this->currentPage == $this->pages ? $this->entriesPerPage : $this->entries % $this->entriesPerPage;
     }
 
     /**

@@ -122,6 +122,55 @@ class MiniMVC_Model implements ArrayAccess
         }
     }
 
+    /**
+     *
+     * examples:
+     * $fields could look like the following:
+     * array(
+     *     'id', 'title', 'description'
+     * )
+     * or
+     * array(
+     *     'id', 'title', 'description', 'relations' => array(
+     *          'Comments' => true, /export all fields of the related comment model
+     *          'User' => array('id', 'username', 'email'), //export the id, username and email of the related users
+     *          'Tags' => array(
+     *              'id', 'title', 'relations' => array( //you can also fetch relations of relations
+     *                  'Posts' => array('id') //get the post-ids related to each tag
+     *              )
+     *          )
+     *      )
+     * )
+     *
+     * @param array|bool $fields true to export all model properties or an array of property-names to export. add a key 'relations' with a value structured like this (true or array) to include related models
+     * @return array
+     */
+    public function toArray($fields = true)
+    {
+        $return = array();
+        foreach ($this->getTable()->getColumns() as $column) {
+            if ($fields == true || (is_array($fields) && in_array($column, $fields))) {
+                $return[$column] = null;
+            }
+        }
+        if (!empty($fields['relations'])) {
+            foreach ($this->getTable()->getRelations() as $relation => $relationData) {
+                if ($includeRelations == true || (is_array($includeRelations) && isset($includeRelations[$relation]))) {
+                    $currentRelationEntries = $this->getRelated($relation, true, false);
+                    if (is_array($currentRelationEntries)) {
+                        foreach ($currentRelationEntries as $k => $v) {
+                            $currentRelationEntries[$k] = $v->toArray($includeRelations[$relation], isset($includeRelations[$relation]['relations']) ? $includeRelations[$relation]['relations'] : false);
+                        }
+                    } elseif(is_object($currentRelationEntries)) {
+                        $currentRelationEntries = $currentRelationEntries->toArray($includeRelations[$relation], isset($includeRelations[$relation]['relations']) ? $includeRelations[$relation]['relations'] : false);
+                    }
+                    $return[$relation] = $currentRelationEntries;
+                }
+            }
+        }
+        return $return;
+    }
+
     public function __call($name, $arguments)
     {
         if (!preg_match('/^(get|set|delete|load|save|unlink|link)([\w]+)$/', $name, $matches)) {

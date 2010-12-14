@@ -213,6 +213,9 @@ class MiniMVC_Query
         } else {
             $this->join[$alias] = array($this->tables[$alias]->getTableName(), $table.'.'.$data[1].' = '.$alias.'.'.$data[2] . ($relation ? ' AND '.$relation : ''), $type);
         }
+        if (!isset($data[3])) {
+            $this->needPreQuery = true;
+        }
         $this->relations[] = array($table, $alias, $tableRelation);
 
         return $this;
@@ -293,12 +296,13 @@ class MiniMVC_Query
      * @param bool $needPreQuery if the keys of the from table should be queried (true for one-to-many joins)
      * @return MiniMVC_Query
      */
-    public function limit($limit, $offset = 0, $needPreQuery = false)
+    public function limit($limit, $offset = 0, $needPreQuery = null)
     {
         $this->limit = $limit;
         $this->offset = $offset;
-        $this->needPreQuery = $needPreQuery;
-
+        if ($needPreQuery !== null) {
+            $this->needPreQuery = $needPreQuery;
+        }
         return $this;
     }
 
@@ -420,7 +424,11 @@ class MiniMVC_Query
 
 
         $this->type = 'SELECT';
-        $this->columns = array('COUNT('.($count ? $count : 'DISTINCT('.($this->from ? $this->from.'.' : '').$this->tables[$this->from]->getIdentifier().')').')');
+        if (!$count && isset($this->tables[$this->from])) {
+            $this->columns = array('COUNT(DISTINCT('.($this->from ? $this->from.'.' : '').$this->tables[$this->from]->getIdentifier().'))');
+        } else {
+            $this->columns = 'COUNT('.($count ? $count : '*').')';
+        }
         $this->limit = null;
         $this->offset = null;
         $this->group = null;
@@ -516,8 +524,12 @@ class MiniMVC_Query
         }
 
         if ($return === false) {
-            $aliasKeys = array_keys($aliases);
-            $return = reset($aliasKeys);
+            if (isset($aliases[$this->from])) {
+                $return = $this->from;
+            } else {
+                $aliasKeys = array_keys($aliases);
+                $return = reset($aliasKeys);
+            }
         }
 
         foreach ($this->relations as $relation) {
@@ -578,8 +590,12 @@ class MiniMVC_Query
         }
 
         if ($return === false) {
-            $aliasKeys = array_keys($aliases);
-            $return = reset($aliasKeys);
+            if (isset($aliases[$this->from])) {
+                $return = $this->from;
+            } else {
+                $aliasKeys = array_keys($aliases);
+                $return = reset($aliasKeys);
+            }
         }
 
         foreach ($this->relations as $relation) {

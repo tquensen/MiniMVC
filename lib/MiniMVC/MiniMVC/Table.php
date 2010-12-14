@@ -129,7 +129,7 @@ class MiniMVC_Table {
      * @param bool $needPreQuery set this to true if you use limit or offset with a 1-to-many left join (to limit the resulting entries, not the table rows)
      * @return Mysql_Model
      */
-	public function loadOneWithRelations($id, $relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = false)
+	public function loadOneWithRelations($id, $relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = null)
 	{
         $value = (array) $value;
         array_unshift($value, $id);
@@ -156,7 +156,7 @@ class MiniMVC_Table {
      * @param bool $needPreQuery set this to true if you use limit or offset with a 1-to-many left join (to limit the resulting entries, not the table rows)
      * @return Mysql_Model
      */
-	public function loadOneWithRelationsBy($relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = true)
+	public function loadOneWithRelationsBy($relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = null)
 	{
         $results = $this->loadWithRelations($relations, $condition, $value, $order, null, $offset, $needPreQuery);
         return is_array($results) ? reset($results) : null;
@@ -220,7 +220,7 @@ class MiniMVC_Table {
      * @param string $returnAs the type of data to return (object, array or query)
      * @return array
      */
-	public function loadWithRelations($relations = array(), $condition = null, $value = null, $order = null, $limit = null, $offset = null, $needPreQuery = false, $returnAs = 'object')
+	public function loadWithRelations($relations = array(), $condition = null, $value = null, $order = null, $limit = null, $offset = null, $needPreQuery = null, $returnAs = 'object')
 	{
         if (!isset($this->_returnTypes[$returnAs])) {
             $returnAs = 'object';
