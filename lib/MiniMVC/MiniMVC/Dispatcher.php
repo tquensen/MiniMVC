@@ -109,7 +109,7 @@ class MiniMVC_Dispatcher
                         if (isset($currentRouteData['active']) && !$currentRouteData['active']) {
                             continue;
                         }
-                        if (!isset($currentRouteData['route']) || !isset($currentRouteData['controller']) || !isset($currentRouteData['action'])) {
+                        if (!isset($currentRouteData['route'])) {
                             continue;
                         }
                         if (isset($currentRouteData['method']) && ((is_string($currentRouteData['method']) && strtoupper($currentRouteData['method']) != $method) || (is_array($currentRouteData['method']) && !in_array($method, array_map('strtoupper', $currentRouteData['method']))))) {

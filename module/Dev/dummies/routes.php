@@ -55,7 +55,7 @@ $MiniMVC_routes['MODLC.defaultDelete'] = array(
 
 
 $MiniMVC_routes['MODLC.defaultFallback'] = array(
-    'route' => 'MODLC(/:_controller:)(/:_action)(.:_format:)',
+    'route' => 'MODLC(/:_controller:)(/:_action:)(.:_format:)',
     'parameter' => array('_module' => 'MODULE', '_controller' => 'Default', '_action' => 'index', '_format' => 'html'),
     'parameterPatterns' => array('_controller' => '[a-zA-Z]+', '_action' => '[a-zA-Z]+', '_format' => 'json|xml'), //allow xml and json as alternative formats
     'method' => 'GET',
