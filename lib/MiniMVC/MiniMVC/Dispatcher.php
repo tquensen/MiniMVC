@@ -129,7 +129,7 @@ class MiniMVC_Dispatcher
                                                 $anonymousParams[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : true;
                                             }
                                         }
-                                    } else {
+                                    } elseif (trim($paramValue)) {
                                         $params[urldecode($paramKey)] = urldecode($paramValue);
                                     }
                                 }
