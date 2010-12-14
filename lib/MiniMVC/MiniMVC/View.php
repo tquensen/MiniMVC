@@ -97,16 +97,6 @@ class MiniMVC_View
 		}
 		elseif (!is_file($path))
 		{
-            if ($this->module != '_default')
-            {
-                if ($format == 'json') {
-                    $this->prepareJSON();
-                    return (string) $this->content;
-                } elseif ($format == 'xml') {
-                    $this->prepareXML();
-                    return (string) $this->content;
-                }
-            }
 			throw new Exception('View "'.$path.'" not found!');
 		}
 

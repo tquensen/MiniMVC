@@ -43,7 +43,7 @@ class Helper_Url extends MiniMVC_Helper
 		foreach ($allParameter as $param=>$value)
 		{
             if (!$value || (isset($parameter[$param]) && !$parameter[$param]) || (isset($routeData['parameterPatterns'][$param]) && !isset($parameter[$param]) && !preg_match('#^'.$routeData['parameterPatterns'][$param].'$#', $value))) {
-                $regexSearch[] = '#\([^:\)]*:'.$param.':[^\)]*\)#u';
+                $regexSearch[] = '#\([^:\)]*:'.$param.':[^\)]*\)#U';
             }
             $currentSearch = ':'.$param.':';
             if (isset($parameter[$param]) && strpos($url, $currentSearch) === false) {

@@ -261,8 +261,12 @@ class MiniMVC_Dispatcher
                 $this->registry->template->setFormat($routeData['parameter']['_format']);
             }
 
-            if (isset($routeData['layout'])) {
-                $this->registry->template->setLayout($routeData['layout']);
+            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && isset($routeData['ajaxLayout']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+                $this->registry->template->setLayout($routeData['ajaxLayout']);
+            } else {
+                if (isset($routeData['layout'])) {
+                    $this->registry->template->setLayout($routeData['layout']);
+                }
             }
 
         }
@@ -275,9 +279,9 @@ class MiniMVC_Dispatcher
 
         if (isset($routeData['parameter']['_controller'])) {
             if (isset($routeData['parameter']['_module'])) {
-                $routeData['controller'] = $routeData['parameter']['_module'] . '_' . $routeData['parameter']['_controller'];
+                $routeData['controller'] = ucfirst($routeData['parameter']['_module']) . '_' . ucfirst($routeData['parameter']['_controller']);
             } else {
-                $routeData['controller'] = 'My_' . $routeData['parameter']['_controller'];
+                $routeData['controller'] = 'My_' . ucfirst($routeData['parameter']['_controller']);
             }
         } elseif(!isset($routeData['controller'])) {
             $routeData['controller'] = 'My_Default';
