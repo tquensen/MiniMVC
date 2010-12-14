@@ -39,8 +39,22 @@ class MiniMVC_Settings
                 include(MINIMVCPATH . 'data/settings/' . $file . '.php');
             }
 
+            if ($file != 'modules') {
+                foreach ($this->get('modules') as $module) {
+                    if (is_file(MODULEPATH . $module . '/settings/' . $file . '.php')) {
+                        include(MODULEPATH . $module . '/settings/' . $file . '.php');
+                    }
+                }
+            }
+
             if (is_file(DATAPATH . 'settings/' . $file . '.php')) {
                 include(DATAPATH . 'settings/' . $file . '.php');
+            }
+            
+            if ($app) {
+                if (is_file(APPPATH . $app . '/settings/' . $file . '.php')) {
+                    include(APPPATH . $app . '/settings/' . $file . '.php');
+                }
             }
 
             if ($environment) {
@@ -48,32 +62,24 @@ class MiniMVC_Settings
                     include(MINIMVCPATH . 'data/settings/' . $file . '_' . $environment . '.php');
                 }
 
+                if ($file != 'modules') {
+                    foreach ($this->get('modules') as $module) {
+                        if (is_file(MODULEPATH . $module . '/settings/' . $file . '_' . $environment . '.php')) {
+                            include(MODULEPATH . $module . '/settings/' . $file . '_' . $environment . '.php');
+                        }
+                    }
+                }
+
                 if (is_file(DATAPATH . 'settings/' . $file . '_' . $environment . '.php')) {
                     include(DATAPATH . 'settings/' . $file . '_' . $environment . '.php');
                 }
-            }
-
-            if ($file != 'modules') {
-                foreach ($this->get('modules') as $module) {
-                    if (is_file(MODULEPATH . $module . '/settings/' . $file . '.php')) {
-                        include(MODULEPATH . $module . '/settings/' . $file . '.php');
+                
+                if ($app) {
+                    if (is_file(APPPATH . $app . '/settings/' . $file . '_' . $environment . '.php')) {
+                        include(APPPATH . $app . '/settings/' . $file . '_' . $environment . '.php');
                     }
                 }
 
-                foreach ($this->get('modules') as $module) {
-                    if (is_file(MODULEPATH . $module . '/settings/' . $file . '_' . $environment . '.php')) {
-                        include(MODULEPATH . $module . '/settings/' . $file . '_' . $environment . '.php');
-                    }
-                }
-            }
-
-            if ($app) {
-                if (is_file(APPPATH . $app . '/settings/' . $file . '.php')) {
-                    include(APPPATH . $app . '/settings/' . $file . '.php');
-                }
-                if (is_file(APPPATH . $app . '/settings/' . $file . '_' . $environment . '.php')) {
-                    include(APPPATH . $app . '/settings/' . $file . '_' . $environment . '.php');
-                }
             }
 
             $this->settings[$app . '_' . $environment][$file] = $$varname;

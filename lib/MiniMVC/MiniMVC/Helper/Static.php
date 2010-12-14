@@ -39,6 +39,15 @@ class Helper_Static extends MiniMVC_Helper
             }           
             $url = $baseurl.'app/'.$app.'/'.$module.'/'.$file;
         }
+        elseif ($module !== null && file_exists(WEBPATH.$module.'/'.$file))
+        {
+            if ($prefixHash) {
+                $parts = explode('.', $file);
+                $ext = array_pop($parts);
+                $file = implode('.', $parts) . '_' . md5(filemtime(WEBPATH.$module.'/'.$file)) . '_.' . $ext;
+            }
+            $url = $baseurl.$module.'/'.$file;
+        }
         elseif ($module !== null && file_exists(MODULEPATH.$module.'/web/'.$file))
         {
             if ($prefixHash) {

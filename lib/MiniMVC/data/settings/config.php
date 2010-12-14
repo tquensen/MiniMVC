@@ -11,7 +11,6 @@ $MiniMVC_config['enabledLanguages'] = array('en_US', 'de_DE');
 $MiniMVC_config['languageFormat'] = '[a-z]{2}_[A-Z]{2}';
 
 $MiniMVC_config['defaultLayout'] = 'default';
-$MiniMVC_config['defaultTemplate'] = null;
 
 $MiniMVC_config['autoloadPaths'] = array(BASEPATH.'lib/sfComponents', BASEPATH.'lib', MODULEPATH,  MINIMVCPATH . '/MiniMVC', MINIMVCPATH);
 $MiniMVC_config['registryClasses'] = array(

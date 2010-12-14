@@ -92,11 +92,17 @@ class Helper_Js extends MiniMVC_Helper
         if ($module) {
             if (file_exists(APPPATH.$app.'/web/'.$module.'/js/'.$filename)) {
                 $file = APPPATH.$app.'/web/'.$module.'/js/'.$filename;
+            } elseif (file_exists(WEBPATH.$module.'/js/'.$filename)) {
+                $file = WEBPATH.$module.'/js/'.$filename;
             } else {
                 $file = MODULEPATH.$module.'/web/js/'.$filename;
             }
         } else {
-            $file = APPPATH.$app.'/web/js/'.$filename;
+            if (file_exists(APPPATH.$app.'/web/js/'.$filename)) {
+                $file = APPPATH.$app.'/web/js/'.$filename;
+            } else {
+                $file = WEBPATH.'/js/'.$filename;
+            }
         }
 
         if (file_exists($file)) {

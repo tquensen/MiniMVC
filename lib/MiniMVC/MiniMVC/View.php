@@ -78,7 +78,6 @@ class MiniMVC_View
 		$app = $this->registry->settings->get('currentApp');
 
         $format = $this->registry->template->getFormat();
-        $template = $this->registry->template->getTemplate();
         $formatString = ($format) ? '.'.$format : '';
 
         $path = null;
@@ -86,8 +85,8 @@ class MiniMVC_View
         {
             if (is_file(APPPATH.$app.'/view/'.$this->module.'/'.$file.$formatString.'.php')) {
                 $path = APPPATH.$app.'/view/'.$this->module.'/'.$file.$formatString.'.php';
-            } elseif ($template && is_file(TEMPLATEPATH.$this->module.'/'.$file.$formatString.'.php')) {
-                $path = TEMPLATEPATH.$this->module.'/'.$file.$formatString.'.php';
+            } elseif (is_file(VIEWPATH.$this->module.'/'.$file.$formatString.'.php')) {
+                $path = VIEWPATH.$this->module.'/'.$file.$formatString.'.php';
             } elseif(is_file(MODULEPATH.$this->module.'/view/'.$file.$formatString.'.php')) {
                 $path = MODULEPATH.$this->module.'/view/'.$file.$formatString.'.php';
             }
@@ -96,8 +95,8 @@ class MiniMVC_View
         {
             if (is_file(APPPATH.$app.'/view/'.$file.$formatString.'.php')) {
                 $path = APPPATH.$app.'/view/'.$file.$formatString.'.php';
-            } elseif (is_file(TEMPLATEPATH.'app/'.$file.$formatString.'.php')) {
-                $path = TEMPLATEPATH.'app/'.$file.$formatString.'.php';
+            } elseif (is_file(VIEWPATH.$file.$formatString.'.php')) {
+                $path = VIEWPATH.$file.$formatString.'.php';
             }
         }
 
