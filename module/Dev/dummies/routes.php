@@ -6,6 +6,7 @@ $MiniMVC_routes['MODLC.defaultIndex'] = array(
     'action' => 'index',
     'parameter' => array('_format' => 'html'), //set html as default format
     //'parameterPatterns' => array('_format' => 'json|xml'), //allow xml and json as alternative formats
+    //'ajaxLayout' => array('html' => false), //disable the layout when requesting the html view via XMLHttpRequest
     'method' => 'GET',
     'rights' => 0 //$rights->getRights('user')
 );
@@ -53,12 +54,13 @@ $MiniMVC_routes['MODLC.defaultDelete'] = array(
     'rights' => 0 //$rights->getRights('publish')
 );
 
-
+/*
 $MiniMVC_routes['MODLC.defaultFallback'] = array(
     'route' => 'MODLC(/:_controller:)(/:_action:)(.:_format:)',
     'parameter' => array('_module' => 'MODULE', '_controller' => 'Default', '_action' => 'index', '_format' => 'html'),
-    'parameterPatterns' => array('_controller' => '[a-zA-Z]+', '_action' => '[a-zA-Z]+', '_format' => 'json|xml'), //allow xml and json as alternative formats
+    'parameterPatterns' => array('_controller' => '[A-Z][a-zA-Z]*', '_action' => '[a-zA-Z]+', '_format' => 'json|xml'), //allow xml and json as alternative formats
     'method' => 'GET',
-    'active' => false, //this route must be activated for each app to work
+    'active' => false, // you shoud use this route only for testing
     'rights' => 0 //$rights->getRights('publish')
 );
+ */

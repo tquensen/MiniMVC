@@ -1,5 +1,5 @@
 <?php if ($current = array_shift($navi)): ?>
-<ul><li class="<?php if ($entry['active']) echo 'active' ?>">
+<ul><li class="<?php if ($entry['active']) echo 'active' ?><?php if (!empty($entry['data']['class'])) echo ' '.$entry['data']['class'] ?>">
         <?php if ($entry['url']):
         ?><a href="<?php echo htmlspecialchars($entry['url'])?>"><?php echo htmlspecialchars($entry['title'])?></a><?php
         else:
