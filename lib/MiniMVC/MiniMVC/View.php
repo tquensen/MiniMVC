@@ -78,26 +78,32 @@ class MiniMVC_View
 		$app = $this->registry->settings->get('currentApp');
 
         $format = $this->registry->template->getFormat();
+        $template = $this->registry->template->getTemplate();
         $formatString = ($format) ? '.'.$format : '';
 
+        $path = null;
         if ($this->module != '_default')
         {
-            $appPath = APPPATH.$app.'/view/'.$this->module.'/'.$file.$formatString.'.php';
-            $path = MODULEPATH.$this->module.'/view/'.$file.$formatString.'.php';
+            if (is_file(APPPATH.$app.'/view/'.$this->module.'/'.$file.$formatString.'.php')) {
+                $path = APPPATH.$app.'/view/'.$this->module.'/'.$file.$formatString.'.php';
+            } elseif ($template && is_file(TEMPLATEPATH.$this->module.'/'.$file.$formatString.'.php')) {
+                $path = TEMPLATEPATH.$this->module.'/'.$file.$formatString.'.php';
+            } elseif(is_file(MODULEPATH.$this->module.'/view/'.$file.$formatString.'.php')) {
+                $path = MODULEPATH.$this->module.'/view/'.$file.$formatString.'.php';
+            }
         }
         else
         {
-            $appPath = false;
-            $path = APPPATH.$app.'/view/'.$file.$formatString.'.php';
+            if (is_file(APPPATH.$app.'/view/'.$file.$formatString.'.php')) {
+                $path = APPPATH.$app.'/view/'.$file.$formatString.'.php';
+            } elseif (is_file(TEMPLATEPATH.'app/'.$file.$formatString.'.php')) {
+                $path = TEMPLATEPATH.'app/'.$file.$formatString.'.php';
+            }
         }
 
-        if ($appPath && is_file($appPath))
+        if (!$path)
 		{
-			$path = $appPath;
-		}
-		elseif (!is_file($path))
-		{
-			throw new Exception('View "'.$path.'" not found!');
+			throw new Exception('View "'.$file.$formatString.'" for module '.$this->module.' not found!');
 		}
 
 		extract($this->vars);

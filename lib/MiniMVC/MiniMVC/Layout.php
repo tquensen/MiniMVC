@@ -11,6 +11,7 @@ class MiniMVC_Layout
     protected $registry = null;
     protected $slots = array();
     protected $layout = null;
+    protected $template = null;
     protected $format = null;
 
     public function __construct()
@@ -25,8 +26,8 @@ class MiniMVC_Layout
     public function setLayout($file)
     {
         if (is_array($file)) {
-            $currentLayout = $this->format === null ? 'html' : $this->format;
-            $file = isset($file[$currentLayout]) ? $file[$currentLayout] : null;
+            $currentFormat = $this->format === null ? 'html' : $this->format;
+            $file = isset($file[$currentFormat]) ? $file[$currentFormat] : null;
         }
         $this->layout = ($file === true) ? null : $file;
     }
@@ -38,6 +39,30 @@ class MiniMVC_Layout
     public function getLayout()
     {
         return $this->layout;
+    }
+
+    /**
+     *
+     * @param mixed $template the name of the template file to use, true or null to use the default template, false to use no template
+     */
+    public function setTemplate($template)
+    {
+        if (is_array($template)) {
+            $currentFormat = $this->format === null ? 'html' : $this->format;
+            $template = isset($template[$currentFormat]) ? $template[$currentFormat] : null;
+        }
+        $this->template = ($template === true) ? null : $template;
+    }
+
+    /**
+     *
+     * @return mixed returns the name of the current template or null if the default template is used
+     */
+    public function getTemplate()
+    {
+        if ($this->template === null) {
+            $this->template = $this->registry->settings->get('config/defaultTemplate', false);
+        }
     }
 
     /**
@@ -141,8 +166,9 @@ class MiniMVC_Layout
             }
 
             $route = $this->registry->settings->get('currentRoute');
-            $format = $this->registry->template->getFormat();
-            $layout = $this->registry->template->getLayout();
+            $format = $this->getFormat();
+            $layout = $this->getLayout();
+            $layout = $this->getTemplate();
             
             foreach ($slotWidgets as $currentWidget => $widgetData) {
 
@@ -172,6 +198,13 @@ class MiniMVC_Layout
                     if (is_string($widgetData['layout']) && $widgetData['layout'] != 'all' && $widgetData['layout'] != $layout) {
                         continue;
                     } elseif(is_array($widgetData['layout']) && !in_array($layout, $widgetData['layout'])) {
+                        continue;
+                    }
+                }
+                if ($widgetData['template']) {
+                    if (is_string($widgetData['template']) && $widgetData['template'] != 'all' && $widgetData['template'] != $template) {
+                        continue;
+                    } elseif(is_array($widgetData['template']) && !in_array($template, $widgetData['template'])) {
                         continue;
                     }
                 }
@@ -209,6 +242,7 @@ class MiniMVC_Layout
                 'hide' => isset($widgetData['hide']) ? $widgetData['hide'] : null,
                 'format' => isset($widgetData['format']) ? $widgetData['format'] : null,
                 'layout' => isset($widgetData['layout']) ? $widgetData['layout'] : null,
+                'template' => isset($widgetData['template']) ? $widgetData['template'] : null,
                 'position' => isset($widgetData['position']) ? (int) $widgetData['position'] : 0,
             );
         }
