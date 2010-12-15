@@ -12,7 +12,7 @@ class MiniMVC_Settings
     protected $registry = null;
     protected $settings = array();
     protected $changed = array();
-    protected $files = array('modules', 'apps', 'config', 'db', 'events', 'rights', 'roles', 'routes', 'slots', 'tasks', 'widgets', 'view');
+    protected $files = array('modules', 'apps', 'config', 'db', 'events', 'roles', 'routes', 'slots', 'tasks', 'widgets', 'view');
 
     /**
      *

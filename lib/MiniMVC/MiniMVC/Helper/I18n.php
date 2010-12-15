@@ -75,14 +75,14 @@ class Helper_I18n extends MiniMVC_Helper
                 include_once(MINIMVCPATH . 'data/i18n/' . $fallbackLanguage . '.php');
             }
 
-            if (is_file(DATAPATH . 'i18n/' . $fallbackLanguage . '.php')) {
-                include_once(DATAPATH . 'i18n/' . $fallbackLanguage . '.php');
-            }
-
             foreach ($this->registry->settings->get('modules') as $currentModule) {
                 if (is_file(MODULEPATH . $currentModule . '/i18n/' . $fallbackLanguage . '.php')) {
                     include_once(MODULEPATH . $currentModule . '/i18n/' . $fallbackLanguage . '.php');
                 }
+            }
+
+            if (is_file(DATAPATH . 'i18n/' . $fallbackLanguage . '.php')) {
+                include_once(DATAPATH . 'i18n/' . $fallbackLanguage . '.php');
             }
 
             if ($currentApp) {
@@ -97,14 +97,14 @@ class Helper_I18n extends MiniMVC_Helper
             include_once(MINIMVCPATH . 'data/i18n/' . $language . '.php');
         }
 
-        if (is_file(DATAPATH . 'i18n/' . $language . '.php')) {
-            include_once(DATAPATH . 'i18n/' . $language . '.php');
-        }
-
         foreach ($this->registry->settings->get('modules') as $currentModule) {
             if (is_file(MODULEPATH . $currentModule . '/i18n/' . $language . '.php')) {
                 include_once(MODULEPATH . $currentModule . '/i18n/' . $language . '.php');
             }
+        }
+
+        if (is_file(DATAPATH . 'i18n/' . $language . '.php')) {
+            include_once(DATAPATH . 'i18n/' . $language . '.php');
         }
 
         if ($currentApp) {

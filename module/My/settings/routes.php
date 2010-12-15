@@ -5,7 +5,7 @@ $MiniMVC_routes['my.defaultIndex'] = array(
     'controller' => 'My_Default',
     'action' => 'index',
     'parameter' => array(),
-    'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('user'))
+    'rights' => false //$rights->getRoleRights($rights->getRoleByKeyword('user'))
 );
 
 
@@ -15,5 +15,5 @@ $MiniMVC_routes['my.defaultCreate'] = array(
     'action' => 'create',
     'parameter' => array(),
     'active' => false, //this route must be activated for each app to work
-    'rights' => 0 //$rights->getRoleRights($rights->getRoleByKeyword('admin'))
+    'rights' => false //$rights->getRoleRights($rights->getRoleByKeyword('admin'))
 );

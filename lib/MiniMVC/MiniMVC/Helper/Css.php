@@ -65,19 +65,6 @@ class Helper_Css extends MiniMVC_Helper
         }
         $data = array();
 
-        if ($module) {
-            if (file_exists(APPPATH.$app.'/web/'.$module.'/css/'.$file)) {
-                $data['file'] = APPPATH.$app.'/web/'.$module.'/css/'.$file;
-            } elseif (file_exists(WEBPATH.$module.'/css/'.$file)) {
-                $data['file'] = WEBPATH.$module.'/css/'.$file;
-            } else {
-                $data['file'] = MODULEPATH.$module.'/web/css/'.$file;
-            }
-        } elseif (APPPATH.$app.'/web/css/'.$file) {
-            $data['file'] = APPPATH.$app.'/web/css/'.$file;
-        } else {
-            $data['file'] = WEBPATH.'css/'.$file;
-        }
         $data['url'] = $this->staticHelper->get('css/' . $file, $module, $app);
         $data['media'] = $media;
         $data['combine'] = false;
@@ -103,23 +90,12 @@ class Helper_Css extends MiniMVC_Helper
             $module = (isset($file['module'])) ? $file['module'] : null;
             $app = (isset($file['app'])) ? $file['app'] : $this->registry->settings->get('currentApp');
 
-            if ($module) {
-                if (file_exists(APPPATH.$app.'/web/'.$module.'/css/'.$file['file'])) {
-                    $data['file'] = APPPATH.$app.'/web/'.$module.'/css/'.$file['file'];
-                } elseif (file_exists(WEBPATH.$module.'/css/'.$file['file'])) {
-                    $data['file'] = WEBPATH.$module.'/css/'.$file['file'];
-                } else {
-                    $data['file'] = MODULEPATH.$module.'/web/css/'.$file['file'];
-                }
-            } elseif (file_exists(APPPATH.$app.'/web/css/'.$file['file'])) {
-                $data['file'] = APPPATH.$app.'/web/css/'.$file['file'];
-            } else {
-                $data['file'] = WEBPATH.'css/'.$file['file'];
-            }
             $data['url'] = $this->staticHelper->get('css/' . $file['file'], $module, $app);
             $data['media'] = (isset($file['media'])) ? $file['media'] : 'screen';
             $data['combine'] = (isset($file['combine'])) ? $file['combine'] : true;
             $data['minify'] = (isset($file['minify'])) ? $file['minify'] : $data['combine'];
+            $data['module'] = $module;
+            $data['file'] = $file['file'];
             $preparedFiles[$app.'/'.$module . '/' . $file['file']] = $data;
         }
 
@@ -135,17 +111,6 @@ class Helper_Css extends MiniMVC_Helper
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
-        $baseurls = array();
-        if ($baseurl = $this->registry->settings->get('apps/'.$app.'/baseurlStatic')) {
-            if (is_array($baseurl)) {
-                $baseurls = $baseurl;
-            } else {
-                $baseurls[] = $baseurl;
-            }
-        }
-        if ($baseurl = $this->registry->settings->get('apps/'.$app.'/baseurl')) {
-            $baseurls[] = $baseurl;
-        }
 
         $uncombinedBefore = array();
         $uncombinedAfter = array();
@@ -155,9 +120,27 @@ class Helper_Css extends MiniMVC_Helper
         foreach ($files as $file) {
             if ($file['combine']) {
                 $combinedFound = true;
-                $relativePath = str_replace($baseurls, '', $file['url']); //relative path from web root
-                $urlPrefix = dirname($relativePath) . '/';
-                $filePath = $file['file'];
+
+                if ($module) {
+                    if (file_exists(WEBPATH.'app/'.$app.'/'.$module.'/css/'.$file['file'])) {
+                        $filePath = WEBPATH.'app/'.$app.'/'.$module.'/css/'.$file['file'];
+                    } elseif (file_exists(WEBPATH.$module.'/css/'.$file['file'])) {
+                        $filePath = WEBPATH.$module.'/css/'.$file['file'];
+                    } else {
+                        $filePath = WEBPATH.'module/'.$module.'/css/'.$file['file'];
+                    }
+                    $urlPrefix = 'module/'.$module.'/css/';
+                } elseif (file_exists(WEBPATH.'app/'.$app.'/css/'.$file['file'])) {
+                    $filePath = WEBPATH.'app/'.$app.'/css/'.$file['file'];
+                    $urlPrefix = 'css/';
+                } else {
+                    $filePath = WEBPATH.'css/'.$file['file'];
+                    $urlPrefix = 'css/';
+                }
+
+//                $relativePath = str_replace($baseurls, '', $file['url']); //relative path from web root
+//                $urlPrefix = dirname($relativePath) . '/';
+//                $filePath = $file['file'];
                 $data = $this->parseFile($filePath, $urlPrefix, $app, $environment);
                 foreach (explode(',', $file['media']) as $media) {
                     $medias[trim($media)][] = $data;
@@ -230,9 +213,9 @@ class Helper_Css extends MiniMVC_Helper
                 }
                 $search[] = $match[0];
                 $pathNew = implode('/', $pathNew);
-                if (preg_match('#module/(\w*)/(.*)$#', $pathNew, $moduleMatch)) {
+                if (preg_match('#^module/(\w*)/(.*)$#', $pathNew, $moduleMatch)) {
                     $pathNew = $this->staticHelper->get($moduleMatch[2], $moduleMatch[1], $app);
-                } elseif (preg_match('#app/(\w*)/(.*)$#', $pathNew, $moduleMatch)) {
+                } elseif (preg_match('#^app/(\w*)/(.*)$#', $pathNew, $moduleMatch)) {
                     $tmp = explode('/', $moduleMatch[2]);
                     if (in_array($tmp[0], $activeModules)) {
                         $module = array_shift($tmp);
@@ -242,6 +225,13 @@ class Helper_Css extends MiniMVC_Helper
                     }
                     $pathNew = $this->staticHelper->get($moduleMatch[2], $module, $moduleMatch[1]);
                 } elseif (preg_match('#(.*)$#', $pathNew, $moduleMatch)) {
+                    $tmp = explode('/', $moduleMatch[1]);
+                    if (in_array($tmp[0], $activeModules)) {
+                        $module = array_shift($tmp);
+                        $moduleMatch[1] = implode('/', $tmp);
+                    } else {
+                        $module = null;
+                    }
                     $pathNew = $this->staticHelper->get($moduleMatch[1], null, $app);
                 }
                 $replace[] = 'url("' . $pathNew . '")';

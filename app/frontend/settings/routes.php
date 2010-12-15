@@ -10,7 +10,6 @@
 
 //change access rights
 /*
-$rights = MiniMVC_Registry::getInstance()->rights;
-$MiniMVC_routes['something.secure']['rights'] = //$rights->getRights('administrate')
-$MiniMVC_routes['something.more.secure']['rights'] = //$rights->getRights('administrate')
+$MiniMVC_routes['something.secure']['rights'] = 'moderate'
+$MiniMVC_routes['something.more.secure']['rights'] = array(array('administrate', array('moderate', 'publish')))
 */

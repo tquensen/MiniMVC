@@ -11,8 +11,8 @@ class MiniMVC_Guard
      */
     protected $registry = null;
     protected $id = null;
-    protected $role = 'guest';
-    protected $rights = 0;
+    protected $role = null;
+    protected $rights = array();
     protected $data = array();
 
     public function __construct()
@@ -24,7 +24,10 @@ class MiniMVC_Guard
         }
         if (isset($_SESSION['guardRole']) && $_SESSION['guardRole']) {
             $this->role = $_SESSION['guardRole'];
+        } else {
+            $this->role = $this->registry->rights->getRoleByKeyword('guest');
         }
+        
         if (isset($_SESSION['guardData'])) {
             $this->data = $_SESSION['guardData'];
         }
@@ -152,18 +155,33 @@ class MiniMVC_Guard
 
     /**
      *
-     * @param string|int $right the right to check, either as the name of the right as string ('user', 'administrator', ..) or as the key as int (2, 1024, ..)
+     * @param string|array $rights the name of the right as string ('user', 'administrator', ..) or as array of rights
      * @return bool whether the current user has the required right or not / returns true if the right is 0
      */
-    public function userHasRight($right)
+    public function userHasRight($rights)
     {
-        if (!$right) {
+        if (!$rights) {
             return true;
         }
-        if (!is_int($right) && !is_numeric($right)) {
-            $right = $this->registry->rights->getRights($right);
+        return $this->checkRights($rights);
+    }
+
+    protected function checkRights($rights, $and = true)
+    {
+        foreach ((array)$rights as $right) {
+            if (is_array($right)) {
+                $right = $this->checkRights($right, !$and);
+            }
+            if ($and) {
+                if (!in_array($right, $this->rights)) {
+                    return false;
+                }
+            } else {
+                if (in_array($right, $this->rights)) {
+                    return true;
+                }
+            }
         }
-        return (bool) ((int) $this->rights & (int) $right);
     }
 
 }

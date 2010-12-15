@@ -43,7 +43,7 @@ class MiniMVC_Dispatcher
         if (!$currentApp || !$this->registry->settings->get('apps/'.$currentApp)) {
             $defaultApp = $this->registry->settings->get('config/defaultApp');
             if (!$redirectUrl = $this->registry->settings->get('apps/'.$defaultApp.'/baseurl')) {
-                throw new Exception('No matching App found and no default app configured!');
+                throw new Exception('No matching App found and no default app configured!', 404);
             }
             header('Location: ' . $redirectUrl);
             exit;
@@ -99,7 +99,7 @@ class MiniMVC_Dispatcher
                     $routeName = $defaultRoute;
                     $routeData = $routes[$defaultRoute];
                 } else {
-                    throw new Exception('no route given and no default Route defined!');
+                    throw new Exception('no route given and no valid default Route defined!', 404);
                 }
             } else {
                 $found = false;
@@ -287,9 +287,13 @@ class MiniMVC_Dispatcher
             $routeData['controller'] = 'My_Default';
         }
 
+        if (!isset($routeData['controller']) || !isset($routeData['action'])) {
+            throw new Exception('Route "' . $route . '" is invalid (controller or action not set!', 404);
+        }
 
-        if (isset($routeData['rights']) && $routeData['rights'] && !$this->registry->guard->userHasRight((int)$routeData['rights'])) {
-            if ($this->registry->guard->getRole() && $this->registry->guard->getRole() != $this->registry->rights->getRoleByKeyword('guest')) {
+
+        if (isset($routeData['rights']) && $routeData['rights'] && !$this->registry->guard->userHasRight($routeData['rights'])) {
+            if (!$this->registry->guard->userHasRight('guest')) {
                 throw new Exception('Insufficient rights', 403);
             } else {
                 throw new Exception('Not logged in', 401);
@@ -331,7 +335,7 @@ class MiniMVC_Dispatcher
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
 
         if (!$widgetData = $this->registry->settings->get('widgets/'.$widget, array(), $app)) {
-            throw new Exception('Widget "' . $widget . '" does not exist!');
+            throw new Exception('Widget "' . $widget . '" does not exist!', 404);
         }
         
         $widgetData['parameter'] = (isset($widgetData['parameter'])) ? array_merge($widgetData['parameter'], (array)$params) : (array)$params;
@@ -348,12 +352,33 @@ class MiniMVC_Dispatcher
     {
         $widgetData = $this->getWidget($widget, $params);
 
-        if (!isset($widgetData['controller']) || !isset($widgetData['action'])) {
-            throw new Exception('Widget "' . $widget . '" is invalid (controller or action not set!');
+        if (isset($widgetData['parameter']['_action'])) {
+            $widgetData['action'] = $widgetData['parameter']['_action'];
+        } elseif(!isset($widgetData['action'])) {
+            $widgetData['action'] = 'index';
         }
 
-        if (isset($widgetData['rights']) && $widgetData['rights'] && !$this->registry->guard->userHasRight((int) $widgetData['rights'])) {
-            throw new Exception('Insufficient rights to call widget "' . $widget . '"!');
+        if (isset($widgetData['parameter']['_controller'])) {
+            if (isset($widgetData['parameter']['_module'])) {
+                $widgetData['controller'] = ucfirst($widgetData['parameter']['_module']) . '_' . ucfirst($widgetData['parameter']['_controller']);
+            } else {
+                $routeData['controller'] = 'My_' . ucfirst($widgetData['parameter']['_controller']);
+            }
+        } elseif(!isset($widgetData['controller'])) {
+            $widgetData['controller'] = 'My_Default';
+        }
+
+        if (!isset($widgetData['controller']) || !isset($widgetData['action'])) {
+            throw new Exception('Widget "' . $widget . '" is invalid (controller or action not set!', 404);
+        }
+
+        if (isset($widgetData['rights']) && $widgetData['rights'] && !$this->registry->guard->userHasRight($widgetData['rights'])) {
+            if (!$this->registry->guard->userHasRight('guest')) {
+                throw new Exception('Insufficient rights to call widget "' . $widget . '"!', 403);
+            } else {
+                throw new Exception('Insufficient rights to call widget "' . $widget . '"!', 401);
+            }
+
         }
 
         return $this->call($widgetData['controller'], $widgetData['action'], $widgetData['parameter']);
@@ -370,7 +395,7 @@ class MiniMVC_Dispatcher
     {
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         if (!$taskData = $this->registry->settings->get('tasks/'.$task, array(), $app)) {
-            throw new Exception('Task "' . $task . '" does not exist!');
+            throw new Exception('Task "' . $task . '" does not exist!', 404);
         }
 
         if (isset($taskData['assign'])) {
@@ -400,7 +425,7 @@ class MiniMVC_Dispatcher
         $taskData = $this->getTask($task, $params);
 
         if (!isset($taskData['controller']) || !isset($taskData['action'])) {
-            throw new Exception('Task "' . $task . '" is invalid (controller or action not set!');
+            throw new Exception('Task "' . $task . '" is invalid (controller or action not set!', 404);
         }
 
         return $this->call($taskData['controller'], $taskData['action'], $taskData['parameter']);
@@ -416,16 +441,16 @@ class MiniMVC_Dispatcher
     public function call($controller, $action, $params)
     {
         if (strpos($controller, '_') === false) {
-            throw new Exception('Invalid controller "' . $controller . '"!');
+            throw new Exception('Invalid controller "' . $controller . '"!', 404);
         }
         $controllerParts = explode('_', $controller);
         $controllerName = $controllerParts[0] . '_' . $controllerParts[1] . '_Controller';
         $actionName = $action . 'Action';
         if (!class_exists($controllerName)) {
-            throw new Exception('Controller "' . $controller . '" does not exist!');
+            throw new Exception('Controller "' . $controller . '" does not exist!', 404);
         }
         if (!method_exists($controllerName, $actionName)) {
-            throw new Exception('Action "' . $action . '" for Controller "' . $controller . '" does not exist!');
+            throw new Exception('Action "' . $action . '" for Controller "' . $controller . '" does not exist!', 404);
         }
 
         $viewName = $this->registry->settings->get('config/classes/view', 'MiniMVC_View');

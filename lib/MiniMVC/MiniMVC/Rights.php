@@ -38,35 +38,28 @@ class MiniMVC_Rights
     public function getRoleRights($role)
     {
         $roleData = $this->getRoleData($role);
-        return (isset($roleData['rights'])) ? (int) $roleData['rights'] : 0;
+        return (isset($roleData['rights'])) ? (array) $roleData['rights'] : array();
     }
 
     /**
-     *
+     * @deprecated
      * @param string $rights the key (name) of a right
      * @return integer the requested rights as bitmask or 0 if no right was found
      */
     public function getRights($rights)
     {
-        return (int) MiniMVC_Registry::getInstance()->settings->get('rights/'.$rights.'/key');
+        return (array) $rights;
+        //return MiniMVC_Registry::getInstance()->settings->get('rights/'.$rights.'/key');
     }
 
     /**
      *
+     * @deprecated
      * @return integer returns a combined bitmask of all rights available (useful for super admins)
      */
     public function getAllRights()
     {
-        $return = 0;
-        $rights = MiniMVC_Registry::getInstance()->settings->get('rights');
-        foreach ($rights as $right)
-        {
-            if (!isset($right['key']))
-            {
-                continue;
-            }
-            $return = $return | (int) $right['key'];
-        }
-        return $return;
+        //$rights = MiniMVC_Registry::getInstance()->settings->get('rights');
+        //return array_keys($rights);
     }
 }

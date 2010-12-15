@@ -9,6 +9,14 @@
 
 //modify access rights for module widgets
 /*
-$rights = MiniMVC_Registry::getInstance()->rights;
-$MiniMVC_widgets['some.example.widget']['rights'] = $rights->getRights('user');
+$MiniMVC_widgets['some.example.widget']['rights'] = 'user' // or array('user', array('moderate', 'publish'));
+    // use false for no restrictions,
+    // a right as string (e.g. 'user') th require that right,
+    // an array of rights to require ALL of them (AND)
+    //   e.g. array('user', 'publish') = user AND publish
+    // a dimensional array to require at least one right (OR)
+    //   e.g. array(array('user', 'guest')) = user OR guest
+    // a combination of both (each new level switches logic between AND and OR)
+    //   e.g. array('user', array('publish', 'administrate')) = user AND (publish OR administrate) = (user AND publish) OR (user AND administrate)
+    //        array(array('administrate', array('moderate', 'publish'))) = administrate OR (moderate AND publish)
  */

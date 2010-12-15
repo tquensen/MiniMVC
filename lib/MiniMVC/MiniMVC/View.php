@@ -73,37 +73,44 @@ class MiniMVC_View
             return (string) $this->content;
         }
 
-        $file = $this->file;
+        $_file = $this->file;
         
-		$app = $this->registry->settings->get('currentApp');
+		$_app = $this->registry->settings->get('currentApp');
 
-        $format = $this->registry->template->getFormat();
-        $formatString = ($format) ? '.'.$format : '';
+        $_format = $this->registry->template->getFormat();
+        $_formatString = ($_format) ? '.'.$_format : '';
 
-        $path = null;
-        if ($this->module != '_default')
-        {
-            if (is_file(APPPATH.$app.'/view/'.$this->module.'/'.$file.$formatString.'.php')) {
-                $path = APPPATH.$app.'/view/'.$this->module.'/'.$file.$formatString.'.php';
-            } elseif (is_file(VIEWPATH.$this->module.'/'.$file.$formatString.'.php')) {
-                $path = VIEWPATH.$this->module.'/'.$file.$formatString.'.php';
-            } elseif(is_file(MODULEPATH.$this->module.'/view/'.$file.$formatString.'.php')) {
-                $path = MODULEPATH.$this->module.'/view/'.$file.$formatString.'.php';
+        $_path = null;
+        $_cache = $this->registry->cache->get('viewCached');
+        if (isset($_cache[$_app.'_'.$this->module.'_'.str_replace('/', '__', $_file.$_formatString)])) {
+            $_path = $_cache[$_app.'_'.$this->module.'_'.str_replace('/', '__', $_file.$_formatString)];
+        } else {
+            if ($this->module != '_default')
+            {
+                if (is_file(APPPATH.$_app.'/view/'.$this->module.'/'.$_file.$_formatString.'.php')) {
+                    $_path = APPPATH.$_app.'/view/'.$this->module.'/'.$_file.$_formatString.'.php';
+                } elseif (is_file(VIEWPATH.$this->module.'/'.$_file.$_formatString.'.php')) {
+                    $_path = VIEWPATH.$this->module.'/'.$_file.$_formatString.'.php';
+                } elseif(is_file(MODULEPATH.$this->module.'/view/'.$_file.$_formatString.'.php')) {
+                    $_path = MODULEPATH.$this->module.'/view/'.$_file.$_formatString.'.php';
+                }
             }
-        }
-        else
-        {
-            if (is_file(APPPATH.$app.'/view/'.$file.$formatString.'.php')) {
-                $path = APPPATH.$app.'/view/'.$file.$formatString.'.php';
-            } elseif (is_file(VIEWPATH.$file.$formatString.'.php')) {
-                $path = VIEWPATH.$file.$formatString.'.php';
+            else
+            {
+                if (is_file(APPPATH.$_app.'/view/'.$_file.$_formatString.'.php')) {
+                    $_path = APPPATH.$_app.'/view/'.$_file.$_formatString.'.php';
+                } elseif (is_file(VIEWPATH.$_file.$f_ormatString.'.php')) {
+                    $_path = VIEWPATH.$_file.$_formatString.'.php';
+                }
             }
+            if (!$_path)
+            {
+                throw new Exception('View "'.$_file.$_formatString.'" for module '.$this->module.' not found!', 404);
+            }
+            $this->registry->cache->set('viewCached', array($_app.'_'.$this->module.'_'.str_replace('/', '__', $_file.$_formatString) => $_path), true);
         }
 
-        if (!$path)
-		{
-			throw new Exception('View "'.$file.$formatString.'" for module '.$this->module.' not found!');
-		}
+        
 
 		extract($this->vars);
         $h = $this->helper;
@@ -111,7 +118,7 @@ class MiniMVC_View
         $o = $this->helper->text;
         try {
             ob_start();
-            include ($path);
+            include ($_path);
             return ob_get_clean();
         } catch (Exception $e) {
             ob_end_clean();
