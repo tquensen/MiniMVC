@@ -3,7 +3,7 @@
 /**
  * MiniMVC_Cache is used for caching
  */
-class MiniMVC_Cache
+abstract class MiniMVC_Cache
 {
     /**
      *
