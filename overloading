@@ -1,0 +1,81 @@
+Overloading Stacks:
+    Static files: (CSS, JS, Images, ...)
+        Global:
+            Basepath: WEBPATH/* (for relative paths in css files)
+            Overload:
+                    = APPPATH/APP/web/*
+                      -> WEBPATH/app/APP/*
+
+        Module-specific:
+            Basepath: MODULEPATH/MODULE/web/*
+                      -> WEBPATH/module/MODULE/* (for relative paths in css files)
+            Overload:
+                    = WEBPATH/MODULE/*
+                    = APPPATH/APP/web/MODULE/*
+                      -> WEBPATH/app/APP/MODULE/*
+
+
+    Config / i18n
+        - MiniMVC defaults
+        - Module specific
+        - Global configs
+        - App configs
+        - Environment specific module configs
+        - Environment specific globl configs
+        - Environment specific app configs
+
+    Partials:
+        - MINIMVCPATH/data/partial/*
+        - DATADIR/partial/*
+        - APPPATH/APP/partial/*
+        - MODULEPATH/MODULE/partial/*
+        - DATAPATH/partial/MODULE/*
+        - APPPATH/APP/partial/MODULE/*
+
+    Views:
+        Layouts:
+            - VIEWPATH/*
+            - APPPATH/APP/view/*
+
+        Module views:
+            - MODULEPATH/MODULE/view/*
+            - VIEWPATH/MODULE/*
+            - APPPATH/APP/view/MODULE/*
+
+     Classes:
+        Controller: (controllername = MODULE_CONTROLLER / classname = MODULE_CONTROLLER_controller)
+            - MODULEPATH/MODULE/controller/CONTROLLER.php
+            - MODULEPATH/ANYMODULE/controller/MODULE_CONTROLLER_controller.php
+            - APPPATH/APP/module/MODULE/controller/CONTROLLER.php
+
+        Other: (CLASSPATH = replaced _ with / in classname)
+            - BASEPATH/CLASS.php
+            - BASEPATH/CLASSPATH.php
+
+            - AUTOLOADPATH/CLASSPATH.class.php
+            - AUTOLOADPATH/CLASSPATH.php
+            - AUTOLOADPATH/class.CLASS.php
+            - AUTOLOADPATH/CLASS.class.php
+            - AUTOLOADPATH/CLASS.php
+
+            - MODULEPATH/ANYMODULE/model/CLASS.php
+            - MODULEPATH/ANYMODULE/model/CLASSPATH.php
+            - MODULEPATH/ANYMODULE/lib/CLASS.php
+            - MODULEPATH/ANYMODULE/lib/CLASSPATH.php
+            - MODULEPATH/ANYMODULE/CLASS.php
+            - MODULEPATH/ANYMODULE/CLASSPATH.php
+
+            - APPPATH/APP/module/ANYMODULE/model/CLASS.php
+            - APPPATH/APP/module/ANYMODULE/model/CLASSPATH.php
+            - APPPATH/APP/module/ANYMODULE/lib/CLASS.php
+            - APPPATH/APP/module/ANYMODULE/lib/CLASSPATH.php
+            - APPPATH/APP/module/ANYMODULE/CLASS.php
+            - APPPATH/APP/module/ANYMODULE/CLASSPATH.php
+
+            - APPPATH/APP/model/CLASS.php
+            - APPPATH/APP/model/CLASSPATH.php
+            - APPPATH/APP/lib/CLASS.php
+            - APPPATH/APP/lib/CLASSPATH.php
+            - APPPATH/APP/CLASS.php
+            - APPPATH/APP/CLASSPATH.php
+

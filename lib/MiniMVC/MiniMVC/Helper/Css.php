@@ -95,6 +95,7 @@ class Helper_Css extends MiniMVC_Helper
             $data['combine'] = (isset($file['combine'])) ? $file['combine'] : true;
             $data['minify'] = (isset($file['minify'])) ? $file['minify'] : $data['combine'];
             $data['module'] = $module;
+            $data['app'] = $app;
             $data['file'] = $file['file'];
             $preparedFiles[$app.'/'.$module . '/' . $file['file']] = $data;
         }
@@ -121,17 +122,17 @@ class Helper_Css extends MiniMVC_Helper
             if ($file['combine']) {
                 $combinedFound = true;
 
-                if ($module) {
-                    if (file_exists(WEBPATH.'app/'.$app.'/'.$module.'/css/'.$file['file'])) {
-                        $filePath = WEBPATH.'app/'.$app.'/'.$module.'/css/'.$file['file'];
-                    } elseif (file_exists(WEBPATH.$module.'/css/'.$file['file'])) {
-                        $filePath = WEBPATH.$module.'/css/'.$file['file'];
+                if (!empty($file['module'])) {
+                    if (file_exists(WEBPATH.'app/'.$file['app'].'/'.$file['module'].'/css/'.$file['file'])) {
+                        $filePath = WEBPATH.'app/'.$file['app'].'/'.$file['module'].'/css/'.$file['file'];
+                    } elseif (file_exists(WEBPATH.$file['module'].'/css/'.$file['file'])) {
+                        $filePath = WEBPATH.$file['module'].'/css/'.$file['file'];
                     } else {
                         $filePath = WEBPATH.'module/'.$module.'/css/'.$file['file'];
                     }
-                    $urlPrefix = 'module/'.$module.'/css/';
-                } elseif (file_exists(WEBPATH.'app/'.$app.'/css/'.$file['file'])) {
-                    $filePath = WEBPATH.'app/'.$app.'/css/'.$file['file'];
+                    $urlPrefix = 'module/'.$file['app'].'/css/';
+                } elseif (file_exists(WEBPATH.'app/'.$file['app'].'/css/'.$file['file'])) {
+                    $filePath = WEBPATH.'app/'.$file['app'].'/css/'.$file['file'];
                     $urlPrefix = 'css/';
                 } else {
                     $filePath = WEBPATH.'css/'.$file['file'];
@@ -141,7 +142,7 @@ class Helper_Css extends MiniMVC_Helper
 //                $relativePath = str_replace($baseurls, '', $file['url']); //relative path from web root
 //                $urlPrefix = dirname($relativePath) . '/';
 //                $filePath = $file['file'];
-                $data = $this->parseFile($filePath, $urlPrefix, $app, $environment);
+                $data = $this->parseFile($filePath, $urlPrefix, $file['app'], $environment);
                 foreach (explode(',', $file['media']) as $media) {
                     $medias[trim($media)][] = $data;
                 }
@@ -213,7 +214,9 @@ class Helper_Css extends MiniMVC_Helper
                 }
                 $search[] = $match[0];
                 $pathNew = implode('/', $pathNew);
-                if (preg_match('#^module/(\w*)/(.*)$#', $pathNew, $moduleMatch)) {
+                if (preg_match('#module/(\w*)/(.*)$#', $pathNew, $moduleMatch)) {
+                    $pathNew = $this->staticHelper->get($moduleMatch[2], $moduleMatch[1], $app);
+                } elseif (preg_match('#^module/(\w*)/(.*)$#', $pathNew, $moduleMatch)) {
                     $pathNew = $this->staticHelper->get($moduleMatch[2], $moduleMatch[1], $app);
                 } elseif (preg_match('#^app/(\w*)/(.*)$#', $pathNew, $moduleMatch)) {
                     $tmp = explode('/', $moduleMatch[2]);

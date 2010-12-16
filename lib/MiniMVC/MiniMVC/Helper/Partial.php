@@ -20,17 +20,17 @@ class Helper_Partial extends MiniMVC_Helper
                 $_file = $_cache[$_app.'_'.$_module.'_'.$_format.'_'.str_replace('/', '__', $_partial)];
             } else {
                 if ($_format) {
-                    if ($_format && $_module !== null && file_exists(APPPATH . $_app . '/partial/' . $_module . '/' . $_partial . '.' . $_format . '.php')) {
+                    if ($_module !== null && file_exists(APPPATH . $_app . '/partial/' . $_module . '/' . $_partial . '.' . $_format . '.php')) {
                         $_file = APPPATH . $_app . '/partial/' . $_module . '/' . $_partial . '.' . $_format . '.php';
-                    } elseif ($_format && $_module !== null && file_exists(DATAPATH . 'partial/' . $_module . '/' . $_partial . '.' . $_format . '.php')) {
+                    } elseif ($_module !== null && file_exists(DATAPATH . 'partial/' . $_module . '/' . $_partial . '.' . $_format . '.php')) {
                         $_file = DATAPATH . 'partial/' . $_module . '/' . $_partial . '.' . $_format . '.php';
-                    } elseif ($_format && $_module !== null && file_exists(MODULEPATH . $_module . '/partial/' . $_partial . '.' . $_format . '.php')) {
+                    } elseif ($_module !== null && file_exists(MODULEPATH . $_module . '/partial/' . $_partial . '.' . $_format . '.php')) {
                         $_file = MODULEPATH . $_module . '/partial/' . $_partial . '.' . $_format . '.php';
-                    } elseif ($_format && file_exists(APPPATH . $_app . '/partial/' . $_partial . '.' . $_format . '.php')) {
+                    } elseif (file_exists(APPPATH . $_app . '/partial/' . $_partial . '.' . $_format . '.php')) {
                         $_file = APPPATH . $_app . '/partial/' . $_partial . '.' . $_format . '.php';
-                    } elseif ($_format && file_exists(DATAPATH . 'partial/' . $_partial . '.' . $_format . '.php')) {
+                    } elseif (file_exists(DATAPATH . 'partial/' . $_partial . '.' . $_format . '.php')) {
                         $_file = DATAPATH . 'partial/' . $_partial . '.' . $_format . '.php';
-                    } elseif ($_format && file_exists(MINIMVCPATH . 'data/partial/' . $_partial . '.' . $_format . '.php')) {
+                    } elseif (file_exists(MINIMVCPATH . 'data/partial/' . $_partial . '.' . $_format . '.php')) {
                         $_file = MINIMVCPATH . 'data/partial/' . $_partial . '.' . $_format . '.php';
                     }
                 } else {
