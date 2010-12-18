@@ -1,22 +1,11 @@
 <?php
 
 class Helper_Url extends MiniMVC_Helper
-{	
+{
 	public function get($route, $parameter = array(), $app = null, $language = null)
 	{
 		$app = ($app) ? $app : $this->registry->settings->get('currentApp');
-		try
-		{
-			$routeData = $this->registry->dispatcher->getRoute($route, $parameter, $app);
-		}
-		catch (Exception $e)
-		{
-			return false;
-		}
-		if (!$appData = $this->registry->settings->get('apps/'.$app))
-		{
-			return false;
-		}
+
         $language = $language ? $language : $this->registry->settings->get('currentLanguage');
         if ($language == $this->registry->settings->get('config/defaultLanguage') || !in_array($language, $this->registry->settings->get('config/enabledLanguages', array()))) {
             $language = false;
@@ -31,6 +20,24 @@ class Helper_Url extends MiniMVC_Helper
         } else {
             $baseurl = $this->registry->settings->get('apps/'.$app.'/baseurl');
         }
+
+        if ((!$route || $route == 'home') && empty($parameter)) {
+            return $baseurl;
+        }
+
+		try
+		{
+			$routeData = $this->registry->dispatcher->getRoute($route, $parameter, $app);
+		}
+		catch (Exception $e)
+		{
+			return false;
+		}
+		if (!$appData = $this->registry->settings->get('apps/'.$app))
+		{
+			return false;
+		}
+
 
 		$search = array('(',')');
 		$replace = array('','');
@@ -103,7 +110,7 @@ class Helper_Url extends MiniMVC_Helper
                 'route' => $route,
                 'action' => $url,
                 'method' => strtoupper($method),
-                'class' => 'minimvcInlineForm'                
+                'class' => 'minimvcInlineForm'
             ));
             if ($confirm) {
                 $form->setOption('attributes', array('onclick' => 'return confirm(\''.htmlspecialchars($confirm).'\')'));
@@ -127,7 +134,7 @@ class Helper_Url extends MiniMVC_Helper
         if (isset($routeData['rights']) && $routeData['rights'] && !$this->registry->guard->userHasRight($routeData['rights'])) {
             return false;
         }
-        
+
         return true;
     }
 }
