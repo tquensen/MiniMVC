@@ -168,19 +168,30 @@ class MiniMVC_Guard
 
     protected function checkRights($rights, $and = true)
     {
-        foreach ((array)$rights as $right) {
-            if (is_array($right)) {
-                $right = $this->checkRights($right, !$and);
-            }
-            if ($and) {
+        if ($and) {
+            foreach ((array)$rights as $right) {
+                if (is_array($right)) {
+                    if (!$this->checkRights($right, !$and)) {
+                        return false;
+                    }
+                }
                 if (!in_array($right, $this->rights)) {
                     return false;
                 }
-            } else {
+            }
+            return true;
+        } else {
+            foreach ((array)$rights as $right) {
+                if (is_array($right)) {
+                    if ($this->checkRights($right, !$and)) {
+                        return true;
+                    }
+                }
                 if (in_array($right, $this->rights)) {
                     return true;
                 }
             }
+            return false;
         }
     }
 
