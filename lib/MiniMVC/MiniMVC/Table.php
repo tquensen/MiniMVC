@@ -423,7 +423,9 @@ class MiniMVC_Table {
             
             $this->_db->commit();
         } catch (PDOException $e) {
-            $this->_db->rollBack();
+            if (!$this->_db->rollBack()) {
+                throw $e;
+            }
             return false;
         }
 
@@ -439,6 +441,7 @@ class MiniMVC_Table {
             {
                 if (!isset($entry->{$this->_identifier}) || !$entry->{$this->_identifier})
                 {
+                    $this->_db->rollBack();
                     return false;
                 }
 
@@ -479,7 +482,9 @@ class MiniMVC_Table {
 
             $this->_db->commit();
         } catch (PDOException $e) {
-            $this->_db->rollBack();
+            if (!$this->_db->rollBack()) {
+                throw $e;
+            }
             return false;
         }
 		return $result;

@@ -29,14 +29,14 @@ class MiniMVC_Pdo
             return;
         }
 
-        $this->connections[$connection] = new LoggablePDO(
+        $this->connections[$connection] = new MiniMVCPDO(
             $dbSettings[$connection]['driver'],
             $dbSettings[$connection]['username'],
             $dbSettings[$connection]['password'],
             isset($dbSettings[$connection]['options']) ? array_merge(array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION), $dbSettings[$connection]['options']) : array(PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION)
         );
 
-        $this->connections[$connection]->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('LoggablePDOStatement', array($this->connections[$connection])));
+        $this->connections[$connection]->setAttribute(PDO::ATTR_STATEMENT_CLASS, array('MiniMVCPDOStatement', array($this->connections[$connection])));
 
         if ($this->connections[$connection]->getAttribute(PDO::ATTR_DRIVER_NAME) == 'mysql') {
             $this->connections[$connection]->exec('SET CHARACTER SET utf8');
@@ -80,9 +80,11 @@ class MiniMVC_Pdo
 }
 
 
-class LoggablePDO extends PDO
+class MiniMVCPDO extends PDO
 {
     protected $log = array();
+
+    protected $transactionDeep = 0;
 
     public function query($query) {
         $this->log($query);
@@ -120,9 +122,50 @@ class LoggablePDO extends PDO
 
         return $data;
     }
+
+    public function beginTransaction()
+    {
+
+        if ($this->transactionDeep === 0) {
+            $status  = parent::beginTransaction();
+            if ($status) {
+                $this->transactionDeep++;
+            }
+            return $status;
+        }
+        $this->transactionDeep++;
+        return true;
+    }
+
+    public function commit()
+    {
+        if ($this->transactionDeep === 1) {
+            $status = parent::commit();
+            if ($status) {
+                $this->transactionDeep--;
+            }
+            return $status;
+        }
+        $this->transactionDeep--;
+        return true;
+    }
+
+    public function rollBack()
+    {
+        if ($this->transactionDeep === 1) {
+            $status = parent::rollBack();
+            if ($status) {
+                $this->transactionDeep--;
+            }
+            return $status;
+        }
+        $this->transactionDeep--;
+        return false;
+    }
+
 }
 
-class LoggablePDOStatement extends PDOStatement
+class MiniMVCPDOStatement extends PDOStatement
 {
     /**
      * @var LoggablePDO
