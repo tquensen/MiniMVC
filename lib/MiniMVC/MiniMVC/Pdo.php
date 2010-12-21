@@ -128,9 +128,7 @@ class MiniMVCPDO extends PDO
 
         if ($this->transactionDeep === 0) {
             $status  = parent::beginTransaction();
-            if ($status) {
-                $this->transactionDeep++;
-            }
+            $this->transactionDeep++;
             return $status;
         }
         $this->transactionDeep++;
@@ -141,9 +139,7 @@ class MiniMVCPDO extends PDO
     {
         if ($this->transactionDeep === 1) {
             $status = parent::commit();
-            if ($status) {
-                $this->transactionDeep--;
-            }
+            $this->transactionDeep--;
             return $status;
         }
         $this->transactionDeep--;
@@ -154,9 +150,7 @@ class MiniMVCPDO extends PDO
     {
         if ($this->transactionDeep === 1) {
             $status = parent::rollBack();
-            if ($status) {
-                $this->transactionDeep--;
-            }
+            $this->transactionDeep--;
             return $status;
         }
         $this->transactionDeep--;
