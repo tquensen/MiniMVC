@@ -28,7 +28,7 @@ class Core_Error_Controller extends MiniMVC_Controller
 		header('HTTP/1.1 403 Forbidden', true, 403);
 	}
 	
-	public function error404Action()
+	public function error404Action($params)
 	{
         $this->registry->helper->meta->setTitle('Error 404 Not Found', false);
         $this->registry->helper->meta->setDescription('');

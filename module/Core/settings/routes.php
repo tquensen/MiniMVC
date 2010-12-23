@@ -31,7 +31,7 @@ $MiniMVC_routes['core.error500'] = array(
     'action' => 'error500',
 );
 $MiniMVC_routes['core.error500.debug'] = array(
-    'route' => 'error404debug',
+    'route' => 'error500debug',
     'active' => false, //don't allow direct access
     'controller' => 'Core_Error',
     'action' => 'error500',
