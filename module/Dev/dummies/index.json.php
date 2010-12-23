@@ -9,14 +9,14 @@ $json = array(
     'entries' => array()
 );
 if (count($entries)) {
-    foreach ($entries as $entry) {
-        //$json['entries'][] = $entry->toArray(); //return the complete entry
+    foreach ($entries as $model) {
+        //$json['entries'][] = $model->toArray(); //return the complete entry
 
         //... or just specific and/or additional properties
         $json['entries'][] = array(
-            'id' => $entry->id,
-            'title' => $entry->title,
-            'url' => $h->url->get('MODLC.CONTROLLERLCFIRSTShow', array('id' => $entry->id))
+            'id' => $model->id,
+            'title' => $model->title,
+            'url' => $h->url->get('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id))
         );
     }
 }

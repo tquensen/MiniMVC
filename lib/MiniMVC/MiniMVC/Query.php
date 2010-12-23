@@ -362,7 +362,16 @@ class MiniMVC_Query
         }
 
         if (!$isPreQuery && $this->type == 'UPDATE' && count($this->columns)) { //($this->type == 'INSERT INTO' || $this->type == 'UPDATE')) {
-            $q .= ' SET '.implode(' = ? , ',$this->columns). ' = ? ';
+            $q .= ' SET ';
+            $cols = array();
+            foreach ($this->columns as $column) {
+                if (strpos($column, '=') === false) {
+                    $cols[] = $column;
+                } else {
+                    $cols[] = $column . ' = ?';
+                }
+            }
+            $q .= implode(', ', $cols);
         }
 
         if (!$isPreQuery && $this->type == 'INSERT INTO' && count($this->columns)) { //($this->type == 'INSERT INTO' || $this->type == 'UPDATE')) {
