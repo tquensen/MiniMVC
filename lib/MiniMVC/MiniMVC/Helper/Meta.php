@@ -31,7 +31,13 @@ class Helper_Meta extends MiniMVC_Helper
                 array_unshift($this->title, $title);
             }
         } else {
-            $this->title = array($title);
+            if ($this->titleAlign == 'ltr') {
+                $pageTitle = array_shift($this->title);
+                $this->title = array($pageTitle, $title);
+            } else {
+                $pageTitle = array_pop($this->title);
+                $this->title = array($title, $pageTitle);
+            }
         }
     }
 

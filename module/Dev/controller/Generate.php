@@ -42,7 +42,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
 
         foreach ($languages as $currentLanguage => $currentLanguageData) {
             if (file_exists(MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php')) {
-                file_put_contents(MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php', implode("\n", $languages[$currentLanguage]['new']), FILE_APPEND);
+                file_put_contents(MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php', "\n".implode("\n", $languages[$currentLanguage]['new']), FILE_APPEND);
                 $return .= 'Datei '.MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php'.' aktualisiert!'."\n";
             } else {
                 file_put_contents(MODULEPATH . $params['module'].'/i18n/'.$currentLanguage.'.php', '<?php'."\n".implode("\n", $languages[$currentLanguage]['new']));
