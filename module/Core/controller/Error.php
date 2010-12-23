@@ -33,6 +33,11 @@ class Core_Error_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setTitle('Error 404 Not Found', false);
         $this->registry->helper->meta->setDescription('');
 		header('HTTP/1.1 404 Not Found', true, 404);
+
+        if (isset($params['debug']) && $params['debug'] && isset($params['exception'])) {
+            $this->view->e = $params['exception'];
+            $this->view->setFile('error/error404debug');
+        }
 	}
 
     public function error500Action($params)

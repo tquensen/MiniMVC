@@ -14,13 +14,17 @@ $MiniMVC_routes['core.error404'] = array(
     'controller' => 'Core_Error',
     'action' => 'error404',
 );
+$MiniMVC_routes['core.error404.debug'] = array(
+    'controller' => 'Core_Error',
+    'action' => 'error404',
+    'parameter' => array('debug' => true)
+);
 $MiniMVC_routes['core.error500'] = array(
     'route' => 'error500',
     'controller' => 'Core_Error',
     'action' => 'error500',
 );
 $MiniMVC_routes['core.error500.debug'] = array(
-    'route' => 'error500',
     'controller' => 'Core_Error',
     'action' => 'error500',
     'parameter' => array('debug' => true)
