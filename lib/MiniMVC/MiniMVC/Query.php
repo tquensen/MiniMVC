@@ -365,7 +365,7 @@ class MiniMVC_Query
             $q .= ' SET ';
             $cols = array();
             foreach ($this->columns as $column) {
-                if (strpos($column, '=') === false) {
+                if (strpos($column, '=') !== false) {
                     $cols[] = $column;
                 } else {
                     $cols[] = $column . ' = ?';
