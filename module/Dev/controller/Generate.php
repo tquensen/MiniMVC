@@ -359,16 +359,16 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             'array' => 'TEXT'
         );
 
-        $return = '';
+        $return = array();
         foreach ($definition['columns'] as $column => $type) {
             $sqlType = isset($types[strtolower($type)]) ? $types[strtolower($type)] : 'VARCHAR(255)';
             if ($column == $definition['identifier']) {
-                $return = $column . ' ' .$sqlType . ($definition['autoIncrement'] ? ' AUTO INCREMENT ' : '') . "\n" . $return;
+                array_unshift($return, $column . ' ' .$sqlType . ($definition['autoIncrement'] ? ' AUTO INCREMENT ' : ''));
             } else {
-                $return .= '                      ' . $column . ' ' .$sqlType . "\n";
+                $return[] = '                      ' . $column . ' ' .$sqlType;
             }
         }
-        return $return;
+        return implode(",\n", $return);
 
     }
 
