@@ -23,7 +23,7 @@ class {name}Table extends {name}TableBase
         switch ($installedVersion) {
             case 0:
                 $sql = "CREATE TABLE {table} (
-                      {columns_sql}
+                      {columns_sql},
 					  PRIMARY KEY ({identifier})
 					) ENGINE=INNODB DEFAULT CHARSET=utf8";
 
