@@ -50,16 +50,16 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         {
             $model = $this->view->form->updateModel();
             if (!$model->save()) {
-                $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTFormSaveError);
+                $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTCreateErrorMessage);
                 $this->view->form->errorRedirect();
             }
+            $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage, 'success');
             return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
         }
 
         $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTCreateTitle);
         $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTMetaDescription);
 
-        $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage, 'success');
          */
 
         //return $this->view->prepare('CONTROLLERLC/create', 'MODULE');
@@ -76,16 +76,16 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         {
             $model = $this->view->form->updateModel();
             if (!$model->save()) {
-                $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTFormSaveError);
+                $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTEditErrorMessage);
                 $this->view->form->errorRedirect();
             }
+            $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTEditSuccessMessage, 'success');
             return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
         }
 
         $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTEditTitle);
         $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTMetaDescription);
 
-        $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTEditSuccessMessage, 'success');
 
          */
 

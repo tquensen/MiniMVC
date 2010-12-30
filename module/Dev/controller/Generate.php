@@ -169,7 +169,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         );
         $replace = array(
             strtolower(substr($params['module'], 0, 1)) . substr($params['module'], 1),
-            'default',
+            strtolower(substr($params['module'], 0, 1)) . substr($params['module'], 1),
             strtolower($params['module']),
             $params['module'],
             $params['module']
@@ -363,7 +363,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         foreach ($definition['columns'] as $column => $type) {
             $sqlType = isset($types[strtolower($type)]) ? $types[strtolower($type)] : 'VARCHAR(255)';
             if ($column == $definition['identifier']) {
-                array_unshift($return, $column . ' ' .$sqlType . ($definition['autoIncrement'] ? ' AUTO INCREMENT ' : ''));
+                array_unshift($return, $column . ' ' .$sqlType . ($definition['autoIncrement'] ? ' AUTO_INCREMENT' : ''));
             } else {
                 $return[] = '                      ' . $column . ' ' .$sqlType;
             }

@@ -51,16 +51,16 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         {
             $model = $this->view->form->updateModel();
             if (!$model->save()) {
-                $this->view->form->setError($this->view->t->MODULELCFIRSTFormSaveError);
+                $this->view->form->setError($this->view->t->MODULELCFIRSTCreateErrorMessage);
                 $this->view->form->errorRedirect();
             }
+            $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTCreateSuccessMessage, 'success');
             return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
         }
 
         $this->registry->helper->meta->setTitle($this->view->t->MODULELCFIRSTCreateTitle);
         $this->registry->helper->meta->setDescription($this->view->t->MODULELCFIRSTMetaDescription);
 
-        $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTCreateSuccessMessage, 'success');
          */
 
         //return $this->view->prepare('default/create', 'MODULE');
@@ -77,16 +77,16 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         {
             $model = $this->view->form->updateModel();
             if (!$model->save()) {
-                $this->view->form->setError($this->view->t->MODULELCFIRSTFormSaveError);
+                $this->view->form->setError($this->view->t->MODULELCFIRSTEditErrorMessage);
                 $this->view->form->errorRedirect();
             }
+            $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTEditSuccessMessage, 'success');
             return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
         }
 
         $this->registry->helper->meta->setTitle($this->view->t->MODULELCFIRSTEditTitle);
         $this->registry->helper->meta->setDescription($this->view->t->MODULELCFIRSTMetaDescription);
 
-        $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTEditSuccessMessage, 'success');
          */
 
         //return $this->view->prepare('default/edit', 'MODULE');

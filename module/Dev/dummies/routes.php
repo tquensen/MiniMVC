@@ -46,7 +46,6 @@ $MiniMVC_routes['MODLC.defaultEdit'] = array(
     'method' => array('GET', 'POST'),
     //'model' => array('MODULE', 'id'),
     'parameter' => array('id' => false),
-    //'parameterPatterns' => array('_format' => 'json|xml'), //allow xml and json as alternative formats
     'active' => false, //this route must be activated for each app to work
     //'rights' => 'publish'
 );

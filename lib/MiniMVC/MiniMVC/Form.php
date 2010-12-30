@@ -36,7 +36,7 @@ class MiniMVC_Form
 
 
         if ($this->getOption('csrfProtection')) {
-            $this->generateCsrfToken($this->options['route']);
+            $this->generateCsrfToken();
             
 
 //            $oldCsrfToken = (isset($_SESSION['Form_' . $this->name . '_CsrfToken']))
@@ -52,10 +52,10 @@ class MiniMVC_Form
         }
     }
 
-    public function generateCsrfToken($route)
+    public function generateCsrfToken()
     {
         $this->csrfToken = md5($this->name . time() . rand(1000, 9999));
-        $_SESSION[$this->options['route'] . '_csrf_token'] = $this->csrfToken;
+        $_SESSION[md5($this->options['action']) . '_csrf_token'] = $this->csrfToken;
     }
 
     public function getCsrfToken()
