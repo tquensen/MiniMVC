@@ -108,6 +108,7 @@ class Helper_Url extends MiniMVC_Helper
             $form = new MiniMVC_Form(array(
                 'name' => md5($url).'Form',
                 'route' => $route,
+                'routeParameter' => $parameter,
                 'action' => $url,
                 'method' => strtoupper($method),
                 'class' => 'minimvcInlineForm'
