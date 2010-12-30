@@ -143,13 +143,7 @@ class MiniMVC_Guard
      */
     public function checkCsrfProtection($throwException = true)
     {
-        $identifier = md5($this->registry->settings->get('currentRoute') . serialize($this->registry->settings->get('currentRouteParameter')));
-
-        $csrfData = array(
-            'expected' => isset($_SESSION[$identifier.'_csrf_token']) ? $_SESSION[$identifier.'_csrf_token'] : null,
-            'submitted' => isset($_POST['_csrf_token']) ? $_POST['_csrf_token'] : null
-        );
-        unset($_SESSION[$identifier.'_csrf_token']);
+        $csrfData = $this->registry->settings->get('csrfData', array());
 
         if (empty($csrfData['expected']) || empty($csrfData['submitted']) || $csrfData['expected'] != $csrfData['submitted']) {
             if ($throwException) {
