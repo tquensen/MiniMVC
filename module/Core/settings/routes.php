@@ -5,11 +5,25 @@ $MiniMVC_routes['core.error401'] = array(
     'controller' => 'Core_Error',
     'action' => 'error401',
 );
+$MiniMVC_routes['core.error401.debug'] = array(
+    'route' => 'error401debug',
+    'active' => false, //don't allow direct access
+    'controller' => 'Core_Error',
+    'action' => 'error401',
+    'parameter' => array('debug' => true)
+);
 $MiniMVC_routes['core.error403'] = array(
     'route' => 'error403',
     'active' => false, //don't allow direct access
     'controller' => 'Core_Error',
     'action' => 'error403',
+);
+$MiniMVC_routes['core.error403.debug'] = array(
+    'route' => 'error403debug',
+    'active' => false, //don't allow direct access
+    'controller' => 'Core_Error',
+    'action' => 'error403',
+    'parameter' => array('debug' => true)
 );
 $MiniMVC_routes['core.error404'] = array(
     'route' => 'error404',

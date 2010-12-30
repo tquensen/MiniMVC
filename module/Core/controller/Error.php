@@ -14,18 +14,28 @@ class Core_Error_Controller extends MiniMVC_Controller
         510 => '510 Not Extended',
     );
 
-	public function error401Action()
+	public function error401Action($params)
 	{
         $this->registry->helper->meta->setTitle('Error 401 Unauthorized', false);
         $this->registry->helper->meta->setDescription('');
         header('HTTP/1.1 401 Unauthorized', true, 401);
+
+        if (isset($params['debug']) && $params['debug'] && isset($params['exception'])) {
+            $this->view->e = $params['exception'];
+            $this->view->setFile('error/error401debug');
+        }
 	}
 	
-	public function error403Action()
+	public function error403Action($params)
 	{
         $this->registry->helper->meta->setTitle('Error 403 Forbidden', false);
         $this->registry->helper->meta->setDescription('');
 		header('HTTP/1.1 403 Forbidden', true, 403);
+
+        if (isset($params['debug']) && $params['debug'] && isset($params['exception'])) {
+            $this->view->e = $params['exception'];
+            $this->view->setFile('error/error403debug');
+        }
 	}
 	
 	public function error404Action($params)
