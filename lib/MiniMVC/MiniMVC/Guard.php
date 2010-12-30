@@ -27,7 +27,7 @@ class MiniMVC_Guard
         } else {
             $this->role = $this->registry->rights->getRoleByKeyword('guest');
         }
-        
+
         if (isset($_SESSION['guardData'])) {
             $this->data = $_SESSION['guardData'];
         }
@@ -153,7 +153,7 @@ class MiniMVC_Guard
 
         if (empty($csrfData['expected']) || empty($csrfData['submitted']) || $csrfData['expected'] != $csrfData['submitted']) {
             if ($throwException) {
-                throw new Exception('invalid csrf token!', 401);
+                throw new Exception('invalid csrf token: '.(empty($csrfData['submitted']) ? ' (none)' : $csrfData['submitted']) . ' / expected: '.(empty($csrfData['expected']) ? ' (none)' : $csrfData['expected']), 401);
             }
             return false;
         }
