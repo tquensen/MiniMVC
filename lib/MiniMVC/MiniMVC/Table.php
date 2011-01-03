@@ -85,11 +85,20 @@ class MiniMVC_Table {
         return $this->_table;
     }
 
+    /**
+     *
+     * @return MiniMVC_Collection
+     */
+    public function getCollection()
+    {
+        return call_user_func($this->_model . 'Collection::getInstance');
+    }
+
 
     /**
      *
      * @param mixed $id the identifier
-     * @return Mysql_Model
+     * @return MiniMVC_Model
      */
 	public function loadOne($id)
 	{
@@ -106,7 +115,7 @@ class MiniMVC_Table {
 	public function loadOneBy($condition, $value = null, $order = null, $offset = 0)
 	{
         $result = $this->query()->where($condition)->orderBy($order)->limit(1, $offset)->build($value);
-        return is_array($result) ? reset($result) : null;
+        return $result->getFirst();
 	}
 
     /**
@@ -127,14 +136,14 @@ class MiniMVC_Table {
      * @param string $order an order by clause (id ASC, foo DESC)
      * @param int $offset
      * @param bool $needPreQuery set this to true if you use limit or offset with a 1-to-many left join (to limit the resulting entries, not the table rows)
-     * @return Mysql_Model
+     * @return MiniMVC_Model
      */
 	public function loadOneWithRelations($id, $relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = null)
 	{
         $value = (array) $value;
         array_unshift($value, $id);
         $results = $this->loadWithRelations($relations, $condition ? 'a.'.$this->_identifier . ' = ? AND '.$condition : 'a.'.$this->_identifier . ' = ?', $value, $order, null, $offset, $needPreQuery);
-        return is_array($results) ? reset($results) : null;
+        return $results->getFirst();
 	}
 
     /**
@@ -154,12 +163,12 @@ class MiniMVC_Table {
      * @param string $order an order by clause (id ASC, foo DESC)
      * @param int $offset
      * @param bool $needPreQuery set this to true if you use limit or offset with a 1-to-many left join (to limit the resulting entries, not the table rows)
-     * @return Mysql_Model
+     * @return MiniMVC_Model
      */
 	public function loadOneWithRelationsBy($relations = array(), $condition = null, $value = null, $order = null, $offset = 0, $needPreQuery = null)
 	{
         $results = $this->loadWithRelations($relations, $condition, $value, $order, null, $offset, $needPreQuery);
-        return is_array($results) ? reset($results) : null;
+        return $results->getFirst();
 	}
 
     /**
@@ -175,7 +184,7 @@ class MiniMVC_Table {
     /**
      *
      * @param string $order
-     * @return array
+     * @return MiniMVC_Collection
      */
 	public function loadAll($order = null)
 	{
@@ -189,7 +198,7 @@ class MiniMVC_Table {
      * @param int $limit
      * @param int $offset
      * @param string $returnAs the type of data to return (object, array or query)
-     * @return array
+     * @return MiniMVC_Collection
      */
 	public function load($condition = null, $value = null, $order = null, $limit = null, $offset = null, $returnAs = 'object')
 	{
@@ -218,7 +227,7 @@ class MiniMVC_Table {
      * @param int $offset
      * @param bool $needPreQuery set this to true if you use limit or offset with a 1-to-many left join (to limit the resulting entries, not the table rows)
      * @param string $returnAs the type of data to return (object, array or query)
-     * @return array
+     * @return MiniMVC_Collection
      */
 	public function loadWithRelations($relations = array(), $condition = null, $value = null, $order = null, $limit = null, $offset = null, $needPreQuery = null, $returnAs = 'object')
 	{
@@ -504,6 +513,9 @@ class MiniMVC_Table {
     public function cleanRefTables()
     {
         foreach ($this->_relations as $relation => $info) {
+            if (!isset($info[3]) || $info[3] === true) {
+                continue;
+            }
             $stmt = $this->registry->db->query()->select('a_b.id')->from($info[3], 'a_b')->join($this->_table, 'a', 'a_b.'.$info[1].' = a.'.$this->_identifier)->where('a.'.$this->_identifier.' IS NULL')->execute();
             $refTableIds = $stmt->fetchAll(PDO::FETCH_COLUMN);
             $deleteStmt = $this->registry->db->query()->delete($info[3])->where('id = ?')->prepare();
@@ -513,28 +525,28 @@ class MiniMVC_Table {
         }
     }
 
-	public function orderBy($field, $direction, $entries)
-	{
-		$dir = (strtolower($direction) == 'asc') ? SORT_ASC : SORT_DESC;
-		$fields = array();
-		foreach ($entries as $key => $row) {
-			if (!isset($row->$field))
-			{
-				return array();
-			}
-			$fields[$key]    = $row->$field;
-		}
-
-
-		array_multisort($fields, $dir, $entries);
-
-		$newEntries = array();
-		foreach ($entries as $entry)
-		{
-			$newEntries[$entry->{$this->_identifier}] = $entry;
-		}
-		return $newEntries;
-	}
+//	public function orderBy($field, $direction, $entries)
+//	{
+//		$dir = (strtolower($direction) == 'asc') ? SORT_ASC : SORT_DESC;
+//		$fields = array();
+//		foreach ($entries as $key => $row) {
+//			if (!isset($row->$field))
+//			{
+//				return array();
+//			}
+//			$fields[$key]    = $row->$field;
+//		}
+//
+//
+//		array_multisort($fields, $dir, $entries);
+//
+//		$newEntries = array();
+//		foreach ($entries as $entry)
+//		{
+//			$newEntries[$entry->{$this->_identifier}] = $entry;
+//		}
+//		return $newEntries;
+//	}
 
     public function install()
     {
