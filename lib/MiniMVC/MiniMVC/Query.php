@@ -514,15 +514,16 @@ class MiniMVC_Query
 
         $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $entries = array();
         if (count($this->tables) === 1) {
             $table = reset($this->tables);
+            $entries = $table->getCollection();
             foreach ($results as $row) {
                 $entries[] = $table->buildModel($this->_filter($row, $this->from));
             }
             return $entries;
         }
 
+        $entries = array();
         $aliases = array();
         $relations = array();
         $aliasedIdentifiers = array();
