@@ -133,13 +133,19 @@ class MiniMVC_Collection implements ArrayAccess, Countable, Iterator
      * )
      *
      * @param array|bool $fields true to export all model properties or an array of property-names to export. add a key 'relations' with a value structured like this (true or array) to include related models
+     * @param bool $identifiersAsIndex whether to use the primary keys as the arrays indices (true) or zero-based numeric indices (false) default: true
      * @return array
      */
-    public function toArray($fields = true)
+    public function toArray($fields = true, $identifiersAsIndex = true)
     {
         $return = array();
         foreach ($this->entries as $entry) {
-            $return[] = $entry->toArray($fields);
+            $id = $identifiersAsIndex ? $entry->getIdentifier() : null;
+            if ($id === null) {
+                $return[] = $entry->toArray($fields);
+            } else {
+                $return[$id] = $entry->toArray($fields);
+            }
         }
         return $return;
     }
