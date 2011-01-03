@@ -14,7 +14,7 @@
 </ol>
 <?php echo $pager->getHtml(); ?>
 <?php else: ?>
-    <p><?php echo $t->noEntries; ?></p>
+    <p><?php echo $t->CONTROLLERLCFIRSTNoEntries; ?></p>
 <?php endif; ?>
  */ ?>
 

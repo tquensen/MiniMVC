@@ -29,6 +29,7 @@ class MiniMVC_Dispatcher
             $url = substr($url, 0, -1 + strlen($_SERVER['QUERY_STRING']) * -1);
         }
 
+        $this->registry->settings->set('currentHost', $host);
         $this->registry->settings->set('currentUrl', $url);
 
         if (isset($_POST['REQUEST_METHOD'])) {
@@ -51,13 +52,25 @@ class MiniMVC_Dispatcher
 
         $appurls = $this->registry->settings->get('apps/'.$currentApp);
         if (isset($appurls['baseurlI18n'])) {
-            if (substr($appurls['baseurlI18n'], 0, 1) == '/') {
-                $appurls['baseurlI18n'] = $host . $appurls['baseurlI18n'];
-            }
-            $languageFormat = $this->registry->settings->get('config/languageFormat', '[a-z]{2}_[A-Z]{2}');
-            if (preg_match('#^' . str_replace(':lang:', '(?P<lang>'.$languageFormat.')', $appurls['baseurlI18n']) . '(?P<route>[^\?\#]*)$#', $url, $matches)) {
-                $currentLanguage = $matches['lang'];
-                $route = $matches['route'];
+            if (is_array($appurls['baseurlI18n'])) {
+                foreach ($appurls['baseurlI18n'] as $baseurlLang => $baseurl) {
+                    if (substr($appurls['baseurlI18n'], 0, 1) == '/') {
+                        $appurls['baseurlI18n'] = $host . $appurls['baseurlI18n'];
+                    }
+                    if (preg_match('#^' . $baseurl . '(?P<route>[^\?\#]*)$#', $url, $matches)) {
+                        $currentLanguage = $baseurlLang;
+                        $route = $matches['route'];
+                    }
+                }
+            } else {
+                if (substr($appurls['baseurlI18n'], 0, 1) == '/') {
+                    $appurls['baseurlI18n'] = $host . $appurls['baseurlI18n'];
+                }
+                $languageFormat = $this->registry->settings->get('config/languageFormat', '[a-z]{2}_[A-Z]{2}');
+                if (preg_match('#^' . str_replace(':lang:', '(?P<lang>'.$languageFormat.')', $appurls['baseurlI18n']) . '(?P<route>[^\?\#]*)$#', $url, $matches)) {
+                    $currentLanguage = $matches['lang'];
+                    $route = $matches['route'];
+                }
             }
         }
         if ($route === null && isset($appurls['baseurl'])) {

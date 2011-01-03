@@ -11,14 +11,21 @@ class Helper_Url extends MiniMVC_Helper
             $language = false;
         }
 
-        if ($language) {
-            if ($baseurl = $this->registry->settings->get('apps/'.$app.'/baseurlI18n', '')) {
-                $baseurl = str_replace(':lang:', $language, $baseurl);
+        $baseurl = '';
+        if ($language && $baseurl = $this->registry->settings->get('apps/'.$app.'/baseurlI18n', '')) {
+            if (is_array($baseurl) && isset($baseurl[$language])) {
+                $baseurl = $baseurl[$language];
             } else {
-                $baseurl = $this->registry->settings->get('apps/'.$app.'/baseurl');
+                $baseurl = str_replace(':lang:', $language, $baseurl);
             }
-        } else {
+        }
+
+        if (!$baseurl) {
             $baseurl = $this->registry->settings->get('apps/'.$app.'/baseurl');
+        }
+
+        if (substr($baseurl, 0, 1) == '/') {
+            $baseurl = $this->registry->settings->get('currentHost', '') . $baseurl;
         }
 
         if ((!$route || $route == 'home') && empty($parameter)) {

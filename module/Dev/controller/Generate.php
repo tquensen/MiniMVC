@@ -169,7 +169,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         );
         $replace = array(
             strtolower(substr($params['module'], 0, 1)) . substr($params['module'], 1),
-            strtolower(substr($params['module'], 0, 1)) . substr($params['module'], 1),
+            'default',
             strtolower($params['module']),
             $params['module'],
             $params['module']

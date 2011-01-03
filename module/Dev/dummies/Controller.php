@@ -21,7 +21,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         );
 
         $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTIndexTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTMetaDescription);
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTIndexMetaDescription);
         */
 
         //return $this->view->prepare('CONTROLLERLC/index', 'MODULE');
@@ -58,7 +58,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         }
 
         $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTCreateTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTMetaDescription);
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTIndexMetaDescription);
 
          */
 
@@ -84,7 +84,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         }
 
         $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTEditTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTMetaDescription);
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTEditMetaDescription);
 
 
          */

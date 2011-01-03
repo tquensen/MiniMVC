@@ -20,8 +20,8 @@ class MODULE_Default_Controller extends MiniMVC_Controller
                 false
         );
 
-        $this->registry->helper->meta->setTitle($this->view->t->MODULELCFIRSTIndexTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->MODULELCFIRSTMetaDescription);
+        $this->registry->helper->meta->setTitle($this->view->t->defaultIndexTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->defaultIndexMetaDescription);
 
         */
 
@@ -51,15 +51,15 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         {
             $model = $this->view->form->updateModel();
             if (!$model->save()) {
-                $this->view->form->setError($this->view->t->MODULELCFIRSTCreateErrorMessage);
+                $this->view->form->setError($this->view->t->defaultCreateErrorMessage);
                 $this->view->form->errorRedirect();
             }
-            $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTCreateSuccessMessage, 'success');
+            $this->registry->helper->messages->add($this->view->t->defaultCreateSuccessMessage, 'success');
             return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
         }
 
-        $this->registry->helper->meta->setTitle($this->view->t->MODULELCFIRSTCreateTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->MODULELCFIRSTMetaDescription);
+        $this->registry->helper->meta->setTitle($this->view->t->defaultCreateTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->defaultCreateMetaDescription);
 
          */
 
@@ -77,15 +77,15 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         {
             $model = $this->view->form->updateModel();
             if (!$model->save()) {
-                $this->view->form->setError($this->view->t->MODULELCFIRSTEditErrorMessage);
+                $this->view->form->setError($this->view->t->defaultEditErrorMessage);
                 $this->view->form->errorRedirect();
             }
-            $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTEditSuccessMessage, 'success');
+            $this->registry->helper->messages->add($this->view->t->defaultEditSuccessMessage, 'success');
             return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
         }
 
-        $this->registry->helper->meta->setTitle($this->view->t->MODULELCFIRSTEditTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->MODULELCFIRSTMetaDescription);
+        $this->registry->helper->meta->setTitle($this->view->t->defaultEditTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->defaultEditMetaDescription);
 
          */
 
@@ -99,9 +99,9 @@ class MODULE_Default_Controller extends MiniMVC_Controller
             return $this->delegate404();
         }
         if (!$this->registry->guard->checkCsrfProtection(false) || !$params['model']->delete()) {
-            $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTDeleteErrorMessage, 'error');
+            $this->registry->helper->messages->add($this->view->t->defaultDeleteErrorMessage, 'error');
         } else {
-            $this->registry->helper->messages->add($this->view->t->MODULELCFIRSTDeleteSuccessMessage, 'success');
+            $this->registry->helper->messages->add($this->view->t->defaultDeleteSuccessMessage, 'success');
         }
 
         return $this->redirect('MODLC.defaultIndex');

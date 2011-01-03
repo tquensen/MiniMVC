@@ -24,11 +24,11 @@ $MiniMVC_view['navi']['main'] = array(
     ),
     array( //real world example
         'title' => array('NaviTitle', 'News'),
-        'route' => 'news.defaultIndex',
+        'route' => 'news.newsIndex',
         'submenu' => array( //"invisible" submenu items to make this menu item also active on single/edit/create pages
-            array('route' => 'news.defaultShow'),
-            array('route' => 'news.defaultCreate'),
-            array('route' => 'news.defaultEdit')
+            array('route' => 'news.newsShow'),
+            array('route' => 'news.newsCreate'),
+            array('route' => 'news.newsEdit')
         )
     ),
     array(

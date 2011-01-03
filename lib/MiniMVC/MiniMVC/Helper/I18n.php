@@ -15,26 +15,39 @@ class Helper_I18n extends MiniMVC_Helper
     public function get($module = '_default', $language = null, $fallbackLanguage = null, $app = null)
     {
         $language = $language ? $language : $this->registry->settings->get('currentLanguage');
-        $fallbackLanguage = $fallbackLanguage ? $fallbackLanguage : $this->registry->settings->get('config/defaultLanguage');
-        $currentApp = $app ? $app : $this->registry->settings->get('currentApp');
-        
-        if (isset(self::$loaded[$currentApp . '_' . $language . '_' . $fallbackLanguage][$module])) {
-            return self::$loaded[$currentApp . '_' . $language . '_' . $fallbackLanguage][$module];
+        if (!is_array($fallbackLanguage)) {
+            if (!$fallbackLanguage) {
+                $fallbackLanguage = array($this->registry->settings->get('config/defaultLanguage'));
+            } else {
+                $fallbackLanguage = (array) $fallbackLanguage;
+            }
+        }
+        $fallbackLanguages = $this->registry->settings->get('config/fallbackLanguages/'.$language, array());
+        if ($fallbackLanguages) {
+            $languages = array_merge((array) $fallbackLanguages, $fallbackLanguage);
+        } else {
+            $languages = $fallbackLanguage;
         }
 
-        if (!isset(self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage])) {
-            $cache = $this->registry->cache->get('i18n_'.$currentApp . '_' . $language . '_' . $fallbackLanguage);
+        $currentApp = $app ? $app : $this->registry->settings->get('currentApp');
+        
+        if (isset(self::$loaded[$currentApp . '_' . $language][$module])) {
+            return self::$loaded[$currentApp . '_' . $language][$module];
+        }
+
+        if (!isset(self::$cached[$currentApp . '_' . $language])) {
+            $cache = $this->registry->cache->get('i18n_'.$currentApp . '_' . $language);
             if ($cache !== null) {
-                self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage] = $cache;
+                self::$cached[$currentApp . '_' . $language] = $cache;
             } else {
-                self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage] = $this->scanI18nFiles($currentApp, $language, $fallbackLanguage);
+                self::$cached[$currentApp . '_' . $language] = $this->scanI18nFiles($currentApp, $language, $languages);
             }
         }
 
         $translationClass = $this->registry->settings->get('config/classes/translation', 'MiniMVC_Translation');
-        self::$loaded[$currentApp . '_' . $language . '_' . $fallbackLanguage][$module] = new $translationClass((isset(self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage][$module])
-                                    ? self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage][$module] : array()));
-        return self::$loaded[$currentApp . '_' . $language . '_' . $fallbackLanguage][$module];
+        self::$loaded[$currentApp . '_' . $language][$module] = new $translationClass((isset(self::$cached[$currentApp . '_' . $language][$module])
+                                    ? self::$cached[$currentApp . '_' . $language][$module] : array()));
+        return self::$loaded[$currentApp . '_' . $language][$module];
     }
 
     public function getLanguageChooserHtml($module = null, $partial = 'languageChooser')
@@ -65,55 +78,38 @@ class Helper_I18n extends MiniMVC_Helper
         return $this->registry->helper->partial->get($partial, $data, $module ? $module : $this->module);
     }
 
-    protected function scanI18nFiles($currentApp, $language, $fallbackLanguage)
+    protected function scanI18nFiles($currentApp, $language, $languages)
     {
         $MiniMVC_i18n = array();
 
-        //load fallback language first (if it differs from current language)
-        if ($language != $fallbackLanguage) {
-            if (is_file(MINIMVCPATH . 'data/i18n/' . $fallbackLanguage . '.php')) {
-                include_once(MINIMVCPATH . 'data/i18n/' . $fallbackLanguage . '.php');
+        $loaded = array();
+        foreach (array_reverse(array_merge(array($language), $languages)) as $currentLanguage) {
+            if (isset($loaded[$currentLanguage])) {
+                continue;
+            }
+            $loaded[$currentLanguage] = true;
+            if (is_file(MINIMVCPATH . 'data/i18n/' . $currentLanguage . '.php')) {
+                include_once(MINIMVCPATH . 'data/i18n/' . $currentLanguage . '.php');
             }
 
             foreach ($this->registry->settings->get('modules') as $currentModule) {
-                if (is_file(MODULEPATH . $currentModule . '/i18n/' . $fallbackLanguage . '.php')) {
-                    include_once(MODULEPATH . $currentModule . '/i18n/' . $fallbackLanguage . '.php');
+                if (is_file(MODULEPATH . $currentModule . '/i18n/' . $currentLanguage . '.php')) {
+                    include_once(MODULEPATH . $currentModule . '/i18n/' . $currentLanguage . '.php');
                 }
             }
 
-            if (is_file(DATAPATH . 'i18n/' . $fallbackLanguage . '.php')) {
-                include_once(DATAPATH . 'i18n/' . $fallbackLanguage . '.php');
+            if (is_file(DATAPATH . 'i18n/' . $currentLanguage . '.php')) {
+                include_once(DATAPATH . 'i18n/' . $currentLanguage . '.php');
             }
 
             if ($currentApp) {
-                if (is_file(APPPATH . $currentApp . '/i18n/' . $fallbackLanguage . '.php')) {
-                    include_once(APPPATH . $currentApp . '/i18n/' . $fallbackLanguage . '.php');
+                if (is_file(APPPATH . $currentApp . '/i18n/' . $currentLanguage . '.php')) {
+                    include_once(APPPATH . $currentApp . '/i18n/' . $currentLanguage . '.php');
                 }
             }
         }
 
-        //overwrite fallback with current language where available
-        if (is_file(MINIMVCPATH . 'data/i18n/' . $language . '.php')) {
-            include_once(MINIMVCPATH . 'data/i18n/' . $language . '.php');
-        }
-
-        foreach ($this->registry->settings->get('modules') as $currentModule) {
-            if (is_file(MODULEPATH . $currentModule . '/i18n/' . $language . '.php')) {
-                include_once(MODULEPATH . $currentModule . '/i18n/' . $language . '.php');
-            }
-        }
-
-        if (is_file(DATAPATH . 'i18n/' . $language . '.php')) {
-            include_once(DATAPATH . 'i18n/' . $language . '.php');
-        }
-
-        if ($currentApp) {
-            if (is_file(APPPATH . $currentApp . '/i18n/' . $language . '.php')) {
-                include_once(APPPATH . $currentApp . '/i18n/' . $language . '.php');
-            }
-        }
-
-        $this->registry->cache->set('i18n_'.$currentApp . '_' . $language . '_' . $fallbackLanguage, $MiniMVC_i18n);
+        $this->registry->cache->set('i18n_'.$currentApp . '_' . $language, $MiniMVC_i18n);
         return $MiniMVC_i18n;
 
 //        self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage] = $MiniMVC_i18n;
