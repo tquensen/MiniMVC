@@ -91,7 +91,12 @@ class MiniMVC_Table {
      */
     public function getCollection()
     {
-        return call_user_func($this->_model . 'Collection::getInstance');
+        if (class_exists($this->_model . 'Collection')) {
+            $classname = $this->_model . 'Collection';
+        } else {
+            $classname = $this->registry->settings->get('config/classes/collection', 'MiniMVC_Collection');
+        }
+        return new $classname;
     }
 
 
