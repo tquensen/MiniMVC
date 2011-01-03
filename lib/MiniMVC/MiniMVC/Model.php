@@ -5,6 +5,7 @@ class MiniMVC_Model implements ArrayAccess
     protected $_databaseProperties = array();
     protected $_relations = array();
 	protected $_table = null;
+    protected $_collection = null;
 	protected $_isNew = true;
 
 	public function __construct($table = null)
@@ -29,6 +30,26 @@ class MiniMVC_Model implements ArrayAccess
     public function getTable()
     {
         return $this->_table;
+    }
+
+    /**
+     *
+     * @return MiniMVC_Collection
+     */
+    public function getCollection()
+    {
+        if (!$this->_collection) {         
+            $this->_collection = $this->getTable()->getCollection();
+        }
+        return $this->_collection;
+    }
+
+    public function setCollection($collection) {
+        if (is_object($collection) && $collection instanceof MiniMVC_Collection) {
+            $this->_collection = $collection;
+            return true;
+        }
+        throw new InvalidArgumentException('$collection must be a MiniMVC_Collection instance!');      
     }
 
     public function isNew()
@@ -132,7 +153,7 @@ class MiniMVC_Model implements ArrayAccess
      * or
      * array(
      *     'id', 'title', 'description', 'relations' => array(
-     *          'Comments' => true, /export all fields of the related comment model
+     *          'Comments' => true, //export all fields of the related comment model
      *          'User' => array('id', 'username', 'email'), //export the id, username and email of the related users
      *          'Tags' => array(
      *              'id', 'title', 'relations' => array( //you can also fetch relations of relations
@@ -149,20 +170,20 @@ class MiniMVC_Model implements ArrayAccess
     {
         $return = array();
         foreach ($this->getTable()->getColumns() as $column) {
-            if ($fields == true || (is_array($fields) && in_array($column, $fields))) {
-                $return[$column] = null;
+            if ($fields === true || (is_array($fields) && in_array($column, $fields))) {
+                $return[$column] = $this->$column;
             }
         }
         if (!empty($fields['relations'])) {
             foreach ($this->getTable()->getRelations() as $relation => $relationData) {
-                if ($includeRelations == true || (is_array($includeRelations) && isset($includeRelations[$relation]))) {
+                if ($fields['relations'] === true || (is_array($fields['relations']) && isset($fields['relations'][$relation]))) {
                     $currentRelationEntries = $this->getRelated($relation, true, false);
-                    if (is_array($currentRelationEntries)) {
+                    if (is_array($currentRelationEntries) || (is_object($currentRelationEntries) && $currentRelationEntries instanceof MiniMVC_Collection)) {
                         foreach ($currentRelationEntries as $k => $v) {
-                            $currentRelationEntries[$k] = $v->toArray($includeRelations[$relation], isset($includeRelations[$relation]['relations']) ? $includeRelations[$relation]['relations'] : false);
+                            $currentRelationEntries[$k] = $v->toArray($fields['relations'] === true ? true : $fields['relations'][$relation]);
                         }
                     } elseif(is_object($currentRelationEntries)) {
-                        $currentRelationEntries = $currentRelationEntries->toArray($includeRelations[$relation], isset($includeRelations[$relation]['relations']) ? $includeRelations[$relation]['relations'] : false);
+                        $currentRelationEntries = $currentRelationEntries->toArray($fields['relations'] === true ? true : $fields['relations'][$relation]);
                     }
                     $return[$relation] = $currentRelationEntries;
                 }
@@ -236,25 +257,27 @@ class MiniMVC_Model implements ArrayAccess
         }
         if ($identifier === true) {
             if (isset($this->_relations[$relation])) {
-                return (isset($relationInfo[3]) && $relationInfo[3] === true) ? reset($this->_relations[$relation]) : $this->_relations[$relation];
+                return (isset($relationInfo[3]) && $relationInfo[3] === true) ? $this->_relations[$relation]->getFirst() : $this->_relations[$relation];
             } elseif ($load) {
                 return $this->loadRelated($relation);
             }
         } else {
-            if (isset($this->_relations[$relation]['_'.$identifier])) {
-                return $this->_relations[$relation]['_'.$identifier];
+            if (isset($this->_relations[$relation]) && $entry = $this->_relations[$relation][$identifier]) {
+                return $entry;
             } elseif ($load && !isset($this->_relations[$relation])) {
-                if ($identifier === true) {
-                    return $this->loadRelated($relation);
-                } else {
-                    $tableName = $relationInfo[0].'Table';
-                    $table = call_user_func($tableName . '::getInstance');
-                    return $this->loadRelated($relation, $table->getIdentifier().' = ?', $identifier);
-                }
+                $tableName = $relationInfo[0].'Table';
+                $table = call_user_func($tableName . '::getInstance');
+                return $this->loadRelated($relation, $table->getIdentifier().' = ?', $identifier);
 
             }
         }
-        return ($identifier === true && (!isset($relationInfo[3]) || $relationInfo[3] !== true)) ? array() : null;
+
+        if ($identifier !== true || (isset($relationInfo[3]) && $relationInfo[3] === true)) {
+            return null;
+        }
+        $collectionName = $relationInfo[0].'Collection';
+        $collection = call_user_func($collectionName . '::getInstance');
+        return $collection;
     }
 
     /**
@@ -265,33 +288,38 @@ class MiniMVC_Model implements ArrayAccess
      */
     public function setRelated($relation, $identifier = null, $update = true)
     {
-        if (is_array($identifier)) {
+        if (is_array($identifier) || $identifier instanceof MiniMVC_Collection) {
             foreach ($identifier as $id) {
                 $this->setRelated($relation, $id, $update);
             }
         }
         if (is_object($identifier) && $identifier instanceof MiniMVC_Model) {
-            if (!$identifier->getIdentifier()) {
-                $this->_relations[$relation][] = $arguments[0];
-                return true;
-            }
-            if (!$update && isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
-                return true;
-            }
-
-            $this->_relations[$relation]['_'.$identifier->getIdentifier()] = $identifier;
             $info = $this->getTable()->getRelation($relation);
 
             if (!$info || !isset($this->_relations[$relation])) {
                 throw new Exception('Unknown relation "'.$relation.'" for model '.$this->getTable()->getModelName());
             }
-            if (!isset($info[3]) || $info[3] === true) {
-                if ($info[1] == $this->getTable()->getIdentifier()) {
-                    $identifier->{$info[2]} = $this->getIdentifier();
-                } elseif ($info[2] == $identifier->getTable()->getIdentifier() && $identifier->getIdentifier()) {
-                    $this->{$info[1]} = $identifier->getIdentifier();
+
+            if (!isset($this->_relations[$relation])) {
+                $this->_relations[$relation] = $identifier->getTable()->getCollection();
+            }
+
+            if (!$identifier->getIdentifier()) {
+                $this->_relations[$relation][] = $arguments[0];
+                return true;
+            }
+            if ($update || !isset($this->_relations[$relation][$identifier->getIdentifier()])) {
+                $this->_relations[$relation][$identifier->getIdentifier()] = $identifier;
+
+                if (!isset($info[3]) || $info[3] === true) {
+                    if ($info[1] == $this->getTable()->getIdentifier()) {
+                        $identifier->{$info[2]} = $this->getIdentifier();
+                    } elseif ($info[2] == $identifier->getTable()->getIdentifier() && $identifier->getIdentifier()) {
+                        $this->{$info[1]} = $identifier->getIdentifier();
+                    }
                 }
             }
+          
             return true;
         }
         throw new InvalidArgumentException('$identifier must be a MiniMVC_Model instance!');
@@ -313,8 +341,8 @@ class MiniMVC_Model implements ArrayAccess
             }
         }
         if (is_object($identifier)) {
-            if (isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
-                unset($this->_relations[$relation]['_'.$identifier->getIdentifier()]);
+            if (isset($this->_relations[$relation][$identifier->getIdentifier()])) {
+                unset($this->_relations[$relation][$identifier->getIdentifier()]);
                 if (!$data = $this->getTable()->getRelation($relation)) {
                     throw new Exception('Unknown relation "'.$relation.'" for model '.$this->getTable()->getModelName());
                 }
@@ -357,11 +385,11 @@ class MiniMVC_Model implements ArrayAccess
                 }
                 unset($this->_relations[$relation]);
             } else {
-                if (isset($this->_relations[$relation]['_'.$identifier])) {
+                if (isset($this->_relations[$relation][$identifier])) {
                     if ($realDelete) {
-                        $this->_relations[$relation]['_'.$identifier]->delete();
+                        $this->_relations[$relation][$identifier]->delete();
                     }
-                    unset($this->_relations[$relation]['_'.$identifier]);
+                    unset($this->_relations[$relation][$identifier]);
                 } elseif($realDeleteLoad === true) {
                     $tableName = $data[0].'Table';
                     $table = call_user_func($tableName . '::getInstance');
@@ -383,7 +411,7 @@ class MiniMVC_Model implements ArrayAccess
      * @param string $order the order
      * @param int $limit the limit
      * @param int $offset the offset
-     * @return MiniMVC_Model|array
+     * @return MiniMVC_Model|MiniMVC_Collection
      */
     public function loadRelated($relation, $condition = null, $values = array(), $order = null, $limit = null, $offset = null)
     {
@@ -413,10 +441,12 @@ class MiniMVC_Model implements ArrayAccess
             $entries = $table->load($where, $values, $order, $limit, $offset);
         }
 
-        foreach ($entries as $entry) {
-            $this->_relations[$relation]['_'.$entry->getIdentifier()] = $entry;
+        if (isset($this->_relations[$relation])) {
+            $this->_relations[$relation]->add($entries);
+        } else {
+            $this->_relations[$relation] = $entries;
         }
-        return (isset($data[3]) && $data[3] === true) ? reset($entries) : $entries;
+        return (isset($data[3]) && $data[3] === true) ? $entries->getFirst() : $entries;
     }
 
     /**
@@ -456,18 +486,21 @@ class MiniMVC_Model implements ArrayAccess
                     foreach ($this->_relations[$relation] as $relKey => $relation) {
                         $relation->{$info[2]} = $this->getIdentifier();
                         $relation->save();
-                        if (is_numeric($relKey)) {
-                            $this->_relations[$relation]['_'.$relation->getIdentifier()] = $relation;
+                        if (is_numeric($relKey) && $relKey < 0) {
+                            $this->_relations[$relation][$relation->getIdentifier()] = $relation;
                             unset($this->_relations[$relation][$relKey]);
                         }
                     }
                 } elseif (is_object($identifier)) {
                     $identifier->{$info[2]} = $this->getIdentifier();
                     $identifier->save();
-                    $this->_relations[$relation]['_'.$identifier->getIdentifier()] = $identifier;
-                } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
-                    $this->_relations[$relation]['_'.$identifier]->{$info[2]} = $this->getIdentifier();
-                    $this->_relations[$relation]['_'.$identifier]->save();
+                    if (!isset($this->_relations[$relation])) {
+                        $this->_relations[$relation] = $identifier->getTable()->getCollection();
+                    }
+                    $this->_relations[$relation][$identifier->getIdentifier()] = $identifier;
+                } elseif (isset($this->_relations[$relation][$identifier])) {
+                    $this->_relations[$relation][$identifier]->{$info[2]} = $this->getIdentifier();
+                    $this->_relations[$relation][$identifier]->save();
                 }
             } elseif ($info[2] == $table->getIdentifier()) {
                 if ($identifier === true) {
@@ -477,18 +510,21 @@ class MiniMVC_Model implements ArrayAccess
                     foreach ($this->_relations[$relation] as $relKey => $relation) {
                         $relation->save();
                         $this->{$info[1]} = $relation->getIdentifier();
-                        if (is_numeric($relKey)) {
-                            $this->_relations[$relation]['_'.$relation->getIdentifier()] = $relation;
+                        if (is_numeric($relKey) && $relKey < 0) {
+                            $this->_relations[$relation][$relation->getIdentifier()] = $relation;
                             unset($this->_relations[$relation][$relKey]);
                         }
                     }
                 } elseif (is_object($identifier)) {
                     $identifier->save();
                     $this->{$info[1]} = $identifier->getIdentifier();
-                    $this->_relations[$relation]['_'.$identifier->getIdentifier()] = $identifier;
-                } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
-                    $this->_relations[$relation]['_'.$identifier]->save();
-                    $this->{$info[1]} = $this->_relations[$relation]['_'.$identifier]->getIdentifier();
+                    if (!isset($this->_relations[$relation])) {
+                        $this->_relations[$relation] = $identifier->getTable()->getCollection();
+                    }
+                    $this->_relations[$relation][$identifier->getIdentifier()] = $identifier;
+                } elseif (isset($this->_relations[$relation][$identifier])) {
+                    $this->_relations[$relation][$identifier]->save();
+                    $this->{$info[1]} = $this->_relations[$relation][$identifier]->getIdentifier();
                 }
             }
         } else {
@@ -521,8 +557,12 @@ class MiniMVC_Model implements ArrayAccess
                 if (!$result) {
                     MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), array($this->getIdentifier(), $identifier->getIdentifier()), $info[3])->execute();
                 }
-            } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
-                $this->_relations[$relation]['_'.$identifier]->save();
+                if (!isset($this->_relations[$relation])) {
+                    $this->_relations[$relation] = $identifier->getTable()->getCollection();
+                }
+                $this->_relations[$relation][$identifier->getIdentifier()] = $identifier;
+            } elseif (isset($this->_relations[$relation][$identifier])) {
+                $this->_relations[$relation][$identifier]->save();
                 $stmt = MiniMVC_Registry::getInstance()->db->query()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
                 $result = $stmt->fetch(PDO::FETCH_NUM);
                 $stmt->closeCursor();
@@ -564,14 +604,21 @@ class MiniMVC_Model implements ArrayAccess
                 if (is_object($identifier)) {
                     $identifier->{$info[2]} = $this->getIdentifier();
                     $identifier->save();
-                    $this->_relations[$relation]['_'.$identifier->getIdentifier()] = $identifier;
-                } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
-                    $this->_relations[$relation]['_'.$identifier]->{$info[2]} = $this->getIdentifier();
-                    $this->_relations[$relation]['_'.$identifier]->save();
+                    if (!isset($this->_relations[$relation])) {
+                        $this->_relations[$relation] = $identifier->getTable()->getCollection();
+                    }
+                    $this->_relations[$relation][$identifier->getIdentifier()] = $identifier;
+                } elseif (isset($this->_relations[$relation][$identifier])) {
+                    $this->_relations[$relation][$identifier]->{$info[2]} = $this->getIdentifier();
+                    $this->_relations[$relation][$identifier]->save();
                 } else {
                     if ($loadRelated && $object = $table->loadOne($identifier)) {
                         $object->{$info[2]} = $this->getIdentifier();
                         $object->save();
+                        if (!isset($this->_relations[$relation])) {
+                            $this->_relations[$relation] = $object->getTable()->getCollection();
+                        }
+                        $this->_relations[$relation][$object->getIdentifier()] = $object;
                     } else {
                         $table->query()->update($info[2])->where($table->getIdentifier().' = ?')->execute(array($this->getIdentifier(), $identifier));
                         //MiniMVC_Registry::getInstance()->db->query()->update($info[0], $info[2])->where($table->getIdentifier().' = ?')->execute(array($this->getIdentifier(), $identifier));
@@ -583,16 +630,22 @@ class MiniMVC_Model implements ArrayAccess
                         $identifier->save();
                     }
                     $this->{$info[1]} = $identifier->getIdentifier();
-                    $this->_relations[$relation]['_'.$identifier->getIdentifier()] = $identifier;
-                } elseif(isset($this->_relations[$relation]['_'.$identifier])) {
-                    if (! $this->_relations[$relation]['_'.$identifier]->getIdentifier()) {
-                         $this->_relations[$relation]['_'.$identifier]->save();
+                    if (!isset($this->_relations[$relation])) {
+                        $this->_relations[$relation] = $identifier->getTable()->getCollection();
                     }
-                    $this->{$info[1]} = $this->_relations[$relation]['_'.$identifier]->getIdentifier();
+                    $this->_relations[$relation][$identifier->getIdentifier()] = $identifier;
+                } elseif(isset($this->_relations[$relation][$identifier])) {
+                    if (! $this->_relations[$relation][$identifier]->getIdentifier()) {
+                         $this->_relations[$relation][$identifier]->save();
+                    }
+                    $this->{$info[1]} = $this->_relations[$relation][$identifier]->getIdentifier();
                 } else {
                     $this->{$info[1]} = $identifier;
                     if ($loadRelated && $object = $table->loadOne($identifier)) {
-                        $this->_relations[$relation]['_'.$identifier] = $object;
+                        if (!isset($this->_relations[$relation])) {
+                            $this->_relations[$relation] = $object->getTable()->getCollection();
+                        }
+                        $this->_relations[$relation][$identifier] = $object;
                     }
                 }
                 $this->save();
@@ -611,12 +664,16 @@ class MiniMVC_Model implements ArrayAccess
                 if (!$result) {
                     MiniMVC_Registry::getInstance()->db->query()->insert(array($info[1], $info[2]), array($this->getIdentifier(), $identifier->getIdentifier()), $info[3])->execute();
                 }
-            } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
+                if (!isset($this->_relations[$relation])) {
+                    $this->_relations[$relation] = $identifier->getTable()->getCollection();
+                }
+                $this->_relations[$relation][$identifier->getIdentifier()] = $identifier;
+            } elseif (isset($this->_relations[$relation][$identifier])) {
                 if (!$this->getIdentifier()) {
                     $this->save();
                 }
-                if (!$this->_relations[$relation]['_'.$identifier]->getIdentifier()) {
-                     $this->_relations[$relation]['_'.$identifier]->save();
+                if (!$this->_relations[$relation][$identifier]->getIdentifier()) {
+                     $this->_relations[$relation][$identifier]->save();
                 }
                 $stmt = MiniMVC_Registry::getInstance()->db->query()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[1].' = ?')->execute(array($this->getIdentifier(), $this->_relations[$relation]['_'.$identifier]->getIdentifier()));
                 $result = $stmt->fetch(PDO::FETCH_NUM);
@@ -629,7 +686,10 @@ class MiniMVC_Model implements ArrayAccess
                     $this->save();
                 }
                 if ($loadRelated && $object = $table->loadOne($identifier)) {
-                    $this->_relations[$relation]['_'.$identifier] = $object;
+                    if (!isset($this->_relations[$relation])) {
+                        $this->_relations[$relation] = $object->getTable()->getCollection();
+                    }
+                    $this->_relations[$relation][$identifier] = $object;
                 }
                 $stmt = MiniMVC_Registry::getInstance()->db->query()->select('id, '.$info[1].', '.$info[2])->from($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), $identifier));
                 $result = $stmt->fetch(PDO::FETCH_NUM);
@@ -665,15 +725,14 @@ class MiniMVC_Model implements ArrayAccess
                 if (is_object($identifier)) {
                     $identifier->{$info[2]} = null;
                     $identifier->save();
-                    if (isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
-                        unset($this->_relations[$relation]['_'.$identifier->getIdentifier()]);
+                    if (isset($this->_relations[$relation][$identifier->getIdentifier()])) {
+                        unset($this->_relations[$relation][$identifier->getIdentifier()]);
                     }
-                } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
-                    $this->_relations[$relation]['_'.$identifier]->{$info[2]} = null;
-                    $this->_relations[$relation]['_'.$identifier]->save();
-                    if (isset($this->_relations[$relation]['_'.$identifier])) {
-                        unset($this->_relations[$relation]['_'.$identifier]);
-                    }
+                } elseif (isset($this->_relations[$relation][$identifier])) {
+                    $this->_relations[$relation][$identifier]->{$info[2]} = null;
+                    $this->_relations[$relation][$identifier]->save();
+                    unset($this->_relations[$relation][$identifier]);
+                    
                 } elseif($identifier === true) {
                     if (!$this->getIdentifier()) {
                         return false;
@@ -687,13 +746,13 @@ class MiniMVC_Model implements ArrayAccess
             } elseif ($info[2] == $table->getIdentifier()) {
                 if (is_object($identifier)) {
                     $this->{$info[1]} = null;
-                    if (isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
-                        unset($this->_relations[$relation]['_'.$identifier->getIdentifier()]);
+                    if (isset($this->_relations[$relation][$identifier->getIdentifier()])) {
+                        unset($this->_relations[$relation][$identifier->getIdentifier()]);
                     }
                 } else {
                     $this->{$info[1]} = null;
-                    if (isset($this->_relations[$relation]['_'.$identifier])) {
-                        unset($this->_relations[$relation]['_'.$identifier]);
+                    if (isset($this->_relations[$relation][$identifier])) {
+                        unset($this->_relations[$relation][$identifier]);
                     }
                 }
                 $this->save();
@@ -707,13 +766,11 @@ class MiniMVC_Model implements ArrayAccess
                 unset($this->_relations[$relation]);
             } else {
                 if (is_object($identifier)) {
-                    if (isset($this->_relations[$relation]['_'.$identifier->getIdentifier()])) {
-                        unset($this->_relations[$relation]['_'.$identifier->getIdentifier()]);
+                    if (isset($this->_relations[$relation][$identifier->getIdentifier()])) {
+                        unset($this->_relations[$relation][$identifier->getIdentifier()]);
                     }
-                } elseif (isset($this->_relations[$relation]['_'.$identifier])) {
-                    if (isset($this->_relations[$relation]['_'.$identifier])) {
-                        unset($this->_relations[$relation]['_'.$identifier]);
-                    }
+                } elseif (isset($this->_relations[$relation][$identifier])) {
+                    unset($this->_relations[$relation][$identifier]);
                 }
                 MiniMVC_Registry::getInstance()->db->query()->delete($info[3])->where($info[1].' = ? AND '.$info[2].' = ?')->execute(array($this->getIdentifier(), is_object($identifier) ? $identifier->getIdentifier() : $identifier));
             }

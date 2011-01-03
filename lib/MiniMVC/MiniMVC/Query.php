@@ -529,6 +529,7 @@ class MiniMVC_Query
         foreach ($this->columns as $a) {
             if (isset($this->tables[$a])) {
                 $aliases[$a] = $this->tables[$a];
+                $entries[$a] = $this->tables[$a]->getCollection();
             }
         }
 

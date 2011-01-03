@@ -247,7 +247,8 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             '{relations_list}',
             '{relations_methods}',
             '{modelClass}',
-            '{tableClass}'
+            '{tableClass}',
+            '{collectionClass}'
         );
         $replace = array(
             $model,
@@ -264,7 +265,8 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             $this->getRelationsListCode($definition, $model),
             $this->getRelationsMethodsCode($definition, $model),
             $this->registry->settings->get('config/classes/model', 'MiniMVC_Model'),
-            $this->registry->settings->get('config/classes/table', 'MiniMVC_Table')
+            $this->registry->settings->get('config/classes/table', 'MiniMVC_Table'),
+            $this->registry->settings->get('config/classes/collection', 'MiniMVC_Collection')
         );
 
         $path = MODULEPATH . $params['module'].'/model';
@@ -282,6 +284,12 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             $message .= '-> Datei '.$model.'Table.php erstellt'."\n";
         } else {
             $message .= '-> Datei '.$model.'Table.php existiert bereits'."\n";
+        }
+        if (!file_exists($path . '/'.$model.'Collection.php')) {
+            file_put_contents($path . '/'.$model.'Collection.php', str_replace($search, $replace, file_get_contents($dummy . '/Collection.php')));
+            $message .= '-> Datei '.$model.'Collection.php erstellt'."\n";
+        } else {
+            $message .= '-> Datei '.$model.'Collection.php existiert bereits'."\n";
         }
 
         file_put_contents($path . '/'.$model.'Base.php', str_replace($search, $replace, file_get_contents($dummy . '/ModelBase.php')));
@@ -510,7 +518,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         $return = array();
         $search = array('{relation}', '{related_model_or_array}');
         foreach ($definition['relations'] as $relation => $data) {
-            $replace = array($relation, isset($data[3]) && $data[3] === true ? $data[0] : 'array');
+            $replace = array($relation, isset($data[3]) && $data[3] === true ? $data[0] : $data[0].'Collection');
             $return[] = str_replace($search, $replace, $code);
         }
         return implode("\n", $return);
