@@ -165,6 +165,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         $search = array(
             'MODULELCFIRST',
             'CONTROLLERLCFIRST',
+            'CONTROLLERTABLE',
             'MODLC',
             'MODULE',
             'CONTROLLERLC',
@@ -173,6 +174,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         $replace = array(
             strtolower(substr($params['module'], 0, 1)) . substr($params['module'], 1),
             strtolower(substr($controller, 0, 1)) . substr($controller, 1),
+            strtolower(preg_replace('/(?!^)[[:upper:]]+/', '_$0', $controller)),
             strtolower($params['module']),
             $params['module'],
             strtolower($controller),

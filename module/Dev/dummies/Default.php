@@ -7,7 +7,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         /*
         $showPerPage = 20;
         $currentPage = !empty($_GET['p']) ? $_GET['p'] : 1;
-        $query = MODULETable::getInstance()->load(null, null, 'id DESC', $showPerPage, ($currentPage - 1) * $showPerPage, 'query');
+        $query = CONTROLLERTable::getInstance()->load(null, null, 'id DESC', $showPerPage, ($currentPage - 1) * $showPerPage, 'query');
 
         $this->view->entries = $query->build();
 
@@ -87,7 +87,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             return $this->delegate404();
         }
 
-        $form = MODULETable::getInstance()->getForm($params['model'], array(
+        $form = CONTROLLERTable::getInstance()->getForm($params['model'], array(
             'route' => 'MODLC.CONTROLLERLCUpdate',
             'parameter => array('id' => $model->id)
         ));
@@ -109,7 +109,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             return $this->delegate404();
         }
 
-        $form = MODULETable::getInstance()->getForm($params['model']);
+        $form = CONTROLLERTable::getInstance()->getForm($params['model']);
 
         if ($form->validate())
         {

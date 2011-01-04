@@ -7,7 +7,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         /*
         $showPerPage = 20;
         $currentPage = !empty($_GET['p']) ? $_GET['p'] : 1;
-        $query = MODULETable::getInstance()->load(null, null, 'id DESC', $showPerPage, ($currentPage - 1) * $showPerPage, 'query');
+        $query = CONTROLLERTable::getInstance()->load(null, null, 'id DESC', $showPerPage, ($currentPage - 1) * $showPerPage, 'query');
         
         $this->view->entries = $query->build();
 
