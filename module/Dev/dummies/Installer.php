@@ -7,8 +7,8 @@ class MODULE_Installer extends MiniMVC_Installer
     {
         try
         {
-            //$MODLC = new MODULETable();
-            //$MODLC->install($installedVersion, $targetVersion);
+            //$CONTROLLERLCFIRST = new CONTROLLERTable();
+            //$CONTROLLERLCFIRST->install($installedVersion, $targetVersion);
         }
         catch(Exception $e)
         {
@@ -22,8 +22,8 @@ class MODULE_Installer extends MiniMVC_Installer
     {
         try
         {
-            //$MODLC = new MODULETable();
-            //$MODLC->uninstall($installedVersion, $targetVersion);
+            //$CONTROLLERLCFIRST = new CONTROLLERTable();
+            //$CONTROLLERLCFIRST->uninstall($installedVersion, $targetVersion);
         }
         catch(Exception $e)
         {

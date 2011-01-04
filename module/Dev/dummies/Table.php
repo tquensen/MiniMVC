@@ -3,7 +3,7 @@ class {name}Table extends {name}TableBase
 {
     public function getForm($model = null, $options = array())
     {
-        $i18n = $this->registry->helper->i18n->get('{modlc}');
+        $i18n = $this->registry->helper->i18n->get('{module}');
 
         if (!$model) {
             $model = $this->create();
