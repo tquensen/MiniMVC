@@ -1,16 +1,21 @@
 <?php
 class {name}Table extends {name}TableBase
 {
-    public function getForm($model = null)
+    public function getForm($model = null, $options = array())
     {
         $i18n = $this->registry->helper->i18n->get('{modlc}');
 
         if (!$model) {
             $model = $this->create();
         }
-        $form = new MiniMVC_Form(array('name' => '{name}Form', 'model' => $model));
+
+        $options = array_merge(array('name' => '{name}Form', 'model' => $model), $options);
+
+        $form = new MiniMVC_Form($options);
+
         {columns_form}
-        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $i18n->{namelcfirst}FormSubmitLabel)));
+
+        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $model->isNew() ? $i18n->{namelcfirst}FormSubmitCreateLabel : $i18n->{namelcfirst}FormSubmitUpdateLabel)));
 
         return $form;
     }

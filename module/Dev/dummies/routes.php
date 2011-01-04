@@ -18,21 +18,31 @@ $MiniMVC_routes['MODLC.defaultIndex'] = array(
                         //        array(array('administrate', array('moderate', 'publish'))) = administrate OR (moderate AND publish)
 );
 
-$MiniMVC_routes['MODLC.defaultCreate'] = array(
-    'route' => 'MODLC/create',
+$MiniMVC_routes['MODLC.defaultNew'] = array(
+    'route' => 'MODLC/new',
     'controller' => 'MODULE_Default',
-    'action' => 'create',
-    'method' => array('GET', 'POST'),
+    'action' => 'new',
+    'method' => 'GET',
     'parameter' => array(),
     'active' => false, //this route must be activated for each app to work
     //'rights' => 'publish'
 );
+$MiniMVC_routes['MODLC.defaultCreate'] = array(
+    'route' => 'MODLC',
+    'controller' => 'MODULE_Default',
+    'action' => 'create',
+    'method' => 'POST',
+    'parameter' => array(),
+    'active' => false, //this route must be activated for each app to work
+    //'rights' => 'publish'
+);
+
 $MiniMVC_routes['MODLC.defaultShow'] = array(
     'route' => 'MODLC/:id:(.:_format:)', // .format is optional (in brackets)
     'controller' => 'MODULE_Default',
     'action' => 'show',
     'method' => 'GET',
-    //'model' => array('MODULE', 'id'), // array(modelname, property, parameter) or array('model1' => array(modelname, property, parameter),'modelx' => array(modelname, property, parameter))
+    'model' => array('MODULE', 'id'), // array(modelname, property, parameter) or array('model1' => array(modelname, property, parameter),'modelx' => array(modelname, property, parameter))
                                         //automatically load a model with the name modelname by the field 'property' (defaults to the models identifier) with the value provided py routeparameter :parameter: (defaults to the property)
                                         // returns null if not found // in your controller, you can access it with $params['model'] (or $params['model']['model1'], $params['model']['modelx'] if multiple models were defined)
     'parameter' => array('id' => false, '_format' => 'html'),
@@ -43,18 +53,29 @@ $MiniMVC_routes['MODLC.defaultEdit'] = array(
     'route' => 'MODLC/:id:/edit',
     'controller' => 'MODULE_Default',
     'action' => 'edit',
-    'method' => array('GET', 'POST'),
-    //'model' => array('MODULE', 'id'),
+    'method' => 'GET',
+    'model' => array('MODULE', 'id'),
     'parameter' => array('id' => false),
     'active' => false, //this route must be activated for each app to work
     //'rights' => 'publish'
 );
+$MiniMVC_routes['MODLC.defaultUpdate'] = array(
+    'route' => 'MODLC/:id:',
+    'controller' => 'MODULE_Default',
+    'action' => 'update',
+    'method' => 'POST',
+    'model' => array('MODULE', 'id'),
+    'parameter' => array('id' => false),
+    'active' => false, //this route must be activated for each app to work
+    //'rights' => 'publish'
+);
+
 $MiniMVC_routes['MODLC.defaultDelete'] = array(
     'route' => 'MODLC/:id:/delete',
     'controller' => 'MODULE_Default',
     'action' => 'delete',
     'method' => 'DELETE',
-    //'model' => array('MODULE', 'id'),
+    'model' => array('MODULE', 'id'),
     'parameter' => array('id' => false),
     'active' => false, //this route must be activated for each app to work
     //'rights' => 'publish'

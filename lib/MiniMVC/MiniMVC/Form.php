@@ -9,7 +9,6 @@ class MiniMVC_Form
     protected $options = array();
     protected $model = null;
     protected $postValidators = array();
-    protected $csrfToken = null;
 
     public function __construct($options = array())
     {
@@ -19,18 +18,17 @@ class MiniMVC_Form
         $i18n = MiniMVC_Registry::getInstance()->helper->i18n->get('_form');
 
         $this->options['route'] = MiniMVC_Registry::getInstance()->settings->get('currentRoute');
-        $this->options['routeParameter'] = MiniMVC_Registry::getInstance()->settings->get('currentRouteParameter');
+        $this->options['parameter'] = isset($options['route']) ? array() : MiniMVC_Registry::getInstance()->settings->get('currentRouteParameter');
         $this->options['method'] = 'POST';
         $this->options['showGlobalErrors'] = true;
-        $this->options['redirectOnError'] = true;
         $this->options['csrfProtection'] = true;
+        $this->options['ajaxValidation'] = true;
         $this->options['csrfErrorMessage'] = $i18n->errorCsrf;
         $this->options['requiredMark'] = $i18n->requiredMark;
         $this->options = array_merge($this->options, (array)$options);
 
-        if (empty($this->options['action'])) {
-            $this->options['action'] = MiniMVC_Registry::getInstance()->helper->url->get($this->options['route'], !empty($this->options['routeParameter']) ? $this->options['routeParameter'] : array());
-        }
+        $this->options['action'] = MiniMVC_Registry::getInstance()->helper->url->get($this->options['route'], !empty($this->options['parameter']) ? $this->options['parameter'] : array());
+        
 
         $this->setElement(new MiniMVC_Form_Element_Hidden('FormCheck', array('defaultValue' => 1, 'alwaysDisplayDefault' => true), array(new MiniMVC_Form_Validator_Required())));
 
@@ -54,8 +52,7 @@ class MiniMVC_Form
 
     public function generateCsrfToken()
     {
-        $this->csrfToken = md5($this->name . time() . rand(1000, 9999));
-        $_SESSION[md5($this->options['route'] . serialize($this->options['routeParameter'])) . '_csrf_token'] = $this->csrfToken;
+        $this->csrfToken = MiniMVC_Registry::getInstance()->guard->generateCsrfToken($this->options['route']); 
     }
 
     public function getCsrfToken()
@@ -162,15 +159,15 @@ class MiniMVC_Form
 
     public function bindValues()
     {
-        if (isset($_SESSION['form_' . $this->name . '__' . $this->getOption('action') . '__errorData'])) {
-            $values = $_SESSION['form_' . $this->name . '__' . $this->getOption('action') . '__errorData'];
+        if (isset($_SESSION['form_' . $this->name . '__errorData'])) {
+            $values = $_SESSION['form_' . $this->name . '__errorData'];
             
             if (!empty($values['_form'])) {
                 $this->errors = $values['_form'];
                 $this->isValid = false;
             }
 
-            unset($_SESSION['form_' . $this->name . '__' . $this->getOption('action') . '__errorData']);
+            unset($_SESSION['form_' . $this->name . '__errorData']);
             foreach ($this->elements as $element) {
                 $_POST[$this->name][$element->getName()] = isset($values[$element->getName()]['value']) ? $values[$element->getName()]['value']
                                     : null;
@@ -214,7 +211,7 @@ class MiniMVC_Form
 
     public function validate()
     {
-        $this->handleAjaxValidation();
+//        $this->handleAjaxValidation();
 
         $this->bindValues();
         if (!$this->isValid || !$this->wasSubmitted()) {
@@ -244,28 +241,53 @@ class MiniMVC_Form
 			}
 		}
 
-        if (!$this->isValid && $this->getOption('redirectOnError')) {
-            $this->errorRedirect();
-        }
+//        if (!$this->isValid && $this->getOption('redirectOnError')) {
+//            $this->errorRedirect();
+//        }
         return $this->isValid;
     }
 
-    public function errorRedirect()
+    public function errorRedirect($route, $parameter = array())
     {
-        if (!$this->isValid) {
-            $sessionData = array();
-            foreach ($this->elements as $element) {
-                $sessionData[$element->getName()] = array(
-                    'hasError' => !$element->isValid(),
-                    'value' => $element->value,
-                    'errorMessage' => $element->errorMessage
-                );
-            }
-            $sessionData['_form'] = $this->errors;
-            $_SESSION['form_' . $this->name . '__' . $this->getOption('action') . '__errorData'] = $sessionData;
-            header('Location: ' . $this->getOption('action'));
+        $url = MiniMVC_Registry::getInstance()->helper->url->get($route, $parameter);
+
+        $sessionData = array();
+        foreach ($this->elements as $element) {
+            $sessionData[$element->getName()] = array(
+                'hasError' => !$element->isValid(),
+                'value' => $element->value,
+                'errorMessage' => $element->errorMessage
+            );
+        }
+
+        if ($this->getOption('ajaxValidation') && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            header('Content-Type: application/json');
+            echo json_encode(array('status' => false, 'redirect' => $url, 'formErrors' => $this->errors, 'elements' => $sessionData));
             exit;
         }
+
+        $sessionData['_form'] = $this->errors;
+        
+        $_SESSION['form_' . $this->name . '__errorData'] = $sessionData;
+
+        $url = MiniMVC_Registry::getInstance()->helper->url->get($route, $parameter);
+
+        header('Location: ' . $url);
+        exit;
+    }
+
+    public function successRedirect($route, $parameter = array())
+    {
+        $url = MiniMVC_Registry::getInstance()->helper->url->get($route, $parameter);
+
+        if ($this->getOption('ajaxValidation') && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
+            header('Content-Type: application/json');
+            echo json_encode(array('status' => true, 'redirect' => $url));
+            exit;
+        }
+
+        header('Location: ' . $url);
+        exit;
     }
 
     public function wasSubmitted()
@@ -273,27 +295,27 @@ class MiniMVC_Form
         return (isset($_POST[$this->name]) && is_array($_POST[$this->name]));
     }
 
-    public function handleAjaxValidation()
-    {
-        if (empty($_POST['_validateForm']) || $_POST['_validateForm'] != $this->name) {
-            return;
-        }
-
-        if (empty($_POST['_validateField']) || !isset($_POST['_validateValue'])) {
-            $t = MiniMVC_Registry::getInstance()->helper->i18n->get('_form');
-            $response = array('status' => false, 'message' => $t->errorAjaxMissingField);
-            exit;
-        } elseif (!$field = $this->getElement($_POST['_validateField'])) {
-            $t = MiniMVC_Registry::getInstance()->helper->i18n->get('_form');
-            $response = array('status' => false, 'message' => $t->errorAjaxInvalidField('field=' . htmlspecialchars($_POST['_validateField'])));
-        } else {
-            $field->setValue($_POST['_validateValue']);
-            $response = $field->validate() ? array('status' => true) : array('status' => false, 'message' => $field->errorMessage);
-        }
-
-        header('Content-Type: application/json');
-        echo json_encode($response);
-        exit;
-    }
+//    public function handleAjaxValidation()
+//    {
+//        if (empty($_POST['_validateForm']) || $_POST['_validateForm'] != $this->name) {
+//            return;
+//        }
+//
+//        if (empty($_POST['_validateField']) || !isset($_POST['_validateValue'])) {
+//            $t = MiniMVC_Registry::getInstance()->helper->i18n->get('_form');
+//            $response = array('status' => false, 'message' => $t->errorAjaxMissingField);
+//            exit;
+//        } elseif (!$field = $this->getElement($_POST['_validateField'])) {
+//            $t = MiniMVC_Registry::getInstance()->helper->i18n->get('_form');
+//            $response = array('status' => false, 'message' => $t->errorAjaxInvalidField('field=' . htmlspecialchars($_POST['_validateField'])));
+//        } else {
+//            $field->setValue($_POST['_validateValue']);
+//            $response = $field->validate() ? array('status' => true) : array('status' => false, 'message' => $field->errorMessage);
+//        }
+//
+//        header('Content-Type: application/json');
+//        echo json_encode($response);
+//        exit;
+//    }
 
 }

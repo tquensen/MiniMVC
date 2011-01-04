@@ -181,7 +181,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         file_put_contents($path . '/view/default/index.php', str_replace($search, $replace, file_get_contents($dummy . '/index.php')));
         file_put_contents($path . '/view/default/index.json.php', str_replace($search, $replace, file_get_contents($dummy . '/index.json.php')));
         file_put_contents($path . '/view/default/widget.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.php')));
-        file_put_contents($path . '/view/default/create.php', str_replace($search, $replace, file_get_contents($dummy . '/create.php')));
+        file_put_contents($path . '/view/default/new.php', str_replace($search, $replace, file_get_contents($dummy . '/new.php')));
         file_put_contents($path . '/view/default/show.php', str_replace($search, $replace, file_get_contents($dummy . '/show.php')));
         file_put_contents($path . '/view/default/show.json.php', str_replace($search, $replace, file_get_contents($dummy . '/show.json.php')));
         file_put_contents($path . '/view/default/edit.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.php')));
@@ -342,7 +342,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             file_put_contents($path . '/../view/'.strtolower($controller).'/index.php', str_replace($search, $replace, file_get_contents($dummy . '/index.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/index.json.php', str_replace($search, $replace, file_get_contents($dummy . '/index.json.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/widget.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.php')));
-            file_put_contents($path . '/../view/'.strtolower($controller).'/create.php', str_replace($search, $replace, file_get_contents($dummy . '/create.php')));
+            file_put_contents($path . '/../view/'.strtolower($controller).'/new.php', str_replace($search, $replace, file_get_contents($dummy . '/new.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/show.php', str_replace($search, $replace, file_get_contents($dummy . '/show.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/show.json.php', str_replace($search, $replace, file_get_contents($dummy . '/show.json.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/edit.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.php')));

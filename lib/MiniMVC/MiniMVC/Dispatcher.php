@@ -161,15 +161,6 @@ class MiniMVC_Dispatcher
                 if (!$found) {
                     throw new Exception('no valid route found!', 404);
                 }
-
-                $identifier = md5($routeName . serialize(isset($params) ? $params : array()));
-
-                $csrfData = array(
-                    'expected' => isset($_SESSION[$identifier.'_csrf_token']) ? $_SESSION[$identifier.'_csrf_token'] : null,
-                    'submitted' => isset($_POST['_csrf_token']) ? $_POST['_csrf_token'] : null
-                );
-                unset($_SESSION[$identifier.'_csrf_token']);
-                $this->registry->settings->set('csrfData', $csrfData);
             }
 
 

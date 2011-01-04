@@ -42,27 +42,41 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         //return $this->view->prepare('CONTROLLERLC/show', 'MODULE');
     }
 
-    public function createAction($params)
+    public function newAction($params)
     {
         /*
-        $this->view->form = MODULETable::getInstance()->getForm();
-        if ($this->view->form->validate())
-        {
-            $model = $this->view->form->updateModel();
-            if (!$model->save()) {
-                $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTCreateErrorMessage);
-                $this->view->form->errorRedirect();
-            }
-            $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage, 'success');
-            return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
-        }
+        $form = CONTROLLERTable::getInstance()->getForm(null, array(
+            'route' => 'MODLC.CONTROLLERLCFIRSTCreate'
+        ));
 
-        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTCreateTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTIndexMetaDescription);
+        $this->view->form = $form;
+
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTNewTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTNewMetaDescription);
 
          */
 
-        //return $this->view->prepare('CONTROLLERLC/create', 'MODULE');
+
+        //return $this->view->prepare('CONTROLLERLC/new', 'MODULE');
+    }
+
+    public function createAction($params)
+    {
+        /*
+        $form = CONTROLLERTable::getInstance()->getForm();
+        if ($form->validate())
+        {
+            $model = $form->updateModel();
+            if ($model->save()) {
+                $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage, 'success');
+                $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
+            }
+
+            $form->setError($this->view->t->CONTROLLERLCFIRSTCreateErrorMessage);
+        }
+
+        $form->errorRedirect('MODLC.CONTROLLERLCFIRSTNew');
+         */
     }
 
     public function editAction($params)
@@ -71,25 +85,44 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         if (!$params['model']) {
             return $this->delegate404();
         }
-        $this->view->form = MODULETable::getInstance()->getForm($params['model']);
-        if ($this->view->form->validate())
-        {
-            $model = $this->view->form->updateModel();
-            if (!$model->save()) {
-                $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTEditErrorMessage);
-                $this->view->form->errorRedirect();
-            }
-            $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTEditSuccessMessage, 'success');
-            return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
-        }
+
+        $form = CONTROLLERTable::getInstance()->getForm($params['model'], array(
+            'route' => 'MODLC.CONTROLLERLCFIRSTUpdate',
+            'parameter => array('id' => $model->id)
+        ));
+
+        $this->view->form = $form;
 
         $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTEditTitle);
         $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTEditMetaDescription);
 
-
          */
 
         //return $this->view->prepare('CONTROLLERLC/edit', 'MODULE');
+    }
+
+    public function updateAction($params)
+    {
+        /*
+        if (!$params['model']) {
+            return $this->delegate404();
+        }
+
+        $form = CONTROLLERTable::getInstance()->getForm($params['model']);
+
+        if ($form->validate())
+        {
+            $model = $form->updateModel();
+            if ($model->save()) {
+                $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTUpdateSuccessMessage, 'success');
+                $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
+            }
+
+            $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTUpdateErrorMessage);
+        }
+
+        $form->errorRedirect('MODLC.CONTROLLERLCFIRSTUpdate', array('id' => $model->id));
+         */
     }
 
     public function deleteAction($params)

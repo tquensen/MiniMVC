@@ -143,15 +143,27 @@ class MiniMVC_Guard
      */
     public function checkCsrfProtection($throwException = true)
     {
-        $csrfData = $this->registry->settings->get('csrfData', array());
+        $route = MiniMVC_Registry::getInstance()->settings->get('currentRoute');
+        $token = isset($_POST['_csrf_token']) ? $_POST['_csrf_token'] : null;
+        $value = isset($_SESSION['_csrf_token'][$token]) ? $_SESSION['_csrf_token'][$token] : null;
+        unset($_SESSION['_csrf_token'][$token]);
 
-        if (empty($csrfData['expected']) || empty($csrfData['submitted']) || $csrfData['expected'] != $csrfData['submitted']) {
+        if (!$token || !$value || $value != $route) {
             if ($throwException) {
-                throw new Exception('invalid csrf token: '.(empty($csrfData['submitted']) ? ' (none)' : $csrfData['submitted']) . ' / expected: '.(empty($csrfData['expected']) ? ' (none)' : $csrfData['expected']), 401);
+                throw new Exception('invalid csrf token: '.(!$token ? ' (none)' : $token), 401);
             }
             return false;
         }
         return true;
+    }
+
+    public function generateCsrfToken($route = null)
+    {
+        if ($route === null) {
+            $route = MiniMVC_Registry::getInstance()->settings->get('currentRoute');
+        }
+        $token = md5(time() . rand(1000, 9999));
+        $_SESSION['_csrf_token'][$token] = $route;
     }
 
     /**

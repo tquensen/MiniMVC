@@ -43,27 +43,41 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         //return $this->view->prepare('default/show', 'MODULE');
     }
     
-    public function createAction($params)
+    public function newAction($params)
     {
         /*
-        $this->view->form = MODULETable::getInstance()->getForm();
-        if ($this->view->form->validate())
-        {
-            $model = $this->view->form->updateModel();
-            if (!$model->save()) {
-                $this->view->form->setError($this->view->t->defaultCreateErrorMessage);
-                $this->view->form->errorRedirect();
-            }
-            $this->registry->helper->messages->add($this->view->t->defaultCreateSuccessMessage, 'success');
-            return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
-        }
+        $form = MODULETable::getInstance()->getForm(null, array(
+            'route' => 'MODLC.defaultCreate'
+        ));
 
-        $this->registry->helper->meta->setTitle($this->view->t->defaultCreateTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->defaultCreateMetaDescription);
+        $this->view->form = $form;
+
+        $this->registry->helper->meta->setTitle($this->view->t->defaultNewTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->defaultNewMetaDescription);
 
          */
 
-        //return $this->view->prepare('default/create', 'MODULE');
+
+        //return $this->view->prepare('default/new', 'MODULE');
+    }
+
+    public function createAction($params)
+    {
+        /*
+        $form = MODULETable::getInstance()->getForm();
+        if ($form->validate())
+        {
+            $model = $form->updateModel();
+            if ($model->save()) {
+                $this->registry->helper->messages->add($this->view->t->defaultCreateSuccessMessage, 'success');
+                $form->successRedirect('MODLC.defaultShow', array('id' => $model->id));
+            }
+
+            $form->setError($this->view->t->defaultCreateErrorMessage);
+        }
+
+        $form->errorRedirect('MODLC.defaultNew');
+         */
     }
 
     public function editAction($params)
@@ -72,17 +86,13 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         if (!$params['model']) {
             return $this->delegate404();
         }
-        $this->view->form = MODULETable::getInstance()->getForm($params['model']);
-        if ($this->view->form->validate())
-        {
-            $model = $this->view->form->updateModel();
-            if (!$model->save()) {
-                $this->view->form->setError($this->view->t->defaultEditErrorMessage);
-                $this->view->form->errorRedirect();
-            }
-            $this->registry->helper->messages->add($this->view->t->defaultEditSuccessMessage, 'success');
-            return $this->redirect('MODLC.defaultShow', array('id' => $model->id));
-        }
+
+        $form = MODULETable::getInstance()->getForm($params['model'], array(
+            'route' => 'MODLC.defaultUpdate',
+            'parameter => array('id' => $model->id)
+        ));
+
+        $this->view->form = $form;
 
         $this->registry->helper->meta->setTitle($this->view->t->defaultEditTitle);
         $this->registry->helper->meta->setDescription($this->view->t->defaultEditMetaDescription);
@@ -90,6 +100,30 @@ class MODULE_Default_Controller extends MiniMVC_Controller
          */
 
         //return $this->view->prepare('default/edit', 'MODULE');
+    }
+    
+    public function updateAction($params)
+    {
+        /*
+        if (!$params['model']) {
+            return $this->delegate404();
+        }
+
+        $form = MODULETable::getInstance()->getForm($params['model']);
+
+        if ($form->validate())
+        {
+            $model = $form->updateModel();
+            if ($model->save()) {
+                $this->registry->helper->messages->add($this->view->t->defaultUpdateSuccessMessage, 'success');
+                $form->successRedirect('MODLC.defaultShow', array('id' => $model->id));
+            }
+
+            $this->view->form->setError($this->view->t->defaultUpdateErrorMessage);
+        }
+
+        $form->errorRedirect('MODLC.defaultUpdate', array('id' => $model->id));
+         */
     }
 
     public function deleteAction($params)
