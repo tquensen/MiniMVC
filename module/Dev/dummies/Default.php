@@ -1,5 +1,5 @@
 <?php
-class MODULE_Default_Controller extends MiniMVC_Controller
+class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
 {
     public function indexAction($params)
     {
@@ -14,18 +14,18 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         $this->view->pager = $this->registry->helper->pager->get(
                 $query->count(),
                 $showPerPage,
-                $this->registry->helper->url->get('MODLC.defaultIndex') . '(?p={page})',
+                $this->registry->helper->url->get('MODLC.CONTROLLERLCFIRSTIndex') . '(?p={page})',
                 $currentPage,
                 7,
                 false
         );
 
-        $this->registry->helper->meta->setTitle($this->view->t->defaultIndexTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->defaultIndexMetaDescription);
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTIndexTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTIndexMetaDescription);
 
         */
 
-        //return $this->view->prepare('default/index', 'MODULE');
+        //return $this->view->prepare('CONTROLLERLC/index', 'MODULE');
     }
 
     public function showAction($params)
@@ -40,43 +40,43 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setDescription($this->view->model->description);
         */
 
-        //return $this->view->prepare('default/show', 'MODULE');
+        //return $this->view->prepare('CONTROLLERLC/show', 'MODULE');
     }
     
     public function newAction($params)
     {
         /*
-        $form = MODULETable::getInstance()->getForm(null, array(
-            'route' => 'MODLC.defaultCreate'
+        $form = CONTROLLERTable::getInstance()->getForm(null, array(
+            'route' => 'MODLC.CONTROLLERLCFIRSTCreate'
         ));
 
         $this->view->form = $form;
 
-        $this->registry->helper->meta->setTitle($this->view->t->defaultNewTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->defaultNewMetaDescription);
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTNewTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTNewMetaDescription);
 
          */
 
 
-        //return $this->view->prepare('default/new', 'MODULE');
+        //return $this->view->prepare('CONTROLLERLC/new', 'MODULE');
     }
 
     public function createAction($params)
     {
         /*
-        $form = MODULETable::getInstance()->getForm();
+        $form = CONTROLLERTable::getInstance()->getForm();
         if ($form->validate())
         {
             $model = $form->updateModel();
             if ($model->save()) {
-                $this->registry->helper->messages->add($this->view->t->defaultCreateSuccessMessage, 'success');
-                $form->successRedirect('MODLC.defaultShow', array('id' => $model->id));
+                $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage, 'success');
+                $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
             }
 
-            $form->setError($this->view->t->defaultCreateErrorMessage);
+            $form->setError($this->view->t->CONTROLLERLCFIRSTCreateErrorMessage);
         }
 
-        $form->errorRedirect('MODLC.defaultNew');
+        $form->errorRedirect('MODLC.CONTROLLERLCNew');
          */
     }
 
@@ -88,18 +88,18 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         }
 
         $form = MODULETable::getInstance()->getForm($params['model'], array(
-            'route' => 'MODLC.defaultUpdate',
+            'route' => 'MODLC.CONTROLLERLCUpdate',
             'parameter => array('id' => $model->id)
         ));
 
         $this->view->form = $form;
 
-        $this->registry->helper->meta->setTitle($this->view->t->defaultEditTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->defaultEditMetaDescription);
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTEditTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTEditMetaDescription);
 
          */
 
-        //return $this->view->prepare('default/edit', 'MODULE');
+        //return $this->view->prepare('CONTROLLERLC/edit', 'MODULE');
     }
     
     public function updateAction($params)
@@ -115,14 +115,14 @@ class MODULE_Default_Controller extends MiniMVC_Controller
         {
             $model = $form->updateModel();
             if ($model->save()) {
-                $this->registry->helper->messages->add($this->view->t->defaultUpdateSuccessMessage, 'success');
-                $form->successRedirect('MODLC.defaultShow', array('id' => $model->id));
+                $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTUpdateSuccessMessage, 'success');
+                $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
             }
 
-            $this->view->form->setError($this->view->t->defaultUpdateErrorMessage);
+            $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTUpdateErrorMessage);
         }
 
-        $form->errorRedirect('MODLC.defaultUpdate', array('id' => $model->id));
+        $form->errorRedirect('MODLC.CONTROLLERLCFIRSTUpdate', array('id' => $model->id));
          */
     }
 
@@ -133,17 +133,17 @@ class MODULE_Default_Controller extends MiniMVC_Controller
             return $this->delegate404();
         }
         if (!$this->registry->guard->checkCsrfProtection(false) || !$params['model']->delete()) {
-            $this->registry->helper->messages->add($this->view->t->defaultDeleteErrorMessage, 'error');
+            $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTDeleteErrorMessage, 'error');
         } else {
-            $this->registry->helper->messages->add($this->view->t->defaultDeleteSuccessMessage, 'success');
+            $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTDeleteSuccessMessage, 'success');
         }
 
-        return $this->redirect('MODLC.defaultIndex');
+        return $this->redirect('MODLC.CONTROLLERLCIndex');
          */
     }
 
     public function widgetAction($params)
     {
-        //return $this->view->prepare('default/widget', 'MODULE');
+        //return $this->view->prepare('CONTROLLERLC/widget', 'MODULE');
     }
 }

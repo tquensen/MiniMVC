@@ -1,6 +1,6 @@
 <?php
 $MiniMVC_widgets['MODLC.exampleWidget'] = array(
-    'controller' => 'MODULE_Default',
+    'controller' => 'MODULE_CONTROLLER',
     'action' => 'widget',
     'parameter' => array(),
     'rights' => false,  // use false for no restrictions,

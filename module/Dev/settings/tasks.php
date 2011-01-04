@@ -3,8 +3,8 @@
 $MiniMVC_tasks['generate.module'] = array(
     'controller' => 'Dev_Generate',
     'action' => 'module',
-    'parameter' => array('module' => false),
-    'assign' => 'module'
+    'parameter' => array('module' => false, 'controller' => false),
+    'assign' => array('module', 'controller')
 );
 
 $MiniMVC_tasks['install.module'] = array(

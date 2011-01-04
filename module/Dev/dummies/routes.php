@@ -1,7 +1,7 @@
 <?php
-$MiniMVC_routes['MODLC.defaultIndex'] = array(
+$MiniMVC_routes['MODLC.CONTROLLERLCFIRSTIndex'] = array(
     'route' => 'MODLC(.:_format:)', // .format is optional (in brackets)
-    'controller' => 'MODULE_Default',
+    'controller' => 'MODULE_CONTROLLER',
     'action' => 'index',
     'parameter' => array('_format' => 'html'), //set html as default format
     //'parameterPatterns' => array('_format' => 'json|xml'), //allow xml and json as alternative formats
@@ -18,18 +18,18 @@ $MiniMVC_routes['MODLC.defaultIndex'] = array(
                         //        array(array('administrate', array('moderate', 'publish'))) = administrate OR (moderate AND publish)
 );
 
-$MiniMVC_routes['MODLC.defaultNew'] = array(
+$MiniMVC_routes['MODLC.CONTROLLERLCFIRSTNew'] = array(
     'route' => 'MODLC/new',
-    'controller' => 'MODULE_Default',
+    'controller' => 'MODULE_CONTROLLER',
     'action' => 'new',
     'method' => 'GET',
     'parameter' => array(),
     'active' => false, //this route must be activated for each app to work
     //'rights' => 'publish'
 );
-$MiniMVC_routes['MODLC.defaultCreate'] = array(
+$MiniMVC_routes['MODLC.CONTROLLERLCFIRSTCreate'] = array(
     'route' => 'MODLC',
-    'controller' => 'MODULE_Default',
+    'controller' => 'MODULE_CONTROLLER',
     'action' => 'create',
     'method' => 'POST',
     'parameter' => array(),
@@ -37,9 +37,9 @@ $MiniMVC_routes['MODLC.defaultCreate'] = array(
     //'rights' => 'publish'
 );
 
-$MiniMVC_routes['MODLC.defaultShow'] = array(
+$MiniMVC_routes['MODLC.CONTROLLERLCFIRSTShow'] = array(
     'route' => 'MODLC/:id:(.:_format:)', // .format is optional (in brackets)
-    'controller' => 'MODULE_Default',
+    'controller' => 'MODULE_CONTROLLER',
     'action' => 'show',
     'method' => 'GET',
     'model' => array('MODULE', 'id'), // array(modelname, property, parameter) or array('model1' => array(modelname, property, parameter),'modelx' => array(modelname, property, parameter))
@@ -49,9 +49,9 @@ $MiniMVC_routes['MODLC.defaultShow'] = array(
     //'parameterPatterns' => array('_format' => 'json|xml'), //allow xml and json as alternative formats
     //'rights' => false
 );
-$MiniMVC_routes['MODLC.defaultEdit'] = array(
+$MiniMVC_routes['MODLC.CONTROLLERLCFIRSTEdit'] = array(
     'route' => 'MODLC/:id:/edit',
-    'controller' => 'MODULE_Default',
+    'controller' => 'MODULE_CONTROLLER',
     'action' => 'edit',
     'method' => 'GET',
     'model' => array('MODULE', 'id'),
@@ -59,9 +59,9 @@ $MiniMVC_routes['MODLC.defaultEdit'] = array(
     'active' => false, //this route must be activated for each app to work
     //'rights' => 'publish'
 );
-$MiniMVC_routes['MODLC.defaultUpdate'] = array(
+$MiniMVC_routes['MODLC.CONTROLLERLCFIRSTUpdate'] = array(
     'route' => 'MODLC/:id:',
-    'controller' => 'MODULE_Default',
+    'controller' => 'MODULE_CONTROLLER',
     'action' => 'update',
     'method' => 'POST',
     'model' => array('MODULE', 'id'),
@@ -70,9 +70,9 @@ $MiniMVC_routes['MODLC.defaultUpdate'] = array(
     //'rights' => 'publish'
 );
 
-$MiniMVC_routes['MODLC.defaultDelete'] = array(
+$MiniMVC_routes['MODLC.CONTROLLERLCFIRSTDelete'] = array(
     'route' => 'MODLC/:id:/delete',
-    'controller' => 'MODULE_Default',
+    'controller' => 'MODULE_CONTROLLER',
     'action' => 'delete',
     'method' => 'DELETE',
     'model' => array('MODULE', 'id'),
@@ -82,9 +82,9 @@ $MiniMVC_routes['MODLC.defaultDelete'] = array(
 );
 
 /*
-$MiniMVC_routes['MODLC.defaultFallback'] = array(
+$MiniMVC_routes['MODLC.CONTROLLERLCFIRSTFallback'] = array(
     'route' => 'MODLC(/:_controller:)(/:_action:)(.:_format:)',
-    'parameter' => array('_module' => 'MODULE', '_controller' => 'Default', '_action' => 'index', '_format' => 'html'),
+    'parameter' => array('_module' => 'MODULE', '_controller' => 'CONTROLLER', '_action' => 'index', '_format' => 'html'),
     'parameterPatterns' => array('_controller' => '[A-Z][a-zA-Z]*', '_action' => '[a-zA-Z]+', '_format' => 'json|xml'), //allow xml and json as alternative formats
     'method' => 'GET',
     'active' => false, // you shoud use this route only for testing

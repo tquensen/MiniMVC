@@ -142,6 +142,8 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             return 'Keine Schreibrechte im Module-Ordner!' . "\n";
         }
 
+        $controller = !empty($params['controller']) ? $params['controller'] : $params['module'];
+
         $path = MODULEPATH . $params['module'];
         $dummy = MODULEPATH . 'Dev/dummies';
 
@@ -152,7 +154,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         mkdir($path . '/settings');
         mkdir($path . '/i18n');
         mkdir($path . '/view');
-        mkdir($path . '/view/default');
+        mkdir($path . '/view/'.strtolower($controller));
         mkdir($path . '/web');
         mkdir($path . '/web/js');
         mkdir($path . '/web/css');
@@ -165,26 +167,28 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             'CONTROLLERLCFIRST',
             'MODLC',
             'MODULE',
-            'CONTROLLER'
+            'CONTROLLERLC',
+            'CONTROLLER',
         );
         $replace = array(
             strtolower(substr($params['module'], 0, 1)) . substr($params['module'], 1),
-            'default',
+            strtolower(substr($controller, 0, 1)) . substr($controller, 1),
             strtolower($params['module']),
             $params['module'],
-            $params['module']
+            strtolower($controller),
+            $controller
         );
-        file_put_contents($path . '/controller/Default.php', str_replace($search, $replace, file_get_contents($dummy . '/Default.php')));
+        file_put_contents($path . '/controller/'.$controller.'.php', str_replace($search, $replace, file_get_contents($dummy . '/Default.php')));
         file_put_contents($path . '/Installer.php', str_replace($search, $replace, file_get_contents($dummy . '/Installer.php')));
         file_put_contents($path . '/i18n/de_DE.php', str_replace($search, $replace, file_get_contents($dummy . '/de_DE.php')));
         file_put_contents($path . '/i18n/en_US.php', str_replace($search, $replace, file_get_contents($dummy . '/en_US.php')));
-        file_put_contents($path . '/view/default/index.php', str_replace($search, $replace, file_get_contents($dummy . '/index.php')));
-        file_put_contents($path . '/view/default/index.json.php', str_replace($search, $replace, file_get_contents($dummy . '/index.json.php')));
-        file_put_contents($path . '/view/default/widget.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.php')));
-        file_put_contents($path . '/view/default/new.php', str_replace($search, $replace, file_get_contents($dummy . '/new.php')));
-        file_put_contents($path . '/view/default/show.php', str_replace($search, $replace, file_get_contents($dummy . '/show.php')));
-        file_put_contents($path . '/view/default/show.json.php', str_replace($search, $replace, file_get_contents($dummy . '/show.json.php')));
-        file_put_contents($path . '/view/default/edit.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.php')));
+        file_put_contents($path . '/view/'.strtolower($controller).'/index.php', str_replace($search, $replace, file_get_contents($dummy . '/index.php')));
+        file_put_contents($path . '/view/'.strtolower($controller).'/index.json.php', str_replace($search, $replace, file_get_contents($dummy . '/index.json.php')));
+        file_put_contents($path . '/view/'.strtolower($controller).'/widget.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.php')));
+        file_put_contents($path . '/view/'.strtolower($controller).'/new.php', str_replace($search, $replace, file_get_contents($dummy . '/new.php')));
+        file_put_contents($path . '/view/'.strtolower($controller).'/show.php', str_replace($search, $replace, file_get_contents($dummy . '/show.php')));
+        file_put_contents($path . '/view/'.strtolower($controller).'/show.json.php', str_replace($search, $replace, file_get_contents($dummy . '/show.json.php')));
+        file_put_contents($path . '/view/'.strtolower($controller).'/edit.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.php')));
         file_put_contents($path . '/settings/config.php', str_replace($search, $replace, file_get_contents($dummy . '/config.php')));
         file_put_contents($path . '/settings/routes.php', str_replace($search, $replace, file_get_contents($dummy . '/routes.php')));
         file_put_contents($path . '/settings/widgets.php', str_replace($search, $replace, file_get_contents($dummy . '/widgets.php')));
