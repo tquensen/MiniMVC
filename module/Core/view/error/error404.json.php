@@ -1,1 +1,1 @@
-<?php echo json_encode(array('status' => false, 'errorCode' => 404, 'message' => 'Error 404 Not found!'));
+<?php echo json_encode(array('success' => false, 'errorCode' => 404, 'message' => 'Error 404 Not found!'));

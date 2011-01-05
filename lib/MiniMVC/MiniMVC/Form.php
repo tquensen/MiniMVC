@@ -22,7 +22,6 @@ class MiniMVC_Form
         $this->options['method'] = 'POST';
         $this->options['showGlobalErrors'] = true;
         $this->options['csrfProtection'] = true;
-        $this->options['ajaxValidation'] = true;
         $this->options['csrfErrorMessage'] = $i18n->errorCsrf;
         $this->options['requiredMark'] = $i18n->requiredMark;
         $this->options = array_merge($this->options, (array)$options);
@@ -52,7 +51,7 @@ class MiniMVC_Form
 
     public function generateCsrfToken()
     {
-        $this->csrfToken = MiniMVC_Registry::getInstance()->guard->generateCsrfToken($this->options['route']); 
+        $this->csrfToken = MiniMVC_Registry::getInstance()->guard->generateCsrfToken(); 
     }
 
     public function getCsrfToken()

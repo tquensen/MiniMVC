@@ -14,6 +14,7 @@ class MiniMVC_Guard
     protected $role = null;
     protected $rights = array();
     protected $data = array();
+    protected $persistent = true;
 
     public function __construct()
     {
@@ -39,9 +40,11 @@ class MiniMVC_Guard
      *
      * @param integer $id the unique id of the current user
      * @param string $role the name of the current user's role
+     * @param bool $persistent whether to save the userdata in the eseein (true, default) or only for the current request
      */
-    public function setUser($id = null, $role = 'guest')
+    public function setUser($id = null, $role = 'guest', $persistent = true)
     {
+        $this->persistent = (bool) $persistent;
         $this->setId($id);
         $this->setRole($role);
         $this->clearData();
@@ -54,7 +57,9 @@ class MiniMVC_Guard
     public function setId($id)
     {
         $this->id = $id;
-        $_SESSION['guardID'] = $id;
+        if ($this->persistent) {
+            $_SESSION['guardID'] = $id;
+        }
     }
 
     /**
@@ -64,7 +69,9 @@ class MiniMVC_Guard
     public function setRole($role)
     {
         $this->role = $role;
-        $_SESSION['guardRole'] = $role;
+        if ($this->persistent) {
+            $_SESSION['guardRole'] = $role;
+        }
         $this->rights = $this->registry->rights->getRoleRights($this->role);
     }
 
@@ -135,7 +142,9 @@ class MiniMVC_Guard
 
     protected function persistData()
     {
-        $_SESSION['guardData'] = $this->data;
+        if ($this->persistent) {
+            $_SESSION['guardData'] = $this->data;
+        }
     }
 
     /**
@@ -143,12 +152,11 @@ class MiniMVC_Guard
      */
     public function checkCsrfProtection($throwException = true)
     {
-        $route = MiniMVC_Registry::getInstance()->settings->get('currentRoute');
         $token = isset($_POST['_csrf_token']) ? $_POST['_csrf_token'] : null;
         $value = isset($_SESSION['_csrf_token'][$token]) ? $_SESSION['_csrf_token'][$token] : null;
         unset($_SESSION['_csrf_token'][$token]);
 
-        if (!$token || !$value || $value != $route) {
+        if (!$token || !$value) {
             if ($throwException) {
                 throw new Exception('invalid csrf token: '.(!$token ? ' (none)' : $token), 401);
             }
@@ -157,13 +165,10 @@ class MiniMVC_Guard
         return true;
     }
 
-    public function generateCsrfToken($route = null)
+    public function generateCsrfToken()
     {
-        if ($route === null) {
-            $route = MiniMVC_Registry::getInstance()->settings->get('currentRoute');
-        }
         $token = md5(time() . rand(1000, 9999));
-        $_SESSION['_csrf_token'][$token] = $route;
+        $_SESSION['_csrf_token'][$token] = true;
     }
 
     /**

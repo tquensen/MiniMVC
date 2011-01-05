@@ -1,1 +1,1 @@
-<?php echo json_encode(array('status' => false, 'errorCode' => 500, 'message' => 'Error 500 Server Error!'));
+<?php echo json_encode(array('success' => false, 'errorCode' => 500, 'message' => 'Error 500 Server Error!'));

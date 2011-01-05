@@ -1,7 +1,7 @@
 <?php
 /* LIST VIEW
 $json = array(
-    'status' => true,
+    'success' => true,
     'currentPage' => $pager->getPage(),
     'numPages' => $pager->getPages(),
     'numEntries' => $pager->getNumEntries(),

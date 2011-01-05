@@ -110,6 +110,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
 
         file_put_contents($path . '/view/default.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.php')));
         file_put_contents($path . '/view/default.json.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.json.php')));
+        file_put_contents($path . '/view/default.xml.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.xml.php')));
         file_put_contents($path . '/i18n/de_DE.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/de_DE_app.php')));
         file_put_contents($path . '/i18n/en_US.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/en_US_app.php')));
         //file_put_contents($path . '/settings/slots.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/slots_app.php')));
@@ -180,7 +181,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             strtolower($controller),
             $controller
         );
-        file_put_contents($path . '/controller/'.$controller.'.php', str_replace($search, $replace, file_get_contents($dummy . '/Default.php')));
+        file_put_contents($path . '/controller/'.$controller.'.php', str_replace($search, $replace, file_get_contents($dummy . '/Controller.php')));
         file_put_contents($path . '/Installer.php', str_replace($search, $replace, file_get_contents($dummy . '/Installer.php')));
         file_put_contents($path . '/i18n/de_DE.php', str_replace($search, $replace, file_get_contents($dummy . '/de_DE.php')));
         file_put_contents($path . '/i18n/en_US.php', str_replace($search, $replace, file_get_contents($dummy . '/en_US.php')));
@@ -188,9 +189,12 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         file_put_contents($path . '/view/'.strtolower($controller).'/index.json.php', str_replace($search, $replace, file_get_contents($dummy . '/index.json.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/widget.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/new.php', str_replace($search, $replace, file_get_contents($dummy . '/new.php')));
+        file_put_contents($path . '/view/'.strtolower($controller).'/new.json.php', str_replace($search, $replace, file_get_contents($dummy . '/new.json.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/show.php', str_replace($search, $replace, file_get_contents($dummy . '/show.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/show.json.php', str_replace($search, $replace, file_get_contents($dummy . '/show.json.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/edit.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.php')));
+        file_put_contents($path . '/view/'.strtolower($controller).'/edit.json.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.json.php')));
+        file_put_contents($path . '/view/'.strtolower($controller).'/delete.json.php', str_replace($search, $replace, file_get_contents($dummy . '/delete.json.php')));
         file_put_contents($path . '/settings/config.php', str_replace($search, $replace, file_get_contents($dummy . '/config.php')));
         file_put_contents($path . '/settings/routes.php', str_replace($search, $replace, file_get_contents($dummy . '/routes.php')));
         file_put_contents($path . '/settings/widgets.php', str_replace($search, $replace, file_get_contents($dummy . '/widgets.php')));
@@ -349,9 +353,12 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             file_put_contents($path . '/../view/'.strtolower($controller).'/index.json.php', str_replace($search, $replace, file_get_contents($dummy . '/index.json.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/widget.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/new.php', str_replace($search, $replace, file_get_contents($dummy . '/new.php')));
+            file_put_contents($path . '/../view/'.strtolower($controller).'/new.json.php', str_replace($search, $replace, file_get_contents($dummy . '/new.json.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/show.php', str_replace($search, $replace, file_get_contents($dummy . '/show.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/show.json.php', str_replace($search, $replace, file_get_contents($dummy . '/show.json.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/edit.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.php')));
+            file_put_contents($path . '/../view/'.strtolower($controller).'/edit.json.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.json.php')));
+            file_put_contents($path . '/../view/'.strtolower($controller).'/delete.json.php', str_replace($search, $replace, file_get_contents($dummy . '/delete.json.php')));
 
             $message .= '-> Datei '.$controller.'.php erstellt'."\n";
         } else {

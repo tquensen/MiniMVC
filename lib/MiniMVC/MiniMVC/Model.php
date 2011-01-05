@@ -779,12 +779,18 @@ class MiniMVC_Model implements ArrayAccess
 
 	public function save($relations = false)
 	{
-		$status = $this->getTable()->save($this);
+        $status = false;
+        
+        try {
+            $status = $this->getTable()->save($this);
 
-        if ($relations && $status) {
-            foreach ($this->_relations as $relation => $info) {
-                $this->saveRelated($relation, true);
+            if ($relations && $status) {
+                foreach ($this->_relations as $relation => $info) {
+                    $this->saveRelated($relation, true);
+                }
             }
+        } catch (PDOException $e) {
+            return false;
         }
 
         return $status;
@@ -792,7 +798,15 @@ class MiniMVC_Model implements ArrayAccess
 
 	public function delete()
 	{
-		return $this->getTable()->delete($this);
+        $status = false;
+
+        try {
+            $status = $this->getTable()->delete($this);
+        } catch (PDOException $e) {
+            return false;
+        }
+
+        return $status;
 	}
 
     public function __toString()

@@ -68,14 +68,16 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         {
             $model = $form->updateModel();
             if ($model->save()) {
-                $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage, 'success');
-                $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
+                if ($params['format'] == 'html') {
+                    $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage, 'success');
+                }
+                $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id, '_format' => $params['_format']));
             }
 
             $form->setError($this->view->t->CONTROLLERLCFIRSTCreateErrorMessage);
         }
 
-        $form->errorRedirect('MODLC.CONTROLLERLCFIRSTNew');
+        $form->errorRedirect('MODLC.CONTROLLERLCFIRSTNew', array('_format' => $params['_format']));
          */
     }
 
@@ -114,14 +116,16 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         {
             $model = $form->updateModel();
             if ($model->save()) {
-                $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTUpdateSuccessMessage, 'success');
-                $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
+                if ($params['format'] == 'html') {
+                    $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTUpdateSuccessMessage, 'success');
+                }
+                $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id, '_format' => $params['_format']));
             }
 
             $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTUpdateErrorMessage);
         }
 
-        $form->errorRedirect('MODLC.CONTROLLERLCFIRSTUpdate', array('id' => $model->id));
+        $form->errorRedirect('MODLC.CONTROLLERLCFIRSTUpdate', array('id' => $model->id, '_format' => $params['_format']));
          */
     }
 
@@ -132,13 +136,24 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         if (!$params['model']) {
             return $this->delegate404();
         }
-        if (!$this->registry->guard->checkCsrfProtection(false) || !$params['model']->delete()) {
-            $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTDeleteErrorMessage, 'error');
-        } else {
-            $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTDeleteSuccessMessage, 'success');
+        if (!$this->registry->guard->checkCsrfProtection(false)) {
+            return $this->delegate403();
         }
 
-        return $this->redirect('MODLC.CONTROLLERLCFIRSTIndex');
+        $this->view->success = $params['model']->delete();
+
+        if ($this->view->success) {
+            if ($params['format'] == 'html') {
+                $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTDeleteSuccessMessage, 'success');
+                return $this->redirect('MODLC.CONTROLLERLCFIRSTIndex');
+            }
+        } else {
+            if ($params['format'] == 'html') {
+                $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTDeleteErrorMessage, 'error');
+                return $this->redirect('MODLC.CONTROLLERLCFIRSTIndex');
+            }
+        }
+
          */
     }
 

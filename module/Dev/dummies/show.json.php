@@ -4,15 +4,17 @@
 /*
 $json = array_merge(
     array(
-        'status' => true
+        'success' => true,
+        'url' => $h->url->get('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id))
     ),
-    $model->toArray() //be careful if the model has also a 'status' property
+    $model->toArray() //be careful if the model has also a 'success' or 'url' property
 );
 */
 
 //.. or only specific properties of the current object
 $json = array(
-    'status' => true,
+    'success' => true,
+    'url' => $h->url->get('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id)),
     'id' => $model->id,
     'title' => $model->title
 );

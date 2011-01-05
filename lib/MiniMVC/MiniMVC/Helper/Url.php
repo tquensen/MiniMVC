@@ -56,7 +56,8 @@ class Helper_Url extends MiniMVC_Helper
         $allParameter = array_merge(isset($routeData['parameter']) ? $routeData['parameter'] : array(), $parameter);
 		foreach ($allParameter as $param=>$value)
 		{
-            if (!$value || (isset($parameter[$param]) && !$parameter[$param]) || (isset($routeData['parameterPatterns'][$param]) && !isset($parameter[$param]) && !preg_match('#^'.$routeData['parameterPatterns'][$param].'$#', $value))) {
+            //remove optional parameters if -it is set to false, -it is the default value or -it doesn't match the parameter pattern
+            if (!$value || empty($parameter[$param]) || (isset($routeData['parameter'][$param]) && $value == $routeData['parameter'][$param]) || (isset($routeData['parameterPatterns'][$param]) && !preg_match('#^'.$routeData['parameterPatterns'][$param].'$#', $value))) {
                 $regexSearch[] = '#\([^:\)]*:'.$param.':[^\)]*\)#U';
             }
             $currentSearch = ':'.$param.':';
