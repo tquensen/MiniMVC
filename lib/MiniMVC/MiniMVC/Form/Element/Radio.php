@@ -21,4 +21,13 @@ class MiniMVC_Form_Element_Radio extends MiniMVC_Form_Element
 
 		return parent::validate();
 	}
+
+    public function toArray($public = true)
+    {
+        $element = parent::toArray($public);
+        if ($public) {
+            $element['options']['elements'] = $this->options['elements'];
+        }
+        return $element;
+    }
 }

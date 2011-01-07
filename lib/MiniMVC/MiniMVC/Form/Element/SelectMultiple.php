@@ -29,4 +29,16 @@ class MiniMVC_Form_Element_SelectMultiple extends MiniMVC_Form_Element
 
 		return parent::validate();
 	}
+
+    public function toArray($public = true)
+    {
+        $element = parent::toArray($public);
+        if ($public) {
+            $element['options']['options'] = $this->options['options'];
+            if ($this->options['size']) {
+                $element['options']['size'] = $this->options['size'];
+            }
+        }
+        return $element;
+    }
 }

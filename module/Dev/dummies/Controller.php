@@ -68,7 +68,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         {
             $model = $form->updateModel();
             if ($model->save()) {
-                if ($params['format'] == 'html') {
+                if ($params['_format'] == 'html') {
                     $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage, 'success');
                 }
                 $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id, '_format' => $params['_format']));
@@ -116,7 +116,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         {
             $model = $form->updateModel();
             if ($model->save()) {
-                if ($params['format'] == 'html') {
+                if ($params['_format'] == 'html') {
                     $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTUpdateSuccessMessage, 'success');
                 }
                 $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id, '_format' => $params['_format']));
@@ -143,12 +143,12 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         $this->view->success = $params['model']->delete();
 
         if ($this->view->success) {
-            if ($params['format'] == 'html') {
+            if ($params['_format'] == 'html') {
                 $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTDeleteSuccessMessage, 'success');
                 return $this->redirect('MODLC.CONTROLLERLCFIRSTIndex');
             }
         } else {
-            if ($params['format'] == 'html') {
+            if ($params['_format'] == 'html') {
                 $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTDeleteErrorMessage, 'error');
                 return $this->redirect('MODLC.CONTROLLERLCFIRSTIndex');
             }

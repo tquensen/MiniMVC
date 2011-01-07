@@ -39,7 +39,7 @@ class MiniMVC_Form_Element
 		{
 			$validators = array($validators);
 		}
-        foreach ($this->validators as $validator) {
+        foreach ($validators as $validator) {
             $validator->setElement($this);
         }
 		$this->validators = array_merge($this->validators, $validators);
@@ -143,6 +143,32 @@ class MiniMVC_Form_Element
     public function updateModel($model) {
         $property = $this->getOption('modelProperty') ? $this->getOption('modelProperty') : $this->name;
         $model->$property = $this->value;
+    }
+
+    /**
+     *
+     * @param bool $public whether to export only "save" data (true, default) or any options of the element (false)
+     * @return array the array representation of this form
+     */
+    public function toArray($public = true)
+    {
+        $element = array();
+        $element['name'] = $this->name;
+        $element['type'] = $this->type;
+        $element['isValid'] = $this->isValid;
+        $element['errorMessage'] = $this->errorMessage;
+        $element['value'] = $this->value;
+        $element['required'] = $this->required;
+
+        if ($public) {
+            $element['options'] = array();
+            $element['options']['defaultValue'] = $this->defaultValue;
+            $element['options']['label'] = $this->label;
+        } else {
+            $element['options'] = $this->options;
+        }
+
+        return $element;
     }
 
 }

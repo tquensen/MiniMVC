@@ -30,11 +30,6 @@ class MiniMVC_Form_Element_File extends MiniMVC_Form_Element
             } else {
                 $value['error'] = null;
             }
-            if (isset($_FILES[$this->getForm()->getName()]['name'][$this->name])) {
-                $value['name'] = $_FILES[$this->getForm()->getName()]['name'][$this->name];
-            } else {
-                $value['name'] = null;
-            }
             
             $this->value = !empty($value) ? $value : null;
         }

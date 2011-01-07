@@ -12,7 +12,7 @@ class MiniMVC_Form_Validator
 
 	public function getOption($option)
 	{
-		return (isset($this->options[$option])) ? $this->options[$option] : false;
+		return (isset($this->options[$option])) ? $this->options[$option] : null;
 	}
 
 	public function setOption($option, $value)

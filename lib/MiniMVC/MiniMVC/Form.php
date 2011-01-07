@@ -51,12 +51,12 @@ class MiniMVC_Form
 
     public function generateCsrfToken()
     {
-        $this->csrfToken = MiniMVC_Registry::getInstance()->guard->generateCsrfToken(); 
+        $this->setOption('csrfToken', MiniMVC_Registry::getInstance()->guard->generateCsrfToken());
     }
 
     public function getCsrfToken()
     {
-        return $this->csrfToken;
+        return $this->getOption('csrfToken');
     }
 
     public function checkCsrfToken()
@@ -259,12 +259,6 @@ class MiniMVC_Form
             );
         }
 
-        if ($this->getOption('ajaxValidation') && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            header('Content-Type: application/json');
-            echo json_encode(array('status' => false, 'redirect' => $url, 'formErrors' => $this->errors, 'elements' => $sessionData));
-            exit;
-        }
-
         $sessionData['_form'] = $this->errors;
         
         $_SESSION['form_' . $this->name . '__errorData'] = $sessionData;
@@ -292,6 +286,44 @@ class MiniMVC_Form
     public function wasSubmitted()
     {
         return (isset($_POST[$this->name]) && is_array($_POST[$this->name]));
+    }
+
+    /**
+     *
+     * @param bool $public whether to export only "save" data (true, default) or any options of the form (false)
+     * @return array the array representation of this form
+     */
+    public function toArray($public = true)
+    {
+        $form = array();
+        $form['name'] = $this->name;
+        $form['isValid'] = $this->isValid;
+        $form['wasSubmitted'] = $this->wasSubmitted();
+        $form['errors'] = $this->errors;
+        $form['elements'] = array();
+        foreach ($this->elements as $element) {
+            $elementData = $element->toArray($public);
+            if ($elementData) {
+                $form['elements'][$element->getName()]  = $elementData;
+            }
+        }
+        if ($public) {
+            $form['options'] = array();
+            $form['options']['action'] = $this->getOption('action');
+            $form['options']['method'] = $this->getOption('method');
+
+            $form['options']['showGlobalErrors'] = $this->getOption('showGlobalErrors');
+            $form['options']['csrfProtection'] = $this->getOption('csrfProtection');
+            $form['options']['csrfErrorMessage'] = $this->getOption('csrfErrorMessage');
+            $form['options']['requiredMark'] = $this->getOption('requiredMark');
+
+            $form['options']['enctype'] = $this->getOption('enctype');
+            $form['options']['class'] = $this->getOption('class');
+            $form['options']['attributes'] = $this->getOption('attributes');
+        } else {
+            $form['options'] = $this->options;
+        }
+        return $form;
     }
 
 //    public function handleAjaxValidation()

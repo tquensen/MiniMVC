@@ -152,7 +152,7 @@ class MiniMVC_Guard
      */
     public function checkCsrfProtection($throwException = true)
     {
-        $token = isset($_POST['_csrf_token']) ? $_POST['_csrf_token'] : null;
+        $token = isset($_POST['CSRF_TOKEN']) ? $_POST['CSRF_TOKEN'] : null;
         $value = isset($_SESSION['_csrf_token'][$token]) ? $_SESSION['_csrf_token'][$token] : null;
         unset($_SESSION['_csrf_token'][$token]);
 
@@ -169,6 +169,7 @@ class MiniMVC_Guard
     {
         $token = md5(time() . rand(1000, 9999));
         $_SESSION['_csrf_token'][$token] = true;
+        return $token;
     }
 
     /**
