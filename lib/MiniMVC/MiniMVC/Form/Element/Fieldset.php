@@ -15,7 +15,7 @@ class MiniMVC_Form_Element_Fieldset extends MiniMVC_Form_Element
     {
         $element = parent::toArray($public);
         if ($public) {
-            return false;
+            $element['options']['legend'] = $this->legend;
         }
         return $element;
     }
