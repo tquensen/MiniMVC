@@ -154,6 +154,7 @@ class MiniMVC_Form_Element
     {
         $element = array();
         $element['name'] = $this->name;
+        $element['fullName'] = $this->forceName ? htmlspecialchars($this->forceName) : htmlspecialchars($this->getForm()->getName() . '[' . $this->getName() . ']');
         $element['type'] = $this->type;
         $element['isValid'] = $this->isValid;
         $element['errorMessage'] = $this->errorMessage;

@@ -288,6 +288,15 @@ class MiniMVC_Form
         return (isset($_POST[$this->name]) && is_array($_POST[$this->name]));
     }
 
+    public function getValues()
+    {
+        $values = array();
+        foreach ($this->elements as $element) {
+            $values[$element->getName()] = $element->value;
+        }
+        return $values;
+    }
+
     /**
      *
      * @param bool $public whether to export only "save" data (true, default) or any options of the form (false)
