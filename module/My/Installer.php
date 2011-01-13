@@ -1,14 +1,14 @@
 <?php
 
-class My_Installer extends MiniMVC_Installer
+class Example_Installer extends MiniMVC_Installer
 {
 
-    public function install($installedVersion)
+    public function install($installedVersion, $targetVersion)
     {
         try
         {
-            $my = new MyTable();
-            $my->install($installedVersion);
+            //$example = new ExampleTable();
+            //$example->install($installedVersion, $targetVersion);
         }
         catch(Exception $e)
         {
@@ -18,12 +18,12 @@ class My_Installer extends MiniMVC_Installer
         return true;
     }
 
-    public function uninstall($installedVersion)
+    public function uninstall($installedVersion, $targetVersion)
     {
         try
         {
-            $my = new MyTable();
-            $my->uninstall($installedVersion);
+            //$example = new ExampleTable();
+            //$example->uninstall($installedVersion, $targetVersion);
         }
         catch(Exception $e)
         {

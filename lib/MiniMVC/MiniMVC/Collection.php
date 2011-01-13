@@ -9,6 +9,11 @@ class MiniMVC_Collection implements ArrayAccess, Countable, Iterator
         return count($this->entries);
     }
 
+    public function get($identifier)
+    {
+        return $this->__get($identifier);
+    }
+
     public function add($entries) {
         if (is_object($entries) && $entries instanceof MiniMVC_Model) {
             $this->__set($entries->getIdentifier(), $entries);

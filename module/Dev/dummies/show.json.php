@@ -1,6 +1,6 @@
 <?php
 
-//return the complete object
+//return the complete object (be carefull with passwords or other secret data!)
 /*
 $json = array_merge(
     array(

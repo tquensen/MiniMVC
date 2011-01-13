@@ -1,6 +1,6 @@
 <?php
 $MiniMVC_config['defaultApp'] = 'frontend';
-$MiniMVC_config['defaultRoute'] = 'home';
+$MiniMVC_config['defaultRoute'] = 'my.index';
 $MiniMVC_config['error401Route'] = 'core.error401';
 $MiniMVC_config['error403Route'] = 'core.error403';
 $MiniMVC_config['error404Route'] = 'core.error404';
