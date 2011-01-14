@@ -19,7 +19,7 @@ class MiniMVC_Form_Validator_UserPassword extends MiniMVC_Form_Validator
             if (!$realModel || !$realModel->checkPassword($value)) {
                 return false;
             }
-            $this->getForm()->setModel($model);
+            $this->getForm()->setModel($realModel);
             return true;
         }
 
