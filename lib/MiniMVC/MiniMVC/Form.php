@@ -273,12 +273,6 @@ class MiniMVC_Form
     {
         $url = MiniMVC_Registry::getInstance()->helper->url->get($route, $parameter);
 
-        if ($this->getOption('ajaxValidation') && !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-            header('Content-Type: application/json');
-            echo json_encode(array('status' => true, 'redirect' => $url));
-            exit;
-        }
-
         header('Location: ' . $url);
         exit;
     }
