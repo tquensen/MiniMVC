@@ -13,7 +13,7 @@ class MiniMVC_Form_Validator_UserPassword extends MiniMVC_Form_Validator
             if (!$this->loginElement) {
                 return false;
             }
-            $loginBy = $this->loginElement->modelProperty ? $this->loginElement->modelProperty : $this->loginElement->name;
+            $loginBy = $this->loginElement->modelProperty ? $this->loginElement->modelProperty : $this->loginElement->getName();
             $loginValue = $this->loginElement->value;
             $realModel = $model->getTable()->loadOneBy($loginBy . ' = ?', array($loginValue));
             if (!$realModel || !$realModel->checkPassword($value)) {
