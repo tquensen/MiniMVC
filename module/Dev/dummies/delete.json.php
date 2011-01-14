@@ -1,7 +1,7 @@
 <?php
 
 $json = array(
-    'success' => true,
+    'success' => $success,
     'url' => $h->url->get('MODLC.CONTROLLERLCFIRSTIndex')
 );
 

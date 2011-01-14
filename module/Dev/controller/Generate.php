@@ -109,6 +109,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         mkdir($path . '/lib');
 
         file_put_contents($path . '/view/default.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.php')));
+        file_put_contents($path . '/view/plain.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view_plain.php')));
         file_put_contents($path . '/view/default.json.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.json.php')));
         file_put_contents($path . '/view/default.xml.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.xml.php')));
         file_put_contents($path . '/i18n/de_DE.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/de_DE_app.php')));
@@ -190,10 +191,12 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         file_put_contents($path . '/view/'.strtolower($controller).'/widget.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/new.php', str_replace($search, $replace, file_get_contents($dummy . '/new.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/new.json.php', str_replace($search, $replace, file_get_contents($dummy . '/new.json.php')));
+        file_put_contents($path . '/view/'.strtolower($controller).'/create.json.php', str_replace($search, $replace, file_get_contents($dummy . '/create.json.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/show.php', str_replace($search, $replace, file_get_contents($dummy . '/show.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/show.json.php', str_replace($search, $replace, file_get_contents($dummy . '/show.json.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/edit.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/edit.json.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.json.php')));
+        file_put_contents($path . '/view/'.strtolower($controller).'/update.json.php', str_replace($search, $replace, file_get_contents($dummy . '/update.json.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/delete.json.php', str_replace($search, $replace, file_get_contents($dummy . '/delete.json.php')));
         file_put_contents($path . '/settings/config.php', str_replace($search, $replace, file_get_contents($dummy . '/config.php')));
         file_put_contents($path . '/settings/routes.php', str_replace($search, $replace, file_get_contents($dummy . '/routes.php')));
@@ -201,6 +204,9 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         file_put_contents($path . '/model/definition.php', str_replace($search, $replace, file_get_contents($dummy . '/definition.php')));
         //file_put_contents($path . '/settings/slots.php', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/slots.php')));
         //file_put_contents($path . '/Model/Schema/schema.yml', str_replace(array('MODLC', 'MODULE'), array(strtolower($params['module']), $params['module']), file_get_contents($dummy . '/schema.yml')));
+
+        $routesContent = file_get_contents($path . '/settings/routes.php');
+        file_put_contents($path . '/settings/routes.php', str_replace($search, $replace, file_get_contents($dummy . '/routes_controller.php')) . $routesContent);
 
         return 'Modul wurde erfolgreich generiert!';
     }
@@ -354,13 +360,21 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             file_put_contents($path . '/../view/'.strtolower($controller).'/widget.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/new.php', str_replace($search, $replace, file_get_contents($dummy . '/new.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/new.json.php', str_replace($search, $replace, file_get_contents($dummy . '/new.json.php')));
+            file_put_contents($path . '/../view/'.strtolower($controller).'/create.json.php', str_replace($search, $replace, file_get_contents($dummy . '/create.json.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/show.php', str_replace($search, $replace, file_get_contents($dummy . '/show.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/show.json.php', str_replace($search, $replace, file_get_contents($dummy . '/show.json.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/edit.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/edit.json.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.json.php')));
+            file_put_contents($path . '/../view/'.strtolower($controller).'/update.json.php', str_replace($search, $replace, file_get_contents($dummy . '/update.json.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/delete.json.php', str_replace($search, $replace, file_get_contents($dummy . '/delete.json.php')));
 
-            $message .= '-> Datei '.$controller.'.php erstellt'."\n";
+
+            $routesContent = file_exists($path . '/../settings/routes.php') ? file_get_contents($path . '/../settings/routes.php') : '';
+            file_put_contents($path . '/settings/routes.php', str_replace($search, $replace, file_get_contents($dummy . '/routes_controller.php')) . $routesContent);
+
+            $message .= '-> Controller controller/'.$controller.'.php wurde erstellt'."\n";
+            $message .= '-> Views in view/'.strtolower($controller).'/ wurden erstellt'."\n";
+            $message .= '-> Routing in settings/routes.php wurde erweitert'."\n";
         } else {
             $message .= '-> Datei '.$controller.'.php existiert bereits'."\n";
         }

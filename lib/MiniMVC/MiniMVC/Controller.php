@@ -79,7 +79,7 @@ class MiniMVC_Controller
      * @param string $message the error message (optional)
      * @throws Exception with 401 status code
      */
-	protected function delegate401($message = 'delegated by controller')
+	protected function delegate401($message = false)
 	{
 		throw new Exception($message, 401);
 	}
@@ -89,7 +89,7 @@ class MiniMVC_Controller
      * @param string $message the error message (optional)
      * @throws Exception with 403 status code
      */
-	protected function delegate403($message = 'delegated by controller')
+	protected function delegate403($message = false)
 	{
 		throw new Exception($message, 403);
 	}
@@ -99,7 +99,7 @@ class MiniMVC_Controller
      * @param string $message the error message (optional)
      * @throws Exception with 404 status code
      */
-	protected function delegate404($message = 'delegated by controller')
+	protected function delegate404($message = false)
 	{
 		throw new Exception($message, 404);
 	}
@@ -111,7 +111,7 @@ class MiniMVC_Controller
      * @param Exception $previousException a previous exception (optional)
      * @throws Exception with 50x status code
      */
-	protected function delegate500($message = 'delegated by controller', $code = 500, $previousException = null)
+	protected function delegate500($message = false, $code = 500, $previousException = null)
 	{
 		throw new Exception($message, $code, $previousException);
 	}

@@ -64,20 +64,30 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
     {
         /*
         $form = CONTROLLERTable::getInstance()->getForm();
+        $model = $form->getModel();
+        $success = false;
+
         if ($form->validate())
         {
-            $model = $form->updateModel();
+            $form->updateModel();
             if ($model->save()) {
+                $success = true;
                 if ($params['_format'] == 'html') {
                     $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage, 'success');
+                    $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
                 }
-                $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id, '_format' => $params['_format']));
+            } else {
+                $form->setError($this->view->t->CONTROLLERLCFIRSTCreateErrorMessage);
             }
-
-            $form->setError($this->view->t->CONTROLLERLCFIRSTCreateErrorMessage);
         }
 
-        $form->errorRedirect('MODLC.CONTROLLERLCFIRSTNew', array('_format' => $params['_format']));
+        if ($params['_format'] == 'html') {
+            $form->errorRedirect('MODLC.CONTROLLERLCFIRSTNew');
+        }
+
+        $this->view->form = $form;
+        $this->view->model = $model;
+        $this->view->success = $success;
          */
     }
 
@@ -111,21 +121,30 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         }
 
         $form = CONTROLLERTable::getInstance()->getForm($params['model']);
+        $model = $form->getModel();
+        $success = false;
 
         if ($form->validate())
         {
-            $model = $form->updateModel();
+            $form->updateModel();
             if ($model->save()) {
+                $success = true;
                 if ($params['_format'] == 'html') {
                     $this->registry->helper->messages->add($this->view->t->CONTROLLERLCFIRSTUpdateSuccessMessage, 'success');
+                    $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id));
                 }
-                $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id, '_format' => $params['_format']));
+            } else {
+                $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTUpdateErrorMessage);
             }
-
-            $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTUpdateErrorMessage);
         }
 
-        $form->errorRedirect('MODLC.CONTROLLERLCFIRSTUpdate', array('id' => $model->id, '_format' => $params['_format']));
+        if ($params['_format'] == 'html') {
+            $form->errorRedirect('MODLC.CONTROLLERLCFIRSTUpdate', array('id' => $model->id));
+        }
+
+        $this->view->form = $form;
+        $this->view->model = $model;
+        $this->view->success = $success;
          */
     }
 

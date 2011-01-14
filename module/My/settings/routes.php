@@ -1,19 +1,20 @@
 <?php
-//$rights = MiniMVC_Registry::getInstance()->rights;
-$MiniMVC_routes['my.defaultIndex'] = array(
-    'route' => 'my/index',
+$MiniMVC_routes['my.index'] = array(
+    'route' => 'page/index', // .format is optional (in brackets)
     'controller' => 'My_Default',
     'action' => 'index',
-    'parameter' => array(),
-    'rights' => false //$rights->getRoleRights($rights->getRoleByKeyword('user'))
+    //'ajaxLayout' => array('html' => false), //disable the layout when requesting the html view via XMLHttpRequest
+    'method' => 'GET',
+    'rights' => false
 );
 
-
-$MiniMVC_routes['my.defaultCreate'] = array(
-    'route' => 'my/create',
+//route for static pages, see controller/Default.php -> staticAction
+$MiniMVC_routes['my.static'] = array(
+    'route' => 'page/:page:(.:_format:)', // .format is optional (in brackets)
     'controller' => 'My_Default',
-    'action' => 'create',
-    'parameter' => array(),
-    'active' => false, //this route must be activated for each app to work
-    'rights' => false //$rights->getRoleRights($rights->getRoleByKeyword('admin'))
+    'action' => 'static',
+    'parameter' => array('page' => 'home', '_format' => 'html'), //set html as default format
+    //'ajaxLayout' => array('html' => false), //disable the layout when requesting the html view via XMLHttpRequest
+    'method' => 'GET',
+    'rights' => false
 );
