@@ -33,7 +33,7 @@ $MiniMVC_routes['user.userLogin'] = array(
     'rights' => 'guest'
 );
 $MiniMVC_routes['user.userProcessLogin'] = array(
-    'route' => 'user(.:_format:)',
+    'route' => 'user/login(.:_format:)',
     'controller' => 'User_User',
     'action' => 'processLogin',
     'method' => 'POST',
