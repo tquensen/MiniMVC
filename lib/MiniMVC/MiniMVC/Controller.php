@@ -77,31 +77,31 @@ class MiniMVC_Controller
     /**
      *
      * @param string $message the error message (optional)
-     * @throws MiniMVC_HttpException with 401 status code
+     * @throws MiniMVC_PublicHttpException with 401 status code
      */
 	protected function delegate401($message = false)
 	{
-		throw new MiniMVC_HttpException($message, 401);
+		throw new MiniMVC_PublicHttpException($message, 401);
 	}
 
     /**
      *
      * @param string $message the error message (optional)
-     * @throws MiniMVC_HttpException with 403 status code
+     * @throws MiniMVC_PublicHttpException with 403 status code
      */
 	protected function delegate403($message = false)
 	{
-		throw new MiniMVC_HttpException($message, 403);
+		throw new MiniMVC_PublicHttpException($message, 403);
 	}
 
     /**
      *
      * @param string $message the error message (optional)
-     * @throws MiniMVC_HttpException with 404 status code
+     * @throws MiniMVC_PublicHttpException with 404 status code
      */
 	protected function delegate404($message = false)
 	{
-		throw new MiniMVC_HttpException($message, 404);
+		throw new MiniMVC_PublicHttpException($message, 404);
 	}
 	
     /**
@@ -109,10 +109,10 @@ class MiniMVC_Controller
      * @param string $message the error message (optional)
      * @param int $code the error code (default 500)
      * @param Exception $previousException a previous exception (optional)
-     * @throws MiniMVC_HttpException with 50x status code
+     * @throws MiniMVC_PublicHttpException with 50x status code
      */
 	protected function delegate500($message = false, $code = 500, $previousException = null)
 	{
-		throw new MiniMVC_HttpException($message, $code, $previousException);
+		throw new MiniMVC_PublicHttpException($message, $code, $previousException);
 	}
 }

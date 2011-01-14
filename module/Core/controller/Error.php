@@ -20,7 +20,7 @@ class Core_Error_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setDescription('');
         header('HTTP/1.1 401 Unauthorized', true, 401);
 
-        if (isset($params['exception']) && $params['exception'] instanceof MiniMVC_HttpException && $params['exception']->getMessage()) {
+        if (isset($params['exception']) && $params['exception'] instanceof MiniMVC_PublicHttpException && $params['exception']->getMessage()) {
             $this->view->message = $params['exception']->getMessage();
         } else {
             $this->view->message = 'Error 401 Unauthorized';
@@ -37,7 +37,7 @@ class Core_Error_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setDescription('');
 		header('HTTP/1.1 403 Forbidden', true, 403);
 
-        if (isset($params['exception']) && $params['exception'] instanceof MiniMVC_HttpException && $params['exception']->getMessage()) {
+        if (isset($params['exception']) && $params['exception'] instanceof MiniMVC_PublicHttpException && $params['exception']->getMessage()) {
             $this->view->message = $params['exception']->getMessage();
         } else {
             $this->view->message = 'Error 403 Forbidden';
@@ -54,7 +54,7 @@ class Core_Error_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setDescription('');
 		header('HTTP/1.1 404 Not Found', true, 404);
 
-        if (isset($params['exception']) && $params['exception'] instanceof MiniMVC_HttpException && $params['exception']->getMessage()) {
+        if (isset($params['exception']) && $params['exception'] instanceof MiniMVC_PublicHttpException && $params['exception']->getMessage()) {
             $this->view->message = $params['exception']->getMessage();
         } else {
             $this->view->message = 'Error 404 Not Found';
@@ -79,7 +79,7 @@ class Core_Error_Controller extends MiniMVC_Controller
 
         $this->registry->helper->meta->setDescription('');
         
-        if (isset($params['exception']) && $params['exception'] instanceof MiniMVC_HttpException && $params['exception']->getMessage()) {
+        if (isset($params['exception']) && $params['exception'] instanceof MiniMVC_PublicHttpException && $params['exception']->getMessage()) {
             $this->view->message = $params['exception']->getMessage();
         }
 
