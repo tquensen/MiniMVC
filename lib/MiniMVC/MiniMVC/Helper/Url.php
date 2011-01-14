@@ -86,6 +86,11 @@ class Helper_Url extends MiniMVC_Helper
 
     public function link($title, $route, $parameter = array(), $method = null, $attrs = '', $confirm = null, $postData = array(), $app = null)
     {
+        $url = $this->get($route, $parameter, $app);
+        if (!$url) {
+            return $title;
+        }
+        
         try
 		{
 			$routeData = $this->registry->dispatcher->getRoute($route, $parameter, $app);
@@ -106,10 +111,6 @@ class Helper_Url extends MiniMVC_Helper
         }
 
         if ($method == 'GET') {
-            $url = $this->get($route, $parameter, $app);
-            if (!$url) {
-                return $title;
-            }
             return '<a href="'.htmlspecialchars($url).'"'.($attrs ? ' '.$attrs : '').($confirm ? ' onclick="return confirm(\''.htmlspecialchars($confirm).'\')"' : '').'>'.$title.'</a>';
         } else {
             $form = new MiniMVC_Form(array(
