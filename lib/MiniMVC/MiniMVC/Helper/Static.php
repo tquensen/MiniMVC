@@ -8,6 +8,13 @@ class Helper_Static extends MiniMVC_Helper
         {
             $module = $this->module;
         }
+
+        if (strpos($file, '?')) {
+            list($file, $queryStr) = explode('?', $file, 2);
+        } else {
+            $queryStr = false;
+        }
+
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
 
         $filekey = $app.'_'.$module.'_'.str_replace('/', '__', $file);
@@ -82,6 +89,6 @@ class Helper_Static extends MiniMVC_Helper
 
         $this->registry->cache->set('staticCached', array($filekey => $url), true);
 
-        return $url;
+        return $queryStr ? $url . '?' . $queryStr : $url;
 	}
 }
