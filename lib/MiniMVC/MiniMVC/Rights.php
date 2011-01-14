@@ -42,6 +42,53 @@ class MiniMVC_Rights
     }
 
     /**
+     *
+     * @param string $role the name of a role ('guest', 'user')
+     * @param string|array $rights the name of the right as string ('user', 'administrator', ..) or as array of rights
+     * @return bool whether the given role has the required right or not / returns true if the right is 0
+     */
+    public function roleHasRight($role, $rights)
+    {
+        if (!$rights) {
+            return true;
+        }
+        $roleRights = $this->getRoleRights($role);
+        if (!$roleRights) {
+            return false;
+        }
+        return $this->checkRights($roleRights, $rights);
+    }
+
+    protected function checkRights($givenRights, $requiredRights, $and = true)
+    {
+        if ($and) {
+            foreach ((array)$requiredRights as $right) {
+                if (is_array($right)) {
+                    if (!$this->checkRights($givenRights, $right, !$and)) {
+                        return false;
+                    }
+                }
+                if (!in_array($right, $givenRights)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            foreach ((array)$requiredRights as $right) {
+                if (is_array($right)) {
+                    if ($this->checkRights($givenRights, $right, !$and)) {
+                        return true;
+                    }
+                }
+                if (in_array($right, $givenRights)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    /**
      * @deprecated
      * @param string $rights the key (name) of a right
      * @return integer the requested rights as bitmask or 0 if no right was found

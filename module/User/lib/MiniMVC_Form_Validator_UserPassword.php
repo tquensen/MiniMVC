@@ -3,13 +3,27 @@
 class MiniMVC_Form_Validator_UserPassword extends MiniMVC_Form_Validator
 {
 
-    public function validate($element, $value)
+    public function validate($value)
     {
-        $model = $element->getForm()->getModel();
-        if (method_exists((object)$model, 'checkPassword')) {
-            return $model->checkPassword($value);
+        $model = $this->getForm()->getModel();
+        if (!($model instanceof User)) {
+            return false;
         }
-        return false;
+        if ($model->isNew()) {
+            if (!$this->loginElement) {
+                return false;
+            }
+            $loginBy = $this->loginElement->modelProperty ? $this->loginElement->modelProperty : $this->loginElement->name;
+            $loginValue = $this->loginElement->value;
+            $realModel = $model->getTable()->loadOneBy($loginBy . ' = ?', array($loginValue));
+            if (!$realModel || !$realModel->checkPassword($value)) {
+                return false;
+            }
+            $this->getForm()->setModel($model);
+            return true;
+        }
+
+        return $model->checkPassword($value);
     }
 
 }

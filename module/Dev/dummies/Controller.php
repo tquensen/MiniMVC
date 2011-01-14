@@ -27,10 +27,12 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         if (!$params['model']) {
             return $this->delegate404();
         }
-        $this->view->model = $params['model'];
+        $model = $params['model'];
 
-        $this->registry->helper->meta->setTitle($this->view->model->title);
-        $this->registry->helper->meta->setDescription($this->view->model->description);
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTShowTitle(array('title' => htmlspecialchars($model->title))));
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTShowMetaDescription(array('title' => htmlspecialchars($model->title), 'description' => strip_tags($model->description))));
+
+        $this->view->model= $model;
     }
 
     public function newAction($params)

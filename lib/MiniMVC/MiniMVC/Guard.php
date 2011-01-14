@@ -95,7 +95,7 @@ class MiniMVC_Guard
 
     /**
      *
-     * @return integer the current user right bitmask
+     * @return integer the current user rights
      */
     public function getRights()
     {
@@ -182,36 +182,6 @@ class MiniMVC_Guard
         if (!$rights) {
             return true;
         }
-        return $this->checkRights($rights);
+        return $this->registry->rights->roleHasRight($this->role, $rights);
     }
-
-    protected function checkRights($rights, $and = true)
-    {
-        if ($and) {
-            foreach ((array)$rights as $right) {
-                if (is_array($right)) {
-                    if (!$this->checkRights($right, !$and)) {
-                        return false;
-                    }
-                }
-                if (!in_array($right, $this->rights)) {
-                    return false;
-                }
-            }
-            return true;
-        } else {
-            foreach ((array)$rights as $right) {
-                if (is_array($right)) {
-                    if ($this->checkRights($right, !$and)) {
-                        return true;
-                    }
-                }
-                if (in_array($right, $this->rights)) {
-                    return true;
-                }
-            }
-            return false;
-        }
-    }
-
 }

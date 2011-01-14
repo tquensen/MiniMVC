@@ -1,125 +1,102 @@
 <?php
-
-/**
- * @method User getOne()
- * @method User getOneBy()
- * @method User loadOne()
- * @method User loadOneBy()
- * @method User create()
- */
-class UserTable extends MiniMVC_Table
+class UserTable extends UserTableBase
 {
-    protected $_table = 'user';
-    protected $_model = 'User';
-    protected $_columns = array('id', 'slug', 'name', 'password', 'salt', 'email', 'role');
-    protected $_relations = array();
-    protected $_identifier = 'id';
-    protected $_isAutoIncrement = true;
-    protected static $_instance = null;
-
-    public function getRegisterForm()
+    public function getRegisterForm($model = null, $options = array())
     {
-        $user = $this->create();
-        $form = new MiniMVC_Form(array('name' => 'UserRegisterForm', 'model' => $user));
+        $i18n = $this->registry->helper->i18n->get('User');
+
+        $model = $this->create();
+
+        $options = array_merge(array('name' => 'UserRegisterForm', 'model' => $model), $options);
+
+        $form = new MiniMVC_Form($options);
+
         $form->setElement(new MiniMVC_Form_Element_Text('name',
-                        array('label' => 'Username:'),
+                        array('label' => $i18n->userFormNameLabel),
                         array(
-                            new MiniMVC_Form_Validator_Unique(array('errorMessage' => 'Dieser Username existiert bereits!')),
-                            new MiniMVC_Form_Validator_Required(array('errorMessage' => 'Kein Username angegeben!'))
+                            new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->userFormNameRequiredError)),
+                            new MiniMVC_Form_Validator_Unique(array('errorMessage' => $i18n->userFormNameUniqueError))
                 )));
         $form->setElement(new MiniMVC_Form_Element_Text('email',
-                        array('label' => 'E-Mail Adresse:'),
+                        array('label' => $i18n->userFormEmailLabel),
                         array(
-                            new MiniMVC_Form_Validator_Unique(array('errorMessage' => 'Diese E-Mail existiert bereits!')),
-                            new MiniMVC_Form_Validator_Required(array('errorMessage' => 'keine E-Mail angegeben'))
+                            new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->userFormEmailRequiredError)),
+                            new MiniMVC_Form_Validator_Unique(array('errorMessage' => $i18n->userFormEmailUniqueError))
+                )));
+        $form->setElement(new MiniMVC_Form_Element_Password('password',
+                        array('label' => $i18n->userFormPasswordLabel),
+                        array(
+                            new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->userFormPasswordError))
                 )));
 
-        $form->setElement(new MiniMVC_Form_Element_Fieldset('pwFieldset', array('legend' => 'Passwörter')));
-        $form->setElement(new MiniMVC_Form_Element_Password('password', array('label' => 'Passwort:'), new MiniMVC_Form_Validator_Required(array('errorMessage' => 'kein PW angegeben'))));
+        $form->setElement(new MiniMVC_Form_Element_Password('passwordAgain',
+                        array('label' => $i18n->userFormPasswordAgainLabel),
+                        array(
+                            new MiniMVC_Form_Validator_Equals(array('value' => $form->password, 'errorMessage' => $i18n->userFormPasswordAgainError))
+                )));
 
-        $form->setElement(new MiniMVC_Form_Element_Password('passwordAgain', array('label' => 'Passwort wiederholen:'), array(new MiniMVC_Form_Validator_Equals(array('value' => $form->password, 'errorMessage' => 'Passwörter stimmen nicht überein')), new MiniMVC_Form_Validator_Required())));
-        $form->setElement(new MiniMVC_Form_Element_Fieldsetend('pwFieldsetEnd'));
-
-        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => 'registrieren')));
+        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $i18n->userFormSubmitCreateLabel)));
 
         return $form;
     }
 
-    public function getEditForm($user)
+    public function getPasswordForm($model = null, $options = array())
     {
-        $form = new MiniMVC_Form(array('name' => 'UserEditForm', 'model' => $user));
-        $form->setElement(new MiniMVC_Form_Element_Text('name',
-                        array('label' => 'Username:'),
+        $i18n = $this->registry->helper->i18n->get('User');
+
+        $options = array_merge(array('name' => 'UserPasswordForm', 'model' => $model), $options);
+
+        $form = new MiniMVC_Form($options);
+
+        $form->setElement(new MiniMVC_Form_Element_Password('currentPassword',
+                        array('label' => $i18n->userFormCurrentPasswordLabel),
                         array(
-                            new MiniMVC_Form_Validator_Unique(array('errorMessage' => 'Dieser Username existiert bereits!')),
-                            new MiniMVC_Form_Validator_Required(array('errorMessage' => 'Kein Username angegeben!'))
+                            new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->userFormCurrentPasswordRequiredError)),
+                            new MiniMVC_Form_Validator_UserPassword(array('errorMessage' => $i18n->userFormCurrentPasswordInvalidError))
                 )));
-        $form->setElement(new MiniMVC_Form_Element_Text('email',
-                        array('label' => 'E-Mail Adresse:'),
-                        array(
-                            new MiniMVC_Form_Validator_Unique(array('errorMessage' => 'Diese E-Mail existiert bereits!')),
-                            new MiniMVC_Form_Validator_Required(array('errorMessage' => 'keine E-Mail angegeben'))
-                )));
-
-        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => 'speichern')));
-
-        return $form;
-    }
-
-    public function getEditPasswordForm($user)
-    {
-        $form = new MiniMVC_Form(array('name' => 'UserEditForm', 'model' => $user));
-        $form->setElement(new MiniMVC_Form_Element_Password('currentPassword', array('label' => 'Aktuelles Passwort:', 'defaultValue' => ''), array(new MiniMVC_Form_Validator_Required(array('errorMessage' => 'kein aktuelles PW angegeben')), new MiniMVC_Form_Validator_UserPassword(array('errorMessage' => 'Aktuelles PW falsch')))));
-
-        $form->setElement(new MiniMVC_Form_Element_Password('password', array('label' => 'Neues Passwort:', 'defaultValue' => ''), new MiniMVC_Form_Validator_Required(array('errorMessage' => 'kein PW angegeben'))));
-
-        $form->setElement(new MiniMVC_Form_Element_Password('passwordAgain', array('label' => 'Neues Passwort wiederholen:', 'defaultValue' => ''), array(new MiniMVC_Form_Validator_Equals(array('value' => $form->password, 'errorMessage' => 'Passwörter stimmen nicht überein')), new MiniMVC_Form_Validator_Required())));
-
-        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => 'speichern')));
-
-        return $form;
-    }
-
-    public function getLoginForm($widget = false)
-    {
-        $user = $this->create();
-        if ($widget) {
-            $form = new MiniMVC_Form(array('name' => 'UserLoginForm', 'model' => $user, 'action' => $this->registry->helper->url->get('user.login')));
-        } else {
-            $form = new MiniMVC_Form(array('name' => 'UserLoginForm', 'model' => $user));
-        }
-        $form->setElement(new MiniMVC_Form_Element_Text('email',
-                        array('label' => 'E-Mail Adresse:'),
-                        array(
-                            new MiniMVC_Form_Validator_Required(array('errorMessage' => 'Kein Username angegeben!')),
-//                            new MiniMVC_Form_Validator_Exists(array('errorMessage' => 'Dieser User existiert nicht'))
-                        )
-                )
-        );
 
         $form->setElement(new MiniMVC_Form_Element_Password('password',
-                        array('label' => 'Passwort:'),
+                        array('label' => $i18n->userFormPasswordLabel),
                         array(
-                            new MiniMVC_Form_Validator_Required(array('errorMessage' => 'Kein Passwort angegeben!'))
-                        )
-                )
-        );
+                            new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->userFormPasswordError))
+                )));
 
-        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => 'einloggen')));
+        $form->setElement(new MiniMVC_Form_Element_Password('passwordAgain',
+                        array('label' => $i18n->userFormPasswordAgainLabel),
+                        array(
+                            new MiniMVC_Form_Validator_Equals(array('value' => $form->password, 'errorMessage' => $i18n->userFormPasswordAgainError))
+                )));
 
-        $form->setPostValidator(new MiniMVC_Form_Validator_Callback(array('callback' => array($user, 'checkPassword'), 'errorMessage' => 'Der Username oder das Passwort ist ungültig')));
+        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $i18n->userFormSubmitPasswordLabel)));
 
         return $form;
     }
 
-    public function getLogoutForm($widget = false)
+    public function getLoginForm($model = null, $options = array())
     {
-        if ($widget) {
-            $form = new MiniMVC_Form(array('name' => 'UserLogoutForm', 'action' => $this->registry->helper->url->get('user.logout')));
-        } else {
-            $form = new MiniMVC_Form(array('name' => 'UserLogoutForm'));
-        }
-        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => 'ausloggen')));
+        $i18n = $this->registry->helper->i18n->get('User');
+
+        $model = $this->create();
+        
+        $options = array_merge(array('name' => 'UserLoginForm', 'model' => $model), $options);
+
+        $form = new MiniMVC_Form($options);
+
+        $form->setElement(new MiniMVC_Form_Element_Text('email',
+                        array('label' => $i18n->userFormEmailLabel),
+                        array(
+                            new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->userFormCurrentPasswordRequiredError)),
+                )));
+
+        $form->setElement(new MiniMVC_Form_Element_Password('password',
+                        array('label' => $i18n->userFormPasswordLabel),
+                        array(
+                            new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->userFormPasswordError)),
+                            new MiniMVC_Form_Validator_UserPassword(array('errorMessage' => $i18n->userFormLoginInvalidError, 'loginElement' => $form->email))
+                )));
+
+        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $i18n->userFormSubmitLoginLabel)));
+
         return $form;
     }
 
@@ -131,14 +108,19 @@ class UserTable extends MiniMVC_Table
         switch ($installedVersion) {
             case 0:
                 $sql = "CREATE TABLE user (
-					  id int NOT NULL auto_increment,
-					  slug varchar(255) NOT NULL,
-					  name varchar(255) NOT NULL,
-					  password varchar(255) NOT NULL,
-					  salt varchar(255) NOT NULL,
-					  email varchar(255) NOT NULL,
-					  role varchar(255) NOT NULL,
-					  PRIMARY KEY  (id)
+                      id INT(11) AUTO_INCREMENT,
+                      slug VARCHAR(255),
+                      name VARCHAR(255),
+                      email VARCHAR(255),
+                      password VARCHAR(64),
+                      salt VARCHAR(64),
+                      auth_token VARCHAR(32),
+                      role VARCHAR(32),
+                      created_at INT(11),
+                      updated_at INT(11),
+					  PRIMARY KEY (id),
+                      UNIQUE (slug),
+                      INDEX (auth_token)
 					) ENGINE=INNODB DEFAULT CHARSET=utf8";
 
                 $this->_db->query($sql);
@@ -146,8 +128,8 @@ class UserTable extends MiniMVC_Table
                 if ($targetVersion && $targetVersion <= 1) break;
             /* //for every new version add your code below (including the lines "case NEW_VERSION:" and "if ($targetVersion && $targetVersion <= NEW_VERSION) break;")
 
-                $sql = "ALTER TABLE {table} (
-					  ADD something varchar(255)";
+                $sql = "ALTER TABLE user
+					  ADD something VARCHAR(255)";
 
                 $this->_db->query($sql);
 
@@ -169,7 +151,7 @@ class UserTable extends MiniMVC_Table
             /* //for every new version add your code directly below "case 0:", beginning with "case NEW_VERSION:" and "if ($targetVersion >= NEW_VERSION) break;"
             case 2:
                 if ($targetVersion >= 2) break;
-                $sql = "ALTER TABLE {table} DROP something";
+                $sql = "ALTER TABLE user DROP something";
                 $this->_db->query($sql);
              */
             case 1:
@@ -179,17 +161,4 @@ class UserTable extends MiniMVC_Table
         }
         return true;
     }
-
-    /**
-     *
-     * @return UserTable
-     */
-    public static function getInstance()
-    {
-        if (!isset(self::$_instance)) {
-            self::$_instance = new UserTable;
-        }
-        return self::$_instance;
-    }
-
 }

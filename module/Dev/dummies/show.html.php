@@ -1,4 +1,4 @@
-<h2><?php $o->esc($model->title); ?></h2>
+<h2><?php echo $t->CONTROLLERLCFIRSTShowHeadline(array('title' => htmlspecialchars($model->title))); ?></h2>
 
 
 <?php /* EDIT / DELETE LINKS

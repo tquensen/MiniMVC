@@ -11,7 +11,7 @@ class MiniMVC_Form_Validator_Unique extends MiniMVC_Form_Validator
 
         if ($this->getOption('model') && $this->getOption('property')) {
             $model = $this->getOption('model');
-            if (is_string($model)) {
+            if (is_string($model) && class_exists($model)) {
                 $model = new $model();
             }
             $property = $this->getOption('property');		
