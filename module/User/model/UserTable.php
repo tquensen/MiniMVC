@@ -89,7 +89,7 @@ class UserTable extends UserTableBase
         $form->setElement(new MiniMVC_Form_Element_Text('email',
                         array('label' => $i18n->userFormEmailLabel),
                         array(
-                            new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->userFormCurrentPasswordRequiredError)),
+                            new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->userFormEmailRequiredError)),
                 )));
 
         $form->setElement(new MiniMVC_Form_Element_Password('password',
