@@ -143,7 +143,6 @@ class MiniMVC_Layout
             $route = $this->registry->settings->get('currentRoute');
             $format = $this->getFormat();
             $layout = $this->getLayout();
-            $layout = $this->getTemplate();
             
             foreach ($slotWidgets as $currentWidget => $widgetData) {
 
