@@ -563,7 +563,7 @@ class MiniMVC_Table {
 
     }
 
-    public function generateSlug($entry, $source, $field)
+    public function generateSlug($entry, $source, $field, $maxlength = 255)
     {
         $baseslug = $this->registry->helper->text->sanitize($source, true);
         $id = $entry->getIdentifier() ? $entry->getIdentifier() : 0;
@@ -572,6 +572,10 @@ class MiniMVC_Table {
         $num = 0;
         $slug = $baseslug;
         do {
+            if (mb_strlen($slug, 'UTF-8') > $maxlength) {
+                $baseslug = mb_substr($baseslug, 0, $maxlength - strlen((string) $num), 'UTF-8');
+                $slug = $baseslug . $num;
+            }
             $stmt->execute(array($id, $slug));
             $num--;
             $result = $stmt->fetchColumn();

@@ -115,12 +115,12 @@ class UserTable extends UserTableBase
             case 0:
                 $sql = "CREATE TABLE user (
                       id INT(11) AUTO_INCREMENT,
-                      slug VARCHAR(255),
+                      slug VARCHAR(32),
                       name VARCHAR(255),
                       email VARCHAR(255),
                       password VARCHAR(64),
                       salt VARCHAR(64),
-                      auth_token VARCHAR(32),
+                      auth_token VARCHAR(65),
                       role VARCHAR(32),
                       created_at INT(11),
                       updated_at INT(11),

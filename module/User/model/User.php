@@ -5,10 +5,10 @@ class User extends UserBase
     public function preSave()
     {
         if ($this->isNew()) {
-            $this->slug = $this->getTable()->generateSlug($this, $this->name, 'slug');
+            $this->slug = $this->getTable()->generateSlug($this, $this->name, 'slug', 32);
             $this->created_at = time();
             $start = rand(10, 30);
-            $this->auth_token = substr(hash('sha256', $this->slug.time()), $start, 32);
+            $this->auth_token = $this->slug.'_'.substr(hash('sha256', $this->slug.time()), $start, 32);
             $this->role = MiniMVC_Registry::getInstance()->rights->getRoleByKeyword('user');
         }
         
