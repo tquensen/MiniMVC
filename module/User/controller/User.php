@@ -65,7 +65,7 @@ class User_User_Controller extends MiniMVC_Controller
         if ($form->validate())
         {
             $success = true;
-
+            $model = $form->getModel();
             $this->registry->guard->setUser($model->id, $model->role);
             $this->registry->guard->email = $model->email;
             $this->registry->guard->slug = $model->email;
