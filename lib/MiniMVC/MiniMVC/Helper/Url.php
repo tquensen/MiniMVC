@@ -86,11 +86,6 @@ class Helper_Url extends MiniMVC_Helper
 
     public function link($title, $route, $parameter = array(), $method = null, $attrs = '', $confirm = null, $postData = array(), $app = null)
     {
-        $url = $this->get($route, $parameter, $app);
-        if (!$url) {
-            return $title;
-        }
-
         try
 		{
 			$routeData = $this->registry->dispatcher->getRoute($route, $parameter, $app);
@@ -111,18 +106,21 @@ class Helper_Url extends MiniMVC_Helper
         }
 
         if ($method == 'GET') {
+            $url = $this->get($route, $parameter, $app);
+            if (!$url) {
+                return $title;
+            }
             return '<a href="'.htmlspecialchars($url).'"'.($attrs ? ' '.$attrs : '').($confirm ? ' onclick="return confirm(\''.htmlspecialchars($confirm).'\')"' : '').'>'.$title.'</a>';
         } else {
             $form = new MiniMVC_Form(array(
                 'name' => md5($url).'Form',
                 'route' => $route,
-                'routeParameter' => $parameter,
-                'action' => $url,
+                'parameter' => $parameter,
                 'method' => strtoupper($method),
                 'class' => 'minimvcInlineForm'
             ));
             if ($confirm) {
-                $form->setOption('attributes', array('onclick' => 'return confirm(\''.htmlspecialchars($confirm).'\')'));
+                $form->setOption('attributes', array('onsubmit' => 'return confirm(\''.htmlspecialchars($confirm).'\')'));
             }
             $form->setElement(new MiniMVC_Form_Element_Button('_submit', array('label' => $title, 'attributes' => $attrs ? $attrs : array())));
             foreach ((array) $postData as $postKey => $postValue) {
