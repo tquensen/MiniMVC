@@ -5,7 +5,7 @@
  * @property MiniMVC_Settings $settings stores the configuration arrays
  * @property MiniMVC_Cache $cache the caching class
  * @property MiniMVC_Dispatcher $dispatcher is responsible for any route calls
- * @property MiniMVC_Layout $template the default layout/template class
+ * @property MiniMVC_Layout $layout the default layout/template class
  * @property MiniMVC_Guard $guard is responsible for the current user session
  * @property MiniMVC_Rights $rights is responsible for the role/right management
  * @property MiniMVC_Pdo $db is responsible for the current database connection

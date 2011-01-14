@@ -10,7 +10,7 @@ class Helper_Partial extends MiniMVC_Helper
         }
         $_app = ($_app) ? $_app : $this->registry->settings->get('currentApp');
 
-        $_format = $_format ? $_format : $this->registry->template->getFormat();
+        $_format = $_format ? $_format : $this->registry->layout->getFormat();
 
         try {
             ob_start();
@@ -19,21 +19,7 @@ class Helper_Partial extends MiniMVC_Helper
             if (isset($_cache[$_app.'_'.$_module.'_'.$_format.'_'.str_replace('/', '__', $_partial)])) {
                 $_file = $_cache[$_app.'_'.$_module.'_'.$_format.'_'.str_replace('/', '__', $_partial)];
             } else {
-                if ($_format) {
-                    if ($_module !== null && file_exists(APPPATH . $_app . '/partial/' . $_module . '/' . $_partial . '.' . $_format . '.php')) {
-                        $_file = APPPATH . $_app . '/partial/' . $_module . '/' . $_partial . '.' . $_format . '.php';
-                    } elseif ($_module !== null && file_exists(DATAPATH . 'partial/' . $_module . '/' . $_partial . '.' . $_format . '.php')) {
-                        $_file = DATAPATH . 'partial/' . $_module . '/' . $_partial . '.' . $_format . '.php';
-                    } elseif ($_module !== null && file_exists(MODULEPATH . $_module . '/partial/' . $_partial . '.' . $_format . '.php')) {
-                        $_file = MODULEPATH . $_module . '/partial/' . $_partial . '.' . $_format . '.php';
-                    } elseif (file_exists(APPPATH . $_app . '/partial/' . $_partial . '.' . $_format . '.php')) {
-                        $_file = APPPATH . $_app . '/partial/' . $_partial . '.' . $_format . '.php';
-                    } elseif (file_exists(DATAPATH . 'partial/' . $_partial . '.' . $_format . '.php')) {
-                        $_file = DATAPATH . 'partial/' . $_partial . '.' . $_format . '.php';
-                    } elseif (file_exists(MINIMVCPATH . 'data/partial/' . $_partial . '.' . $_format . '.php')) {
-                        $_file = MINIMVCPATH . 'data/partial/' . $_partial . '.' . $_format . '.php';
-                    }
-                } else {
+                if (!$_format) {
                     if ($_module !== null && file_exists(APPPATH . $_app . '/partial/' . $_module . '/' . $_partial . '.php')) {
                         $_file = APPPATH . $_app . '/partial/' . $_module . '/' . $_partial . '.php';
                     } elseif ($_module !== null && file_exists(DATAPATH . 'partial/' . $_module . '/' . $_partial . '.php')) {
@@ -46,6 +32,36 @@ class Helper_Partial extends MiniMVC_Helper
                         $_file = DATAPATH . 'partial/' . $_partial . '.php';
                     } elseif (file_exists(MINIMVCPATH . 'data/partial/' . $_partial . '.php')) {
                         $_file = MINIMVCPATH . 'data/partial/' . $_partial . '.php';
+                    }
+                    if (!$_file) {
+                        $_defaultFormat = $this->registry->settings->get('config/defaultFormat');
+                        if ($_module !== null && file_exists(APPPATH . $_app . '/partial/' . $_module . '/' . $_partial . '.' . $_defaultFormat . '.php')) {
+                            $_file = APPPATH . $_app . '/partial/' . $_module . '/' . $_partial . '.' . $_defaultFormat . '.php';
+                        } elseif ($_module !== null && file_exists(DATAPATH . 'partial/' . $_module . '/' . $_partial . '.' . $_defaultFormat . '.php')) {
+                            $_file = DATAPATH . 'partial/' . $_module . '/' . $_partial . '.' . $_defaultFormat . '.php';
+                        } elseif ($_module !== null && file_exists(MODULEPATH . $_module . '/partial/' . $_partial . '.' . $_defaultFormat . '.php')) {
+                            $_file = MODULEPATH . $_module . '/partial/' . $_partial . '.' . $_defaultFormat . '.php';
+                        } elseif (file_exists(APPPATH . $_app . '/partial/' . $_partial . '.' . $_defaultFormat . '.php')) {
+                            $_file = APPPATH . $_app . '/partial/' . $_partial . '.' . $_defaultFormat . '.php';
+                        } elseif (file_exists(DATAPATH . 'partial/' . $_partial . '.' . $_defaultFormat . '.php')) {
+                            $_file = DATAPATH . 'partial/' . $_partial . '.' . $_defaultFormat . '.php';
+                        } elseif (file_exists(MINIMVCPATH . 'data/partial/' . $_partial . '.' . $_defaultFormat . '.php')) {
+                            $_file = MINIMVCPATH . 'data/partial/' . $_partial . '.' . $_defaultFormat . '.php';
+                        }
+                    }
+                } else {
+                    if ($_module !== null && file_exists(APPPATH . $_app . '/partial/' . $_module . '/' . $_partial . '.' . $_format . '.php')) {
+                        $_file = APPPATH . $_app . '/partial/' . $_module . '/' . $_partial . '.' . $_format . '.php';
+                    } elseif ($_module !== null && file_exists(DATAPATH . 'partial/' . $_module . '/' . $_partial . '.' . $_format . '.php')) {
+                        $_file = DATAPATH . 'partial/' . $_module . '/' . $_partial . '.' . $_format . '.php';
+                    } elseif ($_module !== null && file_exists(MODULEPATH . $_module . '/partial/' . $_partial . '.' . $_format . '.php')) {
+                        $_file = MODULEPATH . $_module . '/partial/' . $_partial . '.' . $_format . '.php';
+                    } elseif (file_exists(APPPATH . $_app . '/partial/' . $_partial . '.' . $_format . '.php')) {
+                        $_file = APPPATH . $_app . '/partial/' . $_partial . '.' . $_format . '.php';
+                    } elseif (file_exists(DATAPATH . 'partial/' . $_partial . '.' . $_format . '.php')) {
+                        $_file = DATAPATH . 'partial/' . $_partial . '.' . $_format . '.php';
+                    } elseif (file_exists(MINIMVCPATH . 'data/partial/' . $_partial . '.' . $_format . '.php')) {
+                        $_file = MINIMVCPATH . 'data/partial/' . $_partial . '.' . $_format . '.php';
                     }
                 }
                 if ($_file === null) {

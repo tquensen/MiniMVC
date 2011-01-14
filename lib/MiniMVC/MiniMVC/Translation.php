@@ -98,7 +98,7 @@ class MiniMVC_Translation implements ArrayAccess
 			$replace = array();
 			foreach ((array) $params as $key=>$value)
 			{
-				$search[] = '{'.$key.'}';
+				$search[] = ':'.$key.':';
 				$replace[] = $value;
 			}
 			$string = str_replace($search, $replace, $string);

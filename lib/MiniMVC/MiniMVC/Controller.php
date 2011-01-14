@@ -58,7 +58,7 @@ class MiniMVC_Controller
         {
             header('Location: '.$url, null, $code);
 
-            $this->registry->template->setLayout(false);
+            $this->registry->layout->setLayout(false);
         }
         return $this->view->prepareEmpty();
     }

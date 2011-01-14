@@ -13,11 +13,12 @@ $MiniMVC_config['enabledLanguages'] = array('en_US');
 $MiniMVC_config['languageFormat'] = '[a-z]{2}_[A-Z]{2}';
 
 $MiniMVC_config['defaultLayout'] = 'default';
+$MiniMVC_config['defaultFormat'] = 'html';
 
 $MiniMVC_config['autoloadPaths'] = array(BASEPATH.'lib/sfComponents', BASEPATH.'lib', MODULEPATH,  MINIMVCPATH . '/MiniMVC', MINIMVCPATH);
 $MiniMVC_config['registryClasses'] = array(
     'dispatcher' => 'MiniMVC_Dispatcher',
-    'template' => 'MiniMVC_Layout',
+    'layout' => 'MiniMVC_Layout',
     'guard' => 'MiniMVC_Guard',
     'rights' => 'MiniMVC_Rights',
     'db' => 'MiniMVC_Pdo',

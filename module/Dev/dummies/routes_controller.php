@@ -7,9 +7,8 @@ $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTIndex'] = array(
     'route' => 'MODLC(.:_format:)', // .format is optional (in brackets)
     'controller' => 'MODULE_CONTROLLER',
     'action' => 'index',
-    'parameter' => array('_format' => 'html'), //set html as default format
-    //'parameterPatterns' => array('_format' => 'json'), //allow json and/or other (like 'json|xml|atom') as alternative formats
-    //'ajaxLayout' => array('html' => 'plain'), //disable the layout when requesting the html view via XMLHttpRequest
+    'parameter' => array('_format' => 'default'), //set the default format
+    'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
     'method' => 'GET',
     //'rights' => false // use false for no restrictions,
                         // a right as string (e.g. 'user') th require that right,
@@ -27,8 +26,8 @@ $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTNew'] = array(
     'controller' => 'MODULE_CONTROLLER',
     'action' => 'new',
     'method' => 'GET',
-    'parameter' => array('_format' => 'html'), //set html as default format
-    //'parameterPatterns' => array('_format' => 'json'), //allow json and/or other (like 'json|xml|atom') as alternative formats
+    'parameter' => array('_format' => 'default'), //set the default format
+    'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
     'active' => false, //this route must be activated for each app to work
     //'rights' => 'publish'
 );
@@ -37,55 +36,55 @@ $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTCreate'] = array(
     'controller' => 'MODULE_CONTROLLER',
     'action' => 'create',
     'method' => 'POST',
-    'parameter' => array('_format' => 'html'), //set html as default format
-    //'parameterPatterns' => array('_format' => 'json'), //allow json and/or other (like 'json|xml|atom') as alternative formats
+    'parameter' => array('_format' => 'default'), //set the default format
+    'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
     'active' => false, //this route must be activated for each app to work
     //'rights' => 'publish'
 );
 
 $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTShow'] = array(
-    'route' => 'MODLC/:id:(.:_format:)', // .format is optional (in brackets)
+    'route' => 'MODLC/:slug:(.:_format:)', // .format is optional (in brackets)
     'controller' => 'MODULE_CONTROLLER',
     'action' => 'show',
     'method' => 'GET',
-    'model' => array('MODULE', 'id'), // array(modelname, property, parameter) or array('model1' => array(modelname, property, parameter),'modelx' => array(modelname, property, parameter))
+    'model' => array('MODULE', 'slug'), // array(modelname, property, parameter) or array('model1' => array(modelname, property, parameter),'modelx' => array(modelname, property, parameter))
                                         //automatically load a model with the name modelname by the field 'property' (defaults to the models identifier) with the value provided py routeparameter :parameter: (defaults to the property)
                                         // returns null if not found // in your controller, you can access it with $params['model'] (or $params['model']['model1'], $params['model']['modelx'] if multiple models were defined)
-    'parameter' => array('id' => false, '_format' => 'html'),
-    //'parameterPatterns' => array('_format' => 'json'), //allow json and/or other (like 'json|xml|atom') as alternative formats
+    'parameter' => array('slug' => false, '_format' => 'default'), //set the default format
+    'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
     //'rights' => false
 );
 $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTEdit'] = array(
-    'route' => 'MODLC/:id:/edit(.:_format:)',
+    'route' => 'MODLC/:slug:/edit(.:_format:)',
     'controller' => 'MODULE_CONTROLLER',
     'action' => 'edit',
     'method' => 'GET',
-    'model' => array('MODULE', 'id'),
-    'parameter' => array('id' => false, '_format' => 'html'),
-    //'parameterPatterns' => array('_format' => 'json'), //allow json and/or other (like 'json|xml|atom') as alternative formats
+    'model' => array('MODULE', 'slug'),
+    'parameter' => array('slug' => false, '_format' => 'default'), //set the default format
+    'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
     'active' => false, //this route must be activated for each app to work
     //'rights' => 'publish'
 );
 $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTUpdate'] = array(
-    'route' => 'MODLC/:id:(.:_format:)',
+    'route' => 'MODLC/:slug:(.:_format:)',
     'controller' => 'MODULE_CONTROLLER',
     'action' => 'update',
     'method' => 'POST',
-    'model' => array('MODULE', 'id'),
-    'parameter' => array('id' => false, '_format' => 'html'),
-    //'parameterPatterns' => array('_format' => 'json'), //allow json and/or other (like 'json|xml|atom') as alternative formats
+    'model' => array('MODULE', 'slug'),
+    'parameter' => array('slug' => false, '_format' => 'default'), //set the default format
+    'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
     'active' => false, //this route must be activated for each app to work
     //'rights' => 'publish'
 );
 
 $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTDelete'] = array(
-    'route' => 'MODLC/:id:/delete(.:_format:)',
+    'route' => 'MODLC/:slug:/delete(.:_format:)',
     'controller' => 'MODULE_CONTROLLER',
     'action' => 'delete',
     'method' => 'DELETE',
-    'model' => array('MODULE', 'id'),
-    'parameter' => array('id' => false, '_format' => 'html'),
-    //'parameterPatterns' => array('_format' => 'json'), //allow json and/or other (like 'json|xml|atom') as alternative formats
+    'model' => array('MODULE', 'slug'),
+    'parameter' => array('slug' => false, '_format' => 'default'), //set the default format
+    'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
     'active' => false, //this route must be activated for each app to work
     //'rights' => 'publish'
 );

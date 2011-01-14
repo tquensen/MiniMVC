@@ -1,5 +1,5 @@
 <?php
-/* LIST VIEW
+
 $json = array(
     'success' => true,
     'currentPage' => $pager->getPage(),
@@ -16,10 +16,9 @@ if (count($entries)) {
         $json['entries'][] = array(
             'id' => $model->id,
             'title' => $model->title,
-            'url' => $h->url->get('MODLC.CONTROLLERLCFIRSTShow', array('id' => $model->id))
+            'url' => $h->url->get('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug))
         );
     }
 }
 
 echo json_encode($json);
- */

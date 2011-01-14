@@ -169,7 +169,7 @@ class MiniMVC_Dispatcher
 
             $this->registry->events->notify(new sfEvent($this, 'minimvc.init'));            
             $content = $this->callRoute($routeName, (isset($params) ? $params : array()));
-            return $this->registry->template->prepare($content, $this->registry->settings->get('currentApp'))->parse();
+            return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'))->parse();
         } catch (Exception $e) {
 
             try {
@@ -206,7 +206,7 @@ class MiniMVC_Dispatcher
 
                 $routeData['parameter']['exception'] = $e;
                 $content = $this->call($routeData['controller'], $routeData['action'], $routeData['parameter']);
-                return $this->registry->template->prepare($content, $this->registry->settings->get('currentApp'))->parse();
+                return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'))->parse();
 
             } catch (Exception $e) {
                 //handle 50x errors
@@ -215,7 +215,7 @@ class MiniMVC_Dispatcher
                     $routeData = $routes[$error500Route];
                     $routeData['parameter']['exception'] = $e;
                     $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
-                    return $this->registry->template->prepare($content, $this->registry->settings->get('currentApp'))->parse();
+                    return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'))->parse();
                 } else {
                     throw new Exception('Exception was thrown and no 500 Route defined!');
                 }
@@ -260,19 +260,14 @@ class MiniMVC_Dispatcher
 
         if ($isMainRoute) {
             if (isset($routeData['format'])) {
-                $this->registry->template->setFormat($routeData['format']);
+                $this->registry->layout->setFormat($routeData['format']);
             } elseif(isset($routeData['parameter']['_format'])) {
-                $this->registry->template->setFormat($routeData['parameter']['_format']);
+                $this->registry->layout->setFormat($routeData['parameter']['_format']);
             }
 
-            if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && isset($routeData['ajaxLayout']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
-                $this->registry->template->setLayout($routeData['ajaxLayout']);
-            } else {
-                if (isset($routeData['layout'])) {
-                    $this->registry->template->setLayout($routeData['layout']);
-                }
+            if (isset($routeData['layout'])) {
+                $this->registry->layout->setLayout($routeData['layout']);
             }
-
         }
 
         if (isset($routeData['parameter']['_action'])) {
@@ -310,6 +305,15 @@ class MiniMVC_Dispatcher
             }
             $models = array();
             foreach ($routeData['model'] as $modelKey => $modelData) {
+                if (!empty($routeData['parameter']['_model'])) {
+                    if (is_array($routeData['parameter']['_model']) && ($modelKey != 0 && !empty($routeData['parameter']['_model'][$modelKey]))) {
+                        $models[$modelKey] = $routeData['parameter']['_model'][$modelKey];
+                        continue;
+                    } elseif ($modelKey == 0) {
+                        $models[$modelKey] = $routeData['parameter']['_model'];
+                        continue;
+                    }
+                }
                 $modelName = $modelData[0];
                 $tableName = $modelName.'Table';
                 if (!class_exists($modelName) || !class_exists($tableName)) {
@@ -343,6 +347,14 @@ class MiniMVC_Dispatcher
         }
         
         $widgetData['parameter'] = (isset($widgetData['parameter'])) ? array_merge($widgetData['parameter'], (array)$params) : (array)$params;
+
+        if (isset($widgetData['assign'])) {
+            foreach ((array) $widgetData['assign'] as $slotParam => $widgetParam) {
+                if (isset($widgetData['parameter']['slot'][$slotParam])) {
+                    $widgetData['parameter'][$widgetParam] = $widgetData['parameter']['slot'][$slotParam];
+                }
+            }
+        }
         return $widgetData;
     }
 

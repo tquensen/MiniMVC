@@ -56,13 +56,17 @@ class MiniMVC_View
      */
 	public function __get($var)
 	{
-        if ($var == 'helper')
+        if ($var == 'helper' || $var == 'h')
         {
             return $this->helper;
         }
         elseif($var == 't')
         {
             return $this->t;
+        }
+        elseif($var == 'o')
+        {
+            return $this->helper->text;
         }
 		return (isset($this->vars[$var])) ? $this->vars[$var] : '';
 	}
@@ -77,7 +81,7 @@ class MiniMVC_View
         
 		$_app = $this->registry->settings->get('currentApp');
 
-        $_format = $this->registry->template->getFormat();
+        $_format = $this->registry->layout->getFormat();
         $_formatString = ($_format) ? '.'.$_format : '';
 
         $_path = null;
@@ -94,13 +98,31 @@ class MiniMVC_View
                 } elseif(is_file(MODULEPATH.$this->module.'/view/'.$_file.$_formatString.'.php')) {
                     $_path = MODULEPATH.$this->module.'/view/'.$_file.$_formatString.'.php';
                 }
+                if (!$_path && !$_format) {
+                    $_defaultFormat = $this->registry->settings->get('config/defaultFormat');
+                    if (is_file(APPPATH.$_app.'/view/'.$this->module.'/'.$_file.'.'.$_defaultFormat.'.php')) {
+                        $_path = APPPATH.$_app.'/view/'.$this->module.'/'.$_file.'.'.$_defaultFormat.'.php';
+                    } elseif (is_file(VIEWPATH.$this->module.'/'.$_file.'.'.$_defaultFormat.'.php')) {
+                        $_path = VIEWPATH.$this->module.'/'.$_file.'.'.$_defaultFormat.'.php';
+                    } elseif(is_file(MODULEPATH.$this->module.'/view/'.$_file.'.'.$_defaultFormat.'.php')) {
+                        $_path = MODULEPATH.$this->module.'/view/'.$_file.'.'.$_defaultFormat.'.php';
+                    }
+                }
             }
             else
             {
                 if (is_file(APPPATH.$_app.'/view/'.$_file.$_formatString.'.php')) {
                     $_path = APPPATH.$_app.'/view/'.$_file.$_formatString.'.php';
-                } elseif (is_file(VIEWPATH.$_file.$f_ormatString.'.php')) {
+                } elseif (is_file(VIEWPATH.$_file.$_formatString.'.php')) {
                     $_path = VIEWPATH.$_file.$_formatString.'.php';
+                }
+                if (!$_path && !$_format) {
+                    $_defaultFormat = $this->registry->settings->get('config/defaultFormat');
+                    if (is_file(APPPATH.$_app.'/view/'.$_file.'.'.$_defaultFormat.'.php')) {
+                        $_path = APPPATH.$_app.'/view/'.$_file.'.'.$_defaultFormat.'.php';
+                    } elseif (is_file(VIEWPATH.$_file.'.'.$_defaultFormat.'.php')) {
+                        $_path = VIEWPATH.$_file.'.'.$_defaultFormat.'.php';
+                    }
                 }
             }
             if (!$_path)

@@ -19,8 +19,8 @@ class MiniMVC_Task
      */
     public function dispatch($rawParams)
     {
-        $this->registry->template->setLayout(false);
-        $this->registry->template->setFormat('plain');
+        $this->registry->layout->setLayout(false);
+        $this->registry->layout->setFormat('plain');
 
         array_shift($rawParams); // remove the filename (cli.php)
         $taskName = array_shift($rawParams);

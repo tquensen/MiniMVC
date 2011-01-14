@@ -18,8 +18,8 @@ class Helper_Js extends MiniMVC_Helper
         $files = $this->prepareFiles();
         
         $route = $this->registry->settings->get('currentRoute');
-        $format = $this->registry->template->getFormat();
-        $layout = $this->registry->template->getLayout();
+        $format = $this->registry->layout->getFormat();
+        $layout = $this->registry->layout->getLayout();
 
         foreach ($files as $filekey => $file) {
             if (isset($file['show']) && $file['show']) {
@@ -36,12 +36,12 @@ class Helper_Js extends MiniMVC_Helper
                     unset($files[$filekey]);
                 }
             }
-            if (!isset($file['format']) || $file['format'] == 'html') {
+            if (empty($file['format']) || $file['format'] == 'default') {
                 $file['format'] = null;
             }
             if (!is_array($file['format']) && $file['format'] != 'all' && ($file['format'] != $format)) {
                 unset($files[$filekey]);
-            } elseif(is_array($file['format']) && !in_array($format ? $format : 'html', $file['format'])) {
+            } elseif(is_array($file['format']) && !in_array($format ? $format : 'default', $file['format'])) {
                 unset($files[$filekey]);
             }
             if (isset($file['layout']) && $file['layout']) {

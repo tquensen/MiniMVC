@@ -25,8 +25,8 @@ class MiniMVC_Layout
     public function setLayout($file)
     {
         if (is_array($file)) {
-            $currentFormat = $this->format === null ? 'html' : $this->format;
-            $file = isset($file[$currentFormat]) ? $file[$currentFormat] : null;
+            $currentFormat = $this->format ? $this->format : 'default';
+            $file = isset($file[$currentFormat]) ? $file[$currentFormat] : (isset($file['all']) ? $file['all'] : null);
         }
         $this->layout = ($file === true) ? null : $file;
     }
@@ -42,11 +42,11 @@ class MiniMVC_Layout
 
     /**
      *
-     * @param mixed $format the format to use (eg. "json", "xml") or null to use the default format (usually html)
+     * @param mixed $format the format to use (eg. "json", "xml") or null to use the default format (usually default)
      */
     public function setFormat($format = null)
     {
-        if ($format == 'html') {
+        if ($format == 'default' || !is_string($format)) {
             $format = null;
         }
         $this->format = $format;
@@ -161,12 +161,12 @@ class MiniMVC_Layout
                         continue;
                     }
                 }
-                if (empty($widgetData['format']) || $widgetData['format'] == 'html') {
+                if (empty($widgetData['format']) || $widgetData['format'] == 'default') {
                     $widgetData['format'] = null;
                 }
                 if (!is_array($widgetData['format']) && $widgetData['format'] != 'all' && ($widgetData['format'] != $format)) {
                     continue;
-                } elseif(is_array($widgetData['format']) && !in_array($format ? $format : 'html', $widgetData['format'])) {
+                } elseif(is_array($widgetData['format']) && !in_array($format ? $format : 'default', $widgetData['format'])) {
                     continue;
                 }
                 if ($widgetData['layout']) {

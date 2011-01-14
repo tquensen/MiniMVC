@@ -14,7 +14,7 @@ $MiniMVC_widgets['MODLC.exampleWidget'] = array(
                         //        array(array('administrate', array('moderate', 'publish'))) = administrate OR (moderate AND publish)
 
     'layout' => 'all', //default to "all" (this should only be set in the app config)
-    'format' => 'html', //defaults to "html" (this should only be set in the app config)
+    'format' => 'default', //defaults to "default" (this should only be set in the app config)
     'show' => 'home', //only show on these routes (string or array)
     'hide' => 'user.login', //hide widget on these routes (string or array)
 );
