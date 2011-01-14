@@ -37,6 +37,8 @@ class UserTable extends UserTableBase
 
         $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $i18n->userFormSubmitCreateLabel)));
 
+        $form->bindValues();
+
         return $form;
     }
 
@@ -69,6 +71,8 @@ class UserTable extends UserTableBase
 
         $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $i18n->userFormSubmitPasswordLabel)));
 
+        $form->bindValues();
+
         return $form;
     }
 
@@ -97,6 +101,8 @@ class UserTable extends UserTableBase
 
         $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $i18n->userFormSubmitLoginLabel)));
 
+        $form->bindValues();
+        
         return $form;
     }
 

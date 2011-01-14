@@ -212,7 +212,7 @@ class MiniMVC_Form
     {
 //        $this->handleAjaxValidation();
 
-        $this->bindValues();
+        //$this->bindValues();
         if (!$this->isValid || !$this->wasSubmitted()) {
             return false;
         }

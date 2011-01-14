@@ -17,6 +17,8 @@ class {name}Table extends {name}TableBase
 
         $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $model->isNew() ? $i18n->{namelcfirst}FormSubmitCreateLabel : $i18n->{namelcfirst}FormSubmitUpdateLabel)));
 
+        $form->bindValues();
+        
         return $form;
     }
 
