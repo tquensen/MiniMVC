@@ -1,1 +1,1 @@
-<p>Error 401 Unauthorized!</p>
+<p><?php echo $o->esc($message); ?></p>

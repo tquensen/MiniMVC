@@ -1,1 +1,1 @@
-<p>Error 404 Not found!</p>
+<p><?php echo $o->esc($message); ?></p>

@@ -1,1 +1,1 @@
-<p>Error 500 Server Error!</p>
+<p><?php echo $o->esc($message); ?></p>

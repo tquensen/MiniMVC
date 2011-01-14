@@ -1,1 +1,1 @@
-<?php echo json_encode(array('success' => false, 'errorCode' => 401, 'message' => 'Error 401 Unauthorized!', 'exception' => (string)$this->e));
+<?php echo json_encode(array('success' => false, 'errorCode' => 401, 'message' => $message, 'exception' => (string)$this->e));

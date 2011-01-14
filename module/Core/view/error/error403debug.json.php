@@ -1,1 +1,1 @@
-<?php echo json_encode(array('success' => false, 'errorCode' => 403, 'message' => 'Error 403 Forbidden!', 'exception' => (string)$this->e));
+<?php echo json_encode(array('success' => false, 'errorCode' => 403, 'message' => $message, 'exception' => (string)$this->e));
