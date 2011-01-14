@@ -78,7 +78,7 @@ $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTUpdate'] = array(
 );
 
 $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTDelete'] = array(
-    'route' => 'MODLC/:slug:/delete(.:_format:)',
+    'route' => 'MODLC/:slug:(.:_format:)',
     'controller' => 'MODULE_CONTROLLER',
     'action' => 'delete',
     'method' => 'DELETE',

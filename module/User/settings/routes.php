@@ -100,7 +100,7 @@ $MiniMVC_routes['user.userUpdate'] = array(
 );
 
 $MiniMVC_routes['user.userDelete'] = array(
-    'route' => 'user/:slug:/delete(.:_format:)',
+    'route' => 'user/:slug:(.:_format:)',
     'controller' => 'User_User',
     'action' => 'delete',
     'method' => 'DELETE',
