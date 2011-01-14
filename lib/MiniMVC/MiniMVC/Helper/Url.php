@@ -28,7 +28,7 @@ class Helper_Url extends MiniMVC_Helper
             $baseurl = $this->registry->settings->get('currentHost', '') . $baseurl;
         }
 
-        if ((!$route || $route == 'home') && empty($parameter)) {
+        if ((!$route || $route == $this->registry->settings->get('config/defaultRoute')) && empty($parameter)) {
             return $baseurl;
         }
 
