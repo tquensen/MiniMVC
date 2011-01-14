@@ -36,7 +36,7 @@ class User extends UserBase
 
     public function checkPassword($password)
     {
-        return hash('sha256', $password.$user->salt) == $this->password;
+        return hash('sha256', $password.$this->salt) == $this->password;
     }
 
     public function checkLoginPasswordCallback($validator, $isValid)
