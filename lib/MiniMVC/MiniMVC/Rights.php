@@ -68,7 +68,7 @@ class MiniMVC_Rights
                         return false;
                     }
                 }
-                if (!in_array($right, $givenRights)) {
+                if (!in_array($right, (array) $givenRights)) {
                     return false;
                 }
             }
