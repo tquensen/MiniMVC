@@ -1,5 +1,5 @@
 <?php
-$MiniMVC_i18n['User']['UserShowHeadline'] = '{name}';
+$MiniMVC_i18n['User']['UserShowHeadline'] = ':name:';
 $MiniMVC_i18n['User']['userCreateErrorMessage'] = 'Es gab einen Fehler beim Registrieren. Bitte probiere es nochmal.';
 $MiniMVC_i18n['User']['userCreateSuccessMessage'] = 'Du wurdest erfolgreich registriert!';
 $MiniMVC_i18n['User']['userDeleteConfirmMessage'] = 'Möchtest du deinen Account wirklich endgültig löschen?';
@@ -45,7 +45,7 @@ $MiniMVC_i18n['User']['userNewLink'] = 'Account erstellen';
 $MiniMVC_i18n['User']['userNewMetaDescription'] = 'Account erstellen';
 $MiniMVC_i18n['User']['userNewTitle'] = 'Account erstellen';
 $MiniMVC_i18n['User']['userNoEntries'] = 'Keine User gefunden.';
-$MiniMVC_i18n['User']['userShowMetaDescription'] = 'Profil von {name}';
-$MiniMVC_i18n['User']['userShowTitle'] = 'Profil von {name}';
+$MiniMVC_i18n['User']['userShowMetaDescription'] = 'Profil von :name:';
+$MiniMVC_i18n['User']['userShowTitle'] = 'Profil von :name:';
 $MiniMVC_i18n['User']['userUpdateErrorMessage'] = 'Es gab einen Fehler beim Ändern des Passworts. Bitte probiere es nochmal.';
 $MiniMVC_i18n['User']['userUpdateSuccessMessage'] = 'Das Passwort wurde erfolgreich geändert.';
