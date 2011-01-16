@@ -38,15 +38,15 @@ class MiniMVC_Guard
             }
             if (isset($_SESSION['guardRole']) && $_SESSION['guardRole']) {
                 $this->role = $_SESSION['guardRole'];
-            } else {
-                $this->role = $this->registry->rights->getRoleByKeyword('guest');
             }
-
             if (isset($_SESSION['guardData'])) {
                 $this->data = $_SESSION['guardData'];
             }
         }
 
+        if (!$this->role) {
+            $this->role = $this->registry->rights->getRoleByKeyword('guest');
+        }
         $this->rights = $this->registry->rights->getRoleRights($this->role);
     }
 
