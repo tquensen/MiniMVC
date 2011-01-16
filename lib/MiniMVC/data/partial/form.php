@@ -8,9 +8,9 @@
             <input type="hidden" name="REQUEST_METHOD" id="<?php echo htmlspecialchars($form->getName() . '__REQUEST_METHOD') ?>" value="<?php echo htmlspecialchars(strtoupper($form->getOption('method'))) ?>" />
         </div>
     <?php endif; ?>
-    <?php if ($form->getOption('csrfProtection')): ?>
-        <div id="<?php echo htmlspecialchars($form->getName())?>___csrf_token__wrapper" class="formHiddenWrapper">
-            <input type="hidden" name="CSRF_TOKEN" id="<?php echo htmlspecialchars($form->getName() . '___csrf_token') ?>" value="<?php echo htmlspecialchars($form->getCsrfToken()) ?>" />
+    <?php if ($authToken = $form->getAuthToken()): ?>
+        <div id="<?php echo htmlspecialchars($form->getName())?>___auth_token__wrapper" class="formHiddenWrapper">
+            <input type="hidden" name="auth_token" id="<?php echo htmlspecialchars($form->getName() . '___auth_token') ?>" value="<?php echo htmlspecialchars($authToken) ?>" />
         </div>
     <?php endif; ?>
     <?php foreach ($form->getElements() as $currentElement): ?>

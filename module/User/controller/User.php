@@ -66,9 +66,10 @@ class User_User_Controller extends MiniMVC_Controller
         {
             $success = true;
             $model = $form->getModel();
-            $this->registry->guard->setUser($model->id, $model->role);
+            $this->registry->guard->setUser($model->id, $model->role, true);
+            $this->registry->guard->setAuthToken($model->auth_token);
             $this->registry->guard->email = $model->email;
-            $this->registry->guard->slug = $model->email;
+            $this->registry->guard->slug = $model->slug;
             $this->registry->guard->name = $model->name;
 
             $message = $this->view->t->userLoginSuccessMessage;
@@ -116,9 +117,10 @@ class User_User_Controller extends MiniMVC_Controller
             if ($model->save()) {
                 $success = true;
                 
-                $this->registry->guard->setUser($model->id, $model->role);
+                $this->registry->guard->setUser($model->id, $model->role, true);
+                $this->registry->guard->setAuthToken($model->auth_token);
                 $this->registry->guard->email = $model->email;
-                $this->registry->guard->slug = $model->email;
+                $this->registry->guard->slug = $model->slug;
                 $this->registry->guard->name = $model->name;
 
                 $message = $this->view->t->userCreateSuccessMessage;
@@ -218,9 +220,6 @@ class User_User_Controller extends MiniMVC_Controller
         if (!$params['model']) {
             return $this->delegate404();
         }
-        if (!$this->registry->guard->checkCsrfProtection(false)) {
-            return $this->delegate403();
-        }
 
         $model = $params['model'];
 
@@ -254,5 +253,20 @@ class User_User_Controller extends MiniMVC_Controller
 
     public function widgetAction($params)
     {
+    }
+
+    public function identifyAuthTokenEvent(sfEvent $event)
+    {
+        $guard = $event->getSubject();
+        $token = $event['authToken'];
+
+        $user = UserTable::getInstance()->loadOneBy('auth_token = ?', $token);
+        if ($user) {
+            $guard->setUser($user->id, $user->role);
+            $guard->setAuthToken($user->auth_token);
+            $guard->email = $user->email;
+            $guard->slug = $user->slug;
+            $guard->name = $user->name;
+        }
     }
 }

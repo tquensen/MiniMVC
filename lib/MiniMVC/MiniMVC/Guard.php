@@ -15,22 +15,36 @@ class MiniMVC_Guard
     protected $rights = array();
     protected $data = array();
     protected $persistent = true;
+    protected $authToken = null;
+    protected $isUnsaveRequest = false;
 
     public function __construct()
     {
         $this->registry = MiniMVC_Registry::getInstance();
 
-        if (isset($_SESSION['guardID'])) {
-            $this->id = $_SESSION['guardID'];
-        }
-        if (isset($_SESSION['guardRole']) && $_SESSION['guardRole']) {
-            $this->role = $_SESSION['guardRole'];
+        if (!isset($_SERVER['REQUEST_METHOD']) || strtolower($_SERVER['REQUEST_METHOD']) != 'get') {
+            $this->persistent = false;
+            $this->isUnsaveRequest = true;
+            if (isset($_REQUEST['auth_token'])) {
+                $event = new sfEvent($this, 'guard.identifyAuthToken', array('authToken' => $_REQUEST['auth_token']));
+                $this->registry->events->notify($event);
+            }
         } else {
-            $this->role = $this->registry->rights->getRoleByKeyword('guest');
-        }
+            if (isset($_SESSION['guardID'])) {
+                $this->id = $_SESSION['guardID'];
+            }
+            if (isset($_SESSION['guardAuthToken'])) {
+                $this->authToken = $_SESSION['guardAuthToken'];
+            }
+            if (isset($_SESSION['guardRole']) && $_SESSION['guardRole']) {
+                $this->role = $_SESSION['guardRole'];
+            } else {
+                $this->role = $this->registry->rights->getRoleByKeyword('guest');
+            }
 
-        if (isset($_SESSION['guardData'])) {
-            $this->data = $_SESSION['guardData'];
+            if (isset($_SESSION['guardData'])) {
+                $this->data = $_SESSION['guardData'];
+            }
         }
 
         $this->rights = $this->registry->rights->getRoleRights($this->role);
@@ -40,11 +54,13 @@ class MiniMVC_Guard
      *
      * @param integer $id the unique id of the current user
      * @param string $role the name of the current user's role
-     * @param bool $persistent whether to save the userdata in the eseein (true, default) or only for the current request
+     * @param bool $persistent whether to save the userdata in the session (true) or only for the current request
      */
-    public function setUser($id = null, $role = 'guest', $persistent = true)
+    public function setUser($id = null, $role = 'guest', $persistent = null)
     {
-        $this->persistent = (bool) $persistent;
+        if ($persistent !== null) {
+            $this->persistent = (bool) $persistent;
+        }
         $this->setId($id);
         $this->setRole($role);
         $this->clearData();
@@ -59,6 +75,18 @@ class MiniMVC_Guard
         $this->id = $id;
         if ($this->persistent) {
             $_SESSION['guardID'] = $id;
+        }
+    }
+
+    /**
+     *
+     * @param string $authToken the unique authToken of the current user
+     */
+    public function setAuthToken($authToken)
+    {
+        $this->authToken = $authToken;
+        if ($this->persistent) {
+            $_SESSION['guardAuthToken'] = $authToken;
         }
     }
 
@@ -82,6 +110,15 @@ class MiniMVC_Guard
     public function getId()
     {
         return $this->id;
+    }
+
+    /**
+     *
+     * @return string the current user's unique auth token
+     */
+    public function getAuthToken()
+    {
+        return $this->authToken;
     }
 
     /**
@@ -147,29 +184,9 @@ class MiniMVC_Guard
         }
     }
 
-    /**
-     * Check the csrfProtection of the current request
-     */
-    public function checkCsrfProtection($throwException = true)
+    public function isUnsaveRequest()
     {
-        $token = isset($_POST['CSRF_TOKEN']) ? $_POST['CSRF_TOKEN'] : null;
-        $value = isset($_SESSION['_csrf_token'][$token]) ? $_SESSION['_csrf_token'][$token] : null;
-        unset($_SESSION['_csrf_token'][$token]);
-
-        if (!$token || !$value) {
-            if ($throwException) {
-                throw new Exception('invalid csrf token: '.(!$token ? ' (none)' : $token), 401);
-            }
-            return false;
-        }
-        return true;
-    }
-
-    public function generateCsrfToken()
-    {
-        $token = md5(time() . rand(1000, 9999));
-        $_SESSION['_csrf_token'][$token] = true;
-        return $token;
+        return $this->isUnsaveRequest;
     }
 
     /**

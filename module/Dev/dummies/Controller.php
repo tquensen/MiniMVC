@@ -145,9 +145,6 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         if (!$params['model']) {
             return $this->delegate404();
         }
-        if (!$this->registry->guard->checkCsrfProtection(false)) {
-            return $this->delegate403();
-        }
 
         $model = $params['model'];
         $success = $model->delete();

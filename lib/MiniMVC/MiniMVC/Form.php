@@ -21,8 +21,6 @@ class MiniMVC_Form
         $this->options['parameter'] = isset($options['route']) ? array() : MiniMVC_Registry::getInstance()->settings->get('currentRouteParameter');
         $this->options['method'] = 'POST';
         $this->options['showGlobalErrors'] = true;
-        $this->options['csrfProtection'] = true;
-        $this->options['csrfErrorMessage'] = $i18n->errorCsrf;
         $this->options['requiredMark'] = $i18n->requiredMark;
         $this->options = array_merge($this->options, (array)$options);
 
@@ -30,40 +28,11 @@ class MiniMVC_Form
         
 
         $this->setElement(new MiniMVC_Form_Element_Hidden('FormCheck', array('defaultValue' => 1, 'alwaysDisplayDefault' => true), array(new MiniMVC_Form_Validator_Required())));
-
-
-        if ($this->getOption('csrfProtection')) {
-            $this->generateCsrfToken();
-            
-
-//            $oldCsrfToken = (isset($_SESSION['Form_' . $this->name . '_CsrfToken']))
-//                        ? $_SESSION['Form_' . $this->name . '_CsrfToken'] : null;
-//            $this->setElement(
-//                    new MiniMVC_Form_Element_Hidden(
-//                            '_csrf_token',
-//                            array('defaultValue' => $csrfToken, 'alwaysDisplayDefault' => true, 'errorMessage' => $t->errorCsrf, 'globalErrors' => true, 'forceName' => '_csrf_token')
-//                    )
-//            );
-//            $_SESSION['Form_' . $this->name . '_CsrfToken'] = $csrfToken; //for this form
-             //for the dispatcher csrf check
-        }
     }
 
-    public function generateCsrfToken()
+    public function getAuthToken()
     {
-        $this->setOption('csrfToken', MiniMVC_Registry::getInstance()->guard->generateCsrfToken());
-    }
-
-    public function getCsrfToken()
-    {
-        return $this->getOption('csrfToken');
-    }
-
-    public function checkCsrfToken()
-    {
-        if (!MiniMVC_Registry::getInstance()->guard->checkCsrfProtection(false)) {
-            $this->setError($this->getOption('csrfErrorMessage'));
-        }
+        return MiniMVC_Registry::getInstance()->guard->getAuthToken();
     }
 
     public function getName()
@@ -216,10 +185,6 @@ class MiniMVC_Form
         if (!$this->isValid || !$this->wasSubmitted()) {
             return false;
         }
-
-        if ($this->getOption('csrfProtection')) {
-            $this->checkCsrfToken();
-        }
         
         foreach ($this->elements as $element) {
             if (!$element->validate()) {
@@ -302,6 +267,7 @@ class MiniMVC_Form
         $form['name'] = $this->name;
         $form['isValid'] = $this->isValid;
         $form['wasSubmitted'] = $this->wasSubmitted();
+        $form['authToken'] = $this->getAuthToken();
         $form['errors'] = $this->errors;
         $form['elements'] = array();
         foreach ($this->elements as $element) {
@@ -316,8 +282,6 @@ class MiniMVC_Form
             $form['options']['method'] = $this->getOption('method');
 
             $form['options']['showGlobalErrors'] = $this->getOption('showGlobalErrors');
-            $form['options']['csrfProtection'] = $this->getOption('csrfProtection');
-            $form['options']['csrfErrorMessage'] = $this->getOption('csrfErrorMessage');
             $form['options']['requiredMark'] = $this->getOption('requiredMark');
 
             $form['options']['enctype'] = $this->getOption('enctype');

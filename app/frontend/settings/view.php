@@ -1,8 +1,8 @@
 <?php
 //add css files (default media type is "screen")
-$MiniMVC_view['css']['frontend.reset'] = array('file' => 'reset.css');
-$MiniMVC_view['css']['frontend.layout'] = array('file' => 'layout.css');
-$MiniMVC_view['css']['frontend.typo'] = array('file' => 'typo.css');
+$MiniMVC_view['css']['frontend.base'] = array('file' => 'base.css');
+$MiniMVC_view['css']['frontend.form'] = array('file' => 'form.css');
+//$MiniMVC_view['css']['frontend.layout'] = array('file' => 'layout.css');
 //$MiniMVC_view['css']['frontend.print'] = array('file' => 'layout.css', 'media' => 'print');
 
 //unset the modules default css files
