@@ -80,7 +80,7 @@ class MiniMVC_Rights
                         return true;
                     }
                 }
-                if (in_array($right, $givenRights)) {
+                if (in_array($right, (array) $givenRights)) {
                     return true;
                 }
             }
