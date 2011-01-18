@@ -127,15 +127,15 @@ class MiniMVC_Autoload
                 }
             }
 
-            if (file_exists(MODULEPATH . $classPath . '.php')) {
-                include_once (MODULEPATH . $classPath . '.php');
-                $registry->cache->set('autoload', array($class => MODULEPATH . $classPath . '.php'), true);
+            if (file_exists(MODULEPATH . $module . '/' . $classPath . '.php')) {
+                include_once (MODULEPATH . $module . '/' . $classPath . '.php');
+                $registry->cache->set('autoload', array($class => MODULEPATH . $module . '/' . $classPath . '.php'), true);
                 return;
             }
 
-            if (file_exists(MODULEPATH . $class . '.php')) {
-                include_once (MODULEPATH . $class . '.php');
-                $registry->cache->set('autoload', array($class => MODULEPATH . $class . '.php'), true);
+            if (file_exists(MODULEPATH . $module . '/' . $class . '.php')) {
+                include_once (MODULEPATH . $module . '/' . $class . '.php');
+                $registry->cache->set('autoload', array($class => MODULEPATH . $module . '/' . $class . '.php'), true);
                 return;
             }
 

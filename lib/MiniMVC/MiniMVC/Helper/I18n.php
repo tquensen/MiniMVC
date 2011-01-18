@@ -9,28 +9,13 @@ class Helper_I18n extends MiniMVC_Helper
      *
      * @param string $module
      * @param string $language the language to use (defaults to the current language)
-     * @param string $fallbackLanguage the fallback language (defaults to the default language)
      * @return MiniMVC_Translation
      */
-    public function get($module = '_default', $language = null, $fallbackLanguage = null, $app = null)
+    public function get($module = '_default', $language = null, $app = null)
     {
         $language = $language ? $language : $this->registry->settings->get('currentLanguage');
-        if (!is_array($fallbackLanguage)) {
-            if (!$fallbackLanguage) {
-                $fallbackLanguage = array($this->registry->settings->get('config/defaultLanguage'));
-            } else {
-                $fallbackLanguage = (array) $fallbackLanguage;
-            }
-        }
-        $fallbackLanguages = $this->registry->settings->get('config/fallbackLanguages/'.$language, array());
-        if ($fallbackLanguages) {
-            $languages = array_merge((array) $fallbackLanguages, $fallbackLanguage);
-        } else {
-            $languages = $fallbackLanguage;
-        }
-
         $currentApp = $app ? $app : $this->registry->settings->get('currentApp');
-        
+
         if (isset(self::$loaded[$currentApp . '_' . $language][$module])) {
             return self::$loaded[$currentApp . '_' . $language][$module];
         }
@@ -40,9 +25,19 @@ class Helper_I18n extends MiniMVC_Helper
             if ($cache !== null) {
                 self::$cached[$currentApp . '_' . $language] = $cache;
             } else {
+                $languages = array_merge(
+                    (array) $this->registry->settings->get('config/fallbackLanguages/'.$language),
+                    (array) $this->registry->settings->get('config/defaultLanguage')
+                );
                 self::$cached[$currentApp . '_' . $language] = $this->scanI18nFiles($currentApp, $language, $languages);
             }
         }
+
+        
+
+        
+
+        
 
         $translationClass = $this->registry->settings->get('config/classes/translation', 'MiniMVC_Translation');
         self::$loaded[$currentApp . '_' . $language][$module] = new $translationClass((isset(self::$cached[$currentApp . '_' . $language][$module])

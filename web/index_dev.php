@@ -12,7 +12,8 @@ ini_set('display_errors', '1');
 MiniMVC_Registry::getInstance()->settings = new MiniMVC_Settings('frontend', 'dev', new MiniMVC_DummyCache());
 
 try {
-    echo MiniMVC_Registry::getInstance()->dispatcher->dispatch();
+    $view = MiniMVC_Registry::getInstance()->dispatcher->dispatch();
+    echo $view->parse();
 } catch (Exception $e) {
     include BASEPATH.'web/error/500.debug.php';
 }

@@ -109,9 +109,9 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         mkdir($path . '/lib');
 
         file_put_contents($path . '/view/default.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.php')));
-        file_put_contents($path . '/view/default.html.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view_html.php')));
-        file_put_contents($path . '/view/default.json.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.json.php')));
-        file_put_contents($path . '/view/default.xml.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.xml.php')));
+//        file_put_contents($path . '/view/default.html.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view_html.php')));
+//        file_put_contents($path . '/view/default.json.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.json.php')));
+//        file_put_contents($path . '/view/default.xml.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_view.xml.php')));
         file_put_contents($path . '/i18n/de_DE.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/de_DE_app.php')));
         file_put_contents($path . '/i18n/en_US.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/en_US_app.php')));
         //file_put_contents($path . '/settings/slots.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/slots_app.php')));

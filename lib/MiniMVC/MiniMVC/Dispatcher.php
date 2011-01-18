@@ -25,12 +25,13 @@ class MiniMVC_Dispatcher
 		$host = $protocol.'://'.$_SERVER['HTTP_HOST'];
         $url = $host . $_SERVER['REQUEST_URI'];
 
-        if ($_SERVER['QUERY_STRING'] && substr($url, strlen($_SERVER['QUERY_STRING']) * -1) == $_SERVER['QUERY_STRING']) {
+        if (!empty($_SERVER['QUERY_STRING']) && substr($url, strlen($_SERVER['QUERY_STRING']) * -1) == $_SERVER['QUERY_STRING']) {
             $url = substr($url, 0, -1 + strlen($_SERVER['QUERY_STRING']) * -1);
         }
 
         $this->registry->settings->set('currentHost', $host);
         $this->registry->settings->set('currentUrl', $url);
+        $this->registry->settings->set('currentUrlFull', $url . (!empty($_SERVER['QUERY_STRING']) ? '?'.$_SERVER['QUERY_STRING']:''));
 
         if (isset($_POST['REQUEST_METHOD'])) {
             $_SERVER['REQUEST_METHOD'] = strtoupper($_POST['REQUEST_METHOD']);
@@ -118,42 +119,50 @@ class MiniMVC_Dispatcher
                 $found = false;
 
                 if ($route) {
-                    foreach ($routes as $currentRoute => $currentRouteData) {
-                        if (isset($currentRouteData['active']) && !$currentRouteData['active']) {
-                            continue;
-                        }
-                        if (!isset($currentRouteData['route'])) {
-                            continue;
-                        }
-                        if (isset($currentRouteData['method']) && ((is_string($currentRouteData['method']) && strtoupper($currentRouteData['method']) != $method) || (is_array($currentRouteData['method']) && !in_array($method, array_map('strtoupper', $currentRouteData['method']))))) {
-                            continue;
-                        }
-
-                        if (preg_match($currentRouteData['routePatternGenerated'], $route, $matches)) {
-                            $params = (isset($currentRouteData['parameter'])) ? $currentRouteData['parameter'] : array();
-                            $anonymousParams = array();
-                            foreach ($matches as $paramKey => $paramValue) {
-                                if (!is_numeric($paramKey)) {
-                                    if ($paramKey == 'anonymousParams') {
-                                        foreach (explode('/', $paramValue) as $anonymousParam) {
-                                            $anonymousParam = explode('-', $anonymousParam, 2);
-                                            if (trim($anonymousParam[0]) && !isset($params[urldecode($anonymousParam[0])])) {
-                                                $params[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : true;
-                                                $anonymousParams[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : true;
-                                            }
-                                        }
-                                    } elseif (trim($paramValue)) {
-                                        $params[urldecode($paramKey)] = urldecode($paramValue);
-                                    }
-                                }
+                    $routeCache = $this->registry->cache->get('routeCache');
+                    if ($routeCache && isset($routeCache[$method.' '.$route])) {
+                        $found = true;
+                        $routeName = $routeCache[$method.' '.$route]['route'];
+                        $params = $routeCache[$method.' '.$route]['params'];
+                    } else {
+                        foreach ($routes as $currentRoute => $currentRouteData) {
+                            if (isset($currentRouteData['active']) && !$currentRouteData['active']) {
+                                continue;
+                            }
+                            if (!isset($currentRouteData['route'])) {
+                                continue;
+                            }
+                            if (isset($currentRouteData['method']) && ((is_string($currentRouteData['method']) && strtoupper($currentRouteData['method']) != $method) || (is_array($currentRouteData['method']) && !in_array($method, array_map('strtoupper', $currentRouteData['method']))))) {
+                                continue;
                             }
 
-                            $params = array_merge($params, $anonymousParams);
+                            if (preg_match($currentRouteData['routePatternGenerated'], $route, $matches)) {
+                                $params = (isset($currentRouteData['parameter'])) ? $currentRouteData['parameter'] : array();
+                                $anonymousParams = array();
+                                foreach ($matches as $paramKey => $paramValue) {
+                                    if (!is_numeric($paramKey)) {
+                                        if ($paramKey == 'anonymousParams') {
+                                            foreach (explode('/', $paramValue) as $anonymousParam) {
+                                                $anonymousParam = explode('-', $anonymousParam, 2);
+                                                if (trim($anonymousParam[0]) && !isset($params[urldecode($anonymousParam[0])])) {
+                                                    $params[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : true;
+                                                    $anonymousParams[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : true;
+                                                }
+                                            }
+                                        } elseif (trim($paramValue)) {
+                                            $params[urldecode($paramKey)] = urldecode($paramValue);
+                                        }
+                                    }
+                                }
 
-                            $routeName = $currentRoute;
-                            //$routeData = $this->getRoute($currentRoute, $params);
-                            $found = true;
-                            break;
+                                $params = array_merge($params, $anonymousParams);
+
+                                $routeName = $currentRoute;
+                                //$routeData = $this->getRoute($currentRoute, $params);
+                                $found = true;
+                                $this->registry->cache->set('routeCache', array($method.' '.$route => array('route' => $routeName, 'params' => $params)), true);
+                                break;
+                            }
                         }
                     }
                 }
@@ -169,7 +178,7 @@ class MiniMVC_Dispatcher
 
             $this->registry->events->notify(new sfEvent($this, 'minimvc.init'));            
             $content = $this->callRoute($routeName, (isset($params) ? $params : array()));
-            return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'))->parse();
+            return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'));
         } catch (Exception $e) {
 
             try {
@@ -206,7 +215,7 @@ class MiniMVC_Dispatcher
 
                 $routeData['parameter']['exception'] = $e;
                 $content = $this->call($routeData['controller'], $routeData['action'], $routeData['parameter']);
-                return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'))->parse();
+                return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'));
 
             } catch (Exception $e) {
                 //handle 50x errors
@@ -215,7 +224,7 @@ class MiniMVC_Dispatcher
                     $routeData = $routes[$error500Route];
                     $routeData['parameter']['exception'] = $e;
                     $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
-                    return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'))->parse();
+                    return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'));
                 } else {
                     throw new Exception('Exception was thrown and no 500 Route defined!');
                 }

@@ -5,6 +5,15 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
     {     
         $showPerPage = 20;
         $currentPage = !empty($_GET['p']) ? $_GET['p'] : 1;
+
+        //activate the cache - different cache for different roles (some roles have a create-link in the view)
+        /*
+        $this->view->setCachable(array('role' => $this->registry->guard->getRole()), 'MODLC.CONTROLLERLCFIRSTIndex');
+        if ($this->view->checkCache()) {
+            return $this->view->prepareCache();
+        }
+         */
+
         $query = CONTROLLERTable::getInstance()->load(null, null, 'id DESC', $showPerPage, ($currentPage - 1) * $showPerPage, 'query');
         
         $this->view->entries = $query->build();
@@ -28,6 +37,14 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             return $this->delegate404();
         }
         $model = $params['model'];
+
+        //activate the cache
+        /*
+        $this->view->setCachable(array('role' => $this->registry->guard->getRole()), array('MODLC.CONTROLLERLCFIRSTShow', 'MODLC.CONTROLLERLCFIRSTShow'.$model->slug));
+        if ($this->view->checkCache()) {
+            return $this->view->prepareCache();
+        }
+         */
 
         $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTShowTitle(array('title' => htmlspecialchars($model->title))));
         $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTShowMetaDescription(array('title' => htmlspecialchars($model->title), 'description' => strip_tags($model->description))));
@@ -63,6 +80,10 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             if ($model->save()) {
                 $success = true;
                 $message = $this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage(array('title' => htmlspecialchars($model->title)));
+
+                //clear the index cache (and other cached pages if needed)
+                //$this->view->deleteCache('MODLC.CONTROLLERLCFIRSTIndex');
+
                 if ($this->registry->layout->getFormat() === null) {
                     $this->registry->helper->messages->add($message, 'success');
                     $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
@@ -121,6 +142,10 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             if ($model->save()) {
                 $success = true;
                 $message = $this->view->t->CONTROLLERLCFIRSTUpdateSuccessMessage(array('title' => htmlspecialchars($model->title)));
+
+                //clear the index cache and the cache of this model (and other cached pages if needed)
+                //$this->view->deleteCache(array('MODLC.CONTROLLERLCFIRSTIndex', 'MODLC.CONTROLLERLCFIRSTShow'.$model->slug));
+
                 if ($this->registry->layout->getFormat() === null) {
                     $this->registry->helper->messages->add($message, 'success');
                     $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
@@ -151,6 +176,10 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
 
         if ($success) {
             $message = $this->view->t->CONTROLLERLCFIRSTDeleteSuccessMessage(array('title' => htmlspecialchars($model->title)));
+
+            //clear the index cache and the cache of this model (and other cached pages if needed)
+            //$this->view->deleteCache(array('MODLC.CONTROLLERLCFIRSTIndex', 'MODLC.CONTROLLERLCFIRSTShow'.$model->slug));
+
             if ($params['_format'] == 'default') {
                 $this->registry->helper->messages->add($message, 'success');
                 return $this->redirect('MODLC.CONTROLLERLCFIRSTIndex');

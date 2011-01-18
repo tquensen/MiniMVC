@@ -20,14 +20,16 @@ Overloading Stacks:
         - Module specific
         - Global configs
         - App configs
+        - Environment specific MiniMVC defaults
         - Environment specific module configs
-        - Environment specific globl configs
+        - Environment specific global configs
         - Environment specific app configs
 
     Partials:
         - MINIMVCPATH/data/partial/*
         - DATADIR/partial/*
         - APPPATH/APP/partial/*
+        with specific module:
         - MODULEPATH/MODULE/partial/*
         - DATAPATH/partial/MODULE/*
         - APPPATH/APP/partial/MODULE/*
