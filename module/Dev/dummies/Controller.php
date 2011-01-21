@@ -8,8 +8,11 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
 
         //activate the cache - different cache for different roles (some roles have a create-link in the view)
         /*
-        $this->view->setCachable(array('role' => $this->registry->guard->getRole()), 'MODLC.CONTROLLERLCFIRSTIndex');
-        if ($this->view->checkCache()) {
+        if ($this->view->selectCache($this->registry->helper->cache->get(
+                'MODLC.CONTROLLERLC/index',
+                array('role' => $this->registry->guard->getRole()),
+                'MODLC.CONTROLLERLCFIRSTIndex'
+        ))) {
             return $this->view->prepareCache();
         }
          */
@@ -40,11 +43,14 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
 
         //activate the cache
         /*
-        $this->view->setCachable(array('role' => $this->registry->guard->getRole()), array('MODLC.CONTROLLERLCFIRSTShow', 'MODLC.CONTROLLERLCFIRSTShow'.$model->slug));
-        if ($this->view->checkCache()) {
+        if ($this->view->selectCache($this->registry->helper->cache->get(
+                'MODLC.CONTROLLERLC/show',
+                array('role' => $this->registry->guard->getRole()),
+                array('MODLC.CONTROLLERLCFIRSTShow'.$model->slug, 'MODLC.CONTROLLERLCFIRSTShow')
+        ))) {
             return $this->view->prepareCache();
         }
-         */
+        */
 
         $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTShowTitle(array('title' => htmlspecialchars($model->title))));
         $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTShowMetaDescription(array('title' => htmlspecialchars($model->title), 'description' => strip_tags($model->description))));

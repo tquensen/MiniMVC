@@ -15,10 +15,8 @@ class MiniMVC_View
     protected $content = null;
 	protected $helper = null;
     protected $t = null;
-    protected $cacheConditions = false;
-    protected $cacheTokens = array();
-    protected $isCache = false;
-    protected $cacheData = null;
+    protected $cache = null;
+    protected $cacheContent = null;
 
     /**
      *
@@ -81,6 +79,10 @@ class MiniMVC_View
 
     public function parse()
     {
+        if ($this->cacheContent) {
+            return $this->cacheContent;
+        }
+
         if ($this->file === null) {
             $return = (string) $this->content;
         } else {
@@ -156,8 +158,8 @@ class MiniMVC_View
             }
         }
 
-        if (!$this->isCache && $this->cacheKey) {
-            $this->setCache($return);
+        if ($this->cache) {
+            $this->cache->save($return);
         }
         return $return;
     }
@@ -180,82 +182,24 @@ class MiniMVC_View
         return $this;
     }
 
-    public function setCachable($conditions = array(), $tokens = array(), $bindToUrl = true)
+    public function selectCache($cache)
     {
-        if (is_array($conditions) && $bindToUrl) {
-            $conditions['url'] = $this->registry->settings->get('currentUrlFull');
-        }
-        
-        $this->cacheConditions = $conditions;
-        $this->cacheTokens = (array) $tokens;
-        
-        $file = $this->file ? $this->file : md5((string) $this->content);
-        $app = $this->app;
-        $format = $this->registry->layout->getFormat();
-        $formatString = ($format) ? '.'.$format : '';
-        $identifier = $app.'_'.$this->module.'_'.str_replace('/', '__', $file.$formatString);
-
-        ksort($this->cacheConditions);
-        $conditionIdentifier = md5(serialize($this->cacheConditions));
-
-        $this->cacheKey = md5($identifier.'.'.$conditionIdentifier);
-    }
-
-    public function checkCache()
-    {
-        if (!$this->cacheKey || !file_exists(CACHEPATH.'view_'.$this->cacheKey.'.php')) {
-            return false;
-        }
-
-        $cache = $this->registry->cache->get('viewContentCached', null, $this->app);
-        return isset($cache[$this->cacheKey]);
-    }
-
-    public function setCache($content)
-    {
-        if (!$this->cacheKey) {
-            return false;
-        }
-        
-        $tokens = array();
-        foreach ((array) $this->cacheTokens as $token) {
-            $tokens[$token] = true;
-        }
-        $data = array(
-            'conditions' => (array) $this->cacheConditions,
-            'tokens' => $tokens
-        );
-        if (!$this->registry->cache->set('viewContentCached', array($key => $data), true, $this->app)) {
-            return false;
-        }
-        file_put_contents(CACHEPATH.'view_'.$this->cacheKey.'.tmp.php', $content);
-        rename(CACHEPATH.'view_'.$this->cacheKey.'.tmp.php', CACHEPATH.'view_'.$this->cacheKey.'.php');
+        $this->cache = $cache;
+        return $this->cache->check();
     }
 
     public function deleteCache($tokens = array())
     {
-        $cache = $this->registry->cache->get('viewContentCached', null, $this->app);
-        foreach ($cache as $key => $data) {
-            foreach ((array)$tokens as $token) {
-                if (isset($data['tokens'][$token])) {
-                    $this->registry->cache->set('viewContentCached', array($key => null), true);
-                    if (file_exists(CACHEPATH.'view_'.$this->cacheKey.'.php')) {
-                        unlink(file_exists(CACHEPATH.'view_'.$this->cacheKey.'.php'));
-                    }
-                    break;
-                }
-            }
-        }
-        return true;
+        $this->registry->helper->cache->delete($tokens);
     }
 
     public function prepareCache()
     {
-        if (!$this->cacheKey || !file_exists(CACHEPATH.'view_'.$this->cacheKey.'.php')) {
+        if (!$this->cache || !$content = $this->cache->load()) {
             throw new Exception('Cache for View "'.$_file.$_formatString.'" for module '.$this->module.' not found!', 404);
         }
-        $this->isCache = true;
-        return $this->prepareText(file_get_contents(CACHEPATH.'view_'.$this->cacheKey.'.php'));
+        $this->cacheContent = $content;
+        return $content ? true : false;
     }
 
     /**

@@ -14,6 +14,7 @@
  * @property Helper_Text $text
  * @property Helper_Meta $meta
  * @property Helper_Messages $messages
+ * @property Helper_Cache $cache
  *
  * @method Helper_Css css()
  * @method Helper_Js js()
@@ -27,6 +28,7 @@
  * @method Helper_Text text()
  * @method Helper_Meta meta()
  * @method Helper_Messages messages()
+ * @method Helper_Cache cache()
  * 
  */
 class MiniMVC_Helpers
