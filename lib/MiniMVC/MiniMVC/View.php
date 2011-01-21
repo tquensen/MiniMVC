@@ -25,10 +25,11 @@ class MiniMVC_View
      */
 	public function __construct($module = null, $defaultFile = null, $app = null)
 	{
+		$this->registry = MiniMVC_Registry::getInstance();
+
         $this->module = $module;
         $this->file = $defaultFile;
         $this->app = $app ? $app : $this->registry->settings->get('currentApp');
-		$this->registry = MiniMVC_Registry::getInstance();
 
         $this->helper = $this->registry->helper;
         if ($module) {
