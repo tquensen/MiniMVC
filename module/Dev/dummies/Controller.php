@@ -6,6 +6,9 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         $showPerPage = 20;
         $currentPage = !empty($_GET['p']) ? $_GET['p'] : 1;
 
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTIndexTitle(array('page' => $currentPage)));
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTIndexMetaDescription);
+
         //activate the cache - different cache for different roles (some roles have a create-link in the view)
         /*
         if ($this->view->selectCache($this->registry->helper->cache->get(
@@ -29,9 +32,6 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
                 7,
                 false
         );
-
-        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTIndexTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTIndexMetaDescription);
     }
 
     public function showAction($params)
@@ -39,7 +39,11 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         if (!$params['model']) {
             return $this->delegate404();
         }
+
         $model = $params['model'];
+
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTShowTitle(array('title' => htmlspecialchars($model->title))));
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTShowMetaDescription(array('title' => htmlspecialchars($model->title), 'description' => strip_tags($model->description))));
 
         //activate the cache
         /*
@@ -52,22 +56,19 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         }
         */
 
-        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTShowTitle(array('title' => htmlspecialchars($model->title))));
-        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTShowMetaDescription(array('title' => htmlspecialchars($model->title), 'description' => strip_tags($model->description))));
-
         $this->view->model= $model;
     }
 
     public function newAction($params)
     {
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTNewTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTNewMetaDescription);
+
         $form = CONTROLLERTable::getInstance()->getForm(null, array(
             'route' => 'MODLC.CONTROLLERLCFIRSTCreate'
         ));
 
         $this->view->form = $form;
-
-        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTNewTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTNewMetaDescription);
     }
 
     public function createAction($params)
@@ -116,6 +117,10 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         }
 
         $model = $params['model'];
+
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTEditTitle(array('title' => htmlspecialchars($model->title))));
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTEditMetaDescription(array('title' => htmlspecialchars($model->title))));
+
         $form = CONTROLLERTable::getInstance()->getForm($model, array(
             'route' => 'MODLC.CONTROLLERLCFIRSTUpdate',
             'parameter' => array('slug' => $model->slug)
@@ -123,9 +128,6 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
 
         $this->view->form = $form;
         $this->view->model = $model;
-
-        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTEditTitle(array('title' => htmlspecialchars($model->title))));
-        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTEditMetaDescription(array('title' => htmlspecialchars($model->title))));
     }
 
     public function updateAction($params)
@@ -135,6 +137,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         }
 
         $model = $params['model'];
+        
         $form = CONTROLLERTable::getInstance()->getForm($model, array(
             'route' => 'MODLC.CONTROLLERLCFIRSTUpdate',
             'parameter' => array('slug' => $model->slug)
