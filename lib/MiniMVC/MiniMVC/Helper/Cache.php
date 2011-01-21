@@ -76,13 +76,13 @@ class Helper_Cache extends MiniMVC_Helper {
 
     public function delete($tokens = array())
     {
-        $cache = $this->registry->cache->get('viewContentCached', null);
+        $cache = $this->registry->cache->get('viewContentCached', array());
         foreach ($cache as $key => $data) {
             foreach ((array)$tokens as $token) {
                 if (isset($data['tokens'][$token])) {
                     $this->registry->cache->set('viewContentCached', array($key => null), true);
-                    if (file_exists(CACHEPATH.'cache_'.$this->key.'.php')) {
-                        unlink(file_exists(CACHEPATH.'cache_'.$this->key.'.php'));
+                    if (file_exists(CACHEPATH.'cache_'.$key.'.php')) {
+                        unlink(file_exists(CACHEPATH.'cache_'.$key.'.php'));
                     }
                     break;
                 }
