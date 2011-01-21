@@ -67,7 +67,7 @@ class Helper_Cache extends MiniMVC_Helper {
             'conditions' => (array) $this->conditions,
             'tokens' => $tokens
         );
-        if (!$this->registry->cache->set('viewContentCached', array($key => $data), true)) {
+        if (!$this->registry->cache->set('viewContentCached', array($this->key => $data), true)) {
             return false;
         }
         file_put_contents(CACHEPATH.'cache_'.$this->key.'.tmp.php', $content);
