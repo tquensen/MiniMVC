@@ -42,8 +42,8 @@ class User_User_Controller extends MiniMVC_Controller
             return $this->delegate404();
         }
 
-        $this->registry->helper->meta->setTitle($this->view->t->userShowTitle(array('name' => htmlspecialchars($this->view->model->name))));
-        $this->registry->helper->meta->setDescription($this->view->t->userShowMetaDescription(array('name' => htmlspecialchars($this->view->model->name))));
+        $this->registry->helper->meta->setTitle($this->view->t->userShowTitle(array('name' => htmlspecialchars($user->name))));
+        $this->registry->helper->meta->setDescription($this->view->t->userShowMetaDescription(array('name' => htmlspecialchars($user->name))));
 
         if ($this->view->selectCache($this->registry->helper->cache->get(
                 'user.userShow',
