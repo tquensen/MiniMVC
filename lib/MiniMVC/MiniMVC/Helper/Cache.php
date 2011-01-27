@@ -37,7 +37,7 @@ class Helper_Cache extends MiniMVC_Helper {
 
     public function check()
     {
-        if (!$this->key || !file_exists(CACHEPATH.'cache_'.$this->key.'.php')) {
+        if (!$this->key || !file_exists(CACHEPATH.'viewcache_'.$this->key.'.php')) {
             return false;
         }
         return true;
@@ -48,7 +48,7 @@ class Helper_Cache extends MiniMVC_Helper {
         if (!$this->check()) {
             return false;
         }
-        return file_get_contents(CACHEPATH.'cache_'.$this->key.'.php');
+        return file_get_contents(CACHEPATH.'viewcache_'.$this->key.'.php');
     }
 
     public function save($content)
@@ -68,8 +68,8 @@ class Helper_Cache extends MiniMVC_Helper {
         if (!$this->registry->cache->set('viewContentCached/'.$this->key, $data)) {
             return false;
         }
-        file_put_contents(CACHEPATH.'cache_'.$this->key.'.tmp.php', $content);
-        rename(CACHEPATH.'cache_'.$this->key.'.tmp.php', CACHEPATH.'cache_'.$this->key.'.php');
+        file_put_contents(CACHEPATH.'viewcache_'.$this->key.'.tmp.php', $content);
+        rename(CACHEPATH.'viewcache_'.$this->key.'.tmp.php', CACHEPATH.'viewcache_'.$this->key.'.php');
     }
 
     public function delete($tokens = array())
@@ -79,8 +79,8 @@ class Helper_Cache extends MiniMVC_Helper {
             foreach ((array)$tokens as $token) {
                 if (isset($data['tokens'][$token])) {
                     $this->registry->cache->delete('viewContentCached/'.$key);
-                    if (file_exists(CACHEPATH.'cache_'.$key.'.php')) {
-                        unlink(file_exists(CACHEPATH.'cache_'.$key.'.php'));
+                    if (file_exists(CACHEPATH.'viewcache_'.$key.'.php')) {
+                        unlink(file_exists(CACHEPATH.'viewcache_'.$key.'.php'));
                     }
                     break;
                 }

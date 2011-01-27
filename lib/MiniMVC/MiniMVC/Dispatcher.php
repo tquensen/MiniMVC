@@ -119,7 +119,7 @@ class MiniMVC_Dispatcher
                 $found = false;
 
                 if ($route) {
-                    if ($routeCache = $this->registry->cache->get('routeCache/'.$method.' '.$route)) {
+                    if ($routeCache = $this->registry->cache->get('routeCache/'.$method.' '.str_replace('/', '__', $route))) {
                         $found = true;
                         $routeName = $routeCache['route'];
                         $params = $routeCache['params'];
@@ -159,7 +159,7 @@ class MiniMVC_Dispatcher
                                 $routeName = $currentRoute;
                                 //$routeData = $this->getRoute($currentRoute, $params);
                                 $found = true;
-                                $this->registry->cache->set('routeCache/'.$method.' '.$route, array('route' => $routeName, 'params' => $params));
+                                $this->registry->cache->set('routeCache/'.$method.' '.str_replace('/', '__', $route), array('route' => $routeName, 'params' => $params));
                                 break;
                             }
                         }
