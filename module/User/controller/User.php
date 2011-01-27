@@ -6,13 +6,10 @@ class User_User_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setTitle($this->view->t->userIndexTitle);
         $this->registry->helper->meta->setDescription($this->view->t->userIndexMetaDescription);
 
-        if ($this->view->selectCache($this->registry->helper->cache->get(
-                'user.userIndex',
-                array('loggedIn' => (bool) $this->registry->guard->getId()),
-                'user.userIndex'
-        ))) {
-            return $this->view->prepareCache();
-        }
+        if ($this->view->selectCache(
+            array('name' => 'user.userIndex', 'loggedIn' => (bool) $this->registry->guard->getId()),
+            array('user.userIndex')
+        )) { return $this->view->prepareCache(); }
 
         $showPerPage = 20;
         $currentPage = !empty($_GET['p']) ? $_GET['p'] : 1;
@@ -45,13 +42,10 @@ class User_User_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setTitle($this->view->t->userShowTitle(array('name' => htmlspecialchars($user->name))));
         $this->registry->helper->meta->setDescription($this->view->t->userShowMetaDescription(array('name' => htmlspecialchars($user->name))));
 
-        if ($this->view->selectCache($this->registry->helper->cache->get(
-                'user.userShow',
-                array('self' => (bool) ($this->registry->guard->getId() == $user->id)),
-                array('user.userShow', 'user.userShow.'.$user->id)
-        ))) {
-            return $this->view->prepareCache();
-        }
+        if ($this->view->selectCache(
+            array('name' => 'user.userShow', 'self' => (bool) ($this->registry->guard->getId() == $user->id)),
+            array('user.userShow', 'user.userShow.'.$user->id)
+        )) { return $this->view->prepareCache(); }
 
         $this->view->model = $user;
     }

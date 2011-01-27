@@ -7,19 +7,18 @@ class Helper_Cache extends MiniMVC_Helper {
      */
 	protected $registry = null;
 
-    protected $name = false;
     protected $conditions = false;
     protected $key = false;
     protected $tokens = array();
 
-    public function get($name, $conditions = array(), $tokens = array(), $bindToUrl = true)
+    public function get($conditions = array(), $tokens = array(), $bindToUrl = true)
     {
         $cache = new Helper_Cache();
-        $cache->init($name, $conditions, $tokens, $bindToUrl);
+        $cache->init($conditions, $tokens, $bindToUrl);
         return $cache;
     }
 
-    public function init($name, $conditions = array(), $tokens = array(), $bindToUrl = true)
+    public function init($conditions = array(), $tokens = array(), $bindToUrl = true)
     {
         $conditions = (array) $conditions;
         if ($bindToUrl) {
@@ -28,13 +27,12 @@ class Helper_Cache extends MiniMVC_Helper {
 
         ksort($conditions);
 
-        $this->name = $name;
         $this->conditions = $conditions;
         $this->tokens = (array) $tokens;
 
         $conditionIdentifier = md5(serialize($conditions));
 
-        $this->key = md5($name.'.'.$conditionIdentifier);
+        $this->key = md5($conditionIdentifier);
     }
 
     public function check()

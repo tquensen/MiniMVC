@@ -183,9 +183,30 @@ class MiniMVC_View
         return $this;
     }
 
-    public function selectCache($cache)
+    public function getCache()
+    {
+        return $this->cache;
+    }
+
+    public function setCache($cache)
     {
         $this->cache = $cache;
+        return $this->cache->check();
+    }
+
+    public function selectCache($dependencies = array(), $tokens = array(), $bindToUrl = true)
+    {
+        $this->cache = $this->registry->helper->cache->get(
+            $dependencies, $tokens, $bindToUrl
+        );
+        return $this->checkCache();
+    }
+
+    public function checkCache()
+    {
+        if (!$this->cache) {
+            return false;
+        }
         return $this->cache->check();
     }
 

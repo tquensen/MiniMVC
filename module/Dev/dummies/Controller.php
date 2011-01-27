@@ -11,14 +11,18 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
 
         //activate the cache - different cache for different roles (some roles have a create-link in the view)
         /*
-        if ($this->view->selectCache($this->registry->helper->cache->get(
-                'MODLC.CONTROLLERLC/index',
-                array('role' => $this->registry->guard->getRole()),
+        if ($this->view->selectCache(
+            array( //dependencies
+                'name' => 'MODLC.CONTROLLERLC/index',
+                'role' => $this->registry->guard->getRole()
+            ),
+            array( //tokens
                 'MODLC.CONTROLLERLCFIRSTIndex'
-        ))) {
+            )
+        )) {
             return $this->view->prepareCache();
         }
-         */
+        */
 
         $query = CONTROLLERTable::getInstance()->load(null, null, 'id DESC', $showPerPage, ($currentPage - 1) * $showPerPage, 'query');
         
@@ -47,11 +51,16 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
 
         //activate the cache
         /*
-        if ($this->view->selectCache($this->registry->helper->cache->get(
-                'MODLC.CONTROLLERLC/show',
-                array('role' => $this->registry->guard->getRole()),
-                array('MODLC.CONTROLLERLCFIRSTShow'.$model->slug, 'MODLC.CONTROLLERLCFIRSTShow')
-        ))) {
+        if ($this->view->selectCache(
+            array( //dependencies
+                'name' => 'MODLC.CONTROLLERLC/show',
+                'role' => $this->registry->guard->getRole()
+            ),
+            array( //tokens
+                'MODLC.CONTROLLERLCFIRSTShow'.$model->slug,
+                'MODLC.CONTROLLERLCFIRSTShow'
+            )
+        )) {
             return $this->view->prepareCache();
         }
         */
