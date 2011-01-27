@@ -1,6 +1,11 @@
 <?php
 class {name}Table extends {name}TableBase
 {
+    /**
+     * @param {name} $model a {name} instance (optional)
+     * @param array $options options for the form
+     * @return MiniMVC_Form returns the created form object
+     */
     public function getForm($model = null, $options = array())
     {
         $i18n = $this->registry->helper->i18n->get('{module}');

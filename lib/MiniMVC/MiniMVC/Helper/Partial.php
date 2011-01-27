@@ -15,9 +15,8 @@ class Helper_Partial extends MiniMVC_Helper
         try {
             ob_start();
             $_file = null;
-            $_cache = $this->registry->cache->get('partialCached');
-            if (isset($_cache[$_app.'_'.$_module.'_'.$_format.'_'.str_replace('/', '__', $_partial)])) {
-                $_file = $_cache[$_app.'_'.$_module.'_'.$_format.'_'.str_replace('/', '__', $_partial)];
+            if ($_cache = $this->registry->cache->get('partialCached/'.$_app.'_'.$_module.'_'.$_format.'_'.str_replace('/', '__', $_partial))) {
+                $_file = $_cache;
             } else {
                 if (!$_format) {
                     if ($_module !== null && file_exists(APPPATH . $_app . '/partial/' . $_module . '/' . $_partial . '.php')) {
@@ -67,7 +66,7 @@ class Helper_Partial extends MiniMVC_Helper
                 if ($_file === null) {
                     return ob_get_clean();
                 }
-                $this->registry->cache->set('partialCached', array($_app.'_'.$_module.'_'.$_format.'_'.str_replace('/', '__', $_partial) => $_file), true);
+                $this->registry->cache->set('partialCached/'.$_app.'_'.$_module.'_'.$_format.'_'.str_replace('/', '__', $_partial), $_file);
             }
             extract($_data);
             $h = $this->registry->helper;

@@ -96,9 +96,9 @@ class MiniMVC_View
             $_formatString = ($_format) ? '.'.$_format : '';
 
             $_path = null;
-            $_cache = $this->registry->cache->get('viewCached');
-            if (isset($_cache[$_app.'_'.$this->module.'_'.str_replace('/', '__', $_file.$_formatString)])) {
-                $_path = $_cache[$_app.'_'.$this->module.'_'.str_replace('/', '__', $_file.$_formatString)];
+            
+            if ($_cache = $this->registry->cache->get('viewCached/'.$_app.'_'.$this->module.'_'.str_replace('/', '__', $_file.$_formatString))) {
+                $_path = $_cache;
             } else {
                 if ($this->module != '_default')
                 {
@@ -140,7 +140,7 @@ class MiniMVC_View
                 {
                     throw new Exception('View "'.$_file.$_formatString.'" for module '.$this->module.' not found!', 404);
                 }
-                $this->registry->cache->set('viewCached', array($_app.'_'.$this->module.'_'.str_replace('/', '__', $_file.$_formatString) => $_path), true);
+                $this->registry->cache->set('viewCached/'.$_app.'_'.$this->module.'_'.str_replace('/', '__', $_file.$_formatString), $_path);
             }
 
 
@@ -200,7 +200,7 @@ class MiniMVC_View
             throw new Exception('Cache for View "'.$_file.$_formatString.'" for module '.$this->module.' not found!', 404);
         }
         $this->cacheContent = $content;
-        return $content ? true : false;
+        return $this;
     }
 
     /**

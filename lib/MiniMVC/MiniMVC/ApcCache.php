@@ -9,63 +9,116 @@ class MiniMVC_ApcCache extends MiniMVC_Cache
 
     public function get($key, $default = null, $app = null, $environment = null)
     {
-        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-        $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
-
-        if (isset($this->data[$app.'_'.$environment][$key])) {
-            return $this->data[$app.'_'.$environment][$key];
-        } elseif(isset($this->data[$app.'_'.$environment]) && array_key_exists($key, $this->data[$app.'_'.$environment])) {
+        $parts = explode('/', $key);
+        $file = array_shift($parts);
+        if (!$file) {
             return $default;
         }
 
-        $success = null;
-        $data = apc_fetch($this->prefix.'_'.$app.'_'.$environment.'_'.$key, $success);
-        if ($success) {
-            $this->data[$app.'_'.$environment][$key] = $data;
-            return $data;
-        } else {
-            $this->data[$app.'_'.$environment][$key] = null;
-            return $default;
-        }
-    }
-
-    public function set($key, $value, $merge = false, $app = null, $environment = null)
-    {
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
-        if ($merge) {
-            $success = null;
-            $data = apc_fetch($this->prefix.'_'.$app.'_'.$environment.'_'.$key, $success);
-            if ($success) {
-                $value = array_merge((array) $data, (array) $value);
+        if (!isset($this->data[$file . '_' . $app . '_' . $environment])) {
+            $this->load($file, $app, $environment);
+        }
+
+        $return = $this->data[$file . '_' . $app . '_' . $environment];
+        if (count($parts) === 0 && !count($return)) {
+            return $default;
+        }
+        while (null !== ($index = array_shift($parts))) {
+            if (isset($return[$index])) {
+                $return = &$return[$index];
+            } else {
+                $return = $default;
+                break;
             }
         }
-        $this->data[$app.'_'.$environment][$key] = $value;
-        return apc_store($this->prefix.'_'.$app.'_'.$environment.'_'.$key, $value);
+        return $return;
     }
-    
-    public function exists($key, $app = null, $environment = null)
+
+    public function set($key, $value, $app = null, $environment = null)
     {
+        $parts = explode('/', $key);
+        $file = array_shift($parts);
+        if (!$file) {
+            return false;
+        }
+
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
-        if (isset($this->data[$app.'_'.$environment][$key])) {
+        if (count($parts) === 0) {
+            $this->data[$file . '_' . $app . '_' . $environment] = (array) $value;
+            $this->save((array) $value, $file, $app, $environment);
             return true;
-        } elseif(isset($this->data[$app.'_'.$environment]) && array_key_exists($key, $this->data[$app.'_'.$environment])) {
+        }
+
+        $this->load($file, $app, $environment);
+
+        $pointer = &$this->data[$file . '_' . $app . '_' . $environment];
+        while (null !== ($index = array_shift($parts))) {
+            if (!isset($pointer[$index])) {
+                $pointer[$index] = array();
+
+            }
+            $pointer = &$pointer[$index];
+            if (count($parts) === 0) {
+                $pointer = $value;
+            }
+        }
+
+        $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+        return true;
+    }
+
+    public function exists($key, $app = null, $environment = null)
+    {
+        $parts = explode('/', $key);
+        $file = array_shift($parts);
+        if (!$file) {
             return false;
         }
-        return apc_exists($this->prefix.'_'.$app.'_'.$environment.'_'.$key);
+        $data = $this->get($key, null, $app, $environment);
+        if ($data === null || (count($parts) === 0 && !count($data))) {
+            return false;
+        }
+        return true;
     }
 
     public function delete($key, $app = null, $environment = null)
     {
+        $parts = explode('/', $key);
+        $file = array_shift($parts);
+        if (!$file) {
+            return $default;
+        }
+
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
-        
-        unset($this->data[$app.'_'.$environment][$key]);
 
-        return apc_delete($this->prefix.'_'.$app.'_'.$environment.'_'.$key);
+        if (count($parts) === 0) {
+            $this->data[$file . '_' . $app . '_' . $environment] = array();
+            $this->save(array(), $file, $app, $environment);
+            return true;
+        }
+
+        $this->load($file, $app, $environment);
+
+        $pointer = &$this->data[$file . '_' . $app . '_' . $environment];
+        while (null !== ($index = array_shift($parts))) {
+           if (isset($pointer[$index])) {
+                $pointer = &$pointer[$index];
+                if (count($parts) === 0) {
+                    $pointer = null;
+                }
+            } else {
+                break;
+            }
+        }
+
+        $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+        return true;
     }
 
     public function clear($all = true, $app = null, $environment = null)
@@ -75,28 +128,53 @@ class MiniMVC_ApcCache extends MiniMVC_Cache
         }
 
         if ($all) {
-            $app = '[\w]+';
-            $environment = '[\w]+';
+            $app = '[a-zA-Z0-9]+';
+            $environment = '[a-zA-Z0-9]+';
 
             $this->data = array();
         } else {
             $app = ($app) ? $app : $this->registry->settings->get('currentApp');
             $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
-        
-            unset($this->data[$app.'_'.$environment]);
         }
 
         foreach ($info['cache_list'] as $entry) {
             if ($info['type'] != 'user') {
                 continue;
             }
-            if (!preg_match('#'.preg_quote($this->prefix, '#').'_'.$app.'_'.$environment.'_.+#', $entry['info'])) {
+            if (!preg_match('#'.preg_quote($this->prefix, '#').'_[a-zA-Z0-9]+_'.$app.'_'.$environment.'#', $entry['info'])) {
                 continue;
             }
             apc_delete($entry['info']);
         }
 
+        foreach ($this->data as $key => $value) {
+            if (preg_match('#.+_'.$app.'_'.$environment.'#', $key)) {
+                unset($this->data[$key]);
+            }
+        }
+
         return true;
+    }
+
+    protected function load($file, $app, $environment)
+    {
+        $fileKey = md5($file);
+        $success = null;
+        $data = apc_fetch($this->prefix.'_'.$fileKey.'_'.$app.'_'.$environment, $success);
+        if ($success) {
+            $this->data[$file.'_'.$app.'_'.$environment] = $data;
+            return true;
+        } else {
+            $this->data[$file.'_'.$app.'_'.$environment] = array();
+            return false;
+        }
+    }
+
+    protected function save($data, $file, $app, $environment)
+    {
+        $fileKey = md5($file);
+        $this->data[$file.'_'.$app.'_'.$environment] = $data;
+        return apc_store($this->prefix.'_'.$fileKey.'_'.$app.'_'.$environment, $value);
     }
 }
 

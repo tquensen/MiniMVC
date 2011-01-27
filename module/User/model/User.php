@@ -4,20 +4,22 @@ class User extends UserBase
     
     public function preSave()
     {
-        if ($this->isNew()) {
-            $this->slug = $this->getTable()->generateSlug($this, $this->name, 'slug', 32);
-            $this->created_at = time();
-            $start = rand(10, 30);
-            $this->auth_token = $this->slug.'_'.substr(hash('sha256', $this->slug.time()), $start, 32);
-            $this->role = MiniMVC_Registry::getInstance()->rights->getRoleByKeyword('user');
-        }
-        
         $this->updated_at = time();
 
         if ($this->password != $this->getDatabaseProperty('password')) {
             $this->salt = $this->generateSalt();
             $this->password = hash('sha256', $this->password . $this->salt);
         }
+
+        if ($this->isNew()) {
+            $this->slug = $this->getTable()->generateSlug($this, $this->name, 'slug', 32);
+            $this->created_at = time();
+            $start = rand(10, 30);
+            $this->auth_token = $this->slug.'_'.substr(hash('sha256', $this->slug.time().$this->salt.rand(1000000,9999999)), $start, 32);
+            $this->role = MiniMVC_Registry::getInstance()->rights->getRoleByKeyword('user');
+        }
+        
+        
     }
 
     protected function generateSalt()

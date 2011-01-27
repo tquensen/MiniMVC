@@ -86,7 +86,7 @@ class MiniMVC_Settings
 
         }
 
-        $this->registry->cache->set('settings_'.$app . '_' . $environment, $this->settings[$app . '_' . $environment]);
+        $this->registry->cache->set('settings_'.$app.'_'.$environment, $this->settings[$app . '_' . $environment]);
     }
 
     /**

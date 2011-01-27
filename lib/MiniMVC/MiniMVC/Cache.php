@@ -31,7 +31,7 @@ abstract class MiniMVC_Cache
 
     abstract public function get($key, $default = null, $app = null, $environment = null);
 
-    abstract public function set($key, $value, $merge = false, $app = null, $environment = null);
+    abstract public function set($key, $value, $app = null, $environment = null);
     
     abstract public function exists($key, $app = null, $environment = null);
 

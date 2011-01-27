@@ -119,11 +119,10 @@ class MiniMVC_Dispatcher
                 $found = false;
 
                 if ($route) {
-                    $routeCache = $this->registry->cache->get('routeCache');
-                    if ($routeCache && isset($routeCache[$method.' '.$route])) {
+                    if ($routeCache = $this->registry->cache->get('routeCache/'.$method.' '.$route)) {
                         $found = true;
-                        $routeName = $routeCache[$method.' '.$route]['route'];
-                        $params = $routeCache[$method.' '.$route]['params'];
+                        $routeName = $routeCache['route'];
+                        $params = $routeCache['params'];
                     } else {
                         foreach ($routes as $currentRoute => $currentRouteData) {
                             if (isset($currentRouteData['active']) && !$currentRouteData['active']) {
@@ -160,7 +159,7 @@ class MiniMVC_Dispatcher
                                 $routeName = $currentRoute;
                                 //$routeData = $this->getRoute($currentRoute, $params);
                                 $found = true;
-                                $this->registry->cache->set('routeCache', array($method.' '.$route => array('route' => $routeName, 'params' => $params)), true);
+                                $this->registry->cache->set('routeCache/'.$method.' '.$route, array('route' => $routeName, 'params' => $params));
                                 break;
                             }
                         }
@@ -536,7 +535,7 @@ class MiniMVC_Dispatcher
 
             $routes[$route]['routePatternGenerated'] = $routePattern;
         }
-        $this->registry->cache->set('routes', $routes, true);
+        $this->registry->cache->set('routes', $routes);
         return $routes;
     }
 

@@ -9,101 +9,168 @@ class MiniMVC_FileCache extends MiniMVC_Cache
 
     public function get($key, $default = null, $app = null, $environment = null)
     {
+        $parts = explode('/', $key);
+        $file = array_shift($parts);
+        if (!$file) {
+            return $default;
+        }
+
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
-        if (!isset($this->data[$app.'_'.$environment])) {
-            $this->load($app, $environment);
+        if (!isset($this->data[$file . '_' . $app . '_' . $environment])) {
+            $this->load($file, $app, $environment);
         }
-        
-        return isset($this->data[$app.'_'.$environment][$key]) ? $this->data[$app.'_'.$environment][$key] : $default;
+
+        $return = $this->data[$file . '_' . $app . '_' . $environment];
+        if (count($parts) === 0 && !count($return)) {
+            return $default;
+        }
+        while (null !== ($index = array_shift($parts))) {
+            if (isset($return[$index])) {
+                $return = &$return[$index];
+            } else {
+                $return = $default;
+                break;
+            }
+        }
+        return $return;
     }
 
-    public function set($key, $value, $merge = false, $app = null, $environment = null)
+    public function set($key, $value, $app = null, $environment = null)
     {
+        $parts = explode('/', $key);
+        $file = array_shift($parts);
+        if (!$file) {
+            return false;
+        }
+
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
-        $data = array();
-        if (file_exists(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
-            include CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php';
+        if (count($parts) === 0) {
+            $this->data[$file . '_' . $app . '_' . $environment] = (array) $value;
+            $this->save((array) $value, $file, $app, $environment);
+            return true;
         }
-        if ($merge && isset($data[$key])) {
-            $data[$key] = array_merge((array) $data[$key], (array) $value);
-        } else {
-            $data[$key] = $value;
+
+        $this->load($file, $app, $environment);
+
+        $pointer = &$this->data[$file . '_' . $app . '_' . $environment];
+        while (null !== ($index = array_shift($parts))) {
+            if (!isset($pointer[$index])) {
+                $pointer[$index] = array();
+
+            }
+            $pointer = &$pointer[$index];
+            if (count($parts) === 0) {
+                $pointer = $value;
+            }
         }
-        $this->save($data, $app, $environment);
+
+        $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
         return true;
     }
 
     public function exists($key, $app = null, $environment = null)
     {
-        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-        $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
-
-        if (!isset($this->data[$app.'_'.$environment])) {
-            $this->load($app, $environment);
+        $parts = explode('/', $key);
+        $file = array_shift($parts);
+        if (!$file) {
+            return false;
         }
-
-        return isset($this->data[$app.'_'.$environment][$key]);
+        $data = $this->get($key, null, $app, $environment);
+        if ($data === null || (count($parts) === 0 && !count($data))) {
+            return false;
+        }
+        return true;
     }
 
     public function delete($key, $app = null, $environment = null)
     {
+        $parts = explode('/', $key);
+        $file = array_shift($parts);
+        if (!$file) {
+            return $default;
+        }
+
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
-        if (file_exists(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
-            include CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php';
-            if (isset($data[$key])) {
-                unset($this->data[$app.'_'.$environment][$key]);
-                unset($data[$key]);
-                $this->save($data, $app, $environment);
-                return true;
+        if (count($parts) === 0) {
+            $this->data[$file . '_' . $app . '_' . $environment] = array();
+            $this->save(array(), $file, $app, $environment);
+            return true;
+        }
+
+        $this->load($file, $app, $environment);
+
+        $pointer = &$this->data[$file . '_' . $app . '_' . $environment];
+        while (null !== ($index = array_shift($parts))) {
+           if (isset($pointer[$index])) {
+                $pointer = &$pointer[$index];
+                if (count($parts) === 0) {
+                    $pointer = null;
+                }
+            } else {
+                break;
             }
         }
-        return false;
+
+        $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+        return true;
     }
 
     public function clear($all = true, $app = null, $environment = null)
     {
         if ($all) {
-            foreach (scandir($this->folder) as $file) {
-                if (is_file(CACHEPATH.$file) && preg_match('#'.preg_quote($this->prefix, '#').'_cache_[\w]+_[\w]+\.php#', $file)) {
-                    unlink(CACHEPATH.$file);
-                }
+            $app = '[a-zA-Z0-9]+';
+            $environment = '[a-zA-Z0-9]+';
+
+            $this->data = array();
+        } else {
+            $app = ($app) ? $app : $this->registry->settings->get('currentApp');
+            $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
+        }
+
+        foreach (scandir($this->folder) as $file) {
+            if (!is_file(CACHEPATH.$file)) {
+                continue;
             }
-            return true;
+            if (preg_match('#'.preg_quote($this->prefix, '#').'_[a-zA-Z0-9]+_'.$app.'_'.$environment.'\.php#', $file)) {
+                unlink(CACHEPATH.$file);
+            }
         }
 
-        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-        $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
-
-        if (file_exists(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
-            unlink(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php');
+        foreach ($this->data as $key => $value) {
+            if (preg_match('#.+_'.$app.'_'.$environment.'#', $key)) {
+                unset($this->data[$key]);
+            }
         }
+
         return true;
     }
 
-    protected function load($app, $environment)
+    protected function load($file, $app, $environment)
     {
-        if (!file_exists(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php')) {
-            file_put_contents(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.tmp.php', '<?php $data = array();');
-            rename(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.tmp.php', CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php');
-            $this->data[$app.'_'.$environment] = array();
+        $fileKey = md5($file);
+        if (!file_exists(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.php')) {
+            file_put_contents(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.tmp.php', '<?php $data = array();');
+            rename(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.tmp.php', CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.php');
+            $this->data[$file.'_'.$app.'_'.$environment] = array();
         } else {
             $data = array();
-            include CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php';
-            $this->data[$app.'_'.$environment] = $data;
+            include CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.php';
+            $this->data[$file.'_'.$app.'_'.$environment] = $data;
         }
     }
 
-    protected function save($data, $app, $environment)
+    protected function save($data, $file, $app, $environment)
     {
-        file_put_contents(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.tmp.php', '<?php ' . "\n" . $this->varExport($data, '$data', 2));
-        rename(CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.tmp.php', CACHEPATH.$this->prefix.'_cache_'.$app.'_'.$environment.'.php');
-        $this->data[$app.'_'.$environment] = $data;
+        $fileKey = md5($file);
+        file_put_contents(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.tmp.php', '<?php ' . "\n" . $this->varExport($data, '$data', 2));
+        rename(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.tmp.php', CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.php');
+        $this->data[$file.'_'.$app.'_'.$environment] = $data;
     }
 
     public function varExport($data, $varname, $maxDepth = 2, $depth = 0)

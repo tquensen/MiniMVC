@@ -67,7 +67,7 @@ class Helper_Cache extends MiniMVC_Helper {
             'conditions' => (array) $this->conditions,
             'tokens' => $tokens
         );
-        if (!$this->registry->cache->set('viewContentCached', array($this->key => $data), true)) {
+        if (!$this->registry->cache->set('viewContentCached/'.$this->key, $data)) {
             return false;
         }
         file_put_contents(CACHEPATH.'cache_'.$this->key.'.tmp.php', $content);
@@ -80,7 +80,7 @@ class Helper_Cache extends MiniMVC_Helper {
         foreach ($cache as $key => $data) {
             foreach ((array)$tokens as $token) {
                 if (isset($data['tokens'][$token])) {
-                    $this->registry->cache->set('viewContentCached', array($key => null), true);
+                    $this->registry->cache->delete('viewContentCached/'.$key);
                     if (file_exists(CACHEPATH.'cache_'.$key.'.php')) {
                         unlink(file_exists(CACHEPATH.'cache_'.$key.'.php'));
                     }

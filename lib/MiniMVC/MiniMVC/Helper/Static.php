@@ -19,10 +19,9 @@ class Helper_Static extends MiniMVC_Helper
 
         $filekey = $app.'_'.$module.'_'.str_replace('/', '__', $file);
 
-        $cache = $this->registry->cache->get('staticCached');
-        if (isset($cache[$filekey]))
+        if ($cache = $this->registry->cache->get('staticCached/'.$filekey))
         {
-            return $cache[$filekey];
+            return $queryStr ? $cache . '?' . $queryStr : $cache;
         }
 
         $prefixHash = $this->registry->settings->get('view/static/prefixHash', false);
@@ -87,7 +86,7 @@ class Helper_Static extends MiniMVC_Helper
             $url = $baseurl.$file;
         }
 
-        $this->registry->cache->set('staticCached', array($filekey => $url), true);
+        $this->registry->cache->set('staticCached/'.$filekey, $url);
 
         return $queryStr ? $url . '?' . $queryStr : $url;
 	}
