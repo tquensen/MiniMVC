@@ -55,7 +55,7 @@ class Helper_Css extends MiniMVC_Helper
 
     public function getHtml($module = null, $partial = 'css')
     {
-        $cache = $this->registry->helper->cache->get('css', array('module' => $module, 'partial' => $partial), array('css'), true);
+        $cache = $this->registry->helper->cache->get(array('name' => 'css', 'module' => $module, 'partial' => $partial), array('css'), true);
         if ($return = $cache->load()) {
             return $return;
         }

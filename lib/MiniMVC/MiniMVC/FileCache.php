@@ -25,6 +25,12 @@ class MiniMVC_FileCache extends MiniMVC_Cache
         $return = $this->data[$file . '_' . $app . '_' . $environment];
         if (count($parts) === 0 && !count($return)) {
             return $default;
+        } elseif (count($parts) === 1) {
+            return isset($return[$parts[0]]) ? $return[$parts[0]] : $default;
+        } elseif (count($parts) === 2) {
+            return isset($return[$parts[0]][$parts[1]]) ? $return[$parts[0]][$parts[1]] : $default;
+        } elseif (count($parts) === 3) {
+            return isset($return[$parts[0]][$parts[1]][$parts[2]]) ? $return[$parts[0]][$parts[1]][$parts[2]] : $default;
         }
         while (null !== ($index = array_shift($parts))) {
             if (isset($return[$index])) {

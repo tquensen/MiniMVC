@@ -18,7 +18,7 @@ class Helper_Navi extends MiniMVC_Helper
 
     public function getHtml($navi, $module = null, $partial = 'navi')
     {
-        $cache = $this->registry->helper->cache->get('navi_'.$navi, array('role' => $this->registry->guard->getRole(), 'module' => $module, 'partial' => $partial), array('navi'), true);
+        $cache = $this->registry->helper->cache->get(array('name' => 'navi_'.$navi, 'role' => $this->registry->guard->getRole(), 'module' => $module, 'partial' => $partial), array('navi'), true);
         if ($return = $cache->load()) {
             return $return;
         }
