@@ -58,9 +58,22 @@ class MiniMVC_FileCache extends MiniMVC_Cache
             $this->data[$file . '_' . $app . '_' . $environment] = (array) $value;
             $this->save((array) $value, $file, $app, $environment);
             return true;
+        } else {
+            $this->load($file, $app, $environment);
+            if (count($parts) === 1) {
+                $this->data[$file . '_' . $app . '_' . $environment][$parts[0]] = $value;
+                $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+                return true;
+            } elseif (count($parts) === 2) {
+                $this->data[$file . '_' . $app . '_' . $environment][$parts[0]][$parts[1]] = $value;
+                $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+                return true;
+            } elseif (count($parts) === 3) {
+                $this->data[$file . '_' . $app . '_' . $environment][$parts[0]][$parts[1]][$parts[2]] = $value;
+                $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+                return true;
+            }
         }
-
-        $this->load($file, $app, $environment);
 
         $pointer = &$this->data[$file . '_' . $app . '_' . $environment];
         while (null !== ($index = array_shift($parts))) {
@@ -107,9 +120,22 @@ class MiniMVC_FileCache extends MiniMVC_Cache
             $this->data[$file . '_' . $app . '_' . $environment] = array();
             $this->save(array(), $file, $app, $environment);
             return true;
+        } else {
+            $this->load($file, $app, $environment);
+            if (count($parts) === 1) {
+                unset($this->data[$file . '_' . $app . '_' . $environment][$parts[0]]);
+                $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+                return true;
+            } elseif (count($parts) === 2) {
+                unset($this->data[$file . '_' . $app . '_' . $environment][$parts[0]][$parts[1]]);
+                $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+                return true;
+            } elseif (count($parts) === 3) {
+                unset($this->data[$file . '_' . $app . '_' . $environment][$parts[0]][$parts[1]][$parts[2]]);
+                $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+                return true;
+            }
         }
-
-        $this->load($file, $app, $environment);
 
         $pointer = &$this->data[$file . '_' . $app . '_' . $environment];
         while (null !== ($index = array_shift($parts))) {
@@ -186,8 +212,7 @@ class MiniMVC_FileCache extends MiniMVC_Cache
             if ($depth == 0) {
                 $output .= $varname . ' = array();' . "\n";
                 $output .= "\n";
-            }
-            if (!count($data)) {
+            } elseif (!count($data)) {
                 $output .= $varname . ' = array();' . "\n";
             }
             foreach ($data as $key => $value) {

@@ -57,28 +57,27 @@ class Helper_Cache extends MiniMVC_Helper {
 
         $tokens = array();
         foreach ((array) $this->tokens as $token) {
-            $tokens[$token] = true;
+            $this->registry->cache->set('viewcache_token_'.$token.'/'.$this->urlHash.'_'.$this->key, true);
         }
 
-        if (!$this->registry->cache->set('viewcache_'.$this->urlHash.'/'.$this->key, $content)
-         || !$this->registry->cache->set('viewcache_tokens/'.$this->urlHash.'_'.$this->key, $tokens)
-        ) {
+        if (!$this->registry->cache->set('viewcache_'.$this->urlHash.'_'.$this->key, $content)) {
             return false;
         }
     }
 
     public function delete($tokens = array())
     {
-        $cache = $this->registry->cache->get('viewcache_tokens', array());
-        foreach ($cache as $key => $cacheTokens) {
-            foreach ((array)$tokens as $token) {
-                if (isset($cacheTokens[$token])) {
-                    $this->registry->cache->delete('viewcache_tokens/'.$key);
-                    $this->registry->cache->delete('viewcache_'.str_replace('_','/', $key));
-                    break;
+        foreach ((array)$tokens as $token) {
+            $cache = $this->registry->cache->get('viewcache_token_'.$token, array());
+            if ($cache) {
+                foreach ($cache as $url => $dummy) {
+                    $this->registry->cache->delete('viewcache_'.$url);
                 }
+                $this->registry->cache->delete('viewcache_token_'.$token);
             }
+            
         }
+        
         return true;
     }
 }

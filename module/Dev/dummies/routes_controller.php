@@ -24,7 +24,7 @@ $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTIndex'] = array(
 $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTNew'] = array(
     'route' => 'MODLC/new(.:_format:)',
     'controller' => 'MODULE_CONTROLLER',
-    'action' => 'new',
+    'action' => 'create',
     'method' => 'GET',
     'parameter' => array('_format' => 'default'), //set the default format
     'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
@@ -57,7 +57,7 @@ $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTShow'] = array(
 $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTEdit'] = array(
     'route' => 'MODLC/:slug:/edit(.:_format:)',
     'controller' => 'MODULE_CONTROLLER',
-    'action' => 'edit',
+    'action' => 'update',
     'method' => 'GET',
     'model' => array('MODULE', 'slug'),
     'parameter' => array('slug' => false, '_format' => 'default'), //set the default format

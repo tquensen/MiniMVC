@@ -9,8 +9,7 @@ if ($success) {
         'title' => $model->title
     );
 } else {
-    $json = array_merge(array('success' => false), $form->toArray());
+    $json = array_merge(array('success' => $form->isValid()), $form->toArray());
 }
-
 
 echo json_encode($json);

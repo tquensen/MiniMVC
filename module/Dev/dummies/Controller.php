@@ -57,7 +57,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
                 'role' => $this->registry->guard->getRole()
             ),
             array( //tokens
-                'MODLC.CONTROLLERLCFIRSTShow'.$model->slug,
+                'MODLC.CONTROLLERLCFIRSTShow.'.$model->slug,
                 'MODLC.CONTROLLERLCFIRSTShow'
             )
         )) {
@@ -68,75 +68,51 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         $this->view->model= $model;
     }
 
-    public function newAction($params)
-    {
-        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTNewTitle);
-        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTNewMetaDescription);
-
-        $form = CONTROLLERTable::getInstance()->getForm(null, array(
-            'route' => 'MODLC.CONTROLLERLCFIRSTCreate'
-        ));
-
-        $this->view->form = $form;
-    }
-
     public function createAction($params)
     {
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTCreateTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTCreateMetaDescription);
+
         $form = CONTROLLERTable::getInstance()->getForm(null, array(
             'route' => 'MODLC.CONTROLLERLCFIRSTCreate'
         ));
-
-        $model = $form->getModel();
         $success = false;
-        $message = '';
 
-        if ($form->validate())
-        {
-            $form->updateModel();
-            if ($model->save()) {
-                $success = true;
-                $message = $this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage(array('title' => htmlspecialchars($model->title)));
+        if ($form->wasSubmitted()) {
+            $model = $form->getModel();
+            $message = '';
 
-                //clear the index cache (and other cached pages if needed)
-                //$this->view->deleteCache('MODLC.CONTROLLERLCFIRSTIndex');
+            if ($form->validate())
+            {
+                $form->updateModel();
+                if ($model->save()) {
+                    $success = true;
+                    $message = $this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage(array('title' => htmlspecialchars($model->title)));
 
-                if ($this->registry->layout->getFormat() === null) {
-                    $this->registry->helper->messages->add($message, 'success');
-                    $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
+                    //clear the index cache (and other cached pages if needed)
+                    //$this->view->deleteCache('MODLC.CONTROLLERLCFIRSTIndex');
+
+                    if ($this->registry->layout->getFormat() === null) {
+                        $this->registry->helper->messages->add($message, 'success');
+                        $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
+                    }
+                } else {
+                    $form->setError($this->view->t->CONTROLLERLCFIRSTCreateErrorMessage);
                 }
-            } else {
-                $form->setError($this->view->t->CONTROLLERLCFIRSTCreateErrorMessage);
             }
+
+            if ($this->registry->layout->getFormat() === null) {
+                $form->errorRedirect('MODLC.CONTROLLERLCFIRSTNew');
+            }
+            
+            $this->view->model = $model;
+            $this->view->message = $message;
+            
+            $this->view->setFile('CONTROLLERLC/create');
         }
 
-        if ($this->registry->layout->getFormat() === null) {
-            $form->errorRedirect('MODLC.CONTROLLERLCFIRSTNew');
-        }
-
-        $this->view->form = $form;
-        $this->view->model = $model;
         $this->view->success = $success;
-        $this->view->message = $message;
-    }
-
-    public function editAction($params)
-    {
-        if (!$params['model']) {
-            return $this->delegate404();
-        }
-
-        $model = $params['model'];
-
-        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTEditTitle(array('title' => htmlspecialchars($model->title))));
-        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTEditMetaDescription(array('title' => htmlspecialchars($model->title))));
-
-        $form = CONTROLLERTable::getInstance()->getForm($model, array(
-            'route' => 'MODLC.CONTROLLERLCFIRSTUpdate',
-            'parameter' => array('slug' => $model->slug)
-        ));
-
         $this->view->form = $form;
-        $this->view->model = $model;
     }
 
     public function updateAction($params)
@@ -146,41 +122,48 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         }
 
         $model = $params['model'];
+
+        $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTUpdateTitle(array('title' => htmlspecialchars($model->title))));
+        $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTUpdateMetaDescription(array('title' => htmlspecialchars($model->title))));
         
         $form = CONTROLLERTable::getInstance()->getForm($model, array(
             'route' => 'MODLC.CONTROLLERLCFIRSTUpdate',
             'parameter' => array('slug' => $model->slug)
         ));
         $success = false;
-        $message = '';
 
-        if ($form->validate())
-        {
-            $form->updateModel();
-            if ($model->save()) {
-                $success = true;
-                $message = $this->view->t->CONTROLLERLCFIRSTUpdateSuccessMessage(array('title' => htmlspecialchars($model->title)));
+        if ($form->wasSubmitted()) {
+            $message = '';
 
-                //clear the index cache and the cache of this model (and other cached pages if needed)
-                //$this->view->deleteCache(array('MODLC.CONTROLLERLCFIRSTIndex', 'MODLC.CONTROLLERLCFIRSTShow'.$model->slug));
+            if ($form->validate())
+            {
+                $form->updateModel();
+                if ($model->save()) {
+                    $success = true;
+                    $message = $this->view->t->CONTROLLERLCFIRSTUpdateSuccessMessage(array('title' => htmlspecialchars($model->title)));
 
-                if ($this->registry->layout->getFormat() === null) {
-                    $this->registry->helper->messages->add($message, 'success');
-                    $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
+                    //clear the index cache and the cache of this model (and other cached pages if needed)
+                    //$this->view->deleteCache(array('MODLC.CONTROLLERLCFIRSTIndex', 'MODLC.CONTROLLERLCFIRSTShow.'.$model->slug));
+
+                    if ($this->registry->layout->getFormat() === null) {
+                        $this->registry->helper->messages->add($message, 'success');
+                        $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
+                    }
+                } else {
+                    $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTUpdateErrorMessage);
                 }
-            } else {
-                $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTUpdateErrorMessage);
             }
+
+            if ($this->registry->layout->getFormat() === null) {
+                $form->errorRedirect('MODLC.CONTROLLERLCFIRSTEdit', array('slug' => $model->slug));
+            }
+
+            $this->view->message = $message;
         }
 
-        if ($this->registry->layout->getFormat() === null) {
-            $form->errorRedirect('MODLC.CONTROLLERLCFIRSTEdit', array('slug' => $model->slug));
-        }
-
-        $this->view->form = $form;
-        $this->view->model = $model;
         $this->view->success = $success;
-        $this->view->message = $message;
+        $this->view->model = $model;
+        $this->view->form = $form;
     }
 
     public function deleteAction($params)
@@ -196,7 +179,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             $message = $this->view->t->CONTROLLERLCFIRSTDeleteSuccessMessage(array('title' => htmlspecialchars($model->title)));
 
             //clear the index cache and the cache of this model (and other cached pages if needed)
-            //$this->view->deleteCache(array('MODLC.CONTROLLERLCFIRSTIndex', 'MODLC.CONTROLLERLCFIRSTShow'.$model->slug));
+            //$this->view->deleteCache(array('MODLC.CONTROLLERLCFIRSTIndex', 'MODLC.CONTROLLERLCFIRSTShow.'.$model->slug));
 
             if ($params['_format'] == 'default') {
                 $this->registry->helper->messages->add($message, 'success');
