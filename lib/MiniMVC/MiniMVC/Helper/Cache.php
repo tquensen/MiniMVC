@@ -9,7 +9,7 @@ class Helper_Cache extends MiniMVC_Helper {
 
     protected $conditions = false;
     protected $key = false;
-    protected $urlHash = 'default';
+    protected $urlHash = 'other';
     protected $tokens = array();
 
     public function get($conditions = array(), $tokens = array(), $bindToUrl = true)
@@ -33,12 +33,12 @@ class Helper_Cache extends MiniMVC_Helper {
 
         $conditionIdentifier = md5(serialize($conditions));
 
-        $this->key = md5($conditionIdentifier);
+        $this->key = $conditionIdentifier;
     }
 
     public function check()
     {
-        if (!$this->key || !$this->registry->cache->exists('viewcache_'.$this->urlHash.'/'.$this->key)) {
+        if (!$this->key || !file_exists(CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php')) {
             return false;
         }
         return true;
@@ -46,7 +46,13 @@ class Helper_Cache extends MiniMVC_Helper {
 
     public function load()
     {
-        return $this->registry->cache->get('viewcache_'.$this->urlHash.'/'.$this->key);
+        if (file_exists(CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php')) {
+            ob_start();
+            include CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php';
+            return ob_get_clean();
+        }
+
+        return '';
     }
 
     public function save($content)
@@ -60,9 +66,14 @@ class Helper_Cache extends MiniMVC_Helper {
             $this->registry->cache->set('viewcache_token_'.$token.'/'.$this->urlHash.'_'.$this->key, true);
         }
 
-        if (!$this->registry->cache->set('viewcache_'.$this->urlHash.'_'.$this->key, $content)) {
-            return false;
+        if (!is_dir(CACHEPATH.'views')) {
+            mkdir(CACHEPATH.'views');
         }
+        if (!is_dir(CACHEPATH.'views/'.$this->urlHash)) {
+            mkdir(CACHEPATH.'views/'.$this->urlHash);
+        }
+        file_put_contents(CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php', $data);
+        return true;
     }
 
     public function delete($tokens = array())
@@ -70,12 +81,14 @@ class Helper_Cache extends MiniMVC_Helper {
         foreach ((array)$tokens as $token) {
             $cache = $this->registry->cache->get('viewcache_token_'.$token, array());
             if ($cache) {
-                foreach ($cache as $url => $dummy) {
-                    $this->registry->cache->delete('viewcache_'.$url);
+                foreach ($cache as $path => $dummy) {
+                    $path = str_replace('_','/',$path);
+                    if (file_exists(CACHEPATH.'views/'.$path.'.php')) {
+                        unlink(CACHEPATH.'views/'.$path.'.php');
+                    }
                 }
                 $this->registry->cache->delete('viewcache_token_'.$token);
-            }
-            
+            }         
         }
         
         return true;
