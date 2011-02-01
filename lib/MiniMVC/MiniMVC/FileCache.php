@@ -185,7 +185,7 @@ class MiniMVC_FileCache extends MiniMVC_Cache
 
     protected function load($file, $app, $environment)
     {
-        $fileKey = md5($file);
+        $fileKey = $file; //md5($file);
         if (!file_exists(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.php')) {
             file_put_contents(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.tmp.php', '<?php $data = array();');
             rename(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.tmp.php', CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.php');
@@ -199,7 +199,7 @@ class MiniMVC_FileCache extends MiniMVC_Cache
 
     protected function save($data, $file, $app, $environment)
     {
-        $fileKey = md5($file);
+        $fileKey = $file; //md5($file);
         file_put_contents(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.tmp.php', '<?php ' . "\n" . $this->varExport($data, '$data', 2));
         rename(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.tmp.php', CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.php');
         $this->data[$file.'_'.$app.'_'.$environment] = $data;
