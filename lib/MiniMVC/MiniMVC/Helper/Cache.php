@@ -72,7 +72,7 @@ class Helper_Cache extends MiniMVC_Helper {
         if (!is_dir(CACHEPATH.'views/'.$this->urlHash)) {
             mkdir(CACHEPATH.'views/'.$this->urlHash);
         }
-        file_put_contents(CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php', $data);
+        file_put_contents(CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php', $content);
         return true;
     }
 

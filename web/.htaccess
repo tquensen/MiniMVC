@@ -14,7 +14,7 @@ RewriteEngine on
 #RewriteCond %{REQUEST_FILENAME} !-d
 #RewriteCond %{REQUEST_FILENAME} !-f
 #RewriteCond %{HTTP_HOST} ^static # change static to your static dirs
-#RewriteRule ^(.*)$ http://www.example.de/$1 [R=301,L] # change this to your default domain/basedir
+#RewriteRule ^(.*)$ http://example.de/$1 [R=301,L] # change this to your default domain/basedir
 
 # BACKEND (or any other app than the default)
 #RewriteCond %{REQUEST_FILENAME} !-f
@@ -48,8 +48,8 @@ ExpiresDefault "now plus 1 years"
 </IfModule>
 
 
-# DISABLE CACHE FOR HTML AND PHP
-<Files ~ "\.(htm|html|php)$">
+# DISABLE CACHE FOR PHP
+<Files ~ "\.php$">
     FileETag None
     Header set Cache-Control "no-cache, must-revalidate, max-age=0"
     Header set Pragma "no-cache"
