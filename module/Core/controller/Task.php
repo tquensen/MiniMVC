@@ -79,8 +79,11 @@ class Core_Task_Controller extends MiniMVC_Controller
                 }
             } elseif (is_dir($dir.$file) && $recursive) {
                 $status = $this->clearDirectory($dir.$file.'/', $recursive, $level + 1);
-                if ($status !== true || ($level == 1 && $file == 'public')) {
+                if ($status !== true) {
                     return $status;
+                }
+                if ($level == 1 && $file == 'public') {
+                    continue;
                 }
                 if (!@rmdir($dir.$file)) {
                     return 'rmdir failed for directory "'.$dir.$file.'"';
