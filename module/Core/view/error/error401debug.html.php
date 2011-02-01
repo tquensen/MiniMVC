@@ -1,4 +1,4 @@
 <p><?php echo $o->esc($message); ?></p>
 <pre>
-<?php echo $this->e; ?>
+<?php echo $e; ?>
 </pre>
