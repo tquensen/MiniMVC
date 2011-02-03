@@ -6,6 +6,7 @@ class MiniMVC_Table {
      * @var PDO
      */
 	protected $_db = null;
+    protected $connection = null;
     /**
      * @var MiniMVC_Registry 
      */
@@ -22,10 +23,11 @@ class MiniMVC_Table {
 
     protected $_returnTypes = array('object' => 'build', 'array' => 'buildArray', 'query' => 'getQueryObject');
 
-	public function __construct()
+	public function __construct($connection = null)
 	{
+        $this->connection = $connection;
 		$this->registry = MiniMVC_Registry::getInstance();
-		$this->_db = $this->registry->db->get();
+		$this->_db = $this->registry->db->get($this->connection);
         $this->construct();
 	}
 
@@ -293,7 +295,7 @@ class MiniMVC_Table {
      */
     public function query($alias = null, $select = true)
     {
-        $q = $this->registry->db->query();
+        $q = $this->registry->db->query($this->connection);
         if ($select === true) {
             $q->select($alias);
         } elseif($select) {

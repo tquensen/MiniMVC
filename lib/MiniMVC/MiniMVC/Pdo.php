@@ -74,7 +74,7 @@ class MiniMVC_Pdo
 
     public function setConnection($connection = 'default')
     {
-        $this->connections = $connection;
+        $this->currentConnection = $connection;
     }
 
 }

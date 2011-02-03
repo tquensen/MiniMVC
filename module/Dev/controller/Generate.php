@@ -189,14 +189,14 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         file_put_contents($path . '/view/'.strtolower($controller).'/index.html.php', str_replace($search, $replace, file_get_contents($dummy . '/index.html.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/index.json.php', str_replace($search, $replace, file_get_contents($dummy . '/index.json.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/widget.html.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.html.php')));
-        file_put_contents($path . '/view/'.strtolower($controller).'/new.html.php', str_replace($search, $replace, file_get_contents($dummy . '/new.html.php')));
-        file_put_contents($path . '/view/'.strtolower($controller).'/new.json.php', str_replace($search, $replace, file_get_contents($dummy . '/new.json.php')));
+//        file_put_contents($path . '/view/'.strtolower($controller).'/new.html.php', str_replace($search, $replace, file_get_contents($dummy . '/new.html.php')));
+//        file_put_contents($path . '/view/'.strtolower($controller).'/new.json.php', str_replace($search, $replace, file_get_contents($dummy . '/new.json.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/create.html.php', str_replace($search, $replace, file_get_contents($dummy . '/create.html.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/create.json.php', str_replace($search, $replace, file_get_contents($dummy . '/create.json.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/show.html.php', str_replace($search, $replace, file_get_contents($dummy . '/show.html.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/show.json.php', str_replace($search, $replace, file_get_contents($dummy . '/show.json.php')));
-        file_put_contents($path . '/view/'.strtolower($controller).'/edit.html.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.html.php')));
-        file_put_contents($path . '/view/'.strtolower($controller).'/edit.json.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.json.php')));
+//        file_put_contents($path . '/view/'.strtolower($controller).'/edit.html.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.html.php')));
+//        file_put_contents($path . '/view/'.strtolower($controller).'/edit.json.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.json.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/update.html.php', str_replace($search, $replace, file_get_contents($dummy . '/update.html.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/update.json.php', str_replace($search, $replace, file_get_contents($dummy . '/update.json.php')));
         file_put_contents($path . '/view/'.strtolower($controller).'/delete.html.php', str_replace($search, $replace, file_get_contents($dummy . '/delete.html.php')));
@@ -241,13 +241,6 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         if (!isset($definition['relations'])) {
             $definition['relations'] = array();
         }
-
-        $columns = ($params['columns']) ? array_map('trim', explode(',', $params['columns'])) : array('id', 'slug', 'title');
-
-        if (false !== ($idColumn = array_search('id', $columns))) {
-            unset($columns[$idColumn]);
-        }
-
 
         $model = ucfirst($params['model']);
 
@@ -361,14 +354,14 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             file_put_contents($path . '/../view/'.strtolower($controller).'/index.html.php', str_replace($search, $replace, file_get_contents($dummy . '/index.html.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/index.json.php', str_replace($search, $replace, file_get_contents($dummy . '/index.json.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/widget.html.php', str_replace($search, $replace, file_get_contents($dummy . '/widget.html.php')));
-            file_put_contents($path . '/../view/'.strtolower($controller).'/new.html.php', str_replace($search, $replace, file_get_contents($dummy . '/new.html.php')));
-            file_put_contents($path . '/../view/'.strtolower($controller).'/new.json.php', str_replace($search, $replace, file_get_contents($dummy . '/new.json.php')));
+//            file_put_contents($path . '/../view/'.strtolower($controller).'/new.html.php', str_replace($search, $replace, file_get_contents($dummy . '/new.html.php')));
+//            file_put_contents($path . '/../view/'.strtolower($controller).'/new.json.php', str_replace($search, $replace, file_get_contents($dummy . '/new.json.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/create.html.php', str_replace($search, $replace, file_get_contents($dummy . '/create.html.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/create.json.php', str_replace($search, $replace, file_get_contents($dummy . '/create.json.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/show.html.php', str_replace($search, $replace, file_get_contents($dummy . '/show.html.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/show.json.php', str_replace($search, $replace, file_get_contents($dummy . '/show.json.php')));
-            file_put_contents($path . '/../view/'.strtolower($controller).'/edit.html.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.html.php')));
-            file_put_contents($path . '/../view/'.strtolower($controller).'/edit.json.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.json.php')));
+//            file_put_contents($path . '/../view/'.strtolower($controller).'/edit.html.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.html.php')));
+//            file_put_contents($path . '/../view/'.strtolower($controller).'/edit.json.php', str_replace($search, $replace, file_get_contents($dummy . '/edit.json.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/update.html.php', str_replace($search, $replace, file_get_contents($dummy . '/update.html.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/update.json.php', str_replace($search, $replace, file_get_contents($dummy . '/update.json.php')));
             file_put_contents($path . '/../view/'.strtolower($controller).'/delete.html.php', str_replace($search, $replace, file_get_contents($dummy . '/delete.html.php')));

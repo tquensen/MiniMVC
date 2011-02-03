@@ -24,8 +24,8 @@ $MiniMVC_tasks['uninstall.module'] = array(
 $MiniMVC_tasks['generate.model'] = array(
     'controller' => 'Dev_Generate',
     'action' => 'model',
-    'parameter' => array('module' => false, 'model' => false, 'columns' => false),
-    'assign' => array('module', 'model', 'columns')
+    'parameter' => array('module' => false, 'model' => false),
+    'assign' => array('module', 'model')
 );
 
 $MiniMVC_tasks['install.model'] = array(
