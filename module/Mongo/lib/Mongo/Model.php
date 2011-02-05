@@ -169,6 +169,9 @@ class Mongo_Model
             if (!$related) {
                 throw new InvalidArgumentException('Could not find valid '.$relationInfo[0]);
             }
+            if ($relationInfo[1] == '_id' && !$this->{$relationInfo[1]}) {
+                $this->save($save);
+            }
             $related->{$relationInfo[2]} = $this->{$relationInfo[1]};
             return $save !== null ? $related->save($save) : true;
         }
