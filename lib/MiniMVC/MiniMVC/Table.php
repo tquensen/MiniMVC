@@ -12,7 +12,6 @@ class MiniMVC_Table {
      */
     protected $registry = null;
 
-	protected $_entries = array();
 	protected $_table = false;
     protected $_model = 'MiniMVC_Model';
 
@@ -52,6 +51,15 @@ class MiniMVC_Table {
     public function getDb()
     {
         return $this->_db;
+    }
+
+    /**
+     *
+     * @return string
+     */
+    public function getConnection()
+    {
+        return $this->connection;
     }
 
     public function getColumns()
@@ -100,7 +108,6 @@ class MiniMVC_Table {
         }
         return new $classname;
     }
-
 
     /**
      *
@@ -467,10 +474,6 @@ class MiniMVC_Table {
                 $query = $this->registry->db->query();
                 $result = $query->delete($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry->{$this->_identifier});
 
-                if (isset($this->_entries[$entry->{$this->_identifier}]))
-                {
-                    unset($this->_entries[$entry->{$this->_identifier}]);
-                }
                 $entry->clearDatabaseProperties();
 
                 if ($entry->postDelete() === false) {
@@ -482,11 +485,6 @@ class MiniMVC_Table {
             {
                 $query = $this->registry->db->query();
                 $result = $query->delete($this)->where($this->_identifier.' = ?')->limit(1)->execute($entry);
-
-                if (isset($this->_entries[$entry]))
-                {
-                    unset($this->_entries[$entry]);
-                }
             }
             foreach ($this->_relations as $relation => $info) {
                 if (isset($info[3]) && $info[3] !== true) {

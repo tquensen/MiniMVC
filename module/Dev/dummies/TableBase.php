@@ -21,18 +21,14 @@ abstract class {name}TableBase extends {tableClass}
     protected $_relations = array({relations_list});
 	protected $_identifier = '{identifier}';
 	protected $_isAutoIncrement = {auto_increment};
-
-    protected static $_instance = null;
     
     /**
      *
+     * @param string $connection the database connection to use (null for the default connection)
      * @return {name}Table
      */
-    public static function getInstance()
+    public static function getInstance($connection = null)
     {
-        if (!isset(self::$_instance)) {
-            self::$_instance = new {name}Table;
-        }
-        return self::$_instance;
+        return new {name}Table($connection);
     }
 }
