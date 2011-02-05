@@ -6,8 +6,11 @@
 class MongoExampleArticleRepository extends Mongo_Repository
 {
     protected $collectionName = 'mongo_example_article';
+    protected $className = 'MongoExampleArticle';
     protected $autoId = true;
-    protected $columns = array('_id', 'slug', 'title', 'content', 'author_id', 'created_at', 'updated_at');
+    protected $columns = array('_id', 'slug', 'title', 'content', 'comments', 'author_id', 'created_at', 'updated_at');
+    protected $relations = array('Comments' => array('MongoExampleComment', '_id', 'article_id'), 'Author' => array('MongoExampleAuthor', 'author_id', '_id', true));
+    protected $embedded = array('EComments' => array('MongoEmbeddedComment', 'comments', '_id'));
 
     /**
      * @param MongoExampleArticle $model a MongoExampleArticle instance (optional)
@@ -41,6 +44,11 @@ class MongoExampleArticleRepository extends Mongo_Repository
                         array(
                             //new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->mongoExampleArticleFormContentError))
                 )));
+        $form->setElement(new MiniMVC_Form_Element_Text('comments',
+                        array('label' => $i18n->mongoExampleArticleFormCommentsLabel),
+                        array(
+                            //new MiniMVC_Form_Validator_Required(array('errorMessage' => $i18n->mongoExampleArticleFormCommentsError))
+                )));
         $form->setElement(new MiniMVC_Form_Element_Text('author_id',
                         array('label' => $i18n->mongoExampleArticleFormAuthorIdLabel),
                         array(
@@ -73,7 +81,6 @@ class MongoExampleArticleRepository extends Mongo_Repository
         switch ($installedVersion) {
             case 0:
                 $this->getCollection()->ensureIndex(array('slug' => 1), array('save' => true, 'unique' => true));
-                $this->getCollection()->ensureIndex(array('author_id' => 1), array('save' => true));
             case 1:
                 if ($targetVersion && $targetVersion <= 1) break;
             /* //for every new version add your code below (including the lines "case NEW_VERSION:" and "if ($targetVersion && $targetVersion <= NEW_VERSION) break;")
@@ -114,6 +121,6 @@ class MongoExampleArticleRepository extends Mongo_Repository
      */
     public static function get($connection = null)
     {
-        return new self($connection);
+        return new self(null, null, $connection);
     }
 }

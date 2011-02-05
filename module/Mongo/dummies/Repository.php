@@ -6,8 +6,10 @@
 class {name}Repository extends Mongo_Repository
 {
     protected $collectionName = '{table}';
+    protected $className = '{name}';
     protected $autoId = {auto_increment};
     protected $columns = array({columns_list});
+    protected $relations = array({relations_list});
     protected $embedded = array({embedded_list});
 
     /**
@@ -84,6 +86,6 @@ class {name}Repository extends Mongo_Repository
      */
     public static function get($connection = null)
     {
-        return new self($connection);
+        return new self(null, null, $connection);
     }
 }

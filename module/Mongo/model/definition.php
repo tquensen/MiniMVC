@@ -16,7 +16,7 @@ $modelDefinition['MongoExampleArticle'] = array(
         'Author' => array('MongoExampleAuthor', 'author_id', '_id', true)
     ),
     'embedded' => array(
-        'EComments' => array('MongoEmbeddedComment', 'comments') //array(ForeignClassName (use Mongo_Embedded as generic class), [true=foreign is single (for m:1 or 1:1), false/null=foreign is multiple (for 1:m)])
+        'EComments' => array('MongoEmbeddedComment', 'comments', '_id') //array(ForeignClassName (use Mongo_Embedded as generic class), localProperty, identfierName, [true=foreign is single (for m:1 or 1:1), false/null=foreign is multiple (for 1:m)])
     )
 );
 

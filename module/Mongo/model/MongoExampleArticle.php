@@ -14,7 +14,7 @@
  */
 class MongoExampleArticle extends Mongo_Model
 {
-    /*
+    
     public function preSave()
     {
         if ($this->isNew()) {
@@ -23,102 +23,42 @@ class MongoExampleArticle extends Mongo_Model
         }
         $this->updated_at = new MongoDate();
     }
-     */
+     
 
     
     /**
      *
-     * @param bool|int $key the key of the model to get or true (default) to get all
-     * @return array
+     * @param int|bool $key the identifier of a embedded or true to return all
+     * @param string $sortBy (optional) if $key == true, order the entries by this property, null to keep the db order
+     * @param bool $sortDesc false (default) to sort ascending, true to sort descending
+     * @return MongoEmbeddedComment|array
      */
-    public function getEComments($key = true)
+    public function getEComments($key = true, $sortBy = null, $sortDesc = false)
     {
-        if ($key === true) {
-            $return = array();
-            foreach ($this->_properties['comments'] as $currentKey => $entry) {
-                $return[$currentKey] = new MongoEmbeddedComment($entry);
-            }
-            return $return;
-        }
-        return isset($this->_properties['comments'][$key]) ? new MongoEmbeddedComment($this->_properties['comments'][$key]) : null;
+        return $this->getEmbedded('EComments', $key, $sortBy, $sortDesc);
     }
 
     /**
-     * overwrites EComments with the data provided
      *
-     * @param MongoEmbeddedComment|array $related if $key = true, an array of MongoEmbeddedComment objects or an array of arrays representing MongoEmbeddedComments, if $key = int: a MongoEmbeddedComment or an array representing a MongoEmbeddedComment
-     * @param bool|int $key the key of the model to overwrites or true (default) to overwrite all
-     * @param bool $save set to false to prevent a save() call
+     * @param MongoEmbeddedComment|array $data a MongoEmbeddedComment object or an array representing a MongoEmbeddedComment or an array with multiple MongoEmbeddedComment
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
-    public function setEComments($related, $key = true, $save = true)
+    public function setEComments($data, $save = true)
     {
-        if ($key === true) {
-            $entries = array();
-            foreach ($related as $rel) {
-                if (is_object($related) && $related instanceof Mongo_Embedded) {
-                    $related = $related->getData();
-                }
-                $entries[] = $related;
-            }
-
-            $this->_properties['comments'] = $entries;
-        } else {
-            if (!isset($this->_properties['comments'][$key])) {
-                return false;
-            }
-            if (is_object($related) && $related instanceof Mongo_Embedded) {
-                $related = $related->getData();
-            }
-            $this->_properties['comments'][$key] = $related;
-        }
-        
-        return $save ? $this->save() : true;
+        return $this->setEmbedded('EComments', $data, $save);
     }
 
     /**
-     * adds the provided MongoEmbeddedComments to the EComments
+     * removes the chosen MongoEmbeddedComments (or all for $key = true) from the embedded list
      *
-     * @param array $related an array of MongoEmbeddedComment objects or an array of arrays representing MongoEmbeddedComments or an array with multiple MongoEmbeddedComments (use multiple)
-     * @param bool $multiple set to true if you are passing multiple MongoEmbeddedComments
-     * @param bool $save set to false to prevent a save() call
-     * @return bool
-     */
-    public function addEComments($related, $multiple = false, $save = true)
-    {
-        if (!$multiple) {
-            $related = array($related);
-        }
-        $entries = array();
-        foreach ($related as $rel) {
-            if (is_object($related) && $related instanceof Mongo_Embedded) {
-                $related = $related->getData();
-            }
-            $entries[] = $related;
-        }
-        $currentEntries = (array) $this->_properties['comments'];
-        $this->_properties['comments'] = array_merge($currentEntries, $entries);
-
-        return $save ? $this->save() : true;
-    }
-
-    /**
-     * removed the chosen MongoEmbeddedComment (or all for $key = true) from the EComments and reindexes the comments array
-     *
-     * @param bool|int $key the key of the model to remove or true (default) to remove all
-     * @param bool $save set to false to prevent a save() call
+     * @param mixed $key one or more keys for MongoEmbeddedComment objects or true to remove all
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
     public function removeEComments($key = true, $save = true)
     {
-        if ($key === true) {
-             $this->comments = array();
-        } else {
-            unset($this->_properties['comments'][$key]);
-            $this->_properties['comments'] = array_values($this->_properties['comments']);
-        }
-        
-        return $save ? $this->save() : true;
+        return $this->removeEmbedded('EComments', $key, $save);
     }
     
 
@@ -133,92 +73,56 @@ class MongoExampleArticle extends Mongo_Model
      */
     public function getComments($query = array(), $sort = array(), $limit = null, $skip = null)
     {
-        $query = (array) $query;
-        $query['article_id'] = $this->_id;
-        return MongoExampleCommentRepository::get()->find($query = array(), $sort = array(), $limit = null, $skip = null);
+        return $this->getRelated('Comments', $query, $sort, $limit, $skip);
     }
 
     /**
      * @param MongoExampleComment|mixed $related either a MongoExampleComment object, a MongoExampleComment->_id-value or an array with multiple MongoExampleComments
-     * @param bool $save set to false to prevent a save() call
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
     public function setComments($related, $save = true)
     {
-        if (is_array($related)) {
-            foreach ($related as $rel) {
-                $this->setComments($rel, $save);
-            }
-            return true;
-        }
-        if (!is_object($related) || !($related instanceof MongoExampleComment)) {
-            $related = MongoExampleCommentRepository::get()->findOne($related);
-        }
-        if (!$related) {
-            throw new InvalidArgumentException('Could not find valid MongoExampleComment');
-        }
-        $related->article_id = $this->_id;
-        return $save ? $related->save() : true;
+        return $this->setRelated('Comments', $related, $save = true);
     }
 
     /**
-     * @param MongoExampleComment|mixed $related either a MongoExampleComment object, a MongoExampleComment->_id-value  or an array with multiple MongoExampleComments
-     * @param bool $save set to false to prevent a save() call
+     * @param MongoExampleComment|mixed $related true to remove all objects or either a MongoExampleComment object, a MongoExampleComment->_id-value  or an array with multiple MongoExampleComments
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
-    public function removeComments($related, $save = true)
+    public function removeComments($related = true, $save = true)
     {
-        if (is_array($related)) {
-            foreach ($related as $rel) {
-                $this->removeComments($rel, $save);
-            }
-            return true;
-        }
-        if (!is_object($related) || !($related instanceof MongoExampleComment)) {
-            $related = MongoExampleCommentRepository::get()->findOne($related);
-        }
-        if (!$related) {
-            throw new InvalidArgumentException('Could not find valid MongoExampleComment');
-        }
-        if ($related->article_id != $this->_id) {
-            return false;
-        }
-        $related->article_id = null;
-        return $save ? $related->save() : true;
+        return $this->removeRelated('Comments', $related, $save);
     }
     
 
     /**
-     * @return MongoExampleAuthor
+     *
+     * @return MongoExampleAuthor|null
      */
     public function getAuthor()
     {
-        return MongoExampleAuthorRepository::get()->findOne(array('_id' => $this->author_id));
+        return $this->getRelated('Author');
     }
 
     /**
      * @param MongoExampleAuthor|mixed $related either a MongoExampleAuthor object or a MongoExampleAuthor->_id-value
-     * @param bool $save set to false to prevent a save() call
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
     public function setAuthor($related, $save = true)
     {
-        if (is_object($related) && $related instanceof MongoExampleAuthor) {
-            $this->author_id = $related->_id;
-        } else {
-            $this->author_id = $related;
-        }
-        return $save ? $this->save() : true;
+        return $this->setRelated('Author', $related, $save = true);
     }
 
     /**
-     * @param bool $save set to false to prevent a save() call
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
     public function removeAuthor($save = true)
     {
-        $this->author_id = null;
-        return $save ? $this->save() : true;
+        return $this->removeRelated('Author', true, $save);
     }
     
 

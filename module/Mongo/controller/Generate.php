@@ -42,7 +42,9 @@ class Mongo_Generate_Controller extends MiniMVC_Controller
             '{columns_phpdoc}',
             '{columns_form}',
             '{relations_methods}',
+            '{relations_list}',
             '{embedded_methods}',
+            '{embedded_list}',
             '{auto_increment}'
         );
         $replace = array(
@@ -55,7 +57,9 @@ class Mongo_Generate_Controller extends MiniMVC_Controller
             $this->getPhpDocCode($definition, $model),
             $this->getFormCode($definition, $model),
             $this->getRelationsMethodsCode($definition, $model),
+            $this->getRelationsListCode($definition, $model),
             $this->getEmbeddedMethodsCode($definition, $model),
+            $this->getEmbeddedListCode($definition, $model),
             (bool) $definition['autoIncrement'] ? 'true' : 'false'
         );
 
@@ -153,40 +157,60 @@ class Mongo_Generate_Controller extends MiniMVC_Controller
         return $output;
     }
 
+    protected function getRelationsListCode($definition, $model)
+    {
+        $return = array();
+        foreach ($definition['relations'] as $relation => $data) {
+            if (empty($data[0]) || empty($data[1]) || empty($data[2])) {
+                continue;
+            }
+            $return[] = '\''.$relation.'\' => array(\''.$data[0].'\', \''.$data[1].'\', \''.$data[2].'\''.(!empty($data[3]) ? ($data[3] === true ? ', true' : ', \''.$data[3].'\'') : '').')';
+        }
+        return implode(', ', $return);
+    }
+
+    protected function getEmbeddedListCode($definition, $model)
+    {
+        $return = array();
+        foreach ($definition['embedded'] as $relation => $data) {
+            if (empty($data[0]) || empty($data[1]) || empty($data[2])) {
+                continue;
+            }
+            $return[] = '\''.$relation.'\' => array(\''.$data[0].'\', \''.$data[1].'\', \''.$data[2].'\''.(!empty($data[3]) ? ', true' : '').')';
+        }
+        return implode(', ', $return);
+    }
+
     protected function getRelationsMethodsCode($definition, $model)
     {
+
     $code1 = '
     /**
-     * @return {foreignModel}
+     *
+     * @return {foreignModel}|null
      */
     public function get{relation}()
     {
-        return {foreignModel}Repository::get()->findOne(array(\'{foreignProperty}\' => $this->{localProperty}));
+        return $this->getRelated(\'{relation}\');
     }
 
     /**
-     * @param {foreignModel}|mixed $related either a {foreignModel} object or a {foreignModel}->{foreignProperty}-value
-     * @param bool $save set to false to prevent a save() call
+     * @param {foreignModel}|mixed $related either a {foreignModel} object or a {foreignModel}->_id-value
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
     public function set{relation}($related, $save = true)
     {
-        if (is_object($related) && $related instanceof {foreignModel}) {
-            $this->{localProperty} = $related->{foreignProperty};
-        } else {
-            $this->{localProperty} = $related;
-        }
-        return $save ? $this->save() : true;
+        return $this->setRelated(\'{relation}\', $related, $save = true);
     }
 
     /**
-     * @param bool $save set to false to prevent a save() call
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
     public function remove{relation}($save = true)
     {
-        $this->{localProperty} = null;
-        return $save ? $this->save() : true;
+        return $this->removeRelated(\'{relation}\', true, $save);
     }
     ';
 
@@ -201,58 +225,27 @@ class Mongo_Generate_Controller extends MiniMVC_Controller
      */
     public function get{relation}($query = array(), $sort = array(), $limit = null, $skip = null)
     {
-        $query = (array) $query;
-        $query[\'{foreignProperty}\'] = $this->{localProperty};
-        return {foreignModel}Repository::get()->find($query = array(), $sort = array(), $limit = null, $skip = null);
+        return $this->getRelated(\'{relation}\', $query, $sort, $limit, $skip);
     }
 
     /**
      * @param {foreignModel}|mixed $related either a {foreignModel} object, a {foreignModel}->_id-value or an array with multiple {foreignModel}s
-     * @param bool $save set to false to prevent a save() call
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
     public function set{relation}($related, $save = true)
     {
-        if (is_array($related)) {
-            foreach ($related as $rel) {
-                $this->set{relation}($rel, $save);
-            }
-            return true;
-        }
-        if (!is_object($related) || !($related instanceof {foreignModel})) {
-            $related = {foreignModel}Repository::get()->findOne($related);
-        }
-        if (!$related) {
-            throw new InvalidArgumentException(\'Could not find valid {foreignModel}\');
-        }
-        $related->{foreignProperty} = $this->{localProperty};
-        return $save ? $related->save() : true;
+        return $this->setRelated(\'{relation}\', $related, $save = true);
     }
 
     /**
-     * @param {foreignModel}|mixed $related either a {foreignModel} object, a {foreignModel}->_id-value  or an array with multiple {foreignModel}s
-     * @param bool $save set to false to prevent a save() call
+     * @param {foreignModel}|mixed $related true to remove all objects or either a {foreignModel} object, a {foreignModel}->_id-value  or an array with multiple {foreignModel}s
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
-    public function remove{relation}($related, $save = true)
+    public function remove{relation}($related = true, $save = true)
     {
-        if (is_array($related)) {
-            foreach ($related as $rel) {
-                $this->remove{relation}($rel, $save);
-            }
-            return true;
-        }
-        if (!is_object($related) || !($related instanceof {foreignModel})) {
-            $related = {foreignModel}Repository::get()->findOne($related);
-        }
-        if (!$related) {
-            throw new InvalidArgumentException(\'Could not find valid {foreignModel}\');
-        }
-        if ($related->{foreignProperty} != $this->{localProperty}) {
-            return false;
-        }
-        $related->{foreignProperty} = null;
-        return $save ? $related->save() : true;
+        return $this->removeRelated(\'{relation}\', $related, $save);
     }
     ';
 
@@ -260,150 +253,89 @@ class Mongo_Generate_Controller extends MiniMVC_Controller
         $search = array('{relation}', '{foreignModel}', '{localProperty}', '{foreignProperty}');
         foreach ($definition['relations'] as $relation => $data) {
             $replace = array($relation, $data[0], $data[1], $data[2]);
-            $return[] = str_replace($search, $replace, (isset($data[3]) && $data[3] === true) ? $code1 : $code2);
+            $return[] = str_replace($search, $replace, !empty($data[3]) ? $code1 : $code2);
         }
         return implode("\n", $return);
     }
 
     protected function getEmbeddedMethodsCode($definition, $model)
     {
+
     $code1 = '
     /**
-     * @return {foreignModel}
+     *
+     * @return {foreignModel}|null
      */
     public function get{relation}()
     {
-        return new {foreignModel}($this->_properties[\'{localProperty}\'];
+        return $this->getEmbedded(\'{relation}\');
     }
 
     /**
-     * @param {foreignModel}|array $related a {foreignModel} object or an array representing a {foreignModel}
-     * @param bool $save set to false to prevent a save() call
+     *
+     * @param {foreignModel}|array $data a {foreignModel} object or an array representing a {foreignModel}
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
-    public function set{relation}($related, $save = true)
+    public function set{relation}($data, $save = true)
     {
-        if (is_object($related) && $related instanceof Mongo_Embedded) {
-            $this->_properties[\'{localProperty}\'] = $related->getData();
-        } else {
-            $this->_properties[\'{localProperty}\'] = $related;
-        }
-        return $save ? $this->save() : true;
+        return $this->setEmbedded(\'{relation}\', $data);
     }
 
     /**
-     * @param bool $save set to false to prevent a save() call
+     * removes the relation to {foreignModel}
+     *
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
     public function remove{relation}($save = true)
     {
-        $this->{localProperty} = null;
-        return $save ? $this->save() : true;
+        return $this->removeEmbedded(\'{relation}\', true, $save);
     }
     ';
 
     $code2 = '
     /**
      *
-     * @param bool|int $key the key of the model to get or true (default) to get all
-     * @return array
+     * @param int|bool $key the identifier of a embedded or true to return all
+     * @param string $sortBy (optional) if $key == true, order the entries by this property, null to keep the db order
+     * @param bool $sortDesc false (default) to sort ascending, true to sort descending
+     * @return {foreignModel}|array
      */
-    public function get{relation}($key = true)
+    public function get{relation}($key = true, $sortBy = null, $sortDesc = false)
     {
-        if ($key === true) {
-            $return = array();
-            foreach ($this->_properties[\'{localProperty}\'] as $currentKey => $entry) {
-                $return[$currentKey] = new {foreignModel}($entry);
-            }
-            return $return;
-        }
-        return isset($this->_properties[\'{localProperty}\'][$key]) ? new {foreignModel}($this->_properties[\'{localProperty}\'][$key]) : null;
+        return $this->getEmbedded(\'{relation}\', $key, $sortBy, $sortDesc);
     }
 
     /**
-     * overwrites {relation} with the data provided
      *
-     * @param {foreignModel}|array $related if $key = true, an array of {foreignModel} objects or an array of arrays representing {foreignModel}s, if $key = int: a {foreignModel} or an array representing a {foreignModel}
-     * @param bool|int $key the key of the model to overwrites or true (default) to overwrite all
-     * @param bool $save set to false to prevent a save() call
+     * @param {foreignModel}|array $data a {foreignModel} object or an array representing a {foreignModel} or an array with multiple {foreignModel}
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
-    public function set{relation}($related, $key = true, $save = true)
+    public function set{relation}($data, $save = true)
     {
-        if ($key === true) {
-            $entries = array();
-            foreach ($related as $rel) {
-                if (is_object($related) && $related instanceof Mongo_Embedded) {
-                    $related = $related->getData();
-                }
-                $entries[] = $related;
-            }
-
-            $this->_properties[\'{localProperty}\'] = $entries;
-        } else {
-            if (!isset($this->_properties[\'{localProperty}\'][$key])) {
-                return false;
-            }
-            if (is_object($related) && $related instanceof Mongo_Embedded) {
-                $related = $related->getData();
-            }
-            $this->_properties[\'{localProperty}\'][$key] = $related;
-        }
-        
-        return $save ? $this->save() : true;
+        return $this->setEmbedded(\'{relation}\', $data, $save);
     }
 
     /**
-     * adds the provided {foreignModel}s to the {relation}
+     * removes the chosen {foreignModel}s (or all for $key = true) from the embedded list
      *
-     * @param array $related an array of {foreignModel} objects or an array of arrays representing {foreignModel}s or an array with multiple {foreignModel}s (use multiple)
-     * @param bool $multiple set to true if you are passing multiple {foreignModel}s
-     * @param bool $save set to false to prevent a save() call
-     * @return bool
-     */
-    public function add{relation}($related, $multiple = false, $save = true)
-    {
-        if (!$multiple) {
-            $related = array($related);
-        }
-        $entries = array();
-        foreach ($related as $rel) {
-            if (is_object($related) && $related instanceof Mongo_Embedded) {
-                $related = $related->getData();
-            }
-            $entries[] = $related;
-        }
-        $currentEntries = (array) $this->_properties[\'{localProperty}\'];
-        $this->_properties[\'{localProperty}\'] = array_merge($currentEntries, $entries);
-
-        return $save ? $this->save() : true;
-    }
-
-    /**
-     * removes the chosen {foreignModel} (or all for $key = true) from the {relation} and reindexes the {localProperty} array
-     *
-     * @param bool|int $key the key of the model to remove or true (default) to remove all
-     * @param bool $save set to false to prevent a save() call
+     * @param mixed $key one or more keys for {foreignModel} objects or true to remove all
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
     public function remove{relation}($key = true, $save = true)
     {
-        if ($key === true) {
-             $this->{localProperty} = array();
-        } else {
-            unset($this->_properties[\'{localProperty}\'][$key]);
-            $this->_properties[\'{localProperty}\'] = array_values($this->_properties[\'{localProperty}\']);
-        }
-        
-        return $save ? $this->save() : true;
+        return $this->removeEmbedded(\'{relation}\', $key, $save);
     }
     ';
 
         $return = array();
-        $search = array('{relation}', '{foreignModel}', '{localProperty}');
+        $search = array('{relation}', '{foreignModel}', '{localProperty}', '{foreignProperty}');
         foreach ($definition['embedded'] as $relation => $data) {
-            $replace = array($relation, $data[0], $data[1]);
-            $return[] = str_replace($search, $replace, (isset($data[2]) && $data[2] === true) ? $code1 : $code2);
+            $replace = array($relation, $data[0], $data[1], !empty($data[2]) ? $data[2] : null);
+            $return[] = str_replace($search, $replace, !empty($data[3]) ? $code1 : $code2);
         }
         return implode("\n", $return);
     }

@@ -20,7 +20,7 @@ class Mongo_Model
     {
         $this->_properties = $data;
         $repositoryName = get_class($this).'Repository';
-        $this->_repository = class_exists($repositoryName) ? new $repositoryName(null, $connection) : new Mongo_Repository(get_class($this), $connection);
+        $this->_repository = class_exists($repositoryName) ? new $repositoryName(null, null, $connection) : new Mongo_Repository(get_class($this), get_class($this), $connection);
     }
 
     public function __get($key)
@@ -90,6 +90,334 @@ class Mongo_Model
         return $this->_repository->getCollection();
     }
 
+    public function increment($property, $value, $save = true)
+    {
+        $this->$property = $this->property + $value;
+        if ($save !== null) {
+            $status = $this->getCollection()->update(array('_id' => $this->_id), array('$inc' => array($property => $value)), array('save' => $save));
+            if ($status) {
+                $this->setDatabaseProperty($property, $this->$property);
+                return true;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     *
+     * @param string $relation the relation name
+     * @param array $query Additional fields to filter.
+     * @param array $sort The fields by which to sort.
+     * @param int $limit The number of results to return.
+     * @param int $skip The number of results to skip.
+     * @return Mongo_Model|array
+     */
+    public function getRelated($relation, $query = array(), $sort = array(), $limit = null, $skip = null)
+    {
+        if (!$relationInfo = $this->getRepository()->getRelation($relation)) {
+            throw new Exception('Unknown relation "'.$relation.'" for model '.get_class($this));
+        }
+        $repositoryName = $relationInfo[0].'Repository';
+        $repository = class_exists($repositoryName)
+            ? new $repositoryName(null, $this->getRepository()->getConnection())
+            : new Mongo_Repository($relationInfo[0], $this->getRepository()->getConnection());
+            
+        if (!empty($relationInfo[3])) {
+            return $repository->findOne(array($relationInfo[2] => $this->{$relationInfo[1]}));
+        } else {
+            $query = (array) $query;
+            $query[$relationInfo[2]] = $this->{$relationInfo[1]};
+            return $repository->find($query, $sort, $limi, $skip);
+        }
+    }
+
+    /**
+     *
+     * @param string $relation the relation name
+     * @param Mongo_Model|mixed $related either a Mongo_Model object, a Mongo_Model->_id-value or an array with multiple Mongo_Models
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
+     * @return bool
+     */
+    public function setRelated($relation, $related, $save = true)
+    {
+        if (!$relationInfo = $this->getRepository()->getRelation($relation)) {
+            throw new Exception('Unknown relation "'.$relation.'" for model '.get_class($this));
+        }
+        if (is_array($related)) {
+            foreach ($related as $rel) {
+                $this->setRelated($relation, $rel, $save);
+            }
+            return true;
+        }
+
+        if (!empty($relationInfo[3])) {
+            if (is_object($related) && $related instanceof Mongo_Model) {
+                $this->{$relationInfo[1]} = $related->{$relationInfo[2]};
+            } else {
+                $this->{$relationInfo[1]} = $related;
+            }
+            return $save !== null ? $this->save($save) : true;
+        } else {
+            if (!is_object($related) || !($related instanceof Mongo_Model)) {
+                $repositoryName = $relationInfo[0].'Repository';
+                $repository = class_exists($repositoryName)
+                    ? new $repositoryName(null, $this->getRepository()->getConnection())
+                    : new Mongo_Repository($relationInfo[0], $this->getRepository()->getConnection());
+                $related = $repository->findOne($related);
+            }
+            if (!$related) {
+                throw new InvalidArgumentException('Could not find valid '.$relationInfo[0]);
+            }
+            $related->{$relationInfo[2]} = $this->{$relationInfo[1]};
+            return $save !== null ? $related->save($save) : true;
+        }
+    }
+
+    /**
+     *
+     * @param string $relation the relation name
+     * @param Mongo_Model|mixed $related true to remove all objects or either a Mongo_Model object, a Mongo_Model->_id-value  or an array with multiple Mongo_Models
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
+     * @return bool
+     */
+    public function removeRelated($relation, $related = true, $save = true)
+    {
+        if (!$relationInfo = $this->getRepository()->getRelation($relation)) {
+            throw new Exception('Unknown relation "'.$relation.'" for model '.get_class($this));
+        }
+        if (is_array($related)) {
+            foreach ($related as $rel) {
+                $this->removeRelated($relation, $rel, $save);
+            }
+            return true;
+        }
+        if (!empty($relationInfo[3])) {
+            $this->{localProperty} = null;
+            return $save !== null ? $this->save($save) : true;
+        } else {
+            if ($related === true) {
+                $repositoryName = $relationInfo[0].'Repository';
+                $repository = class_exists($repositoryName)
+                    ? new $repositoryName(null, $this->getRepository()->getConnection())
+                    : new Mongo_Repository($relationInfo[0], $this->getRepository()->getConnection());
+                $related = $repository->find(array($relationInfo[2] => $this->{$relationInfo[1]}));
+                foreach ($related as $rel) {
+                    $related->{$relationInfo[2]} = null;
+                    if ($save !== null) {
+                        $related->save($save);
+                    }
+                }
+                return true;
+            } else {
+                if (!is_object($related) || !($related instanceof Mongo_Model)) {
+                    $repositoryName = $relationInfo[0].'Repository';
+                    $repository = class_exists($repositoryName)
+                        ? new $repositoryName(null, $this->getRepository()->getConnection())
+                        : new Mongo_Repository($relationInfo[0], $this->getRepository()->getConnection());
+                    $related = $repository->findOne($related);
+                }
+                if (!$related) {
+                    throw new InvalidArgumentException('Could not find valid '.$relationInfo[0]);
+                }
+                if ($related->{$relationInfo[2]} != $this->{$relationInfo[1]}) {
+                    return false;
+                }
+                $related->{$relationInfo[2]} = null;
+                return $save !== null ? $related->save($save) : true;
+            }
+        }
+    }
+
+    /**
+     *
+     * @param string $embedded the embedded name
+     * @param int|bool $key the identifier of a embedded or true to return all
+     * @param string $sortBy (optional) if $key == true, order the entries by this property, null to keep the db order
+     * @param bool $sortDesc false (default) to sort ascending, true to sort descending
+     * @return Mongo_Embedded|array
+     */
+    public function getEmbedded($embedded, $key = true, $sortBy = null, $sortDesc = false)
+    {
+        if (!$embeddedInfo = $this->getRepository()->getEmbedded($embedded)) {
+            throw new Exception('Unknown embedded "'.$embedded.'" for model '.get_class($this));
+        }
+        $className = $embeddedInfo[0];
+        if (!empty($embeddedInfo[3])) {            
+            return !empty($this->{$embeddedInfo[1]}) ? new $className($this->{$embeddedInfo[1]}) : null;
+        } else {
+            if ($key !== true) {
+                foreach ((array) $this->{$embeddedInfo[1]} as $data) {
+                    if (isset($data[$embeddedInfo[2]]) && $data[$embeddedInfo[2]] == $key) {
+                        return new $className($data);
+                    }
+                }
+                return null;
+            } else {
+                $return = array();
+                foreach ((array) $this->{$embeddedInfo[1]} as $data) {
+                    if (isset($data[$embeddedInfo[2]])) {
+                        $return[$data[$embeddedInfo[2]]] = new $className($data);
+                    } else {
+                        $return[] = new $className($data);
+                    }
+                }
+                if (is_string($sortBy)) {
+                    $return = $className->sort($return, $sortBy, (bool) $sortDesc);
+                }
+                return $return;
+            }
+        }
+    }
+
+    /**
+     *
+     * @param string $embedded the embedded name
+     * @param Mongo_Embedded|array $data an array of Mongo_Embedded objects or an array representing a Mongo_Embedded or an array with multiple Mongo_Embeddeds
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
+     * @return bool
+     */
+    public function setEmbedded($embedded, $data, $save = true)
+    {
+        if (!$embeddedInfo = $this->getRepository()->getEmbedded($embedded)) {
+            throw new Exception('Unknown embedded "'.$embedded.'" for model '.get_class($this));
+        }
+        $className = $embeddedInfo[0];
+        if (!empty($embeddedInfo[3])) {
+            if (is_object($data) && $data instanceof Mongo_Embedded) {
+                $this->{$embeddedInfo[1]} = $data->getData();
+            } else {
+                $this->{$embeddedInfo[1]} = $data;
+            }
+            if ($save !== null) {
+                if ($this->getCollection()->update(array('_id' => $this->_id), array('$set' => array($embeddedInfo[1] => $data)), array('save' => $save))) {
+                    $this->setDatabaseProperty($embeddedInfo[1], $data);
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        } else {
+            if (!is_array($data) || !isset($data[0])) {
+                $data = array($data);
+            }
+            $set = array();
+            $pushAll = array();
+            $currentEntries = (array) $this->{$embeddedInfo[1]};
+            foreach ($data as $entry) {
+                if (is_object($entry) && $entry instanceof Mongo_Embedded) {
+                    $entry = $entry->getData();
+                }
+                if (empty($entry[$embeddedInfo[2]])) {
+                    $entry[$embeddedInfo[2]] = $this->generateEmbeddedKey($currentEntries, $embeddedInfo[2]);
+                    $currentEntries[] = $entry;
+                    $pushAll[] = $entry;
+                } else {
+                    $found = false;
+                    foreach ($currentEntries as $key => $value) {
+                        if ($value[$embeddedInfo[2]] == $entry[$embeddedInfo[2]]) {
+                            $currentEntries[$key] = $value;
+                            $set[$key] = $value;
+                            $found = true;
+                            break;
+                        }
+                    }
+                    if (!$found) {
+                        $currentEntries[] = $entry;
+                        $pushAll[] = $entry;
+                    }
+                }
+            }
+            $this->{$embeddedInfo[1]} = $currentEntries;
+            $query = array();
+            if (count($pushAll)) {
+                $query['$pushAll'] = array($embeddedInfo[1] => $pushAll);
+            }
+            if (count($set)) {
+                $dbSet = array();
+                foreach ($set as $k => $v) {
+                    $dbSet[$embeddedInfo[1].'.'.$k] = $v;
+                }
+                $query['$set'] = $dbSet;
+            }
+            if ($save !== null) {
+                if ($this->getCollection()->update(array('_id' => $this->_id), $query, array('save' => $save))) {
+                    $dbValues = (array) $this->getDatabaseProperty($embeddedInfo[1]);
+                    foreach ($pushAll as $entry) {
+                        $dbValues[] = $entry;
+                    }
+                    foreach ($set as $k => $v) {
+                        $dbValues[$k] = $v;
+                    }
+                    $this->setDatabaseProperty($embeddedInfo[1], $dbValues);
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        }
+    }
+
+    /**
+     * removes the chosen Mongo_Embeddeds (or all for $key = true) from the embedded list
+     *
+     * @param string $embedded the embedded name
+     * @param mixed $key one or more keys for Mongo_Embedded objects or true to remove all
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
+     * @return bool
+     */
+    public function removeEmbedded($embedded, $key = true, $save = true)
+    {
+        if (!$embeddedInfo = $this->getRepository()->getEmbedded($embedded)) {
+            throw new Exception('Unknown embedded "'.$embedded.'" for model '.get_class($this));
+        }
+        if ($key === true) {
+             $this->{$embeddedInfo[1]} = array();
+             if ($save !== null) {
+                if ($this->getCollection()->update(array('_id' => $this->_id), array('$set' => array($embeddedInfo[1] => array())), array('save' => $save))) {
+                    $this->setDatabaseProperty($embeddedInfo[1], array());
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        } else {
+            if (!is_array($key)) {
+                $key = array($key);
+            }
+            $unset = false;
+            $currentData = (array) $this->{$embeddedInfo[1]};
+            foreach ($key as $entry) {
+                foreach ($currentData as $currentKey => $value) {
+                    if ($value[$embeddedInfo[2]] == $entry) {
+                        $unset=true;
+                        unset($currentData[$currentKey]);
+                        break;
+                    }
+                }
+            }
+            if (!$unset) {
+                return true;
+            }
+            $this->{$embeddedInfo[1]} = array_values($currentData);
+            if ($save !== null) {
+                return $this->save($save);
+            }
+            return true;
+        }
+    }
+
+    protected function generateEmbeddedKey($list, $key)
+    {
+        $newKey = 1;
+        foreach ((array) $list as $current) {
+            if ((int) $current[$key] >= $newKey) {
+                $newKey = ((int) $current[$key]) + 1;
+            }
+        }
+        return $newKey;
+    }
+
     /**
      *
      * @param bool|integer $save @see php.net/manual/en/mongocollection.update.php
@@ -97,7 +425,12 @@ class Mongo_Model
      */
     public function save($save = true)
     {
-        return $this->_repository->save($this, $save);
+        try {
+            return $this->_repository->save($this, $save);
+        } catch (MongoException $e) {
+            throw $e;
+            return false;
+        }
     }
 
     /**
@@ -107,7 +440,12 @@ class Mongo_Model
      */
     public function remove($save = true)
     {
-        return $this->_repository->remove($this, $save);
+        try {
+            return $this->_repository->remove($this, $save);
+        } catch (MongoException $e) {
+            throw $e;
+            return false;
+        }
     }
 
     public function preSave()

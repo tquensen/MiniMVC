@@ -6,8 +6,11 @@
 class MongoExampleAuthorRepository extends Mongo_Repository
 {
     protected $collectionName = 'mongo_example_author';
+    protected $className = 'MongoExampleAuthor';
     protected $autoId = true;
     protected $columns = array('_id', 'name', 'created_at', 'updated_at');
+    protected $relations = array('Articles' => array('MongoExampleArticle', '_id', 'author_id'), 'Comments' => array('MongoExampleComment', '_id', 'author_id'));
+    protected $embedded = array();
 
     /**
      * @param MongoExampleAuthor $model a MongoExampleAuthor instance (optional)
@@ -57,7 +60,7 @@ class MongoExampleAuthorRepository extends Mongo_Repository
     {
         switch ($installedVersion) {
             case 0:
-                
+                $this->getCollection()->ensureIndex(array('slug' => 1), array('save' => true, 'unique' => true));
             case 1:
                 if ($targetVersion && $targetVersion <= 1) break;
             /* //for every new version add your code below (including the lines "case NEW_VERSION:" and "if ($targetVersion && $targetVersion <= NEW_VERSION) break;")
@@ -98,6 +101,6 @@ class MongoExampleAuthorRepository extends Mongo_Repository
      */
     public static function get($connection = null)
     {
-        return new self($connection);
+        return new self(null, null, $connection);
     }
 }

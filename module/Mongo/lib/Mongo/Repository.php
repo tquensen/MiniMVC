@@ -11,19 +11,29 @@ class Mongo_Repository
      */
     protected $db = null;
     protected $collectionName = null;
+    protected $className = null;
+    protected $autoId = true;
     protected $columns = array();
+    protected $relations = array();
+    protected $embedded = array();
 
     protected $connection = null;
 
-    public function __construct($collectionName = null, $connection = null)
+    public function __construct($collectionName = null, $className = null, $connection = null)
     {
         $this->connection = $connection;
-        $this->db = $this->registry->mongo->get($this->connection);
+        $this->db = MiniMVC_Registry::getInstance()->mongo->get($this->connection);
 
         if ($collectionName) {
             $this->collectionName = $collectionName;
         } elseif (!$this->collectionName) {
             $this->collectionName = str_replace('Repository', '', get_class($this));
+        }
+
+        if ($className) {
+            $this->className = $collectionName;
+        } elseif (!$this->className) {
+            $this->className = str_replace('Repository', '', get_class($this));
         }
     }
 
@@ -47,11 +57,56 @@ class Mongo_Repository
 
     /**
      *
+     * @return string
+     */
+    public function getConnection()
+    {
+        return $this->connection;
+    }
+
+    /**
+     *
      * @return array
      */
     public function getColumns()
     {
         return $this->columns;
+    }
+
+    /**
+     *
+     * @return array
+     */
+    public function getRelations()
+    {
+        return $this->relations;
+    }
+
+    /**
+     * @param string $relation the relation name
+     * @return array
+     */
+    public function getRelation($relation)
+    {
+        return isset($this->relations[$relation]) ? $this->relations[$relation] : null;
+    }
+
+    /**
+     *
+     * @return array
+     */
+    public function getEmbeddeds()
+    {
+        return $this->embedded;
+    }
+
+    /**
+     * @param string $embedded the embedded name
+     * @return array
+     */
+    public function getEmbedded($embedded)
+    {
+        return isset($this->embedded[$embedded]) ? $this->embedded[$embedded] : null;
     }
 
     /**
@@ -62,7 +117,7 @@ class Mongo_Repository
      */
     public function create($data = array(), $isNew = true)
     {
-        $name = $this->collectionName;
+        $name = $this->className;
         $model = new $name($data);
         $isNew ? $model->postCreate() : $model->postLoad();
         return $model;
@@ -71,28 +126,33 @@ class Mongo_Repository
     /**
      *
      * @param MongoCursor|array $data initial data for the models
+     * @param bool $single set to true if $data is a single model
      * @return array
      */
-    public function build($data = array())
+    public function build($data = array(), $single = false)
     {
         $return = array();
+        if ($single) {
+            $data = array($data);
+        }
         foreach ($data as $current) {
             $model = $this->create($current);
             foreach ($this->getColumns() as $col) {
                 if (isset($current[$col]))
-                $model->setDatabaseProperty($col, $current);
+                $model->setDatabaseProperty($col, $current[$col]);
             }
             $return[(string) $model->_id] = $model;
         }
-        return $return;
+        return $single ? reset($return) : $return;
     }
 
     /**
      *
      * @param mixed $query an array of fields for which to search or the _id as string or MongoId
+     * @param bool $build (default true) set to false to return the raw MongoCursor
      * @return Mongo_Model the matching record or null
      */
-    public function findOne($query)
+    public function findOne($query, $build = true)
     {
         if (is_string($query)) {
             $query = array('_id' => $this->autoId ? new MongoId($query) : $query);
@@ -101,7 +161,7 @@ class Mongo_Repository
         }
         $data = $this->getCollection()->findOne($query);
         if ($data) {
-            return $this->create($data);
+            return $this->build($data, true);
         }
     }
 
@@ -120,6 +180,7 @@ class Mongo_Repository
     /**
      *
      * @param array $sort The fields by which to sort.
+     * @param bool $build (default true) set to false to return the raw MongoCursor
      * @return MongoCursor|array Returns an array or a cursor for the search results.
      */
     public function findAll($sort = array(), $build = true)
@@ -133,6 +194,7 @@ class Mongo_Repository
      * @param array $sort The fields by which to sort.
      * @param int $limit The number of results to return.
      * @param int $skip The number of results to skip.
+     * @param bool $build (default true) set to false to return the raw MongoCursor
      * @return MongoCursor|array Returns an array or a cursor for the search results.
      */
     public function find($query = array(), $sort = array(), $limit = null, $skip = null, $build = true)
@@ -163,11 +225,13 @@ class Mongo_Repository
             if ($model->preSave() === false) {
                 return false;
             }
-            $data = &$model->getData();
+            $data = $model->getData();
             if ($model->isNew()) {
                 $insert = array();
                 foreach ($this->columns as $column) {
-                    $insert[$column] = $model->$column;
+                    if ($model->$column !== null) {
+                        $insert[$column] = $model->$column;
+                    }
                 }
                 $status = $this->getCollection()->insert($insert, array('save' => $save));
                 if ($status) {
@@ -181,26 +245,37 @@ class Mongo_Repository
                 }
                 return false;
             } else {
-                $update = array();
+                $query = array();
                 foreach ($this->columns as $column) {
-                    if ($model->$column != $model->getDatabaseProperty($column)) {
-                        $update[$column] = $model->$column;
+                    if ($model->$column !== $model->getDatabaseProperty($column)) {
+                        if ($model->$column === null) {
+                            $query['$unset'][$column] = 1;
+                        } else {
+                            $query['$set'][$column] = $model->$column;
+                        }
                     }
                 }
-                if (!count($update)) {
+                if (!count($query)) {
                     return true;
                 }
-                $status = $this->getCollection()->update(array('_id' => $model->_id), array('$set' => $update), array('save' => $save));
+                $status = $this->getCollection()->update(array('_id' => $model->_id), $query, array('save' => $save));
                 if ($status) {
-                    foreach ($update as $key => $value) {
-                        $model->setDatabaseProperty($key, $value);
+                    if (!empty($query['$set'])) {
+                        foreach ($query['$set'] as $key => $value) {
+                            $model->setDatabaseProperty($key, $value);
+                        }
+                    }
+                    if (!empty($query['$unset'])) {
+                        foreach ($query['$unset'] as $key => $dummy) {
+                            $model->setDatabaseProperty($key, null);
+                        }
                     }
                     return true;
                 }
                 return false;
             }
         } catch (Exception $e) {
-            return false;
+            throw $e;
         }
     }
 
@@ -226,7 +301,7 @@ class Mongo_Repository
             }
             return false;
         } catch (Exception $e) {
-            return false;
+            throw $e;
         }
     }
 
@@ -250,11 +325,12 @@ class Mongo_Repository
 
     /**
      *
+     * @param string $connection the database connection to use (null for the default connection)
      * @return Mongo_Repository
      */
-    public static function get($collectionName, $connection = null)
+    public static function get($connection = null)
     {
-        return new self($collectionName, $connection);
+        return new self(null, null, $connection);
     }
 
 }

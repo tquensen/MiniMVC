@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @property MongoId $_id
  * @property string $name
@@ -11,15 +10,20 @@
  */
 class MongoExampleAuthor extends Mongo_Model
 {
-
+    /*
     public function preSave()
     {
         if ($this->isNew()) {
+            $this->slug = $this->getRepository()->generateSlug($this, $this->title, 'slug', 32);
             $this->created_at = new MongoDate();
         }
         $this->updated_at = new MongoDate();
     }
+     */
 
+    
+
+    
     /**
      *
      * @param array $query Additional fields to filter.
@@ -30,57 +34,29 @@ class MongoExampleAuthor extends Mongo_Model
      */
     public function getArticles($query = array(), $sort = array(), $limit = null, $skip = null)
     {
-        $query = (array)$query;
-        $query['author_id'] = $this->_id;
-        return MongoExampleArticleRepository::get()->find($query = array(), $sort = array(), $limit = null, $skip = null);
+        return $this->getRelated('Articles', $query, $sort, $limit, $skip);
     }
 
     /**
      * @param MongoExampleArticle|mixed $related either a MongoExampleArticle object, a MongoExampleArticle->_id-value or an array with multiple MongoExampleArticles
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
-    public function setArticles($related)
+    public function setArticles($related, $save = true)
     {
-        if (is_array($related)) {
-            foreach ($related as $rel) {
-                $this->setArticles($rel);
-            }
-            return true;
-        }
-        if (!is_object($related) || !($related instanceof MongoExampleArticle)) {
-            $related = MongoExampleArticleRepository::get()->findOne($related);
-        }
-        if (!$related) {
-            throw new InvalidArgumentException('Could not find valid MongoExampleArticle');
-        }
-        $related->author_id = $this->_id;
-        return $related->save();
+        return $this->setRelated('Articles', $related, $save = true);
     }
 
     /**
-     * @param MongoExampleArticle|mixed $related either a MongoExampleArticle object, a MongoExampleArticle->_id-value  or an array with multiple MongoExampleArticles
+     * @param MongoExampleArticle|mixed $related true to remove all objects or either a MongoExampleArticle object, a MongoExampleArticle->_id-value  or an array with multiple MongoExampleArticles
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
-    public function removeArticles($related)
+    public function removeArticles($related = true, $save = true)
     {
-        if (is_array($related)) {
-            foreach ($related as $rel) {
-                $this->removeArticles($rel);
-            }
-            return true;
-        }
-        if (!is_object($related) || !($related instanceof MongoExampleArticle)) {
-            $related = MongoExampleArticleRepository::get()->findOne($related);
-        }
-        if (!$related) {
-            throw new InvalidArgumentException('Could not find valid MongoExampleArticle');
-        }
-        if ($related->author_id != $this->_id) {
-            return false;
-        }
-        $related->author_id = null;
-        return $related->save();
+        return $this->removeRelated('Articles', $related, $save);
     }
+    
 
     /**
      *
@@ -92,56 +68,28 @@ class MongoExampleAuthor extends Mongo_Model
      */
     public function getComments($query = array(), $sort = array(), $limit = null, $skip = null)
     {
-        $query = (array)$query;
-        $query['author_id'] = $this->_id;
-        return MongoExampleCommentRepository::get()->find($query = array(), $sort = array(), $limit = null, $skip = null);
+        return $this->getRelated('Comments', $query, $sort, $limit, $skip);
     }
 
     /**
      * @param MongoExampleComment|mixed $related either a MongoExampleComment object, a MongoExampleComment->_id-value or an array with multiple MongoExampleComments
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
-    public function setComments($related)
+    public function setComments($related, $save = true)
     {
-        if (is_array($related)) {
-            foreach ($related as $rel) {
-                $this->setComments($rel);
-            }
-            return true;
-        }
-        if (!is_object($related) || !($related instanceof MongoExampleComment)) {
-            $related = MongoExampleCommentRepository::get()->findOne($related);
-        }
-        if (!$related) {
-            throw new InvalidArgumentException('Could not find valid MongoExampleComment');
-        }
-        $related->author_id = $this->_id;
-        return $related->save();
+        return $this->setRelated('Comments', $related, $save = true);
     }
 
     /**
-     * @param MongoExampleComment|mixed $related either a MongoExampleComment object, a MongoExampleComment->_id-value  or an array with multiple MongoExampleComments
+     * @param MongoExampleComment|mixed $related true to remove all objects or either a MongoExampleComment object, a MongoExampleComment->_id-value  or an array with multiple MongoExampleComments
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
-    public function removeComments($related)
+    public function removeComments($related = true, $save = true)
     {
-        if (is_array($related)) {
-            foreach ($related as $rel) {
-                $this->removeComments($rel);
-            }
-            return true;
-        }
-        if (!is_object($related) || !($related instanceof MongoExampleComment)) {
-            $related = MongoExampleCommentRepository::get()->findOne($related);
-        }
-        if (!$related) {
-            throw new InvalidArgumentException('Could not find valid MongoExampleComment');
-        }
-        if ($related->author_id != $this->_id) {
-            return false;
-        }
-        $related->author_id = null;
-        return $related->save();
+        return $this->removeRelated('Comments', $related, $save);
     }
+    
 
 }
