@@ -18,7 +18,7 @@
 <?php endif; ?>
 
 <?php /* CREATE LINK
-<?php if ($h->url->userCanCall('MODLC.CONTROLLERLCFIRSTNew')): ?>
-    <p><?php echo $h->url->link($t->CONTROLLERLCFIRSTNewLink, 'MODLC.CONTROLLERLCFIRSTNew'); ?></p>
+<?php if ($h->url->userCanCall('MODLC.CONTROLLERLCFIRSTCreate')): ?>
+    <p><?php echo $h->url->link($t->CONTROLLERLCFIRSTCreateLink, 'MODLC.CONTROLLERLCFIRSTCreate'); ?></p>
 <?php endif; ?>
  */ ?>

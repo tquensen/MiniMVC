@@ -21,27 +21,27 @@ $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTIndex'] = array(
                         //        array(array('administrate', array('moderate', 'publish'))) = administrate OR (moderate AND publish)
 );
 
-$MiniMVC_routes['MODLC.CONTROLLERLCFIRSTNew'] = array(
-    'route' => 'MODLC/new(.:_format:)',
-    'controller' => 'MODULE_CONTROLLER',
-    'action' => 'create',
-    'method' => 'GET',
-    'parameter' => array('_format' => 'default'), //set the default format
-    'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
-    'active' => false, //this route must be activated for each app to work
-    //'rights' => 'publish'
-);
 $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTCreate'] = array(
-    'route' => 'MODLC(.:_format:)',
+    'route' => 'MODLC/create(.:_format:)',
     'controller' => 'MODULE_CONTROLLER',
     'action' => 'create',
-    'method' => 'POST',
+    'method' => array('GET', 'POST'),
     'parameter' => array('_format' => 'default'), //set the default format
     'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
     'active' => false, //this route must be activated for each app to work
     //'rights' => 'publish'
 );
-
+$MiniMVC_routes['MODLC.CONTROLLERLCFIRSTUpdate'] = array(
+    'route' => 'MODLC/:slug:/update(.:_format:)',
+    'controller' => 'MODULE_CONTROLLER',
+    'action' => 'update',
+    'method' => array('GET', 'POST'),
+    'model' => array('MODULE', 'slug'),
+    'parameter' => array('slug' => false, '_format' => 'default'), //set the default format
+    'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
+    'active' => false, //this route must be activated for each app to work
+    //'rights' => 'publish'
+);
 $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTShow'] = array(
     'route' => 'MODLC/:slug:(.:_format:)', // .format is optional (in brackets)
     'controller' => 'MODULE_CONTROLLER',
@@ -54,29 +54,6 @@ $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTShow'] = array(
     'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
     //'rights' => false
 );
-$MiniMVC_routes['MODLC.CONTROLLERLCFIRSTEdit'] = array(
-    'route' => 'MODLC/:slug:/edit(.:_format:)',
-    'controller' => 'MODULE_CONTROLLER',
-    'action' => 'update',
-    'method' => 'GET',
-    'model' => array('MODULE', 'slug'),
-    'parameter' => array('slug' => false, '_format' => 'default'), //set the default format
-    'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
-    'active' => false, //this route must be activated for each app to work
-    //'rights' => 'publish'
-);
-$MiniMVC_routes['MODLC.CONTROLLERLCFIRSTUpdate'] = array(
-    'route' => 'MODLC/:slug:(.:_format:)',
-    'controller' => 'MODULE_CONTROLLER',
-    'action' => 'update',
-    'method' => 'POST',
-    'model' => array('MODULE', 'slug'),
-    'parameter' => array('slug' => false, '_format' => 'default'), //set the default format
-    'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
-    'active' => false, //this route must be activated for each app to work
-    //'rights' => 'publish'
-);
-
 $MiniMVC_routes['MODLC.CONTROLLERLCFIRSTDelete'] = array(
     'route' => 'MODLC/:slug:(.:_format:)',
     'controller' => 'MODULE_CONTROLLER',

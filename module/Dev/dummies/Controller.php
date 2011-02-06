@@ -94,21 +94,15 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
 
                     if ($this->registry->layout->getFormat() === null) {
                         $this->registry->helper->messages->add($message, 'success');
-                        $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
+                        return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
                     }
                 } else {
                     $form->setError($this->view->t->CONTROLLERLCFIRSTCreateErrorMessage);
                 }
             }
-
-            if ($this->registry->layout->getFormat() === null) {
-                $form->errorRedirect('MODLC.CONTROLLERLCFIRSTNew');
-            }
             
             $this->view->model = $model;
             $this->view->message = $message;
-            
-            $this->view->setFile('CONTROLLERLC/create');
         }
 
         $this->view->success = $success;
@@ -147,15 +141,11 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
 
                     if ($this->registry->layout->getFormat() === null) {
                         $this->registry->helper->messages->add($message, 'success');
-                        $form->successRedirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
+                        return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
                     }
                 } else {
                     $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTUpdateErrorMessage);
                 }
-            }
-
-            if ($this->registry->layout->getFormat() === null) {
-                $form->errorRedirect('MODLC.CONTROLLERLCFIRSTEdit', array('slug' => $model->slug));
             }
 
             $this->view->message = $message;
@@ -181,14 +171,14 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             //clear the index cache and the cache of this model (and other cached pages if needed)
             //$this->view->deleteCache(array('MODLC.CONTROLLERLCFIRSTIndex', 'MODLC.CONTROLLERLCFIRSTShow.'.$model->slug));
 
-            if ($params['_format'] == 'default') {
+            if ($this->registry->layout->getFormat() === null) {
                 $this->registry->helper->messages->add($message, 'success');
                 return $this->redirect('MODLC.CONTROLLERLCFIRSTIndex');
             }
         } else {
             $message = $this->view->t->CONTROLLERLCFIRSTDeleteErrorMessage(array('title' => htmlspecialchars($model->title)));
-            if ($params['_format'] == 'default') {
-               $this->registry->helper->messages->add($message, 'error');
+            if ($this->registry->layout->getFormat() === null) {
+                $this->registry->helper->messages->add($message, 'error');
                 return $this->redirect('MODLC.CONTROLLERLCFIRSTIndex');
             }
         }
