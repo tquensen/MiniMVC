@@ -3,9 +3,9 @@
 $json = array(
     'success' => true,
     'currentPage' => $pager->getPage(),
+    'currentEntries' => $pager->getPageEntries(),
     'numPages' => $pager->getPages(),
     'numEntries' => $pager->getNumEntries(),
-    'currentEntries' => $pager->getPageEntries(),
     'entries' => array()
 );
 if (count($entries)) {

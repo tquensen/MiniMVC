@@ -375,7 +375,10 @@ class Helper_Pager extends MiniMVC_Helper
      */
     public function getPageEntries()
     {
-        return $this->currentPage == $this->pages ? $this->entriesPerPage : $this->entries % $this->entriesPerPage;
+        if ($this->currentPage != $this->pages || !($lastPageEntries = $this->entries % $this->entriesPerPage)) {
+            return $this->entriesPerPage;
+        }
+        return $lastPageEntries;
     }
 
     /**
