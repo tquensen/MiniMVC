@@ -4,8 +4,6 @@ error_reporting(E_ALL | E_STRICT);
 ini_set('display_errors', '0');
 ini_set('log_errors', '1');
 
-session_start();
-
 define('BASEPATH', dirname(__FILE__).'/');
 define('MINIMVCPATH', BASEPATH . 'lib/MiniMVC/');
 define('APPPATH', BASEPATH . 'app/');
@@ -21,3 +19,5 @@ include MINIMVCPATH.'MiniMVC/Settings.php';
 include MINIMVCPATH.'MiniMVC/Cache.php';
 
 spl_autoload_register(array('MiniMVC_Autoload', 'autoload'));
+
+session_start();
