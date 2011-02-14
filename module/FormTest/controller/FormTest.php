@@ -7,7 +7,7 @@ class FormTest_FormTest_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setDescription($this->view->t->formTestMetaDescription);
 
         $form = $this->getForm();
-        
+
         if ($form->wasSubmitted() && $form->validate()) {
             $this->view->success = true;
             $this->view->message = $this->view->t->formTestSuccessMessage;
@@ -20,13 +20,10 @@ class FormTest_FormTest_Controller extends MiniMVC_Controller
 
     protected function getForm()
     {
-        $options = array('name' => 'TestForm', 'class' => 'fancyForm');
+        $options = array('name' => 'TestForm', 'class' => 'fancyForm', 'wrapper' => 'ul');
 
         $form = new MiniMVC_Form($options);
 
-        $form->setElement(new MiniMVC_Form_Element_Fieldset('fs',
-                        array('legend' => $this->view->t->testFormFieldsetLegend, 'info' => $this->view->t->testFormFieldsetInfo)
-               ));
 
         $form->setElement(new MiniMVC_Form_Element_Text('title',
                         array('attributes' => array('placeholder' => $this->view->t->testFormTitlePlaceholder), 'label' => $this->view->t->testFormTitleLabel, 'info' => $this->view->t->testFormTitleInfo),
@@ -43,6 +40,9 @@ class FormTest_FormTest_Controller extends MiniMVC_Controller
                         array(
                             new MiniMVC_Form_Validator_Required(array('errorMessage' => $this->view->t->testFormPasswordRequiredError))
                 )));
+        $form->setElement(new MiniMVC_Form_Element_Fieldset('fs',
+                        array('legend' => $this->view->t->testFormFieldsetLegend, 'info' => $this->view->t->testFormFieldsetInfo)
+               ));
         $form->setElement(new MiniMVC_Form_Element_Checkbox('checkbox',
                         array('wrapperClass' => 'small', 'label' => $this->view->t->testFormCheckboxLabel, 'info' => $this->view->t->testFormCheckboxInfo),
                         array(
@@ -57,6 +57,10 @@ class FormTest_FormTest_Controller extends MiniMVC_Controller
                         array(
                             new MiniMVC_Form_Validator_Required(array('errorMessage' => $this->view->t->testFormSelectRequiredError))
                 )));
+        $form->setElement(new MiniMVC_Form_Element_Fieldsetend('fsend'));
+        $form->setElement(new MiniMVC_Form_Element_Fieldset('fs2',
+                        array('legend' => $this->view->t->testFormFieldsetLegend, 'info' => $this->view->t->testFormFieldsetInfo)
+               ));
         $form->setElement(new MiniMVC_Form_Element_CheckboxGroup('checkboxGroup',
                         array(
                             'wrapperClass' => 'small',
@@ -83,6 +87,7 @@ class FormTest_FormTest_Controller extends MiniMVC_Controller
                         array(
                             new MiniMVC_Form_Validator_Required(array('errorMessage' => $this->view->t->testFormTexareatRequiredError))
                 )));
+        $form->setElement(new MiniMVC_Form_Element_Fieldsetend('fs2end'));
         $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('wrapperClass' => 'right small', 'label' => $this->view->t->testFormSubmitLabel)));
         $form->setElement(new MiniMVC_Form_Element_Button('button', array('wrapperClass' => 'left small', 'type' => 'submit', 'label' => $this->view->t->testFormButtonLabel)));
 
