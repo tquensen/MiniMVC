@@ -110,9 +110,9 @@
     -webkit-box-shadow: 0 0 5px rgba(0,96,255,0.8), inset 0 0 0 1px #fff;
     -moz-box-shadow: 0 0 5px rgba(0,96,255,0.8), inset 0 0 0 1px #fff;
     box-shadow: 0 0 5px rgba(0,96,255,0.8), inset 0 0 0 1px #fff;
-    background: -webkit-linear-gradient(top, rgb(207,207,207), rgb(255,255,255) 50%);
-    background: -moz-linear-gradient(top, rgb(207,207,207), rgb(255,255,255) 50%);
-    background: linear-gradient(top, rgb(207,207,207), rgb(255,255,255) 50%);
+    background: -webkit-linear-gradient(top, rgb(223,223,223), rgb(255,255,255) 50%);
+    background: -moz-linear-gradient(top, rgb(223,223,223), rgb(255,255,255) 50%);
+    background: linear-gradient(top, rgb(223,223,223), rgb(255,255,255) 50%);
     color: #000;
 }
 
