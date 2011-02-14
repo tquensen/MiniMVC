@@ -82,8 +82,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             $model = $form->getModel();
             $message = '';
 
-            if ($form->validate())
-            {
+            if ($form->validate()) {
                 $form->updateModel();
                 if ($model->save()) {
                     $success = true;
@@ -129,8 +128,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         if ($form->wasSubmitted()) {
             $message = '';
 
-            if ($form->validate())
-            {
+            if ($form->validate()) {
                 $form->updateModel();
                 if ($model->save()) {
                     $success = true;

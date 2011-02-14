@@ -10,6 +10,7 @@ include MINIMVCPATH.'MiniMVC/DummyCache.php';
 ini_set('display_errors', '1');
 
 MiniMVC_Registry::getInstance()->settings = new MiniMVC_Settings('frontend', 'dev', new MiniMVC_DummyCache());
+MiniMVC_Registry::getInstance()->helper->cache = new Helper_DummyCache();
 
 try {
     $view = MiniMVC_Registry::getInstance()->dispatcher->dispatch();

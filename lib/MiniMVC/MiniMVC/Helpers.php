@@ -57,12 +57,12 @@ class MiniMVC_Helpers
         $module = (isset($arguments[0])) ? $arguments[0] . '_' : '';
         if (!isset($this->helpers[$module.$name]))
 		{
-			$helperName = $module.'Helper_'.$name;
+			$helperName = $this->registry->settings->get('config/classes/'.$module.'Helper_'.$name, $module.'Helper_'.$name);
 			if (class_exists($helperName))
 			{
 				$this->helpers[$module.$name] = new $helperName($module);
 			} else {
-                $helperName = 'Helper_'.$name;
+                $helperName = $this->registry->settings->get('config/classes/Helper_'.$name, 'Helper_'.$name);
                 if (class_exists($helperName))
                 {
                     $this->helpers[$module.$name] = new $helperName($module);
@@ -82,12 +82,23 @@ class MiniMVC_Helpers
         $name = ucfirst($name);
 		if (!isset($this->helpers[$name]))
 		{
-			$helperName = 'Helper_'.$name;
+			$helperName = $this->registry->settings->get('config/classes/Helper_'.$name, 'Helper_'.$name);
 			if (class_exists($helperName))
 			{
 				$this->helpers[$name] = new $helperName();
 			}
 		}
 		return (isset($this->helpers[$name])) ? $this->helpers[$name] : null;
+	}
+
+    /**
+     *
+     * @param string $name the helper name
+     * @param MiniMVC_Helper $helper a helper class
+     */
+	public function __set($name, $helper)
+	{
+        $name = ucfirst($name);
+        $this->helpers[$name] = $helper;
 	}
 }

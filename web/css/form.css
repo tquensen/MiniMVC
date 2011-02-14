@@ -1,9 +1,9 @@
-form {
+.fancyForm {
     margin: 0;
     padding: 0;
 }
 
-fieldset {
+.fancyForm fieldset {
     clear: both;
     margin: 5px;
     padding: 0;
@@ -13,34 +13,54 @@ fieldset {
     border-radius: 3px;
 }
 
-legend {
+.fancyForm legend {
     padding: 3px;
     margin: 2px 8px;
 }
 
-form > div, form > fieldset > div {
+.fancyForm > ul, .fancyForm > ol,
+.fancyForm > fieldset > ul, .fancyForm > fieldset > ol {
+    list-style: none;
+    display: block;
+    margin: 0;
+    padding: 0;
+}
+
+.fancyForm > div, .fancyForm > fieldset > div,
+.fancyForm > ul > li, .fancyForm > fieldset > ul > li,
+.fancyForm > ol > li, .fancyForm > fieldset > ol > li {
     text-align: left;
     margin: 0;
     padding: 0 5px 5px;
     display: block;
     width: 100%;
-    float: left;
+    clear: both;
      -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
 }
 
-form div.small {
+.fancyForm .small {
     width: 50%;
     float: left;
+    clear: none;
 }
 
-.formSubmitWrapper, .formButtonWrapper {
-    padding-top: 15px;
+.fancyForm .formSubmitWrapper, .fancyForm .formButtonWrapper {
+    padding: 10px 6px;
+}
+
+.fancyForm .left {
+    text-align: left;
+}
+.fancyForm .center {
     text-align: center;
 }
+.fancyForm .right {
+    text-align: right;
+}
 
-input, textarea, select, button {
+.fancyForm input, .fancyForm textarea, .fancyForm select, .fancyForm button {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
@@ -66,28 +86,33 @@ input, textarea, select, button {
         );
     -webkit-border-radius: 3px;
     -moz-border-radius: 3px;
+    border-radius: 3px;
     -webkit-box-shadow: inset 0 0 0 1px #fff;
     -moz-box-shadow: inset 0 0 0 1px #fff;
     box-shadow: inset 0 0 0 1px #fff;
-    border-radius: 3px;
     color: #666;
     padding: 5px;
     margin: 0;
-    text-shadow: 0 1px 0 #fff;
+/*    text-shadow: 0 1px 1px #fff;*/
+    -moz-transition: all 0.1s linear;
+    -webkit-transition: all 0.1s linear;
+    transition: all 0.1s linear;
 }
 
-select {
+.fancyForm select {
     padding: 4px 5px;
 }
 
-input:hover, textarea:hover, select:hover, button:hover {
+.fancyForm input:hover, .fancyForm textarea:hover, .fancyForm select:hover, .fancyForm button:hover {
     border: #bbb 1px solid;
     -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.2), inset 0 0 0 1px #fff;
     -moz-box-shadow: 0 0 5px rgba(0,0,0,0.2), inset 0 0 0 1px #fff;
     box-shadow: 0 0 5px rgba(0,0,0,0.2), inset 0 0 0 1px #fff;
 }
 
-input:active, textarea:active, select:active, button:active, input:focus, textarea:focus, select:focus, button:focus, input[type=submit]:hover, button:hover {
+.fancyForm input:active, .fancyForm textarea:active, .fancyForm select:active, .fancyForm button:active,
+.fancyForm input:focus, .fancyForm textarea:focus, .fancyForm select:focus, .fancyForm button:focus,
+.fancyForm input[type=submit]:hover, .fancyForm button:hover {
     outline: none;
     border: #999 1px solid;
     -webkit-box-shadow: 0 0 5px rgba(0,96,255,0.8), inset 0 0 0 1px #fff;
@@ -96,7 +121,7 @@ input:active, textarea:active, select:active, button:active, input:focus, textar
     color: #000;
 }
 
-input[type=submit], button {
+.fancyForm input[type=submit], .fancyForm button {
     display: inline-block;
     width: auto;
     background: #fff;
@@ -115,7 +140,7 @@ input[type=submit], button {
     cursor: pointer;
 }
 
-input[type=submit]:hover, input[type=submit]:focus, button:hover, button:focus {
+.fancyForm input[type=submit]:hover, .fancyForm input[type=submit]:focus, .fancyForm button:hover, .fancyForm button:focus {
     background: #ddd;
     background: -webkit-gradient(
         linear,
@@ -131,7 +156,7 @@ input[type=submit]:hover, input[type=submit]:focus, button:hover, button:focus {
         );
 }
 
-input[type=submit]:active, button:active {
+.fancyForm input[type=submit]:active, .fancyForm button:active {
     background: #ddd;
     background: -webkit-gradient(
         linear,
@@ -147,85 +172,84 @@ input[type=submit]:active, button:active {
         );
 }
 
-input[type=radio]:focus + label, input[type=checkbox]:focus + label {
+.fancyForm input[type=radio]:focus + label, .fancyForm input[type=checkbox]:focus + label {
     text-decoration: underline;
 }
 
-option {
+.fancyForm option {
     background: none;
 }
 
-form .invalid input, form .invalid textarea, form .invalid select, form .invalid button {
+.fancyForm .invalid input, .fancyForm .invalid textarea, .fancyForm .invalid select, .fancyForm .invalid button {
     border: #fbb 1px solid;
 }
 
-form .invalid input:hover, form .invalid textarea:hover, form .invalid select:hover, form .invalid button:hover {
+.fancyForm .invalid input:hover, .fancyForm .invalid textarea:hover, .fancyForm .invalid select:hover {
     border: #faa 1px solid;
     -webkit-box-shadow: 0 0  5px rgba(255,0,0,0.4), inset 0 0 0 1px #fff;
     -moz-box-shadow: 0 0  5px rgba(255,0,0,0.4), inset 0 0 0 1px #fff;
     box-shadow: 0 0  5px rgba(255,0,0,0.4), inset 0 0 0 1px #fff;
 }
 
-form .invalid input:focus, form .invalid textarea:focus, form .invalid select:focus, form .invalid button:focus,
-form .invalid input:active, form .invalid textarea:active, form .invalid select:active, form .invalid button:active {
-    border: #f99 1px solid;
+.fancyForm .invalid input:focus, .fancyForm .invalid textarea:focus, .fancyForm .invalid select:focus {
+    border: #f66 1px solid;
     -webkit-box-shadow: 0 0  5px rgba(255,0,0,0.6), inset 0 0 0 1px #fff;
     -moz-box-shadow: 0 0  5px rgba(255,0,0,0.6), inset 0 0 0 1px #fff;
     box-shadow: 0 0  5px rgba(255,0,0,0.6), inset 0 0 0 1px #fff;
 }
 
 
-label {
+.fancyForm label {
     display: block;
     padding: 3px 6px 0;
     font-size: 12px;
 }
 
-.formError {
+.fancyForm .formError {
     display: block;
     font-size: 12px;
     color: #f66;
-    padding: 3px 6px;
+    padding: 0 6px 3px;
 }
 
-.formHiddenWrapper {
+.fancyForm .formHiddenWrapper {
     display: none;
 }
 
-.formInfo {
+.fancyForm .formInfo {
     display: block;
     font-size: 11px;
     color: #999;
-    padding: 3px 11px;
+    padding: 3px 6px;
 }
 
-form .formCheckboxGroupWrapper ul, form .formRadioWrapper ul {
+.fancyForm .formCheckboxGroupWrapper ul, .fancyForm .formRadioWrapper ul {
     margin: 5px 0;
 }
 
-form .formCheckboxWrapper li, form .formCheckboxGroupWrapper li, form .formRadioWrapper li {
+.fancyForm .formCheckboxWrapper li, .fancyForm .formCheckboxGroupWrapper li, .fancyForm .formRadioWrapper li {
     margin: 0;
-    padding: 0 6px 3px 6px;
+    padding: 0;
     display: block;
     float: none;
 }
 
-form .formCheckboxWrapper input, form .formCheckboxGroupWrapper input, form .formRadioWrapper input {
+.fancyForm .formCheckboxWrapper input, .fancyForm .formCheckboxGroupWrapper input, .fancyForm .formRadioWrapper input {
     display: inline;
     border: none;
     background: transparent;
     width: auto;
     padding: 0;
 /*    vertical-align: bottom;*/
-    margin: 0 0 4px 2px;
+    margin: 0 0 3px 8px;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
 }
-form .formCheckboxWrapper {
+.fancyForm .formCheckboxWrapper {
     padding-top: 3px;
 }
-form .formCheckboxWrapper label, form .formCheckboxGroupWrapper ul label, form .formRadioWrapper ul label {
+.fancyForm .formCheckboxWrapper label, .fancyForm .formCheckboxGroupWrapper ul label, .fancyForm .formRadioWrapper ul label {
     display: inline;
     width: auto;
     padding: 3px ;

@@ -14,7 +14,7 @@ class {name}Table extends {name}TableBase
             $model = $this->create();
         }
 
-        $options = array_merge(array('name' => '{name}Form', 'model' => $model), $options);
+        $options = array_merge(array('name' => '{name}Form', 'model' => $model, 'class' => 'fancyForm'), $options);
 
         $form = new MiniMVC_Form($options);
 

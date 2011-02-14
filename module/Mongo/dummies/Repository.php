@@ -25,7 +25,7 @@ class {name}Repository extends Mongo_Repository
             $model = $this->create();
         }
 
-        $options = array_merge(array('name' => '{name}Form', 'model' => $model), $options);
+        $options = array_merge(array('name' => '{name}Form', 'model' => $model, 'class' => 'fancyForm'), $options);
 
         $form = new MiniMVC_Form($options);
 

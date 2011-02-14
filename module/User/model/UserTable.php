@@ -7,7 +7,7 @@ class UserTable extends UserTableBase
 
         $model = $this->create();
 
-        $options = array_merge(array('name' => 'UserRegisterForm', 'model' => $model), $options);
+        $options = array_merge(array('name' => 'UserRegisterForm', 'model' => $model, 'class' => 'fancyForm'), $options);
 
         $form = new MiniMVC_Form($options);
 
@@ -46,7 +46,7 @@ class UserTable extends UserTableBase
     {
         $i18n = $this->registry->helper->i18n->get('User');
 
-        $options = array_merge(array('name' => 'UserPasswordForm', 'model' => $model), $options);
+        $options = array_merge(array('name' => 'UserPasswordForm', 'model' => $model, 'class' => 'fancyForm'), $options);
 
         $form = new MiniMVC_Form($options);
 
@@ -82,7 +82,7 @@ class UserTable extends UserTableBase
 
         $model = $this->create();
         
-        $options = array_merge(array('name' => 'UserLoginForm', 'model' => $model), $options);
+        $options = array_merge(array('name' => 'UserLoginForm', 'model' => $model, 'class' => 'fancyForm'), $options);
 
         $form = new MiniMVC_Form($options);
 
