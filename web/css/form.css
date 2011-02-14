@@ -114,7 +114,7 @@
 .fancyForm input:focus, .fancyForm textarea:focus, .fancyForm select:focus, .fancyForm button:focus,
 .fancyForm input[type=submit]:hover, .fancyForm button:hover {
     outline: none;
-    background-color: #f9f9f9;
+    background-color: #f0f0f0;
     border: #999 1px solid;
     -webkit-box-shadow: 0 0 5px rgba(0,96,255,0.8), inset 0 0 0 1px #fff;
     -moz-box-shadow: 0 0 5px rgba(0,96,255,0.8), inset 0 0 0 1px #fff;
@@ -125,7 +125,7 @@
 .fancyForm input[type=submit], .fancyForm button {
     display: inline-block;
     width: auto;
-    background: #fff;
+    background: #fafafa;
     background: -webkit-gradient(
         linear,
         left bottom,
@@ -142,7 +142,7 @@
 }
 
 .fancyForm input[type=submit]:hover, .fancyForm input[type=submit]:focus, .fancyForm button:hover, .fancyForm button:focus {
-    background: #f9f9f9;
+    background: #f0f0f0;
     background: -webkit-gradient(
         linear,
         left bottom,
@@ -158,7 +158,7 @@
 }
 
 .fancyForm input[type=submit]:active, .fancyForm button:active {
-    background: #f0f0f0;
+    background: #eee;
     background: -webkit-gradient(
         linear,
         left top,
