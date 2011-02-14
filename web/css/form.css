@@ -26,9 +26,9 @@
     padding: 0;
 }
 
-.fancyForm > div, .fancyForm > fieldset > div,
-.fancyForm > ul > li, .fancyForm > fieldset > ul > li,
-.fancyForm > ol > li, .fancyForm > fieldset > ol > li {
+.fancyForm > div, .fancyForm fieldset > div,
+.fancyForm > ul > li, .fancyForm fieldset > ul > li,
+.fancyForm ol > li, .fancyForm fieldset > ol > li {
     text-align: left;
     margin: 0;
     padding: 0 5px 5px;

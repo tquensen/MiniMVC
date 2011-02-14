@@ -20,6 +20,7 @@ class MiniMVC_Form
         $this->options['route'] = MiniMVC_Registry::getInstance()->settings->get('currentRoute');
         $this->options['parameter'] = isset($options['route']) ? array() : MiniMVC_Registry::getInstance()->settings->get('currentRouteParameter');
         $this->options['method'] = 'POST';
+        $this->options['wrapper'] = 'div';
         $this->options['showGlobalErrors'] = true;
         $this->options['requiredMark'] = $i18n->requiredMark;
         $this->options = array_merge($this->options, (array)$options);
