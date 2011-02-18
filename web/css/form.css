@@ -166,18 +166,18 @@
 }
 
 .fancyForm .invalid input, .fancyForm .invalid textarea, .fancyForm .invalid select, .fancyForm .invalid button {
-    border-color: #faa #fbb #fcc;
+    border-color: #f88 #faa #fcc;
 }
 
 .fancyForm .invalid input:hover, .fancyForm .invalid textarea:hover, .fancyForm .invalid select:hover {
-    border-color: #faa #f99 #f88;
+    border-color: #f88 #faa #fcc;
     -webkit-box-shadow: 0 0  5px rgba(255,0,0,0.4), inset 0 0 0 1px #fff;
     -moz-box-shadow: 0 0  5px rgba(255,0,0,0.4), inset 0 0 0 1px #fff;
     box-shadow: 0 0  5px rgba(255,0,0,0.4), inset 0 0 0 1px #fff;
 }
 
 .fancyForm .invalid input:focus, .fancyForm .invalid textarea:focus, .fancyForm .invalid select:focus {
-    border-color: #f99 #f88 #f66;
+    border-color: #f66 #f88 #faa;
     -webkit-box-shadow: 0 0  5px rgba(255,0,0,0.6), inset 0 0 0 1px #fff;
     -moz-box-shadow: 0 0  5px rgba(255,0,0,0.6), inset 0 0 0 1px #fff;
     box-shadow: 0 0  5px rgba(255,0,0,0.6), inset 0 0 0 1px #fff;
