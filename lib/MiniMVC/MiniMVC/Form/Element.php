@@ -108,7 +108,7 @@ class MiniMVC_Form_Element
 				$this->isValid = false;
 
                 if ($this->globalErrors) {
-                    $this->getForm()->setError($this->errorMessage, $this->label);
+                    $this->getForm()->setError($this->errorMessage, $this->getName());
                 }
 
 				break;

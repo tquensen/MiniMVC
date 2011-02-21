@@ -213,7 +213,11 @@
     padding: 0 6px 3px;
 }
 
-.fancyForm .formError span {
+.fancyForm .formErrors label {
+    display: inline;
+    padding: 0;
+}
+.fancyForm .formErrors span {
     font-weight: bold;
 }
 
