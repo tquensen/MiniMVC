@@ -155,11 +155,11 @@ class MiniMVC_Form
         return true;
     }
 
-    public function setError($errorMessage = null)
+    public function setError($errorMessage = null, $label = null)
     {
         $this->isValid = false;
         if ($errorMessage) {
-            $this->errors[] = $errorMessage;
+            $this->errors[] = array('message' => $errorMessage, 'label' => $label);
         }
     }
 

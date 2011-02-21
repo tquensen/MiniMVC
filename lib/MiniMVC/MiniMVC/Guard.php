@@ -16,7 +16,6 @@ class MiniMVC_Guard
     protected $data = array();
     protected $persistent = true;
     protected $authToken = null;
-    protected $isUnsaveRequest = false;
 
     public function __construct()
     {
@@ -24,12 +23,12 @@ class MiniMVC_Guard
 
         if (!isset($_SERVER['REQUEST_METHOD']) || strtolower($_SERVER['REQUEST_METHOD']) != 'get') {
             $this->persistent = false;
-            $this->isUnsaveRequest = true;
-            if (isset($_REQUEST['auth_token'])) {
-                $event = new sfEvent($this, 'guard.identifyAuthToken', array('authToken' => $_REQUEST['auth_token']));
-                $this->registry->events->notify($event);
-            }
-        } else {
+        }
+
+        $event = new sfEvent($this, 'guard.processLogin');
+        $this->registry->events->notifyUntil($event);
+
+        if (!$event->isProcessed() && $this->persistent) {
             if (isset($_SESSION['guardID'])) {
                 $this->id = $_SESSION['guardID'];
             }
@@ -182,11 +181,6 @@ class MiniMVC_Guard
         if ($this->persistent) {
             $_SESSION['guardData'] = $this->data;
         }
-    }
-
-    public function isUnsaveRequest()
-    {
-        return $this->isUnsaveRequest;
     }
 
     /**
