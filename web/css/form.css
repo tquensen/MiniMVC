@@ -147,9 +147,6 @@
 }
 
 .fancyForm input[type=submit]:active, .fancyForm button:active, .fancyButton:active {
-    -webkit-box-shadow: 0 0 5px rgba(0,96,255,0.8), inset 0 1px 0 #fff;
-    -moz-box-shadow: 0 0 5px rgba(0,96,255,0.8), inset 0 1px 0 #fff;
-    box-shadow: 0 0 5px rgba(0,96,255,0.8), inset 0 1px 0 #fff;
     background: #eee;
     background: -webkit-linear-gradient(top, rgb(191,191,191), rgb(255,255,255) 50%);
     background: -moz-linear-gradient(top, rgb(191,191,191), rgb(255,255,255) 50%);
@@ -303,8 +300,4 @@
     background: -webkit-linear-gradient(top, rgb(191,191,191), rgb(255,255,255) 50%);
     background: -moz-linear-gradient(top, rgb(191,191,191), rgb(255,255,255) 50%);
     background: linear-gradient(top, rgb(191,191,191), rgb(255,255,255) 50%);
-
-    -webkit-box-shadow: 0 0 5px rgba(0,96,255,0.8), inset 0 1px 0 #fff;
-    -moz-box-shadow: 0 0 5px rgba(0,96,255,0.8), inset 0 1px 0 #fff;
-    box-shadow: 0 0 5px rgba(0,96,255,0.8), inset 0 1px 0 #fff;
 }
