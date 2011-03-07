@@ -6,7 +6,7 @@ class User_Events {
     {
         $guard = $event->getSubject();
         if (isset($_REQUEST['auth_token'])) {
-            $user = UserTable::getInstance()->loadOneBy('auth_token = ?', $token);
+            $user = UserTable::getInstance()->loadOneBy('auth_token = ?', $_REQUEST['auth_token']);
             if ($user) {
                 $guard->setUser($user->id, $user->role);
                 $guard->setAuthToken($user->auth_token);

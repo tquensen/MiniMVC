@@ -8,7 +8,7 @@ class User_User_Controller extends MiniMVC_Controller
 
         if ($this->view->selectCache(
             array('name' => 'user.userIndex', 'loggedIn' => (bool) $this->registry->guard->getId()),
-            array('user.userIndex')
+            array('user.userIndex'), true, 3600
         )) { return $this->view->prepareCache(); }
 
         $showPerPage = 20;
@@ -44,7 +44,7 @@ class User_User_Controller extends MiniMVC_Controller
 
         if ($this->view->selectCache(
             array('name' => 'user.userShow', 'self' => (bool) ($this->registry->guard->getId() == $user->id)),
-            array('user.userShow', 'user.userShow.'.$user->id)
+            array('user.userShow', 'user.userShow.'.$user->id), true, 3600
         )) { return $this->view->prepareCache(); }
 
         $this->view->model = $user;
