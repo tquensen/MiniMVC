@@ -64,12 +64,10 @@ class MiniMVC_Layout
     /**
      *
      * @param MiniMVC_View $content the returned view class of the main controller
-     * @param mixed $app the name of the app to use or null for the current app
      * @return MiniMVC_View the prepared view class of the current layout file and everything included
      */
-    public function prepare($content, $app = null)
+    public function prepare($content)
     {
-        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
         if ($this->layout === null) {
             $this->layout = $this->registry->settings->get('config/defaultLayout', 'default');
         }

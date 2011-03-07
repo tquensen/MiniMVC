@@ -112,12 +112,8 @@ class Helper_Css extends MiniMVC_Helper
         return array_merge($combinedFiles, $this->additionalFiles);
     }
 
-    public function combineFiles($files, $app = null, $environment = null)
+    public function combineFiles($files)
     {
-
-        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-        $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
-
 
         $uncombinedBefore = array();
         $uncombinedAfter = array();
@@ -148,7 +144,7 @@ class Helper_Css extends MiniMVC_Helper
 //                $relativePath = str_replace($baseurls, '', $file['url']); //relative path from web root
 //                $urlPrefix = dirname($relativePath) . '/';
 //                $filePath = $file['file'];
-                $data = $this->parseFile($filePath, $urlPrefix, $file['app'], $environment);
+                $data = $this->parseFile($filePath, $urlPrefix, $file['app']);
                 foreach (explode(',', $file['media']) as $media) {
                     $medias[trim($media)][] = $data;
                 }
@@ -176,7 +172,7 @@ class Helper_Css extends MiniMVC_Helper
                 file_put_contents(CACHEPATH.'public/'.$filename, $content);
 	            $newFiles[$fileHash] = array(
                     'file' => CACHEPATH.'public/'.$filename,
-	                'url' => $this->staticHelper->get('cache/'.$filename, null, $app),
+	                'url' => $this->staticHelper->get('cache/'.$filename, null),
 	                'media' => $media
 	            );
             } else {
@@ -186,11 +182,10 @@ class Helper_Css extends MiniMVC_Helper
         return array_merge($uncombinedBefore, $newFiles, $uncombinedAfter);
     }
 
-    public function parseFile($file, $urlPrefix, $app = null, $environment = null)
+    public function parseFile($file, $urlPrefix, $app = null)
     {
         $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-        $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
-        $activeModules = $this->registry->settings->get('modules', null, $app, $environment);
+        $activeModules = $this->registry->settings->get('modules', null);
 
         if (!is_file($file) || !is_readable($file)) {
             return '';

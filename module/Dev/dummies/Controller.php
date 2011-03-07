@@ -18,7 +18,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             ),
             array( //tokens
                 'MODLC.CONTROLLERLCFIRSTIndex'
-            )
+            ), true, 3600 //bindtourl = true, expires in 3600 seconds
         )) {
             return $this->view->prepareCache();
         }
@@ -59,7 +59,7 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
             array( //tokens
                 'MODLC.CONTROLLERLCFIRSTShow.'.$model->slug,
                 'MODLC.CONTROLLERLCFIRSTShow'
-            )
+            ), true, 3600 //bindtourl = true, expires in 3600 seconds
         )) {
             return $this->view->prepareCache();
         }

@@ -194,11 +194,14 @@ class MiniMVC_View
         return $this->cache->check();
     }
 
-    public function selectCache($dependencies = array(), $tokens = array(), $bindToUrl = true)
+    public function selectCache($dependencies = array(), $tokens = array(), $bindToUrl = true, $ttl = 0)
     {
         $this->cache = $this->registry->helper->cache->get(
             $dependencies, $tokens, $bindToUrl
         );
+        if ($ttl) {
+            $this->cache->setTTL($ttl);
+        }
         return $this->checkCache();
     }
 

@@ -34,7 +34,7 @@ class Helper_Url extends MiniMVC_Helper
 
 		try
 		{
-			$routeData = $this->registry->dispatcher->getRoute($route, $parameter, $app);
+			$routeData = $this->registry->dispatcher->getRoute($route, $parameter);
 		}
 		catch (Exception $e)
 		{
@@ -93,7 +93,7 @@ class Helper_Url extends MiniMVC_Helper
         
         try
 		{
-			$routeData = $this->registry->dispatcher->getRoute($route, $parameter, $app);
+			$routeData = $this->registry->dispatcher->getRoute($route, $parameter);
 		}
 		catch (Exception $e)
 		{
@@ -131,10 +131,10 @@ class Helper_Url extends MiniMVC_Helper
         }
     }
 
-    public function userCanCall($route, $params = array(), $app = null)
+    public function userCanCall($route)
     {
         try {
-            $routeData = $this->registry->dispatcher->getRoute($route, $params, $app);
+            $routeData = $this->registry->dispatcher->getRoute($route);
         } catch (Exception $e) {
             return false;
         }

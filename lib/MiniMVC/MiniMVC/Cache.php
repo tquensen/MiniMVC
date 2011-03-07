@@ -29,14 +29,14 @@ abstract class MiniMVC_Cache
         return $this->prefix;
     }
 
-    abstract public function get($key, $default = null, $app = null, $environment = null);
+    abstract public function get($key, $default = null);
 
-    abstract public function set($key, $value, $app = null, $environment = null);
+    abstract public function set($key, $value);
     
-    abstract public function exists($key, $app = null, $environment = null);
+    abstract public function exists($key);
 
-    abstract public function delete($key, $app = null, $environment = null);
+    abstract public function delete($key);
 
-    abstract public function clear($all = true, $app = null, $environment = null);
+    abstract public function clear($all = true);
 }
 

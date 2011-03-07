@@ -235,14 +235,11 @@ class MiniMVC_Dispatcher
      *
      * @param string $route the name of an internal route
      * @param array $params the parameters for the route
-     * @param mixed $app the name of an app or null to use the current app
      * @return array returns an array with route information
      */
-    public function getRoute($route, $params = array(), $app = null)
+    public function getRoute($route, $params = array())
     {
-        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-
-        if (!$routeData = $this->registry->settings->get('routes/'.$route, array(), $app)) {
+        if (!$routeData = $this->registry->settings->get('routes/'.$route, array())) {
             throw new Exception('Route "' . $route . '" does not exist!');
         }
         
@@ -307,34 +304,10 @@ class MiniMVC_Dispatcher
             }
         }
 
-        if (isset($routeData['model']) && is_array($routeData['model'])) {
-            if (isset($routeData['model'][0]) && !is_array($routeData['model'][0])) {
-                $routeData['model'] = array($routeData['model']);
-            }
-            $models = array();
-            foreach ($routeData['model'] as $modelKey => $modelData) {
-                if (!empty($routeData['parameter']['_model'])) {
-                    if (is_array($routeData['parameter']['_model']) && ($modelKey != 0 && !empty($routeData['parameter']['_model'][$modelKey]))) {
-                        $models[$modelKey] = $routeData['parameter']['_model'][$modelKey];
-                        continue;
-                    } elseif ($modelKey == 0) {
-                        $models[$modelKey] = $routeData['parameter']['_model'];
-                        continue;
-                    }
-                }
-                $modelName = $modelData[0];
-                $tableName = $modelName.'Table';
-                if (!class_exists($modelName) || !class_exists($tableName)) {
-                    $models[$modelKey] = null;
-                } else {
-                    $table = new $tableName;
-                    $property = !empty($modelData[1]) ? $modelData[1] : $table->getIdentifier();
-                    $refProperty = !empty($modelData[2]) ? $modelData[2] : $property;
-                    $models[$modelKey] = empty($routeData['parameter'][$refProperty]) ? null : $table->loadOneBy($property.' = ?', $routeData['parameter'][$refProperty]);
-                }
-            }
-            $routeData['parameter']['model'] = (count($models) === 1 && isset($models[0])) ? reset($models) : $models;
-        }
+        $event = new sfEvent($this, 'minimvc.dispatcher.finalizeRoute');
+        $this->registry->events->filter($event, $routeData);
+        $routeData = $event->getReturnValue();
+
 
         return $this->call($routeData['controller'], $routeData['action'], isset($routeData['parameter']) ? $routeData['parameter'] : array());
     }
@@ -343,14 +316,11 @@ class MiniMVC_Dispatcher
      *
      * @param string $widget the name of an internal widget
      * @param array $params the parameters for the widget
-     * @param $app the name of an app or null to use the current app
      * @return array returns an array with widget information
      */
-    public function getWidget($widget, $params = array(), $app = null)
+    public function getWidget($widget, $params = array())
     {
-        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-
-        if (!$widgetData = $this->registry->settings->get('widgets/'.$widget, array(), $app)) {
+        if (!$widgetData = $this->registry->settings->get('widgets/'.$widget, array())) {
             throw new Exception('Widget "' . $widget . '" does not exist!', 404);
         }
         
@@ -412,13 +382,11 @@ class MiniMVC_Dispatcher
      *
      * @param string $task the name of an internal task
      * @param array $params the parameters for the task
-     * @param $app the name of an app or null to use the current app
      * @return array returns an array with task information
      */
-    public function getTask($task, $params = array(), $app = null)
+    public function getTask($task, $params = array())
     {
-        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-        if (!$taskData = $this->registry->settings->get('tasks/'.$task, array(), $app)) {
+        if (!$taskData = $this->registry->settings->get('tasks/'.$task, array())) {
             throw new Exception('Task "' . $task . '" does not exist!', 404);
         }
 

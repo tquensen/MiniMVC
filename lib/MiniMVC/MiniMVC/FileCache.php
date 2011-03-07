@@ -7,7 +7,7 @@ class MiniMVC_FileCache extends MiniMVC_Cache
 {
     protected $data = array();
 
-    public function get($key, $default = null, $app = null, $environment = null)
+    public function get($key, $default = null)
     {
         $parts = explode('/', $key);
         $file = array_shift($parts);
@@ -15,14 +15,14 @@ class MiniMVC_FileCache extends MiniMVC_Cache
             return $default;
         }
 
-        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-        $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
+        $app = $this->registry->settings->get('currentApp');
+        $environment = $this->registry->settings->get('currentEnvironment');
 
-        if (!isset($this->data[$file . '_' . $app . '_' . $environment])) {
+        if (!isset($this->data[$file])) {
             $this->load($file, $app, $environment);
         }
 
-        $return = $this->data[$file . '_' . $app . '_' . $environment];
+        $return = $this->data[$file];
         if (count($parts) === 0 && !count($return)) {
             return $default;
         } elseif (count($parts) === 1) {
@@ -43,7 +43,7 @@ class MiniMVC_FileCache extends MiniMVC_Cache
         return $return;
     }
 
-    public function set($key, $value, $app = null, $environment = null)
+    public function set($key, $value)
     {
         $parts = explode('/', $key);
         $file = array_shift($parts);
@@ -51,31 +51,31 @@ class MiniMVC_FileCache extends MiniMVC_Cache
             return false;
         }
 
-        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-        $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
+        $app = $this->registry->settings->get('currentApp');
+        $environment = $this->registry->settings->get('currentEnvironment');
 
         if (count($parts) === 0) {
-            $this->data[$file . '_' . $app . '_' . $environment] = (array) $value;
+            $this->data[$file] = (array) $value;
             $this->save((array) $value, $file, $app, $environment);
             return true;
         } else {
             $this->load($file, $app, $environment);
             if (count($parts) === 1) {
-                $this->data[$file . '_' . $app . '_' . $environment][$parts[0]] = $value;
-                $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+                $this->data[$file][$parts[0]] = $value;
+                $this->save($this->data[$file], $file, $app, $environment);
                 return true;
             } elseif (count($parts) === 2) {
-                $this->data[$file . '_' . $app . '_' . $environment][$parts[0]][$parts[1]] = $value;
-                $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+                $this->data[$file][$parts[0]][$parts[1]] = $value;
+                $this->save($this->data[$file], $file, $app, $environment);
                 return true;
             } elseif (count($parts) === 3) {
-                $this->data[$file . '_' . $app . '_' . $environment][$parts[0]][$parts[1]][$parts[2]] = $value;
-                $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+                $this->data[$file][$parts[0]][$parts[1]][$parts[2]] = $value;
+                $this->save($this->data[$file], $file, $app, $environment);
                 return true;
             }
         }
 
-        $pointer = &$this->data[$file . '_' . $app . '_' . $environment];
+        $pointer = &$this->data[$file];
         while (null !== ($index = array_shift($parts))) {
             if (!isset($pointer[$index])) {
                 $pointer[$index] = array();
@@ -87,25 +87,25 @@ class MiniMVC_FileCache extends MiniMVC_Cache
             }
         }
 
-        $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+        $this->save($this->data[$file], $file, $app, $environment);
         return true;
     }
 
-    public function exists($key, $app = null, $environment = null)
+    public function exists($key)
     {
         $parts = explode('/', $key);
         $file = array_shift($parts);
         if (!$file) {
             return false;
         }
-        $data = $this->get($key, null, $app, $environment);
+        $data = $this->get($key, null);
         if ($data === null || (count($parts) === 0 && !count($data))) {
             return false;
         }
         return true;
     }
 
-    public function delete($key, $app = null, $environment = null)
+    public function delete($key)
     {
         $parts = explode('/', $key);
         $file = array_shift($parts);
@@ -113,31 +113,31 @@ class MiniMVC_FileCache extends MiniMVC_Cache
             return $default;
         }
 
-        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-        $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
+        $app = $this->registry->settings->get('currentApp');
+        $environment = $this->registry->settings->get('currentEnvironment');
 
         if (count($parts) === 0) {
-            $this->data[$file . '_' . $app . '_' . $environment] = array();
+            $this->data[$file] = array();
             $this->save(array(), $file, $app, $environment);
             return true;
         } else {
             $this->load($file, $app, $environment);
             if (count($parts) === 1) {
-                unset($this->data[$file . '_' . $app . '_' . $environment][$parts[0]]);
-                $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+                unset($this->data[$file][$parts[0]]);
+                $this->save($this->data[$file], $file, $app, $environment);
                 return true;
             } elseif (count($parts) === 2) {
-                unset($this->data[$file . '_' . $app . '_' . $environment][$parts[0]][$parts[1]]);
-                $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+                unset($this->data[$file][$parts[0]][$parts[1]]);
+                $this->save($this->data[$file], $file, $app, $environment);
                 return true;
             } elseif (count($parts) === 3) {
-                unset($this->data[$file . '_' . $app . '_' . $environment][$parts[0]][$parts[1]][$parts[2]]);
-                $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+                unset($this->data[$file][$parts[0]][$parts[1]][$parts[2]]);
+                $this->save($this->data[$file], $file, $app, $environment);
                 return true;
             }
         }
 
-        $pointer = &$this->data[$file . '_' . $app . '_' . $environment];
+        $pointer = &$this->data[$file];
         while (null !== ($index = array_shift($parts))) {
            if (isset($pointer[$index])) {
                 $pointer = &$pointer[$index];
@@ -149,20 +149,18 @@ class MiniMVC_FileCache extends MiniMVC_Cache
             }
         }
 
-        $this->save($this->data[$file . '_' . $app . '_' . $environment], $file, $app, $environment);
+        $this->save($this->data[$file], $file, $app, $environment);
         return true;
     }
 
-    public function clear($all = true, $app = null, $environment = null)
+    public function clear($all = true)
     {
         if ($all) {
             $app = '[a-zA-Z0-9]+';
             $environment = '[a-zA-Z0-9]+';
-
-            $this->data = array();
         } else {
-            $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-            $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
+            $app = $this->registry->settings->get('currentApp');
+            $environment = $this->registry->settings->get('currentEnvironment');
         }
 
         foreach (scandir($this->folder) as $file) {
@@ -174,11 +172,8 @@ class MiniMVC_FileCache extends MiniMVC_Cache
             }
         }
 
-        foreach ($this->data as $key => $value) {
-            if (preg_match('#.+_'.$app.'_'.$environment.'#', $key)) {
-                unset($this->data[$key]);
-            }
-        }
+        $this->data = array();
+
 
         return true;
     }
@@ -189,11 +184,11 @@ class MiniMVC_FileCache extends MiniMVC_Cache
         if (!file_exists(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.php')) {
             file_put_contents(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.tmp.php', '<?php $data = array();');
             rename(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.tmp.php', CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.php');
-            $this->data[$file.'_'.$app.'_'.$environment] = array();
+            $this->data[$file] = array();
         } else {
             $data = array();
             include CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.php';
-            $this->data[$file.'_'.$app.'_'.$environment] = $data;
+            $this->data[$file] = $data;
         }
     }
 
@@ -202,7 +197,7 @@ class MiniMVC_FileCache extends MiniMVC_Cache
         $fileKey = $file; //md5($file);
         file_put_contents(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.tmp.php', '<?php ' . "\n" . $this->varExport($data, '$data', 2));
         rename(CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.tmp.php', CACHEPATH.$this->prefix.'_cache_'.$fileKey.'_'.$app.'_'.$environment.'.php');
-        $this->data[$file.'_'.$app.'_'.$environment] = $data;
+        $this->data[$file] = $data;
     }
 
     public function varExport($data, $varname, $maxDepth = 2, $depth = 0)

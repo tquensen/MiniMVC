@@ -11,25 +11,24 @@ class Helper_I18n extends MiniMVC_Helper
      * @param string $language the language to use (defaults to the current language)
      * @return MiniMVC_Translation
      */
-    public function get($module = '_default', $language = null, $app = null)
+    public function get($module = '_default', $language = null)
     {
         $language = $language ? $language : $this->registry->settings->get('currentLanguage');
-        $currentApp = $app ? $app : $this->registry->settings->get('currentApp');
 
-        if (isset(self::$loaded[$currentApp . '_' . $language][$module])) {
-            return self::$loaded[$currentApp . '_' . $language][$module];
+        if (isset(self::$loaded[$language][$module])) {
+            return self::$loaded[$language][$module];
         }
 
-        if (!isset(self::$cached[$currentApp . '_' . $language])) {
-            $cache = $this->registry->cache->get('i18n_'.$currentApp . '_' . $language);
+        if (!isset(self::$cached[$language])) {
+            $cache = $this->registry->cache->get('i18n_'. $language);
             if ($cache !== null) {
-                self::$cached[$currentApp . '_' . $language] = $cache;
+                self::$cached[$language] = $cache;
             } else {
                 $languages = array_merge(
                     (array) $this->registry->settings->get('config/fallbackLanguages/'.$language),
                     (array) $this->registry->settings->get('config/defaultLanguage')
                 );
-                self::$cached[$currentApp . '_' . $language] = $this->scanI18nFiles($currentApp, $language, $languages);
+                self::$cached[$language] = $this->scanI18nFiles($language, $languages);
             }
         }
 
@@ -40,9 +39,9 @@ class Helper_I18n extends MiniMVC_Helper
         
 
         $translationClass = $this->registry->settings->get('config/classes/translation', 'MiniMVC_Translation');
-        self::$loaded[$currentApp . '_' . $language][$module] = new $translationClass((isset(self::$cached[$currentApp . '_' . $language][$module])
-                                    ? self::$cached[$currentApp . '_' . $language][$module] : array()));
-        return self::$loaded[$currentApp . '_' . $language][$module];
+        self::$loaded[$language][$module] = new $translationClass((isset(self::$cached[$language][$module])
+                                    ? self::$cached[$language][$module] : array()));
+        return self::$loaded[$language][$module];
     }
 
     public function getLanguageChooserHtml($module = null, $partial = 'languageChooser')
@@ -73,8 +72,9 @@ class Helper_I18n extends MiniMVC_Helper
         return $this->registry->helper->partial->get($partial, $data, $module ? $module : $this->module);
     }
 
-    protected function scanI18nFiles($currentApp, $language, $languages)
+    protected function scanI18nFiles($language, $languages)
     {
+        $currentApp = $this->registry->settings->get('currentApp');
         $MiniMVC_i18n = array();
 
         $loaded = array();
@@ -104,7 +104,7 @@ class Helper_I18n extends MiniMVC_Helper
             }
         }
 
-        $this->registry->cache->set('i18n_'.$currentApp . '_' . $language, $MiniMVC_i18n);
+        $this->registry->cache->set('i18n_'. $language, $MiniMVC_i18n);
         return $MiniMVC_i18n;
 
 //        self::$cached[$currentApp . '_' . $language . '_' . $fallbackLanguage] = $MiniMVC_i18n;

@@ -11,6 +11,7 @@ class Helper_Cache extends MiniMVC_Helper {
     protected $key = false;
     protected $urlHash = 'other';
     protected $tokens = array();
+    protected $ttl = false;
 
     public function get($conditions = array(), $tokens = array(), $bindToUrl = true)
     {
@@ -36,9 +37,19 @@ class Helper_Cache extends MiniMVC_Helper {
         $this->key = $conditionIdentifier;
     }
 
+    public function setTTL($time)
+    {
+        $this->ttl = $time;
+    }
+
     public function check()
     {
         if (!$this->key || !file_exists(CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php')) {
+            return false;
+        }
+        $expires = $this->registry->cache->get('viewcache_ttl/'.$this->urlHash.'_'.$this->key);
+        if (!is_int($expires) || $expires < time()) {
+            unlink(CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php');
             return false;
         }
         return true;
@@ -46,7 +57,12 @@ class Helper_Cache extends MiniMVC_Helper {
 
     public function load()
     {
+        $expires = $this->registry->cache->get('viewcache_ttl/'.$this->urlHash.'_'.$this->key);
         if (file_exists(CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php')) {
+            if (!is_int($expires) || $expires < time()) {
+                unlink(CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php');
+                return '';
+            }
             ob_start();
             include CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php';
             return ob_get_clean();
@@ -72,6 +88,8 @@ class Helper_Cache extends MiniMVC_Helper {
         if (!is_dir(CACHEPATH.'views/'.$this->urlHash)) {
             mkdir(CACHEPATH.'views/'.$this->urlHash);
         }
+
+        $this->registry->cache->set('viewcache_ttl/'.$this->urlHash.'_'.$this->key, $this->ttl === false ? 0 : time() + $this->ttl);
         file_put_contents(CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php', $content);
         return true;
     }

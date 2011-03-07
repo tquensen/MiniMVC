@@ -171,11 +171,8 @@ class Helper_Js extends MiniMVC_Helper
         return $combinedFiles;
     }
 
-    public function combineFiles($files, $app = null, $environment = null)
+    public function combineFiles($files)
     {
-
-        $app = ($app) ? $app : $this->registry->settings->get('currentApp');
-        $environment = ($environment) ? $environment : $this->registry->settings->get('currentEnvironment');
 
         $uncombinedBefore = array();
         $uncombinedAfter = array();
@@ -209,7 +206,7 @@ class Helper_Js extends MiniMVC_Helper
 
             file_put_contents(CACHEPATH.'public/'.$filename, $content);
             $newFiles[$fileHash] = array(
-                'url' => $this->staticHelper->get('cache/'.$filename, null, $app)
+                'url' => $this->staticHelper->get('cache/'.$filename, null)
             );
         }
  

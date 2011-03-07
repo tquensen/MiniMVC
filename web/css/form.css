@@ -14,8 +14,10 @@
 }
 
 .fancyForm legend {
-    padding: 3px;
-    margin: 2px 13px;
+    padding: 0 6px;
+    margin: 5px 10px;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .fancyForm > ul, .fancyForm > ol,

@@ -77,6 +77,39 @@ class MiniMVC_Pdo
         $this->currentConnection = $connection;
     }
 
+    public function finalizeRouteEvent($event, $routeData)
+    {
+        if (isset($routeData['model']) && is_array($routeData['model'])) {
+            if (isset($routeData['model'][0]) && !is_array($routeData['model'][0])) {
+                $routeData['model'] = array($routeData['model']);
+            }
+            $models = array();
+            foreach ($routeData['model'] as $modelKey => $modelData) {
+                if (!empty($routeData['parameter']['_model'])) {
+                    if (is_array($routeData['parameter']['_model']) && ($modelKey != 0 && !empty($routeData['parameter']['_model'][$modelKey]))) {
+                        $models[$modelKey] = $routeData['parameter']['_model'][$modelKey];
+                        continue;
+                    } elseif ($modelKey == 0) {
+                        $models[$modelKey] = $routeData['parameter']['_model'];
+                        continue;
+                    }
+                }
+                $modelName = $modelData[0];
+                $tableName = $modelName.'Table';
+                if (!class_exists($modelName) || !class_exists($tableName)) {
+                    $models[$modelKey] = null;
+                } else {
+                    $table = new $tableName;
+                    $property = !empty($modelData[1]) ? $modelData[1] : $table->getIdentifier();
+                    $refProperty = !empty($modelData[2]) ? $modelData[2] : $property;
+                    $models[$modelKey] = empty($routeData['parameter'][$refProperty]) ? null : $table->loadOneBy($property.' = ?', $routeData['parameter'][$refProperty]);
+                }
+            }
+            $routeData['parameter']['model'] = (count($models) === 1 && isset($models[0])) ? reset($models) : $models;
+        }
+        return $routeData;
+    }
+
 }
 
 
