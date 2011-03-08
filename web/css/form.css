@@ -192,8 +192,8 @@
 .fancyForm .formErrors {
     list-style: none;
     display: block;
-    margin: 10px 5px 5px;
-    padding: 6px 10px 3px;
+    margin: 10px;
+    padding: 6px 0 3px;
     border: 1px solid;
     border-color: #fcc #faa #f88;
     background-color: #fee;

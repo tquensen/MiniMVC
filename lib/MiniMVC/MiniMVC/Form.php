@@ -24,6 +24,7 @@ class MiniMVC_Form
         $this->options['showGlobalErrors'] = true;
         $this->options['requiredMark'] = $i18n->requiredMark;
         $this->options['useFormToken'] = true;
+        $this->options['ignoreTokenOnAuthenticatedRequest'] = false;
         $this->options['formTokenErrorMessage'] = $i18n->formTokenErrorMessage;
         $this->options = array_merge($this->options, (array)$options);
 
@@ -200,7 +201,8 @@ class MiniMVC_Form
             return false;
         }
 
-        if ($this->getOption('useFormToken') && (!MiniMVC_Registry::getInstance()->guard->isAuthenticatedRequest() && !MiniMVC_Registry::getInstance()->guard->checkFormToken())) {
+        if ($this->getOption('useFormToken') && !MiniMVC_Registry::getInstance()->guard->checkFormToken()
+                && (!$this->getOption('ignoreTokenOnAuthenticatedRequest') || !MiniMVC_Registry::getInstance()->guard->isAuthenticatedRequest())) {
             $this->setError($this->getOption('formTokenErrorMessage'));
             return false;
         }
@@ -286,7 +288,9 @@ class MiniMVC_Form
         $form['name'] = $this->name;
         $form['isValid'] = $this->isValid;
         $form['wasSubmitted'] = $this->wasSubmitted();
-        $form['authToken'] = $this->getAuthToken();
+        if ($this->getOption('useFormToken')) {
+            $form['formToken'] = $this->getFormToken();
+        }
         $form['errors'] = $this->errors;
         $form['elements'] = array();
         foreach ($this->elements as $element) {
