@@ -23,6 +23,8 @@ class MiniMVC_Form
         $this->options['wrapper'] = 'div';
         $this->options['showGlobalErrors'] = true;
         $this->options['requiredMark'] = $i18n->requiredMark;
+        $this->options['useFormToken'] = true;
+        $this->options['formTokenErrorMessage'] = $i18n->formTokenErrorMessage;
         $this->options = array_merge($this->options, (array)$options);
 
         $this->options['action'] = MiniMVC_Registry::getInstance()->helper->url->get($this->options['route'], !empty($this->options['parameter']) ? $this->options['parameter'] : array());
@@ -31,9 +33,20 @@ class MiniMVC_Form
         $this->setElement(new MiniMVC_Form_Element_Hidden('FormCheck', array('defaultValue' => 1, 'alwaysDisplayDefault' => true), array(new MiniMVC_Form_Validator_Required())));
     }
 
-    public function getAuthToken()
+    public function getFormToken()
     {
-        return MiniMVC_Registry::getInstance()->guard->getAuthToken();
+        if (!$this->getOption('useFormToken')) {
+            return false;
+        }
+        return MiniMVC_Registry::getInstance()->guard->generateFormToken();
+    }
+
+    public function checkFormToken()
+    {
+        if (!$this->getOption('useFormToken')) {
+            return false;
+        }
+        return  MiniMVC_Registry::getInstance()->guard->checkFormToken();
     }
 
     public function getName()
@@ -184,6 +197,11 @@ class MiniMVC_Form
 
         //$this->bindValues();
         if (!$this->isValid || !$this->wasSubmitted()) {
+            return false;
+        }
+
+        if ($this->getOption('useFormToken') && (!MiniMVC_Registry::getInstance()->guard->isAuthenticatedRequest() && !MiniMVC_Registry::getInstance()->guard->checkFormToken())) {
+            $this->setError($this->getOption('formTokenErrorMessage'));
             return false;
         }
         

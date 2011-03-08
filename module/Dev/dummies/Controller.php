@@ -161,7 +161,12 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         }
 
         $model = $params['model'];
-        $success = $model->delete();
+        
+        if ($this->registry->guard->checkFormToken()) {
+            $success = $model->delete();
+        } else {
+            $success = false;
+        }
 
         if ($success) {
             $message = $this->view->t->CONTROLLERLCFIRSTDeleteSuccessMessage(array('title' => htmlspecialchars($model->title)));

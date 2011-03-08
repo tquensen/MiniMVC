@@ -15,20 +15,16 @@ class MiniMVC_Guard
     protected $rights = array();
     protected $data = array();
     protected $persistent = true;
-    protected $authToken = null;
+    protected $authenticatedRequest = false;
 
     public function __construct()
     {
         $this->registry = MiniMVC_Registry::getInstance();
 
-        if (!isset($_SERVER['REQUEST_METHOD']) || strtolower($_SERVER['REQUEST_METHOD']) != 'get') {
-            $this->persistent = false;
-        }
-
         $event = new sfEvent($this, 'guard.processLogin');
         $this->registry->events->notifyUntil($event);
 
-        if (!$event->isProcessed() && $this->persistent) {
+        if (!$event->isProcessed()) {
             if (isset($_SESSION['guardID'])) {
                 $this->id = $_SESSION['guardID'];
             }
@@ -38,9 +34,10 @@ class MiniMVC_Guard
             if (isset($_SESSION['guardRole']) && $_SESSION['guardRole']) {
                 $this->role = $_SESSION['guardRole'];
             }
-            if (isset($_SESSION['guardData'])) {
-                $this->data = $_SESSION['guardData'];
-            }
+        }
+
+        if (isset($_SESSION['guardData'])) {
+            $this->data = $_SESSION['guardData'];
         }
 
         if (!$this->role) {
@@ -63,6 +60,19 @@ class MiniMVC_Guard
         $this->setId($id);
         $this->setRole($role);
         $this->clearData();
+    }
+
+    /**
+     * check or set whether this is an authenticated request or not
+     * @param bool|null $authentivated null to return the request status, true or false to set the request status
+     * @return bool whether this is an authenticated request or not
+     */
+    public function isAuthenticatedRequest($authentivated = null)
+    {
+        if ($authentivated !== null) {
+            $this->authenticatedRequest = (bool) $authentivated;
+        }
+        return $this->authenticatedRequest;
     }
 
     /**
@@ -174,6 +184,25 @@ class MiniMVC_Guard
         $this->data[$key] = $value;
         $this->persistData();
         return true;
+    }
+
+    public function generateFormToken()
+    {
+        $token = md5(time().rand(10000, 99999));
+        $_SESSION['formToken'][$token] = true;
+        return $token;
+    }
+
+    public function checkFormToken($token = null)
+    {
+        if ($token === null) {
+            $token = isset($_REQUEST['form_token']) ? $_REQUEST['form_token'] : null;
+        }
+        if ($token && !empty($_SESSION['formToken'][$token])) {
+            unset($_SESSION['formToken'][$token]);
+            return true;
+        }
+        return false;
     }
 
     protected function persistData()

@@ -1,5 +1,5 @@
 <?php 
-$MiniMVC_i18n['_form']['errorCsrf'] = 'CSRF attack detected!';
+$MiniMVC_i18n['_form']['formTokenErrorMessage'] = 'Invalid form token';
 $MiniMVC_i18n['_form']['requiredMark'] = ' (required)';
 
 $MiniMVC_i18n['_pager']['first'] = '« first';
