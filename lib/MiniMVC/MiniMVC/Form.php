@@ -31,7 +31,7 @@ class MiniMVC_Form
         $this->options['action'] = MiniMVC_Registry::getInstance()->helper->url->get($this->options['route'], !empty($this->options['parameter']) ? $this->options['parameter'] : array());
         
 
-        $this->setElement(new MiniMVC_Form_Element_Hidden('FormCheck', array('defaultValue' => 1, 'alwaysDisplayDefault' => true), array(new MiniMVC_Form_Validator_Required())));
+//        $this->setElement(new MiniMVC_Form_Element_Hidden('FormCheck', array('defaultValue' => 1, 'alwaysDisplayDefault' => true), array(new MiniMVC_Form_Validator_Required())));
     }
 
     public function getFormToken()
@@ -142,24 +142,24 @@ class MiniMVC_Form
 
     public function bindValues()
     {
-        if (isset($_SESSION['form_' . $this->name . '__errorData'])) {
-            $values = $_SESSION['form_' . $this->name . '__errorData'];
-            
-            if (!empty($values['_form'])) {
-                $this->errors = $values['_form'];
-                $this->isValid = false;
-            }
-
-            unset($_SESSION['form_' . $this->name . '__errorData']);
-            foreach ($this->elements as $element) {
-                $_POST[$this->name][$element->getName()] = isset($values[$element->getName()]['value']) ? $values[$element->getName()]['value']
-                                    : null;
-                if (!empty($values[$element->getName()]['hasError'])) {
-                    $this->isValid = false;
-                    $element->setError($values[$element->getName()]['errorMessage']);
-                }
-            }
-        }
+//        if (isset($_SESSION['form_' . $this->name . '__errorData'])) {
+//            $values = $_SESSION['form_' . $this->name . '__errorData'];
+//
+//            if (!empty($values['_form'])) {
+//                $this->errors = $values['_form'];
+//                $this->isValid = false;
+//            }
+//
+//            unset($_SESSION['form_' . $this->name . '__errorData']);
+//            foreach ($this->elements as $element) {
+//                $_POST[$this->name][$element->getName()] = isset($values[$element->getName()]['value']) ? $values[$element->getName()]['value']
+//                                    : null;
+//                if (!empty($values[$element->getName()]['hasError'])) {
+//                    $this->isValid = false;
+//                    $element->setError($values[$element->getName()]['errorMessage']);
+//                }
+//            }
+//        }
         $values = (isset($_POST[$this->name]) && is_array($_POST[$this->name])) ? $_POST[$this->name]
                     : array();
         foreach ($this->elements as $element) {
@@ -286,12 +286,13 @@ class MiniMVC_Form
     {
         $form = array();
         $form['name'] = $this->name;
-        $form['isValid'] = $this->isValid;
-        $form['wasSubmitted'] = $this->wasSubmitted();
-        if ($this->getOption('useFormToken')) {
-            $form['formToken'] = $this->getFormToken();
+        if ($public) {
+            $form['action'] = $this->getOption('action');
+            $form['method'] = $this->getOption('method');
+            $form['enctype'] = $this->getOption('enctype');
         }
-        $form['errors'] = $this->errors;
+        
+        $form['globalErrors'] = $this->errors;
         $form['elements'] = array();
         foreach ($this->elements as $element) {
             $elementData = $element->toArray($public);
@@ -301,18 +302,21 @@ class MiniMVC_Form
         }
         if ($public) {
             $form['options'] = array();
-            $form['options']['action'] = $this->getOption('action');
-            $form['options']['method'] = $this->getOption('method');
-
             $form['options']['showGlobalErrors'] = $this->getOption('showGlobalErrors');
             $form['options']['requiredMark'] = $this->getOption('requiredMark');
 
-            $form['options']['enctype'] = $this->getOption('enctype');
             $form['options']['class'] = $this->getOption('class');
             $form['options']['attributes'] = $this->getOption('attributes');
         } else {
             $form['options'] = $this->options;
         }
+        $form['isValid'] = $this->isValid;
+        $form['wasSubmitted'] = $this->wasSubmitted();
+        if ($this->getOption('useFormToken')) {
+            $form['auth']['formToken'] = $this->getFormToken();
+        }
+
+
         return $form;
     }
 

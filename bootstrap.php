@@ -20,4 +20,9 @@ include MINIMVCPATH.'MiniMVC/Cache.php';
 
 spl_autoload_register(array('MiniMVC_Autoload', 'autoload'));
 
+ini_set('session.use_cookies', '1');
+ini_set('session.use_only_cookies', '0'); //allow session per POST/GET, useful for API requests
+ini_set('session.use_trans_sid', '0');
+
+session_name('session_token');
 session_start();

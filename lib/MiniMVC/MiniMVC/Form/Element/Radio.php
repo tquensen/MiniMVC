@@ -27,7 +27,7 @@ class MiniMVC_Form_Element_Radio extends MiniMVC_Form_Element
         $element = parent::toArray($public);
         $element['fullName'] = $element['fullName'] . '[]';
         if ($public) {
-            $element['options']['elements'] = $this->options['elements'];
+            $element['elements'] = $this->options['elements'];
         }
         return $element;
     }

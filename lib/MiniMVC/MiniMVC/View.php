@@ -127,12 +127,23 @@ class MiniMVC_View
                     } elseif (is_file(VIEWPATH.$_file.$_formatString.'.php')) {
                         $_path = VIEWPATH.$_file.$_formatString.'.php';
                     }
-                    if (!$_path && !$_format) {
-                        $_defaultFormat = $this->registry->settings->get('config/defaultFormat');
-                        if (is_file(APPPATH.$_app.'/view/'.$_file.'.'.$_defaultFormat.'.php')) {
-                            $_path = APPPATH.$_app.'/view/'.$_file.'.'.$_defaultFormat.'.php';
-                        } elseif (is_file(VIEWPATH.$_file.'.'.$_defaultFormat.'.php')) {
-                            $_path = VIEWPATH.$_file.'.'.$_defaultFormat.'.php';
+                    if (!$_path) {
+                        if (!$_format) {
+                            $_defaultFormat = $this->registry->settings->get('config/defaultFormat');
+                            if (is_file(APPPATH.$_app.'/view/'.$_file.'.'.$_defaultFormat.'.php')) {
+                                $_path = APPPATH.$_app.'/view/'.$_file.'.'.$_defaultFormat.'.php';
+                            } elseif (is_file(VIEWPATH.$_file.'.'.$_defaultFormat.'.php')) {
+                                $_path = VIEWPATH.$_file.'.'.$_defaultFormat.'.php';
+                            }
+                        } else {
+                            $_defaultLayout = $this->registry->settings->get('config/defaultLayout', 'default');
+                            if ($_defaultLayout != $_file) {
+                                if (is_file(APPPATH.$_app.'/view/'.$_defaultLayout.'.'.$_defaultFormat.'.php')) {
+                                    $_path = APPPATH.$_app.'/view/'.$_defaultLayout.'.'.$_defaultFormat.'.php';
+                                } elseif (is_file(VIEWPATH.$_defaultLayout.'.'.$_defaultFormat.'.php')) {
+                                    $_path = VIEWPATH.$_defaultLayout.'.'.$_defaultFormat.'.php';
+                                }
+                            }
                         }
                     }
                 }

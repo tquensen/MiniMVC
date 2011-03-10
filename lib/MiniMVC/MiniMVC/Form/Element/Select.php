@@ -26,7 +26,7 @@ class MiniMVC_Form_Element_Select extends MiniMVC_Form_Element
     {
         $element = parent::toArray($public);
         if ($public) {
-            $element['options']['options'] = $this->options['options'];
+            $element['elements'] = $this->options['options'];
         }
         return $element;
     }

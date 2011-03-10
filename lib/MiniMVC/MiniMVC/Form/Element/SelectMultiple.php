@@ -35,7 +35,7 @@ class MiniMVC_Form_Element_SelectMultiple extends MiniMVC_Form_Element
         $element = parent::toArray($public);
         $element['fullName'] = $element['fullName'] . '[]';
         if ($public) {
-            $element['options']['options'] = $this->options['options'];
+            $element['elements'] = $this->options['options'];
             if ($this->options['size']) {
                 $element['options']['size'] = $this->options['size'];
             }

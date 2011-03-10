@@ -3,7 +3,7 @@ RewriteEngine on
 # REMOVE TRAILING SLASH - recommended if none of your routes end with a /
 #RewriteCond %{REQUEST_FILENAME} !-d
 #RewriteCond %{REQUEST_FILENAME} !-f
-#RewriteRule ^(.*)/$ http://%{HTTP_HOST}/$1 [R=301,L]
+#RewriteRule ^(.*)/$ http://example.de/$1 [R=301,L] # change this to your default domain/basedir
 
 
 # REWRITE STATIC FILES WITH HASH PREFIX - required if $MiniMVC_view['static']['prefixHash'] = true
