@@ -14,6 +14,7 @@ class MiniMVC_Guard
     protected $role = null;
     protected $rights = array();
     protected $data = array();
+    protected $authToken = null;
     protected $persistent = true;
     protected $authenticatedRequest = false;
 
