@@ -160,6 +160,9 @@ class Helper_Css extends MiniMVC_Helper
 
 
         $newFiles = array();
+        if (!is_dir(CACHEPATH)) {
+            mkdir (CACHEPATH);
+        }
         if (!is_dir(CACHEPATH.'public')) {
             mkdir (CACHEPATH.'public');
         }
