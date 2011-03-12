@@ -53,4 +53,38 @@ class Mongo_DB
         $this->currentConnection = $connection;
     }
 
+
+    public function finalizeRouteEvent($event, $routeData)
+    {
+        if (isset($routeData['mongo']) && is_array($routeData['mongo'])) {
+            if (isset($routeData['mongo'][0]) && !is_array($routeData['mongo'][0])) {
+                $routeData['mongo'] = array($routeData['mongo']);
+            }
+            $models = array();
+            foreach ($routeData['mongo'] as $modelKey => $modelData) {
+                if (!empty($routeData['parameter']['_mongo'])) {
+                    if (is_array($routeData['parameter']['_mongo']) && ($modelKey != 0 && !empty($routeData['parameter']['_mongo'][$modelKey]))) {
+                        $models[$modelKey] = $routeData['parameter']['_mongo'][$modelKey];
+                        continue;
+                    } elseif ($modelKey == 0) {
+                        $models[$modelKey] = $routeData['parameter']['_mongo'];
+                        continue;
+                    }
+                }
+                $modelName = $modelData[0];
+                if (!class_exists($modelName) || !is_subclass_of($modelName, 'Mongo_Model')) {
+                    $models[$modelKey] = null;
+                } else {
+                    $object = new $modelName;
+                    $repository = $object->getRepository();
+                    $property = !empty($modelData[1]) ? $modelData[1] : '_id';
+                    $refProperty = !empty($modelData[2]) ? $modelData[2] : $property;
+                    $models[$modelKey] = empty($routeData['parameter'][$refProperty]) ? null : $repository->findOne(array($property => $routeData['parameter'][$refProperty]));
+                }
+            }
+            $routeData['parameter']['mongo'] = (count($models) === 1 && isset($models[0])) ? reset($models) : $models;
+        }
+        return $routeData;
+    }
+
 }
