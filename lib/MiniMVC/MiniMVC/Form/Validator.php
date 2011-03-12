@@ -3,6 +3,7 @@ class MiniMVC_Form_Validator
 {
 	protected $options = array();
     protected $element = null;
+    protected $form = null;
 
 	public function __construct($options = array())
 	{
@@ -33,6 +34,14 @@ class MiniMVC_Form_Validator
     {
         if ($element) {
             $this->element = $element;
+            $this->form = $element->getForm();
+        }
+    }
+
+    public function setForm($form)
+    {
+        if ($form) {
+            $this->form = $form;
         }
     }
 
@@ -43,7 +52,7 @@ class MiniMVC_Form_Validator
 
     public function getForm()
     {
-        return $this->element ? $this->element->getForm() : null;
+        return $this->form;
     }
 
 	public function validate($value)
