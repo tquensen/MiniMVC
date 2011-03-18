@@ -82,7 +82,7 @@ class Mongo_DB
                     $models[$modelKey] = empty($routeData['parameter'][$refProperty]) ? null : $repository->findOne(array($property => $routeData['parameter'][$refProperty]));
                 }
             }
-            $routeData['parameter']['mongo'] = (count($models) === 1 && isset($models[0])) ? reset($models) : $models;
+            $routeData['parameter']['mongo'] = (count($models) === 1 && array_key_exists(0, $models)) ? reset($models) : $models;
         }
         return $routeData;
     }

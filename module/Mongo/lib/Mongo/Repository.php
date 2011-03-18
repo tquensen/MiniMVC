@@ -136,7 +136,7 @@ class Mongo_Repository
             $data = array($data);
         }
         foreach ($data as $current) {
-            $model = $this->create($current);
+            $model = $this->create($current, false);
             foreach ($this->getColumns() as $col) {
                 if (isset($current[$col]))
                 $model->setDatabaseProperty($col, $current[$col]);
@@ -159,9 +159,8 @@ class Mongo_Repository
         } elseif ($query instanceof MongoId) {
             $query = array('_id' => $query);
         }
-        $data = $this->getCollection()->findOne($query);
-        if ($data) {
-            return $this->build($data, true);
+        if ($query && $data = $this->getCollection()->findOne($query)) {
+            return $build ? $this->build($data, true) : $data;
         }
     }
 
