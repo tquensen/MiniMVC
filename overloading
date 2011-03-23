@@ -5,6 +5,11 @@ Overloading Stacks:
             Overload:
                     = APPPATH/APP/web/*
                       -> WEBPATH/app/APP/*
+                    = THEMEPATH/THEME/web/*
+                      -> WEBPATH/theme/THEME/*
+                    = WEBPATH/THEME/*
+                    = APPPATH/APP/web/THEME/*
+                      -> WEBPATH/app/APP/THEME/*
 
         Module-specific:
             Basepath: MODULEPATH/MODULE/web/*
@@ -13,6 +18,11 @@ Overloading Stacks:
                     = WEBPATH/MODULE/*
                     = APPPATH/APP/web/MODULE/*
                       -> WEBPATH/app/APP/MODULE/*
+                    = THEMEPATH/THEME/web/MODULE/*
+                      -> WEBPATH/theme/THEME/MODULE/*
+                    = WEBPATH/THEME/MODULE/*
+                    = APPPATH/APP/web/THEME/MODULE/*
+                      -> WEBPATH/app/APP/THEME/MODULE/*
 
 
     Config / i18n
@@ -27,8 +37,11 @@ Overloading Stacks:
 
     Partials:
         - MINIMVCPATH/data/partial/*
-        - DATADIR/partial/*
+        - DATAPATH/partial/*
         - APPPATH/APP/partial/*
+        - THEMEPATH/THEME/partial/*
+        - VIEWPATH/THEME/partial/*
+        - APPPATH/APP/partial/THEME/*
         with specific module:
         - MODULEPATH/MODULE/partial/*
         - DATAPATH/partial/MODULE/*
@@ -38,11 +51,17 @@ Overloading Stacks:
         Layouts:
             - VIEWPATH/*
             - APPPATH/APP/view/*
+            - THEMEPATH/THEME/view/*
+            - VIEWPATH/THEME/view/*
+            - APPPATH/APP/view/THEME/*
 
         Module views:
             - MODULEPATH/MODULE/view/*
             - VIEWPATH/MODULE/*
             - APPPATH/APP/view/MODULE/*
+            - THEMEPATH/THEME/view/MODULE/*
+            - VIEWPATH/THEME/view/MODULE/*
+            - APPPATH/APP/view/THEME/MODULE/*
 
      Classes:
         Controller: (controllername = MODULE_CONTROLLER / classname = MODULE_CONTROLLER_controller)

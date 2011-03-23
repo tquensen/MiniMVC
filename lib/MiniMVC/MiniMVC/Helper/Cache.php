@@ -22,11 +22,16 @@ class Helper_Cache extends MiniMVC_Helper {
 
     public function init($conditions = array(), $tokens = array(), $bindToUrl = true)
     {
+        $app = $this->registry->settings->get('currentApp');
+        $env = $this->registry->settings->get('currentEnvironment');
+        $theme = $this->registry->layout->getTheme();
+
         $conditions = (array) $conditions;
         if ($bindToUrl) {
             $this->urlHash = md5($this->registry->settings->get('currentUrlFull'));
         }
 
+        $conditions['app_env_theme'] = $app.'_'.$env.'_'.$theme;
         ksort($conditions);
 
         $this->conditions = $conditions;
@@ -48,7 +53,7 @@ class Helper_Cache extends MiniMVC_Helper {
             return false;
         }
         $expires = $this->registry->cache->get('viewcache_ttl/'.$this->urlHash.'_'.$this->key);
-        if (!is_int($expires) || $expires < time()) {
+        if (!is_int($expires) || ($expires > 0 && $expires < time())) {
             unlink(CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php');
             return false;
         }
@@ -59,7 +64,7 @@ class Helper_Cache extends MiniMVC_Helper {
     {
         $expires = $this->registry->cache->get('viewcache_ttl/'.$this->urlHash.'_'.$this->key);
         if (file_exists(CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php')) {
-            if (!is_int($expires) || $expires < time()) {
+            if (!is_int($expires) || ($expires > 0 && $expires < time())) {
                 unlink(CACHEPATH.'views/'.$this->urlHash.'/'.$this->key.'.php');
                 return '';
             }
