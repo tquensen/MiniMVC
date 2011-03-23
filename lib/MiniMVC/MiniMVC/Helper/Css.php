@@ -18,6 +18,7 @@ class Helper_Css extends MiniMVC_Helper
         $route = $this->registry->settings->get('currentRoute');
         $format = $this->registry->layout->getFormat();
         $layout = $this->registry->layout->getLayout();
+        $theme = $this->registry->layout->getTheme();
 
         foreach ($files as $filekey => $file) {
             if (isset($file['show']) && $file['show']) {
@@ -42,6 +43,15 @@ class Helper_Css extends MiniMVC_Helper
             } elseif(is_array($file['format']) && !in_array($format ? $format : 'default', $file['format'])) {
                 unset($files[$filekey]);
             }
+
+            if (isset($file['theme'])) {
+                if (!is_array($file['theme']) && $file['theme'] != 'all' && ($file['theme'] != $theme)) {
+                    unset($files[$filekey]);
+                } elseif(is_array($file['theme']) && !in_array($theme ? $theme : 'default', $file['theme'])) {
+                    unset($files[$filekey]);
+                }
+            }
+
             if (isset($file['layout']) && $file['layout']) {
                 if (is_string($file['layout']) && $file['layout'] != 'all' && $file['layout'] != $layout) {
                     unset($files[$filekey]);
@@ -114,7 +124,7 @@ class Helper_Css extends MiniMVC_Helper
 
     public function combineFiles($files)
     {
-
+        $theme = $this->registry->layout->getTheme();
         $uncombinedBefore = array();
         $uncombinedAfter = array();
         $medias = array();
@@ -125,14 +135,29 @@ class Helper_Css extends MiniMVC_Helper
                 $combinedFound = true;
 
                 if (!empty($file['module'])) {
-                    if (file_exists(WEBPATH.'app/'.$file['app'].'/'.$file['module'].'/css/'.$file['file'])) {
+                    if ($theme && file_exists(WEBPATH.'app/'.$file['app'].'/'.$theme.'/'.$file['module'].'/css/'.$file['file'])) {
+                        $filePath = WEBPATH.'app/'.$file['app'].'/'.$theme.'/'.$file['module'].'/css/'.$file['file'];
+                    } elseif ($theme && file_exists(WEBPATH.$theme.'/'.$file['module'].'/css/'.$file['file'])) {
+                        $filePath = WEBPATH.$theme.'/'.$file['module'].'/css/'.$file['file'];
+                    } elseif ($theme && file_exists(WEBPATH.'theme/'.$theme.'/'.$file['module'].'/css/'.$file['file'])) {
+                        $filePath = WEBPATH.'theme/'.$theme.'/'.$file['module'].'/css/'.$file['file'];
+                    } elseif (file_exists(WEBPATH.'app/'.$file['app'].'/'.$file['module'].'/css/'.$file['file'])) {
                         $filePath = WEBPATH.'app/'.$file['app'].'/'.$file['module'].'/css/'.$file['file'];
                     } elseif (file_exists(WEBPATH.$file['module'].'/css/'.$file['file'])) {
                         $filePath = WEBPATH.$file['module'].'/css/'.$file['file'];
                     } else {
-                        $filePath = WEBPATH.'module/'.$module.'/css/'.$file['file'];
+                        $filePath = WEBPATH.'module/'.$file['module'].'/css/'.$file['file'];
                     }
                     $urlPrefix = 'module/'.$file['app'].'/css/';
+                } elseif ($theme && file_exists(WEBPATH.'app/'.$file['app'].'/'.$theme.'/css/'.$file['file'])) {
+                    $filePath = WEBPATH.'app/'.$file['app'].'/'.$theme.'/css/'.$file['file'];
+                    $urlPrefix = 'css/';
+                } elseif ($theme && file_exists(WEBPATH.$theme.'/css/'.$file['file'])) {
+                    $filePath = WEBPATH.$theme.'/css/'.$file['file'];
+                    $urlPrefix = 'css/';
+                } elseif ($theme && file_exists(WEBPATH.'theme/'.$theme.'/css/'.$file['file'])) {
+                    $filePath = WEBPATH.'theme/'.$theme.'/css/'.$file['file'];
+                    $urlPrefix = 'css/';
                 } elseif (file_exists(WEBPATH.'app/'.$file['app'].'/css/'.$file['file'])) {
                     $filePath = WEBPATH.'app/'.$file['app'].'/css/'.$file['file'];
                     $urlPrefix = 'css/';

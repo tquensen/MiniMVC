@@ -9,6 +9,7 @@ define('MINIMVCPATH', BASEPATH . 'lib/MiniMVC/');
 define('APPPATH', BASEPATH . 'app/');
 define('MODULEPATH', BASEPATH . 'module/');
 define('VIEWPATH', BASEPATH . 'view/');
+define('THEMEPATH', BASEPATH . 'theme/');
 define('WEBPATH', BASEPATH . 'web/');
 define('DATAPATH', BASEPATH . 'data/');
 define('CACHEPATH', BASEPATH . 'cache/');

@@ -58,6 +58,25 @@ class Core_Task_Controller extends MiniMVC_Controller
                 symlink(MODULEPATH.$module.'/web', WEBPATH.'module/'.$module);
             }
        }
+
+       if (is_dir(THEMEPATH)) {
+           $themes = scandir(THEMEPATH);
+           if (count($themes) > 2) {
+               if (!file_exists(WEBPATH.'theme')) {
+                   mkdir(WEBPATH.'theme');
+               }
+               foreach ($themes as $theme) {
+                   if ($theme == '.' || $theme == '..') {
+                       continue;
+                   }
+                    if (file_exists(THEMEPATH.$theme.'/web') && !file_exists(WEBPATH.'theme/'.$theme)) {
+                        echo 'Creating Link "'.WEBPATH.'theme/'.$theme.'" pointing to "'.THEMEPATH.$theme.'/web'.'"'."\n";
+                        symlink(THEMEPATH.$theme.'/web', WEBPATH.'theme/'.$theme);
+                    }
+               }
+           }
+       }
+
        return 'Symlinks wurden erstellt!';
     }
 

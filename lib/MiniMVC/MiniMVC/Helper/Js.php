@@ -20,6 +20,7 @@ class Helper_Js extends MiniMVC_Helper
         $route = $this->registry->settings->get('currentRoute');
         $format = $this->registry->layout->getFormat();
         $layout = $this->registry->layout->getLayout();
+        $theme = $this->registry->layout->getTheme();
 
         foreach ($files as $filekey => $file) {
             if (isset($file['show']) && $file['show']) {
@@ -44,6 +45,15 @@ class Helper_Js extends MiniMVC_Helper
             } elseif(is_array($file['format']) && !in_array($format ? $format : 'default', $file['format'])) {
                 unset($files[$filekey]);
             }
+
+            if (isset($file['theme'])) {
+                if (!is_array($file['theme']) && $file['theme'] != 'all' && ($file['theme'] != $theme)) {
+                    unset($files[$filekey]);
+                } elseif(is_array($file['theme']) && !in_array($theme ? $theme : 'default', $file['theme'])) {
+                    unset($files[$filekey]);
+                }
+            }
+            
             if (isset($file['layout']) && $file['layout']) {
                 if (is_string($file['layout']) && $file['layout'] != 'all' && $file['layout'] != $layout) {
                     unset($files[$filekey]);
@@ -93,10 +103,17 @@ class Helper_Js extends MiniMVC_Helper
         if (!$app) {
             $app = $this->registry->settings->get('currentApp');
         }
+        $theme = $this->registry->layout->getTheme();
 
         $file = null;
         if ($module) {
-            if (file_exists(APPPATH.$app.'/web/'.$module.'/js/'.$filename)) {
+            if ($theme && file_exists(APPPATH.$app.'/web/'.$theme.'/'.$module.'/js/'.$filename)) {
+                $file = APPPATH.$app.'/web/'.$theme.'/'.$module.'/js/'.$filename;
+            } elseif ($theme && file_exists(WEBPATH.$theme.'/'.$module.'/js/'.$filename)) {
+                $file = WEBPATH.$theme.'/'.$module.'/js/'.$filename;
+            } elseif ($theme && file_exists(THEMEPATH.$theme.'/web/'.$module.'/js/'.$filename)) {
+                $file = THEMEPATH.$theme.'/web/'.$module.'/js/'.$filename;
+            } elseif (file_exists(APPPATH.$app.'/web/'.$module.'/js/'.$filename)) {
                 $file = APPPATH.$app.'/web/'.$module.'/js/'.$filename;
             } elseif (file_exists(WEBPATH.$module.'/js/'.$filename)) {
                 $file = WEBPATH.$module.'/js/'.$filename;
@@ -104,7 +121,13 @@ class Helper_Js extends MiniMVC_Helper
                 $file = MODULEPATH.$module.'/web/js/'.$filename;
             }
         } else {
-            if (file_exists(APPPATH.$app.'/web/js/'.$filename)) {
+            if ($theme && file_exists(APPPATH.$app.'/web/'.$theme.'/js/'.$filename)) {
+                $file = APPPATH.$app.'/web/'.$theme.'/js/'.$filename;
+            } elseif ($theme && file_exists(WEBPATH.$theme.'/js/'.$filename)) {
+                $file = WEBPATH.$theme.'/js/'.$filename;
+            } elseif ($theme && file_exists(THEMEPATH.$theme.'/web/js/'.$filename)) {
+                $file = THEMEPATH.$theme.'/web/js/'.$filename;
+            } elseif (file_exists(APPPATH.$app.'/web/js/'.$filename)) {
                 $file = APPPATH.$app.'/web/js/'.$filename;
             } else {
                 $file = WEBPATH.'/js/'.$filename;
@@ -138,7 +161,7 @@ class Helper_Js extends MiniMVC_Helper
         if (null !== ($cache = $this->registry->cache->get('jsCached'))) {
             return $cache;
         }
-
+        $theme = $this->registry->layout->getTheme();
         $files = $this->registry->settings->get('view/js', array());
         $preparedFiles = array();
         foreach ($files as $file) {
@@ -152,13 +175,31 @@ class Helper_Js extends MiniMVC_Helper
             $app = (isset($file['app'])) ? $file['app'] : $this->registry->settings->get('currentApp');
 
             if ($module) {
-                if (file_exists(APPPATH.$app.'/web/'.$module.'/js/'.$file['file'])) {
+                if ($theme && file_exists(APPPATH.$app.'/web/'.$theme.'/'.$module.'/js/'.$file['file'])) {
+                    $data['file'] = APPPATH.$app.'/web/'.$theme.'/'.$module.'/js/'.$file['file'];
+                } elseif ($theme && file_exists(WEBPATH.$theme.'/'.$module.'/js/'.$file['file'])) {
+                    $data['file'] = WEBPATH.$theme.'/'.$module.'/js/'.$file['file'];
+                } elseif ($theme && file_exists(THEMEPATH.$theme.'/web/'.$module.'/js/'.$file['file'])) {
+                    $data['file'] = THEMEPATH.$theme.'/web/'.$module.'/js/'.$file['file'];
+                } elseif (file_exists(APPPATH.$app.'/web/'.$module.'/js/'.$file['file'])) {
                     $data['file'] = APPPATH.$app.'/web/'.$module.'/js/'.$file['file'];
+                } elseif (file_exists(WEBPATH.$module.'/js/'.$file['file'])) {
+                    $data['file'] = WEBPATH.$module.'/js/'.$file['file'];
                 } else {
                     $data['file'] = MODULEPATH.$module.'/web/js/'.$file['file'];
                 }
             } else {
-                $data['file'] = APPPATH.$app.'/web/js/'.$file['file'];
+                if ($theme && file_exists(APPPATH.$app.'/web/'.$theme.'/js/'.$file['file'])) {
+                    $data['file'] = APPPATH.$app.'/web/'.$theme.'/js/'.$file['file'];
+                } elseif ($theme && file_exists(WEBPATH.$theme.'/js/'.$file['file'])) {
+                    $data['file'] = WEBPATH.$theme.'/js/'.$file['file'];
+                } elseif ($theme && file_exists(THEMEPATH.$theme.'/web/js/'.$file['file'])) {
+                    $data['file'] = THEMEPATH.$theme.'/web/js/'.$file['file'];
+                } elseif (file_exists(APPPATH.$app.'/web/js/'.$file['file'])) {
+                    $data['file'] = APPPATH.$app.'/web/js/'.$file['file'];
+                } else {
+                    $data['file'] = WEBPATH.'/js/'.$file['file'];
+                }
             }
             $data['url'] = $this->staticHelper->get('js/' . $file['file'], $module, $app);
             $data['combine'] = (isset($file['combine'])) ? $file['combine'] : true;

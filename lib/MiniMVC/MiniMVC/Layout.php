@@ -12,6 +12,7 @@ class MiniMVC_Layout
     protected $slots = array();
     protected $layout = null;
     protected $format = null;
+    protected $theme = null;
 
     public function __construct()
     {
@@ -59,6 +60,27 @@ class MiniMVC_Layout
     public function getFormat()
     {
         return $this->format;
+    }
+
+    /**
+     *
+     * @param mixed $theme the theme to useor null to use the default theme
+     */
+    public function setTheme($theme = null)
+    {
+        if ($theme == 'default' || !is_string($theme)) {
+            $theme = null;
+        }
+        $this->theme = $theme;
+    }
+
+    /**
+     *
+     * @return mixed returns the name of the current theme or null if the default theme is used
+     */
+    public function getTheme()
+    {
+        return $this->theme === null ? $this->registry->settings->get('config/defaultTheme', false) : $this->theme;
     }
 
     /**
@@ -141,6 +163,7 @@ class MiniMVC_Layout
             $route = $this->registry->settings->get('currentRoute');
             $format = $this->getFormat();
             $layout = $this->getLayout();
+            $theme = $this->getTheme();
             
             foreach ($slotWidgets as $currentWidget => $widgetData) {
 
@@ -166,6 +189,15 @@ class MiniMVC_Layout
                 } elseif(is_array($widgetData['format']) && !in_array($format ? $format : 'default', $widgetData['format'])) {
                     continue;
                 }
+
+                if ($widgetData['theme']) {
+                    if (!is_array($widgetData['theme']) && $widgetData['theme'] != 'all' && ($widgetData['theme'] != $theme)) {
+                        continue;
+                    } elseif(is_array($widgetData['theme']) && !in_array($theme ? $theme : 'default', $widgetData['theme'])) {
+                        continue;
+                    }
+                }
+
                 if ($widgetData['layout']) {
                     if (is_string($widgetData['layout']) && $widgetData['layout'] != 'all' && $widgetData['layout'] != $layout) {
                         continue;
@@ -207,6 +239,7 @@ class MiniMVC_Layout
                 'hide' => isset($widgetData['hide']) ? $widgetData['hide'] : null,
                 'format' => isset($widgetData['format']) ? $widgetData['format'] : null,
                 'layout' => isset($widgetData['layout']) ? $widgetData['layout'] : null,
+                'theme' => isset($widgetData['theme']) ? $widgetData['theme'] : null,
                 'position' => isset($widgetData['position']) ? (int) $widgetData['position'] : 0,
             );
         }
