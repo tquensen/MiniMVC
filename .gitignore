@@ -10,3 +10,4 @@ web/module
 .project
 .settings
 .idea
+.idea/*
