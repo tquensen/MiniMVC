@@ -205,12 +205,13 @@ class Mongo_Generate_Controller extends MiniMVC_Controller
     }
 
     /**
+     * @param boolean $delete true to delete the related entry from the database, false to only remove the relation (default false) 
      * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
-    public function remove{relation}($save = true)
+    public function remove{relation}($delete = false, $save = true)
     {
-        return $this->removeRelated(\'{relation}\', true, $save);
+        return $this->removeRelated(\'{relation}\', true, $delete, $save);
     }
     ';
 
@@ -231,21 +232,23 @@ class Mongo_Generate_Controller extends MiniMVC_Controller
     /**
      * @param {foreignModel}|mixed $related either a {foreignModel} object, a {foreignModel}->_id-value or an array with multiple {foreignModel}s
      * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
+     * @param bool $multiple true to store multiple related as array (m:n), false to only store a single value (1:1, n:1, default)
      * @return bool
      */
-    public function set{relation}($related, $save = true)
+    public function set{relation}($related, $save = true, $multiple = false)
     {
-        return $this->setRelated(\'{relation}\', $related, $save = true);
+        return $this->setRelated(\'{relation}\', $related, $save, $multiple);
     }
 
     /**
      * @param {foreignModel}|mixed $related true to remove all objects or either a {foreignModel} object, a {foreignModel}->_id-value  or an array with multiple {foreignModel}s
+     * @param boolean $delete true to delete the related entry from the database, false to only remove the relation (default false) 
      * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
-    public function remove{relation}($related = true, $save = true)
+    public function remove{relation}($related = true, $delete = false, $save = true)
     {
-        return $this->removeRelated(\'{relation}\', $related, $save);
+        return $this->removeRelated(\'{relation}\', $related, $delete, $save);
     }
     ';
 

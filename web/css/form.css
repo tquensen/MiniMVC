@@ -154,7 +154,7 @@
     background: -moz-linear-gradient(top, rgb(191,191,191), rgb(255,255,255) 50%);
     background: -o-linear-gradient(top, rgb(191,191,191), rgb(255,255,255) 50%);
     background: linear-gradient(top, rgb(191,191,191), rgb(255,255,255) 50%);
-    border-color: #aaa #888 #666;
+    border-color: #999 #888 #777;
 }
 
 .fancyForm input[type=radio]:focus + label, .fancyForm input[type=checkbox]:focus + label {

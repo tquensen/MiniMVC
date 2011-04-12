@@ -127,8 +127,12 @@ class Mongo_Model
             return $repository->findOne(array($relationInfo[2] => $this->{$relationInfo[1]}));
         } else {
             $query = (array) $query;
-            $query[$relationInfo[2]] = $this->{$relationInfo[1]};
-            return $repository->find($query, $sort, $limi, $skip);
+            if ($relationInfo[2] == '_id' && is_array($this->{$relationInfo[1]})) {
+                $query[$relationInfo[2]] = array('$in' => $this->{$relationInfo[1]});
+            } else {
+                $query[$relationInfo[2]] = $this->{$relationInfo[1]};
+            }            
+            return $repository->find($query, $sort, $limit, $skip);
         }
     }
 
@@ -137,9 +141,10 @@ class Mongo_Model
      * @param string $relation the relation name
      * @param Mongo_Model|mixed $related either a Mongo_Model object, a Mongo_Model->_id-value or an array with multiple Mongo_Models
      * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
+     * @param bool $multiple true to sore multiple related as array (m:n), false to only store a single value (1:1, n:1, default)
      * @return bool
      */
-    public function setRelated($relation, $related, $save = true)
+    public function setRelated($relation, $related, $save = true, $multiple = false)
     {
         if (!$relationInfo = $this->getRepository()->getRelation($relation)) {
             throw new Exception('Unknown relation "'.$relation.'" for model '.get_class($this));
@@ -150,30 +155,58 @@ class Mongo_Model
             }
             return true;
         }
-
-        if (!empty($relationInfo[3])) {
-            if (is_object($related) && $related instanceof Mongo_Model) {
-                $this->{$relationInfo[1]} = $related->{$relationInfo[2]};
-            } else {
-                $this->{$relationInfo[1]} = $related;
-            }
-            return $save !== null ? $this->save($save) : true;
-        } else {
-            if (!is_object($related) || !($related instanceof Mongo_Model)) {
-                $repositoryName = $relationInfo[0].'Repository';
-                $repository = class_exists($repositoryName)
-                    ? new $repositoryName(null, $this->getRepository()->getConnection())
-                    : new Mongo_Repository($relationInfo[0], $this->getRepository()->getConnection());
-                $related = $repository->findOne($related);
-            }
+        if (!is_object($related) || !($related instanceof Mongo_Model)) {
+            $repositoryName = $relationInfo[0].'Repository';
+            $repository = class_exists($repositoryName)
+                ? new $repositoryName(null, null, $this->getRepository()->getConnection())
+                : new Mongo_Repository($relationInfo[0], $relationInfo[0], $this->getRepository()->getConnection());
+            $related = $repository->findOne($related);
             if (!$related) {
                 throw new InvalidArgumentException('Could not find valid '.$relationInfo[0]);
             }
+        }
+        if (!empty($relationInfo[3])) {
+            if ($relationInfo[1] == '_id') {
+                if (!$this->{$relationInfo[1]}) {           
+                    $this->save($save);
+                }
+                
+                $related->{$relationInfo[2]} = $this->{$relationInfo[1]};
+                return $save !== null ? $related->save($save) : true;
+            } elseif ($relationInfo[2] == '_id') {
+                if (!$related->{$relationInfo[2]}) {
+                    $related->save($save);
+                }
+                $this->{$relationInfo[1]} = $related->{$relationInfo[2]};
+                return $save !== null ? $this->save($save) : true;
+            }
+        } else {
             if ($relationInfo[1] == '_id' && !$this->{$relationInfo[1]}) {
                 $this->save($save);
+            } elseif ($relationInfo[2] == '_id' && !$related->{$relationInfo[2]}) {
+                $related->save($save);
             }
-            $related->{$relationInfo[2]} = $this->{$relationInfo[1]};
-            return $save !== null ? $related->save($save) : true;
+            if ($relationInfo[1] == '_id') {
+                if ($multiple) {
+                    $rels = (array) $related->{$relationInfo[2]};
+                    $rels[] = $this->{$relationInfo[1]};
+                    $rels = array_values($rels);
+                    $related->{$relationInfo[2]} = $rels;
+                } else {
+                    $related->{$relationInfo[2]} = $this->{$relationInfo[1]};                    
+                }
+                return $save !== null ? $related->save($save) : true;
+            } else {
+                if ($multiple) {
+                    $rels = (array) $this->{$relationInfo[1]};
+                    $rels[] = $related->{$relationInfo[2]};
+                    $rels = array_values($rels);
+                    $this->{$relationInfo[1]} = $rels;
+                } else {
+                    $this->{$relationInfo[1]} == $related->{$relationInfo[2]};
+                }
+                return $save !== null ? $this->save($save) : true;
+            }
         }
     }
 
@@ -181,10 +214,11 @@ class Mongo_Model
      *
      * @param string $relation the relation name
      * @param Mongo_Model|mixed $related true to remove all objects or either a Mongo_Model object, a Mongo_Model->_id-value  or an array with multiple Mongo_Models
+     * @param boolean $delete true to delete the related entry from the database, false to only remove the relation (default false) 
      * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
-    public function removeRelated($relation, $related = true, $save = true)
+    public function removeRelated($relation, $related = true, $delete = false, $save = true)
     {
         if (!$relationInfo = $this->getRepository()->getRelation($relation)) {
             throw new Exception('Unknown relation "'.$relation.'" for model '.get_class($this));
@@ -196,19 +230,84 @@ class Mongo_Model
             return true;
         }
         if (!empty($relationInfo[3])) {
-            $this->{localProperty} = null;
+            if (!is_object($related) || !($related instanceof Mongo_Model)) {
+                if ($relationInfo[1] == '_id' && !$this->{$relationInfo[1]}) {
+                    $this->save($save);
+                }
+                $repositoryName = $relationInfo[0].'Repository';
+                $repository = class_exists($repositoryName)
+                    ? new $repositoryName(null, null, $this->getRepository()->getConnection())
+                    : new Mongo_Repository($relationInfo[0], $relationInfo[0], $this->getRepository()->getConnection());
+                $related = $repository->findOne(array($relationInfo[2] => $this->{$relationInfo[1]}));
+            }
+            if (!$related) {
+                throw new InvalidArgumentException('Could not find valid '.$relationInfo[0]);
+            } 
+            if ($related->{$relationInfo[2]} != $this->{$relationInfo[1]}) {
+                return false;
+            }
+            if ($relationInfo[1] == '_id') {                                     
+                $related->{$relationInfo[2]} = null;
+                if ($delete) {
+                    return $related->remove($save);
+                }
+                return $save !== null ? $related->save($save) : true;
+            } elseif ($relationInfo[2] == '_id') {
+                $this->{$relationInfo[1]} = null;
+                if ($delete && !$related->remove($save) && $save) {
+                    $this->save($save);
+                    return false;
+                }
+                return $save !== null ? $this->save($save) : true;
+            }
             return $save !== null ? $this->save($save) : true;
         } else {
             if ($related === true) {
-                $repositoryName = $relationInfo[0].'Repository';
-                $repository = class_exists($repositoryName)
-                    ? new $repositoryName(null, $this->getRepository()->getConnection())
-                    : new Mongo_Repository($relationInfo[0], $this->getRepository()->getConnection());
-                $related = $repository->find(array($relationInfo[2] => $this->{$relationInfo[1]}));
-                foreach ($related as $rel) {
-                    $related->{$relationInfo[2]} = null;
+                if ($relationInfo[2] == '_id') {                    
+                    if ($delete) {
+                        $repositoryName = $relationInfo[0].'Repository';
+                        $repository = class_exists($repositoryName)
+                            ? new $repositoryName(null, null, $this->getRepository()->getConnection())
+                            : new Mongo_Repository($relationInfo[0], $relationInfo[0], $this->getRepository()->getConnection());
+                        if (is_array($this->{$relationInfo[1]})) {
+                            $related = $repository->find(array($relationInfo[2] => array('$in' => $this->{$relationInfo[1]})));
+                        } else {
+                            $related = $repository->find(array($relationInfo[2] => $this->{$relationInfo[1]}));
+                        }
+                        
+                        if (!$related) {
+                            throw new InvalidArgumentException('Could not find valid '.$relationInfo[0]);
+                        }
+                        foreach ($related as $rel) {
+                            $rel->remove($save);
+                        }                        
+                    }
+                    $this->{$relationInfo[1]} = null;
                     if ($save !== null) {
-                        $related->save($save);
+                        $this->save($save);
+                    }
+                } else {
+                    $repositoryName = $relationInfo[0].'Repository';
+                    $repository = class_exists($repositoryName)
+                        ? new $repositoryName(null, null, $this->getRepository()->getConnection())
+                        : new Mongo_Repository($relationInfo[0], $relationInfo[0], $this->getRepository()->getConnection());
+                    $related = $repository->find(array($relationInfo[2] => $this->{$relationInfo[1]}));
+                    foreach ($related as $rel) {
+                        if (is_array($related->{$relationInfo[2]})) {
+                            $rels = $related->{$relationInfo[2]};
+                            if ($k = array_search($this->{$relationInfo[1]}, $rels)) {
+                                unset($rels[$k]);
+                                $rels = array_values($rels);
+                            }
+                            $rel->{$relationInfo[2]} = $rels;
+                        } else {
+                            $rel->{$relationInfo[2]} = null;
+                        }
+                        if ($delete && !$rel->{$relationInfo[2]}) {
+                            $rel->remove($save);
+                        } elseif ($save !== null) {
+                            $rel->save($save);
+                        }
                     }
                 }
                 return true;
@@ -216,18 +315,54 @@ class Mongo_Model
                 if (!is_object($related) || !($related instanceof Mongo_Model)) {
                     $repositoryName = $relationInfo[0].'Repository';
                     $repository = class_exists($repositoryName)
-                        ? new $repositoryName(null, $this->getRepository()->getConnection())
-                        : new Mongo_Repository($relationInfo[0], $this->getRepository()->getConnection());
+                        ? new $repositoryName(null, null, $this->getRepository()->getConnection())
+                        : new Mongo_Repository($relationInfo[0], $relationInfo[0], $this->getRepository()->getConnection());
                     $related = $repository->findOne($related);
                 }
                 if (!$related) {
                     throw new InvalidArgumentException('Could not find valid '.$relationInfo[0]);
                 }
-                if ($related->{$relationInfo[2]} != $this->{$relationInfo[1]}) {
+                if ($related->{$relationInfo[2]} != $this->{$relationInfo[1]} && !is_array($related->{$relationInfo[2]}) && !is_array($this->{$relationInfo[1]})) {
                     return false;
                 }
-                $related->{$relationInfo[2]} = null;
-                return $save !== null ? $related->save($save) : true;
+                if ($relationInfo[1] == '_id') {
+                    if (is_array($related->{$relationInfo[2]})) {
+                        $rels = $related->{$relationInfo[2]};
+                        if ($k = array_search($this->{$relationInfo[1]}, $rels)) {
+                            unset($rels[$k]);
+                            $rels = array_values($rels);
+                        }
+                        $related->{$relationInfo[2]} = $rels;
+                    } elseif($related->{$relationInfo[2]} == $this->{$relationInfo[1]}) {
+                        $related->{$relationInfo[2]} = null;
+                    } else {
+                        return false;
+                    }
+                    if ($delete && !$related->{$relationInfo[2]}) {
+                        $related->remove($save);
+                    } elseif ($save !== null) {
+                        return $related->save($save);
+                    } else {
+                        return true;
+                    }
+                } else {
+                    if (is_array($this->{$relationInfo[1]})) {
+                        $rels = $this->{$relationInfo[1]};
+                        if ($k = array_search($related->{$relationInfo[2]}, $rels)) {
+                            unset($rels[$k]);
+                            $rels = array_values($rels);
+                        }
+                        $this->{$relationInfo[1]} = $rels;
+                    } elseif($related->{$relationInfo[2]} == $this->{$relationInfo[1]}) {
+                        $this->{$relationInfo[1]} = null;
+                    } else {
+                        return false;
+                    }
+                    if ($delete) {
+                        $related->remove($save);
+                    } 
+                    return $save !== null ? $this->save($save) : true;
+                }
             }
         }
     }
