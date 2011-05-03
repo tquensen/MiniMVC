@@ -1,4 +1,13 @@
 <?php
+
+$modelDefinition['MongoSequence'] = array(
+    'autoIncrement' => false, //recommended, if not set to false, it will automatically generate a MongoId as _id on insert (if _id was empty)
+    'columns' => array(
+        '_id' => 'string',
+        'seq' => 'int'
+    ),
+);
+        
 $modelDefinition['MongoExampleArticle'] = array(
     'autoIncrement' => true, //recommended, if not set to false, it will automatically generate a MongoId as _id on insert (if _id was empty)
     'columns' => array(
