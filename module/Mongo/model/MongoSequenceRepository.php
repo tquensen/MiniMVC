@@ -56,7 +56,7 @@ class MongoSequenceRepository extends Mongo_Repository
                 if ($targetVersion && $targetVersion <= 1) break;
             /* //for every new version add your code below (including the lines "case NEW_VERSION:" and "if ($targetVersion && $targetVersion <= NEW_VERSION) break;")
 
-                $this->getCollection()->ensureIndex(array('name' => 1), array('save' => true));
+                $this->getCollection()->ensureIndex(array('name' => 1), array('safe' => true));
 
             case 2:
                 if ($targetVersion && $targetVersion <= 2) break;

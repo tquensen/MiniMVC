@@ -32,6 +32,16 @@ class Mongo_Model
     {
         $this->_properties[$key] = $value;
     }
+    
+    public function __isset($key)
+	{
+        return isset($this->_properties[$key]);
+	}
+
+    public function __unset($key)
+	{
+        unset($this->_properties[$key]);
+	}
 
     public function &getData()
     {
@@ -94,7 +104,7 @@ class Mongo_Model
     {
         $this->$property = $this->property + $value;
         if ($save !== null) {
-            $status = $this->getCollection()->update(array('_id' => $this->_id), array('$inc' => array($property => $value)), array('save' => $save));
+            $status = $this->getCollection()->update(array('_id' => $this->_id), array('$inc' => array($property => $value)), array('safe' => $save));
             if ($status) {
                 $this->setDatabaseProperty($property, $this->$property);
                 return true;
@@ -225,7 +235,7 @@ class Mongo_Model
         }
         if (is_array($related)) {
             foreach ($related as $rel) {
-                $this->removeRelated($relation, $rel, $save);
+                $this->removeRelated($relation, $rel, $delete, $save);
             }
             return true;
         }
@@ -428,7 +438,7 @@ class Mongo_Model
                 $this->{$embeddedInfo[1]} = $data;
             }
             if ($save !== null) {
-                if ($this->getCollection()->update(array('_id' => $this->_id), array('$set' => array($embeddedInfo[1] => $data)), array('save' => $save))) {
+                if ($this->getCollection()->update(array('_id' => $this->_id), array('$set' => array($embeddedInfo[1] => $data)), array('safe' => $save))) {
                     $this->setDatabaseProperty($embeddedInfo[1], $data);
                     return true;
                 }
@@ -479,7 +489,7 @@ class Mongo_Model
                 $query['$set'] = $dbSet;
             }
             if ($save !== null) {
-                if ($this->getCollection()->update(array('_id' => $this->_id), $query, array('save' => $save))) {
+                if ($this->getCollection()->update(array('_id' => $this->_id), $query, array('safe' => $save))) {
                     $dbValues = (array) $this->getDatabaseProperty($embeddedInfo[1]);
                     foreach ($pushAll as $entry) {
                         $dbValues[] = $entry;
@@ -512,7 +522,7 @@ class Mongo_Model
         if ($key === true) {
              $this->{$embeddedInfo[1]} = array();
              if ($save !== null) {
-                if ($this->getCollection()->update(array('_id' => $this->_id), array('$set' => array($embeddedInfo[1] => array())), array('save' => $save))) {
+                if ($this->getCollection()->update(array('_id' => $this->_id), array('$set' => array($embeddedInfo[1] => array())), array('safe' => $save))) {
                     $this->setDatabaseProperty($embeddedInfo[1], array());
                     return true;
                 }
@@ -558,13 +568,13 @@ class Mongo_Model
 
     /**
      *
-     * @param bool|integer $save @see php.net/manual/en/mongocollection.update.php
+     * @param bool|integer $safe @see php.net/manual/en/mongocollection.update.php
      * @return bool Returns if the update was successfully sent to the database.
      */
-    public function save($save = true)
+    public function save($safe = true)
     {
         try {
-            return $this->_repository->save($this, $save);
+            return $this->_repository->save($this, $safe);
         } catch (MongoException $e) {
             throw $e;
             return false;
@@ -573,13 +583,13 @@ class Mongo_Model
 
     /**
      *
-     * @param bool|integer $save @see php.net/manual/en/mongocollection.remove.php
+     * @param bool|integer $safe @see php.net/manual/en/mongocollection.remove.php
      * @return mixed If "safe" is set, returns an associative array with the status of the remove ("ok"), the number of items removed ("n"), and any error that may have occured ("err"). Otherwise, returns TRUE if the remove was successfully sent, FALSE otherwise.
      */
-    public function remove($save = true)
+    public function remove($safe = true)
     {
         try {
-            return $this->_repository->remove($this, $save);
+            return $this->_repository->remove($this, $safe);
         } catch (MongoException $e) {
             throw $e;
             return false;

@@ -215,10 +215,10 @@ class Mongo_Repository
     /**
      *
      * @param Mongo_Model $model the model to save
-     * @param bool|integer $save @see php.net/manual/en/mongocollection.update.php
+     * @param bool|integer $safe @see php.net/manual/en/mongocollection.update.php
      * @return bool Returns if the update was successfully sent to the database.
      */
-    public function save($model, $save = true)
+    public function save($model, $safe = true)
     {
         try {
             if ($model->preSave() === false) {
@@ -232,7 +232,7 @@ class Mongo_Repository
                         $insert[$column] = $model->$column;
                     }
                 }
-                $status = $this->getCollection()->insert($insert, array('save' => $save));
+                $status = $this->getCollection()->insert($insert, array('safe' => $safe !== null ? $safe : false));
                 if ($status) {
                     if ($this->autoId) {
                         $model->_id = $insert['_id'];
@@ -257,7 +257,7 @@ class Mongo_Repository
                 if (!count($query)) {
                     return true;
                 }
-                $status = $this->getCollection()->update(array('_id' => $model->_id), $query, array('save' => $save));
+                $status = $this->getCollection()->update(array('_id' => $model->_id), $query, array('safe' => $safe !== null ? $safe : false));
                 if ($status) {
                     if (!empty($query['$set'])) {
                         foreach ($query['$set'] as $key => $value) {
@@ -280,11 +280,11 @@ class Mongo_Repository
 
     /**
      *
-     * @param Mongo_Model $model the model to save
-     * @param bool|integer $save @see php.net/manual/en/mongocollection.remove.php
+     * @param Mongo_Model $model the model to remove
+     * @param bool|integer $safe @see php.net/manual/en/mongocollection.remove.php
      * @return mixed If "safe" is set, returns an associative array with the status of the remove ("ok"), the number of items removed ("n"), and any error that may have occured ("err"). Otherwise, returns TRUE if the remove was successfully sent, FALSE otherwise.
      */
-    public function remove($model, $save = true)
+    public function remove($model, $safe = true)
     {
         if (!$model->_id) {
             return false;
@@ -293,7 +293,7 @@ class Mongo_Repository
             if ($model->preRemove() === false) {
                 return false;
             }
-            $status = $this->getCollection()->remove(array('_id' => $model->_id), array('save' => $save));
+            $status = $this->getCollection()->remove(array('_id' => $model->_id), array('safe' => $safe !== null ? $safe : false));
             if ($status) {
                 $model->clearDatabaseProperties();
                 return true;
