@@ -196,7 +196,7 @@ class Mongo_Generate_Controller extends MiniMVC_Controller
 
     /**
      * @param {foreignModel}|mixed $related either a {foreignModel} object or a {foreignModel}->_id-value
-     * @param mixed $safe set to null to prevent a save() call, otherwise call save($safe)
+     * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
     public function set{relation}($related, $save = true)
