@@ -31,7 +31,7 @@ class MiniMVC_Form
         $this->options['action'] = MiniMVC_Registry::getInstance()->helper->url->get($this->options['route'], !empty($this->options['parameter']) ? $this->options['parameter'] : array());
         
 
-//        $this->setElement(new MiniMVC_Form_Element_Hidden('FormCheck', array('defaultValue' => 1, 'alwaysDisplayDefault' => true), array(new MiniMVC_Form_Validator_Required())));
+        $this->setElement(new MiniMVC_Form_Element_Hidden('FormCheck', array('defaultValue' => 1, 'alwaysDisplayDefault' => true), array(new MiniMVC_Form_Validator_Required())));
     }
 
     public function getFormToken()
@@ -47,7 +47,7 @@ class MiniMVC_Form
         if (!$this->getOption('useFormToken')) {
             return false;
         }
-        return  MiniMVC_Registry::getInstance()->guard->checkFormToken();
+        return MiniMVC_Registry::getInstance()->guard->checkFormToken();
     }
 
     public function getName()
@@ -140,7 +140,7 @@ class MiniMVC_Form
         return $this->postValidators;
     }
 
-    public function bindValues()
+    public function bindValues($values = null)
     {
 //        if (isset($_SESSION['form_' . $this->name . '__errorData'])) {
 //            $values = $_SESSION['form_' . $this->name . '__errorData'];
@@ -160,8 +160,10 @@ class MiniMVC_Form
 //                }
 //            }
 //        }
-        $values = (isset($_POST[$this->name]) && is_array($_POST[$this->name])) ? $_POST[$this->name]
-                    : array();
+        if ($values === null) {
+            $values = strtoupper($this->getOption('method')) === 'GET' ? $_GET : $_POST;
+        }
+
         foreach ($this->elements as $element) {
             $element->setValue(isset($values[$element->getName()]) ? $values[$element->getName()]
                                 : null);
@@ -265,7 +267,8 @@ class MiniMVC_Form
 
     public function wasSubmitted()
     {
-        return (isset($_POST[$this->name]) && is_array($_POST[$this->name]));
+        
+        return strtoupper($this->getOption('method')) === 'GET' ? !empty($_GET[$this->name]) : !empty($_POST[$this->name]);
     }
 
     public function getValues()

@@ -65,13 +65,13 @@ class MiniMVC_Guard
 
     /**
      * check or set whether this is an authenticated request or not
-     * @param bool|null $authentivated null to return the request status, true or false to set the request status
+     * @param bool|null $authenticated null to return the request status, true or false to set the request status
      * @return bool whether this is an authenticated request or not
      */
-    public function isAuthenticatedRequest($authentivated = null)
+    public function isAuthenticatedRequest($authenticated = null)
     {
-        if ($authentivated !== null) {
-            $this->authenticatedRequest = (bool) $authentivated;
+        if ($authenticated !== null) {
+            $this->authenticatedRequest = (bool) $authenticated;
         }
         return $this->authenticatedRequest;
     }

@@ -5,7 +5,7 @@
  * @property MongoId $_id
  *
  */
-class Mongo_Model
+class Mongo_Model implements Serializable
 {
 
     protected $_properties = array();
@@ -72,7 +72,22 @@ class Mongo_Model
     {
         return $this->getData();
     }
-
+    
+    public function serialize()
+    {
+        return serialize(array(
+            'p' => $this->_properties,
+            'dbp' => $this->_databaseProperties,
+            'con' => $this->_repository->getConnection()
+        ));
+    }
+    
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+        $this->__construct($data['p'], $data['con']);
+        $this->_databaseProperties = $data['dbp'];
+    }
     /**
      *
      * @return Mongo_Repository
@@ -130,8 +145,8 @@ class Mongo_Model
         }
         $repositoryName = $relationInfo[0].'Repository';
         $repository = class_exists($repositoryName)
-            ? new $repositoryName(null, $this->getRepository()->getConnection())
-            : new Mongo_Repository($relationInfo[0], $this->getRepository()->getConnection());
+            ? new $repositoryName(null, null, $this->getRepository()->getConnection())
+            : new Mongo_Repository($relationInfo[0], $relationInfo[0], $this->getRepository()->getConnection());
             
         if (!empty($relationInfo[3])) {
             return $repository->findOne(array($relationInfo[2] => $this->{$relationInfo[1]}));
@@ -151,7 +166,7 @@ class Mongo_Model
      * @param string $relation the relation name
      * @param Mongo_Model|mixed $related either a Mongo_Model object, a Mongo_Model->_id-value or an array with multiple Mongo_Models
      * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
-     * @param bool $multiple true to sore multiple related as array (m:n), false to only store a single value (1:1, n:1, default)
+     * @param bool $multiple true to store multiple related as array (m:n), false to only store a single value (1:1, n:1, default)
      * @return bool
      */
     public function setRelated($relation, $related, $save = true, $multiple = false)
@@ -161,7 +176,7 @@ class Mongo_Model
         }
         if (is_array($related)) {
             foreach ($related as $rel) {
-                $this->setRelated($relation, $rel, $save);
+                $this->setRelated($relation, $rel, $save, $multiple);
             }
             return true;
         }
@@ -177,31 +192,57 @@ class Mongo_Model
         }
         if (!empty($relationInfo[3])) {
             if ($relationInfo[1] == '_id') {
-                if (!$this->{$relationInfo[1]}) {           
-                    $this->save($save);
+                if (!$this->{$relationInfo[1]}) {
+                    if (!$this->getRepository()->isAutoId()) {
+                        throw new Exception('Counld not set realted '.$relationInfo[0].' - '.$relationInfo[1].' not set!');
+                    }
+                    $this->{$relationInfo[1]} = new MongoId();
+                    if ($save !== null) {
+                        $this->save($save);
+                    }
                 }
                 
                 $related->{$relationInfo[2]} = $this->{$relationInfo[1]};
                 return $save !== null ? $related->save($save) : true;
             } elseif ($relationInfo[2] == '_id') {
                 if (!$related->{$relationInfo[2]}) {
-                    $related->save($save);
+                    if (!$related->getRepository()->isAutoId()) {
+                        throw new Exception('Counld not set realted '.$relationInfo[0].' - '.$relationInfo[2].' not set!');
+                    }
+                    $related->{$relationInfo[2]} = new MongoId();
+                    if ($save !== null) {
+                        $related->save($save);
+                    }
                 }
                 $this->{$relationInfo[1]} = $related->{$relationInfo[2]};
                 return $save !== null ? $this->save($save) : true;
             }
         } else {
             if ($relationInfo[1] == '_id' && !$this->{$relationInfo[1]}) {
-                $this->save($save);
+                if (!$this->getRepository()->isAutoId()) {
+                    throw new Exception('Counld not set realted '.$relationInfo[0].' - '.$relationInfo[1].' not set!');
+                }
+                $this->{$relationInfo[1]} = new MongoId();
+                if ($save !== null) {
+                    $this->save($save);
+                }
             } elseif ($relationInfo[2] == '_id' && !$related->{$relationInfo[2]}) {
-                $related->save($save);
+                if (!$related->getRepository()->isAutoId()) {
+                    throw new Exception('Counld not set realted '.$relationInfo[0].' - '.$relationInfo[2].' not set!');
+                }
+                $related->{$relationInfo[2]} = new MongoId();
+                if ($save !== null) {
+                    $related->save($save);
+                }
             }
             if ($relationInfo[1] == '_id') {
                 if ($multiple) {
                     $rels = (array) $related->{$relationInfo[2]};
-                    $rels[] = $this->{$relationInfo[1]};
-                    $rels = array_values($rels);
-                    $related->{$relationInfo[2]} = $rels;
+                    if (!in_array($this->{$relationInfo[1]}, $rels)) {
+                        $rels[] = $this->{$relationInfo[1]};
+                        $rels = array_values($rels);
+                        $related->{$relationInfo[2]} = $rels;
+                    }
                 } else {
                     $related->{$relationInfo[2]} = $this->{$relationInfo[1]};                    
                 }
@@ -209,9 +250,11 @@ class Mongo_Model
             } else {
                 if ($multiple) {
                     $rels = (array) $this->{$relationInfo[1]};
-                    $rels[] = $related->{$relationInfo[2]};
-                    $rels = array_values($rels);
-                    $this->{$relationInfo[1]} = $rels;
+                    if (!in_array($related->{$relationInfo[2]}, $rels)) {
+                        $rels[] = $related->{$relationInfo[2]};
+                        $rels = array_values($rels);
+                        $this->{$relationInfo[1]} = $rels;
+                    }
                 } else {
                     $this->{$relationInfo[1]} == $related->{$relationInfo[2]};
                 }
@@ -224,7 +267,7 @@ class Mongo_Model
      *
      * @param string $relation the relation name
      * @param Mongo_Model|mixed $related true to remove all objects or either a Mongo_Model object, a Mongo_Model->_id-value  or an array with multiple Mongo_Models
-     * @param boolean $delete true to delete the related entry from the database, false to only remove the relation (default false) 
+     * @param boolean $delete true to delete the related entry, false to only remove the relation (default false) 
      * @param mixed $save set to null to prevent a save() call, otherwise call save($save)
      * @return bool
      */
@@ -240,37 +283,52 @@ class Mongo_Model
             return true;
         }
         if (!empty($relationInfo[3])) {
-            if (!is_object($related) || !($related instanceof Mongo_Model)) {
-                if ($relationInfo[1] == '_id' && !$this->{$relationInfo[1]}) {
-                    $this->save($save);
+            
+            $repositoryName = $relationInfo[0].'Repository';
+            $repository = class_exists($repositoryName)
+                ? new $repositoryName(null, null, $this->getRepository()->getConnection())
+                : new Mongo_Repository($relationInfo[0], $relationInfo[0], $this->getRepository()->getConnection());
+
+                
+            if ($relationInfo[1] == '_id') {
+                if (!$this->{$relationInfo[1]} || $save === null) {
+                    return true;
                 }
-                $repositoryName = $relationInfo[0].'Repository';
-                $repository = class_exists($repositoryName)
-                    ? new $repositoryName(null, null, $this->getRepository()->getConnection())
-                    : new Mongo_Repository($relationInfo[0], $relationInfo[0], $this->getRepository()->getConnection());
-                $related = $repository->findOne(array($relationInfo[2] => $this->{$relationInfo[1]}));
-            }
-            if (!$related) {
-                throw new InvalidArgumentException('Could not find valid '.$relationInfo[0]);
-            } 
-            if ($related->{$relationInfo[2]} != $this->{$relationInfo[1]}) {
-                return false;
-            }
-            if ($relationInfo[1] == '_id') {                                     
-                $related->{$relationInfo[2]} = null;
+                
+                $query = array($relationInfo[2] => $this->{$relationInfo[1]});
+                $options = $save !== null ? array('safe' => $save) : array();
+                if ($related !== true) {
+                    if (!is_object($related) || !($related instanceof Mongo_Model)) {
+                        $query['_id'] = $related;
+                    } else {
+                        $query['_id'] = $related->_id;
+                    }
+                }
                 if ($delete) {
-                    return $related->remove($save);
+                    return $repository->getCollection()->remove($query, $options);
+                } else {
+                    return $repository->getCollection()->update($query, array('$set' => array($relationInfo[2] => null)), $options);
                 }
-                return $save !== null ? $related->save($save) : true;
-            } elseif ($relationInfo[2] == '_id') {
+            } else {
+                if ($related !== true) {
+                    if (is_object($related) && $related instanceof Mongo_Model) {
+                        $related = $related->_id;
+                    }
+                    if ($this->{$relationInfo[1]} != $related) {
+                        return false;
+                    }
+                }
+                
+                if ($delete) {
+                    $query = array($relationInfo[2] => $this->{$relationInfo[1]});
+                    $options = $save !== null ? array('safe' => $save) : array();
+                    if (!$repository->getCollection()->remove($query, $options)) {
+                        return false;
+                    }    
+                }
                 $this->{$relationInfo[1]} = null;
-                if ($delete && !$related->remove($save) && $save) {
-                    $this->save($save);
-                    return false;
-                }
                 return $save !== null ? $this->save($save) : true;
             }
-            return $save !== null ? $this->save($save) : true;
         } else {
             if ($related === true) {
                 if ($relationInfo[2] == '_id') {                    
@@ -279,23 +337,20 @@ class Mongo_Model
                         $repository = class_exists($repositoryName)
                             ? new $repositoryName(null, null, $this->getRepository()->getConnection())
                             : new Mongo_Repository($relationInfo[0], $relationInfo[0], $this->getRepository()->getConnection());
+                        
+                        $options = $save !== null ? array('safe' => $save) : array();
                         if (is_array($this->{$relationInfo[1]})) {
-                            $related = $repository->find(array($relationInfo[2] => array('$in' => $this->{$relationInfo[1]})));
+                            $status = (bool) $repository->getCollection()->remove(array($relationInfo[2] => array('$in' => $this->{$relationInfo[1]})), $options);
                         } else {
-                            $related = $repository->find(array($relationInfo[2] => $this->{$relationInfo[1]}));
+                            $status = (bool) $repository->getCollection()->remove(array($relationInfo[2] => $this->{$relationInfo[1]}), $options);
                         }
                         
-                        if (!$related) {
-                            throw new InvalidArgumentException('Could not find valid '.$relationInfo[0]);
-                        }
-                        foreach ($related as $rel) {
-                            $rel->remove($save);
-                        }                        
+                        if (!$status) {
+                            return false;
+                        }                       
                     }
                     $this->{$relationInfo[1]} = null;
-                    if ($save !== null) {
-                        $this->save($save);
-                    }
+                    return $save !== null ? $this->save($save) : true;
                 } else {
                     $repositoryName = $relationInfo[0].'Repository';
                     $repository = class_exists($repositoryName)
@@ -313,7 +368,7 @@ class Mongo_Model
                         } else {
                             $rel->{$relationInfo[2]} = null;
                         }
-                        if ($delete && !$rel->{$relationInfo[2]}) {
+                        if ($delete && !$rel->{$relationInfo[2]} && $save !== null) {
                             $rel->remove($save);
                         } elseif ($save !== null) {
                             $rel->save($save);
@@ -330,7 +385,7 @@ class Mongo_Model
                     $related = $repository->findOne($related);
                 }
                 if (!$related) {
-                    throw new InvalidArgumentException('Could not find valid '.$relationInfo[0]);
+                    return false;
                 }
                 if ($related->{$relationInfo[2]} != $this->{$relationInfo[1]} && !is_array($related->{$relationInfo[2]}) && !is_array($this->{$relationInfo[1]})) {
                     return false;
@@ -348,7 +403,7 @@ class Mongo_Model
                     } else {
                         return false;
                     }
-                    if ($delete && !$related->{$relationInfo[2]}) {
+                    if ($delete && !$related->{$relationInfo[2]} && $save !== null) {
                         $related->remove($save);
                     } elseif ($save !== null) {
                         return $related->save($save);
@@ -368,7 +423,7 @@ class Mongo_Model
                     } else {
                         return false;
                     }
-                    if ($delete) {
+                    if ($delete && $save !== null) {
                         $related->remove($save);
                     } 
                     return $save !== null ? $this->save($save) : true;

@@ -108,6 +108,11 @@ class Mongo_Repository
     {
         return isset($this->embedded[$embedded]) ? $this->embedded[$embedded] : null;
     }
+    
+    public function isAutoId()
+    {
+        return $this->autoId;
+    }
 
     /**
      *
