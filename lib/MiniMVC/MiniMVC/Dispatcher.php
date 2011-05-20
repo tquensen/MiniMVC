@@ -102,133 +102,133 @@ class MiniMVC_Dispatcher
         
         $this->registry->settings->set('requestedRoute', $route);
 
-        try {
+        $routes = $this->getRoutes(); 
+        $routeData = null;
 
-            $routes = $this->getRoutes(); 
-            $routeData = null;
-
-            if (!$route && $route !== false) {
-                $defaultRoute = $this->registry->settings->get('config/defaultRoute');
-                if ($defaultRoute && isset($routes[$defaultRoute])) {
-                    $routeName = $defaultRoute;
-                    $routeData = $routes[$defaultRoute];
-                } else {
-                    throw new Exception('no route given and no valid default Route defined!', 404);
-                }
+        if (!$route && $route !== false) {
+            $defaultRoute = $this->registry->settings->get('config/defaultRoute');
+            if ($defaultRoute && isset($routes[$defaultRoute])) {
+                $routeName = $defaultRoute;
+                $routeData = $routes[$defaultRoute];
             } else {
-                $found = false;
+                throw new Exception('no route given and no valid default Route defined!', 404);
+            }
+        } else {
+            $found = false;
 
-                if ($route) {
-                    if ($routeCache = $this->registry->cache->get('routeCache/'.$method.' '.str_replace('/', '__', $route))) {
-                        $found = true;
-                        $routeName = $routeCache['route'];
-                        $params = $routeCache['params'];
-                    } else {
-                        foreach ($routes as $currentRoute => $currentRouteData) {
-                            if (isset($currentRouteData['active']) && !$currentRouteData['active']) {
-                                continue;
-                            }
-                            if (!isset($currentRouteData['route'])) {
-                                continue;
-                            }
-                            if (isset($currentRouteData['method']) && ((is_string($currentRouteData['method']) && strtoupper($currentRouteData['method']) != $method) || (is_array($currentRouteData['method']) && !in_array($method, array_map('strtoupper', $currentRouteData['method']))))) {
-                                continue;
-                            }
+            if ($route) {
+                if ($routeCache = $this->registry->cache->get('routeCache/'.$method.' '.str_replace('/', '__', $route))) {
+                    $found = true;
+                    $routeName = $routeCache['route'];
+                    $params = $routeCache['params'];
+                } else {
+                    foreach ($routes as $currentRoute => $currentRouteData) {
+                        if (isset($currentRouteData['active']) && !$currentRouteData['active']) {
+                            continue;
+                        }
+                        if (!isset($currentRouteData['route'])) {
+                            continue;
+                        }
+                        if (isset($currentRouteData['method']) && ((is_string($currentRouteData['method']) && strtoupper($currentRouteData['method']) != $method) || (is_array($currentRouteData['method']) && !in_array($method, array_map('strtoupper', $currentRouteData['method']))))) {
+                            continue;
+                        }
 
-                            if (preg_match($currentRouteData['routePatternGenerated'], $route, $matches)) {
-                                $params = (isset($currentRouteData['parameter'])) ? $currentRouteData['parameter'] : array();
-                                $anonymousParams = array();
-                                foreach ($matches as $paramKey => $paramValue) {
-                                    if (!is_numeric($paramKey)) {
-                                        if ($paramKey == 'anonymousParams') {
-                                            foreach (explode('/', $paramValue) as $anonymousParam) {
-                                                $anonymousParam = explode('-', $anonymousParam, 2);
-                                                if (trim($anonymousParam[0]) && !isset($params[urldecode($anonymousParam[0])])) {
-                                                    $params[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : true;
-                                                    $anonymousParams[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : true;
-                                                }
+                        if (preg_match($currentRouteData['routePatternGenerated'], $route, $matches)) {
+                            $params = (isset($currentRouteData['parameter'])) ? $currentRouteData['parameter'] : array();
+                            $anonymousParams = array();
+                            foreach ($matches as $paramKey => $paramValue) {
+                                if (!is_numeric($paramKey)) {
+                                    if ($paramKey == 'anonymousParams') {
+                                        foreach (explode('/', $paramValue) as $anonymousParam) {
+                                            $anonymousParam = explode('-', $anonymousParam, 2);
+                                            if (trim($anonymousParam[0]) && !isset($params[urldecode($anonymousParam[0])])) {
+                                                $params[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : true;
+                                                $anonymousParams[urldecode($anonymousParam[0])] = (isset($anonymousParam[1])) ? urldecode($anonymousParam[1]) : true;
                                             }
-                                        } elseif (trim($paramValue)) {
-                                            $params[urldecode($paramKey)] = urldecode($paramValue);
                                         }
+                                    } elseif (trim($paramValue)) {
+                                        $params[urldecode($paramKey)] = urldecode($paramValue);
                                     }
                                 }
-
-                                $params = array_merge($params, $anonymousParams);
-
-                                $routeName = $currentRoute;
-                                //$routeData = $this->getRoute($currentRoute, $params);
-                                $found = true;
-                                $this->registry->cache->set('routeCache/'.$method.' '.str_replace('/', '__', $route), array('route' => $routeName, 'params' => $params));
-                                break;
                             }
+
+                            $params = array_merge($params, $anonymousParams);
+
+                            $routeName = $currentRoute;
+                            //$routeData = $this->getRoute($currentRoute, $params);
+                            $found = true;
+                            $this->registry->cache->set('routeCache/'.$method.' '.str_replace('/', '__', $route), array('route' => $routeName, 'params' => $params));
+                            break;
                         }
                     }
                 }
-
-                if (!$found) {
-                    throw new Exception('no valid route found!', 404);
-                }
             }
 
-
-            $this->registry->settings->set('currentRoute', $routeName);
-            $this->registry->settings->set('currentRouteParameter', isset($params) ? $params : array());
-
-            $this->registry->events->notify(new sfEvent($this, 'minimvc.init'));            
-            $content = $this->callRoute($routeName, (isset($params) ? $params : array()));
-            return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'));
-        } catch (Exception $e) {
-
-            try {
-                //try to handle 401, 403 and 404 exceptions
-                switch ($e->getCode()) {
-                    case 401:
-                        $error401Route = $this->registry->settings->get('config/error401Route');
-                        if ($error401Route && isset($routes[$error401Route])) {
-                            $routeData = $routes[$error401Route];
-                        } else {
-                            throw new Exception('Not logged in and no 401 Route defined!');
-                        }
-                        break;
-                    case 403:
-                        $error403Route = $this->registry->settings->get('config/error403Route');
-                        if ($error403Route && isset($routes[$error403Route])) {
-                            $routeData = $routes[$error403Route];
-                        } else {
-                            throw new Exception('Insufficient rights and no 403 Route defined!');
-                        }
-                        break;
-                    case 404:
-                        $error404Route = $this->registry->settings->get('config/error404Route');
-                        if ($error404Route && isset($routes[$error404Route])) {
-                            $routeData = $routes[$error404Route];
-                        } else {
-                            throw new Exception('no valid route found and no valid 404 Route defined!');
-                        }
-                        break;
-                    default:
-                        //server error / rethrow exception
-                        throw $e;
-                }
-
-                $routeData['parameter']['exception'] = $e;
-                $content = $this->call($routeData['controller'], $routeData['action'], $routeData['parameter']);
-                return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'));
-
-            } catch (Exception $e) {
-                //handle 50x errors
-                $error500Route = $this->registry->settings->get('config/error500Route');
-                if ($error500Route && isset($routes[$error500Route])) {
-                    $routeData = $routes[$error500Route];
-                    $routeData['parameter']['exception'] = $e;
-                    $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
-                    return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'));
-                } else {
-                    throw new Exception('Exception was thrown and no 500 Route defined!');
-                }
-            }           
+            if (!$found) {
+                throw new Exception('no valid route found!', 404);
+            }
         }
+
+
+        $this->registry->settings->set('currentRoute', $routeName);
+        $this->registry->settings->set('currentRouteParameter', isset($params) ? $params : array());
+
+        $this->registry->events->notify(new sfEvent($this, 'minimvc.init'));            
+        $content = $this->callRoute($routeName, (isset($params) ? $params : array()));
+        return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'));
+    }
+    
+    public function handleException(Exception $e)
+    {
+        $routes = $this->getRoutes(); 
+        try {
+            //try to handle 401, 403 and 404 exceptions
+            switch ($e->getCode()) {
+                case 401:
+                    $error401Route = $this->registry->settings->get('config/error401Route');
+                    if ($error401Route && isset($routes[$error401Route])) {
+                        $routeData = $routes[$error401Route];
+                    } else {
+                        throw new Exception('Not logged in and no 401 Route defined!');
+                    }
+                    break;
+                case 403:
+                    $error403Route = $this->registry->settings->get('config/error403Route');
+                    if ($error403Route && isset($routes[$error403Route])) {
+                        $routeData = $routes[$error403Route];
+                    } else {
+                        throw new Exception('Insufficient rights and no 403 Route defined!');
+                    }
+                    break;
+                case 404:
+                    $error404Route = $this->registry->settings->get('config/error404Route');
+                    if ($error404Route && isset($routes[$error404Route])) {
+                        $routeData = $routes[$error404Route];
+                    } else {
+                        throw new Exception('no valid route found and no valid 404 Route defined!');
+                    }
+                    break;
+                default:
+                    //server error / rethrow exception
+                    throw $e;
+            }
+
+            $routeData['parameter']['exception'] = $e;
+            $content = $this->call($routeData['controller'], $routeData['action'], $routeData['parameter']);
+            return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'));
+
+        } catch (Exception $e) {
+            //handle 50x errors
+            $error500Route = $this->registry->settings->get('config/error500Route');
+            if ($error500Route && isset($routes[$error500Route])) {
+                $routeData = $routes[$error500Route];
+                $routeData['parameter']['exception'] = $e;
+                $content = $this->call($routeData['controller'], $routeData['action'], (isset($routeData['parameter']) ? $routeData['parameter'] : array()));
+                return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'));
+            } else {
+                throw new Exception('Exception was thrown and no 500 Route defined!');
+            }
+        } 
     }
 
     /**

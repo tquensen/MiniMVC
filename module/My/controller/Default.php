@@ -18,7 +18,7 @@ class My_Default_Controller extends MiniMVC_Controller
      */
     public function staticAction($params)
     {
-        if (!empty($params['view'])) {
+        if (!empty($params['page'])) {
             $this->view->setFile('static/'.$params['view']);
         }
     }

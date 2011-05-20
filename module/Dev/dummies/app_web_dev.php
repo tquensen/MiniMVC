@@ -16,5 +16,9 @@ try {
     $view = MiniMVC_Registry::getInstance()->dispatcher->dispatch();
     echo $view->parse();
 } catch (Exception $e) {
-    include BASEPATH.'web/error/500.debug.php';
+    try {
+        MiniMVC_Registry::getInstance()->dispatcher->handleException($e);
+    } catch (Exception $e) {
+        include BASEPATH.'web/error/500.debug.php';
+    }
 }
