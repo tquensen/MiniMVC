@@ -369,7 +369,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
 
 
             $routesContent = file_exists($path . '/../settings/routes.php') ? file_get_contents($path . '/../settings/routes.php') : '';
-            file_put_contents($path . '/../settings/routes.php', str_replace($search, $replace, file_get_contents($dummy . '/../routes_controller.php')) . $routesContent);
+            file_put_contents($path . '/../settings/routes.php', str_replace($search, $replace, file_get_contents($dummy . '/routes_controller.php')) . $routesContent);
 
             $message .= '-> Controller controller/'.$controller.'.php wurde erstellt'."\n";
             $message .= '-> Views in view/'.strtolower($controller).'/ wurden erstellt'."\n";
