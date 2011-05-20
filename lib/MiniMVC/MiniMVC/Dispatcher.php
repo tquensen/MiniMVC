@@ -178,7 +178,7 @@ class MiniMVC_Dispatcher
         return $this->registry->layout->prepare($content, $this->registry->settings->get('currentApp'));
     }
     
-    public function handleException(Exception $e)
+    public function getErrorPage(Exception $e)
     {
         $routes = $this->getRoutes(); 
         try {

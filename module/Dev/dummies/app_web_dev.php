@@ -13,11 +13,10 @@ MiniMVC_Registry::getInstance()->settings = new MiniMVC_Settings('APP', 'dev', n
 MiniMVC_Registry::getInstance()->helper->cache = new Helper_DummyCache();
 
 try {
-    $view = MiniMVC_Registry::getInstance()->dispatcher->dispatch();
-    echo $view->parse();
+    echo MiniMVC_Registry::getInstance()->dispatcher->dispatch()->parse();
 } catch (Exception $e) {
     try {
-        MiniMVC_Registry::getInstance()->dispatcher->handleException($e);
+        echo MiniMVC_Registry::getInstance()->dispatcher->getErrorPage($e)->parse();
     } catch (Exception $e) {
         include BASEPATH.'web/error/500.debug.php';
     }

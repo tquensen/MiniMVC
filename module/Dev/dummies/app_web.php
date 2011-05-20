@@ -6,11 +6,10 @@ include MINIMVCPATH.'MiniMVC/FileCache.php';
 MiniMVC_Registry::getInstance()->settings = new MiniMVC_Settings('APP', 'prod', new MiniMVC_FileCache());
 
 try {
-    $view = MiniMVC_Registry::getInstance()->dispatcher->dispatch();
-    echo $view->parse();
+    echo MiniMVC_Registry::getInstance()->dispatcher->dispatch()->parse();
 } catch (Exception $e) {
     try {
-        MiniMVC_Registry::getInstance()->dispatcher->handleException($e);
+        echo MiniMVC_Registry::getInstance()->dispatcher->getErrorPage($e)->parse();
     } catch (Exception $e) {
         include BASEPATH.'web/error/500.php';
     }
