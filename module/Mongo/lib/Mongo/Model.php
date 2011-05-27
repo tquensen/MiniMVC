@@ -19,8 +19,12 @@ class Mongo_Model
     public function __construct($data = array(), $connection = null)
     {
         $this->_properties = $data;
-        $repositoryName = get_class($this).'Repository';
-        $this->_repository = class_exists($repositoryName) ? new $repositoryName(null, null, $connection) : new Mongo_Repository(get_class($this), get_class($this), $connection);
+        if ($repository) {
+            $this->_repository = $repository;
+        } else {
+            $repositoryName = get_class($this).'Repository';
+            $this->_repository = class_exists($repositoryName) ? new $repositoryName(null, null, $connection) : new Mongo_Repository(get_class($this), get_class($this), $connection);    
+        }
     }
 
     public function __get($key)
@@ -130,8 +134,8 @@ class Mongo_Model
         }
         $repositoryName = $relationInfo[0].'Repository';
         $repository = class_exists($repositoryName)
-            ? new $repositoryName(null, $this->getRepository()->getConnection())
-            : new Mongo_Repository($relationInfo[0], $this->getRepository()->getConnection());
+            ? new $repositoryName(null, null, $this->getRepository()->getConnection())
+            : new Mongo_Repository($relationInfo[0], $relationInfo[0], $this->getRepository()->getConnection());
             
         if (!empty($relationInfo[3])) {
             return $repository->findOne(array($relationInfo[2] => $this->{$relationInfo[1]}));

@@ -12,7 +12,7 @@ class Mongo_Repository
     protected $db = null;
     protected $collectionName = null;
     protected $className = null;
-    protected $autoId = true;
+    protected $autoId = false;
     protected $columns = array();
     protected $relations = array();
     protected $embedded = array();
@@ -31,7 +31,7 @@ class Mongo_Repository
         }
 
         if ($className) {
-            $this->className = $collectionName;
+            $this->className = $className;
         } elseif (!$this->className) {
             $this->className = str_replace('Repository', '', get_class($this));
         }
@@ -54,6 +54,15 @@ class Mongo_Repository
     {
         return $this->getDB()->{$this->collectionName};
     }
+    
+    /**
+     *
+     * @return string
+     */
+    public function getCollectionName()
+    {
+        return $this->collectionName;
+    }
 
     /**
      *
@@ -62,7 +71,7 @@ class Mongo_Repository
     public function getConnection()
     {
         return $this->connection;
-    }
+    }    
 
     /**
      *
@@ -118,7 +127,7 @@ class Mongo_Repository
     public function create($data = array(), $isNew = true)
     {
         $name = $this->className;
-        $model = new $name($data);
+        $model = new $name($data, null, $this);
         $isNew ? $model->postCreate() : $model->postLoad();
         return $model;
     }
@@ -136,12 +145,22 @@ class Mongo_Repository
             $data = array($data);
         }
         foreach ($data as $current) {
-            $model = $this->create($current, false);
-            foreach ($this->getColumns() as $col) {
-                if (isset($current[$col]))
-                $model->setDatabaseProperty($col, $current[$col]);
+            $model = $this->create($current);
+            if ($columns = $this->getColumns()) {
+                foreach ($this->getColumns() as $col) {
+                    if (isset($current[$col]))
+                    $model->setDatabaseProperty($col, $current[$col]);
+                }
+            } else {
+                foreach ($current as $col => $colValue) {
+                    $model->setDatabaseProperty($col, $colValue);
+                }
             }
-            $return[(string) $model->_id] = $model;
+            if (is_array($model->_id)) {
+                $return[] = $model;
+            } else {
+                $return[(string) $model->_id] = $model;
+            }
         }
         return $single ? reset($return) : $return;
     }
@@ -159,8 +178,9 @@ class Mongo_Repository
         } elseif ($query instanceof MongoId) {
             $query = array('_id' => $query);
         }
-        if ($query && $data = $this->getCollection()->findOne($query)) {
-            return $build ? $this->build($data, true) : $data;
+        $data = $this->getCollection()->findOne($query);
+        if ($data) {
+            return $this->build($data, true);
         }
     }
 
@@ -211,6 +231,46 @@ class Mongo_Repository
 
         return $build ? $this->build($cursor) : $cursor;
     }
+    
+    /**
+     * creates a Mongo_MapReduce object for this collection
+     * 
+     * @param MongoCode|string $map the map function as MongoCode or string
+     * @param MongoCode|string $reduce the reduce function as MongoCode or string
+     * @param MongoCode|string $finalize the finalize function as MongoCode or string
+     * @return Mongo_MapReduce 
+     */
+    public function mapReduce($map = null, $reduce = null, $finalize = null)
+    {
+        return new Mongo_MapReduce($this->collectionName, $this->connection, $map, $reduce, $finalize);
+    }
+    
+    /**
+     *
+     * @param array $query The fields for which to filter.
+     * @param bool $justOne Remove at most one record matching this criteria.
+     * @param bool|integer $safe @see php.net/manual/en/mongocollection.remove.php
+     * @param bool $raw true to remove the entries directly, false (default) to call remove() on each model 
+     * @return bool if $raw is true, returns the status of the query. If $raw is false, it returns always true
+     */
+    public function removeBy($query = array(), $justOne = false, $safe = true, $raw = false)
+    {
+        if ($raw) {
+            $options = array();
+            if ($justOne) {
+                $options['justOne'] = true;
+            }
+            if ($safe) {
+                $options['safe'] = $safe;
+            }
+            return $this->getCollection()->remove($query);
+        } else {
+            foreach($this->find($query, array(), $justOne ? 1 : null, null) as $model) {
+                $model->remove($safe);
+            } 
+            return true;
+        }
+    }
 
     /**
      *
@@ -226,13 +286,17 @@ class Mongo_Repository
             }
             $data = $model->getData();
             if ($model->isNew()) {
-                $insert = array();
-                foreach ($this->columns as $column) {
-                    if ($model->$column !== null) {
-                        $insert[$column] = $model->$column;
+                if ($columns = $this->getColumns()) {
+                    $insert = array();
+                    foreach ($columns as $column) {
+                        if ($model->$column !== null) {
+                            $insert[$column] = $model->$column;
+                        }
                     }
+                } else {
+                    $insert = $model->getData();
                 }
-                $status = $this->getCollection()->insert($insert, array('safe' => $safe !== null ? $safe : false));
+                $status = $this->getCollection()->insert($insert, array('safe' => $safe));
                 if ($status) {
                     if ($this->autoId) {
                         $model->_id = $insert['_id'];
@@ -245,28 +309,38 @@ class Mongo_Repository
                 return false;
             } else {
                 $query = array();
-                foreach ($this->columns as $column) {
-                    if ($model->$column !== $model->getDatabaseProperty($column)) {
-                        if ($model->$column === null) {
-                            $query['$unset'][$column] = 1;
-                        } else {
-                            $query['$set'][$column] = $model->$column;
+                if ($columns = $this->getColumns()) {
+                    foreach ($columns as $column) {
+                        if ($model->$column !== $model->getDatabaseProperty($column)) {
+                            if ($model->$column === null) {
+                                $query['$unset'][$column] = 1;
+                            } else {
+                                $query['$set'][$column] = $model->$column;
+                            }
                         }
                     }
+                    if (!count($query)) {
+                        return true;
+                    }
+                } else {
+                    $query = $model->getData();
                 }
-                if (!count($query)) {
-                    return true;
-                }
-                $status = $this->getCollection()->update(array('_id' => $model->_id), $query, array('safe' => $safe !== null ? $safe : false));
+                $status = $this->getCollection()->update(array('_id' => $model->_id), $query, array('safe' => $safe));
                 if ($status) {
-                    if (!empty($query['$set'])) {
-                        foreach ($query['$set'] as $key => $value) {
-                            $model->setDatabaseProperty($key, $value);
+                    if ($columns) {
+                        if (!empty($query['$set'])) {
+                            foreach ($query['$set'] as $key => $value) {
+                                $model->setDatabaseProperty($key, $value);
+                            }
                         }
-                    }
-                    if (!empty($query['$unset'])) {
-                        foreach ($query['$unset'] as $key => $dummy) {
-                            $model->setDatabaseProperty($key, null);
+                        if (!empty($query['$unset'])) {
+                            foreach ($query['$unset'] as $key => $dummy) {
+                                $model->setDatabaseProperty($key, null);
+                            }
+                        }
+                    } else {
+                        foreach ($query as $column => $columnVal) {
+                            $model->setDatabaseProperty($column, $columnVal);
                         }
                     }
                     return true;
@@ -274,6 +348,7 @@ class Mongo_Repository
                 return false;
             }
         } catch (Exception $e) {
+            //var_dump($e->getMessage());
             throw $e;
         }
     }

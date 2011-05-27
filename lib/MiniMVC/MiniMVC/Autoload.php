@@ -13,9 +13,11 @@ class MiniMVC_Autoload
     {
         $registry = MiniMVC_Registry::getInstance();
 
-        if ($cache = $registry->cache->get('autoload/'.$class))
-        {
+        $cache = $registry->cache->get('autoload/'.$class);
+        if ($cache) {
             include_once $cache;
+            return;
+        } elseif ($cache === false) {
             return;
         }
 
@@ -206,6 +208,8 @@ class MiniMVC_Autoload
             $registry->cache->set('autoload/'.$class, BASEPATH . $className . '.php');
             return;
         }
+        
+        $registry->cache->set('autoload/'.$class, false);
     }
 }
 

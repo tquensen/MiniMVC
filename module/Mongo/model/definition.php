@@ -7,6 +7,14 @@ $modelDefinition['MongoSequence'] = array(
         'seq' => 'int'
     ),
 );
+
+$modelDefinition['Mongo_MapReduceModel'] = array(
+    'autoIncrement' => false, //recommended, if not set to false, it will automatically generate a MongoId as _id on insert (if _id was empty)
+    'columns' => array(
+        '_id' => 'mixed',
+        'value' => 'array'
+    )
+);
         
 $modelDefinition['MongoExampleArticle'] = array(
     'autoIncrement' => true, //recommended, if not set to false, it will automatically generate a MongoId as _id on insert (if _id was empty)
