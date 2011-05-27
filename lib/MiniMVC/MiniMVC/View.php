@@ -108,7 +108,7 @@ class MiniMVC_View
                     } elseif ($_theme && is_file(VIEWPATH.$_theme.'/'.$this->module.'/'.$_file.$_formatString.'.php')) {
                         $_path = VIEWPATH.$_theme.'/'.$this->module.'/'.$_file.$_formatString.'.php';
                     } elseif ($_theme && is_file(THEMEPATH.$_theme.'/view/'.$this->module.'/'.$_file.$_formatString.'.php')) {
-                        $_path = THEMEPATH.'/view/'.$this->module.'/'.$_file.$_formatString.'.php';
+                        $_path = THEMEPATH.$_theme.'/view/'.$this->module.'/'.$_file.$_formatString.'.php';
                     } elseif (is_file(APPPATH.$_app.'/view/'.$this->module.'/'.$_file.$_formatString.'.php')) {
                         $_path = APPPATH.$_app.'/view/'.$this->module.'/'.$_file.$_formatString.'.php';
                     } elseif (is_file(VIEWPATH.$this->module.'/'.$_file.$_formatString.'.php')) {
@@ -123,7 +123,7 @@ class MiniMVC_View
                         } elseif ($_theme && is_file(VIEWPATH.$_theme.'/'.$this->module.'/'.$_file.'.'.$_defaultFormat.'.php')) {
                             $_path = VIEWPATH.$_theme.'/'.$this->module.'/'.$_file.'.'.$_defaultFormat.'.php';
                         } elseif ($_theme && is_file(THEMEPATH.$_theme.'/view/'.$this->module.'/'.$_file.'.'.$_defaultFormat.'.php')) {
-                            $_path = THEMEPATH.'/view/'.$this->module.'/'.$_file.'.'.$_defaultFormat.'.php';
+                            $_path = THEMEPATH.$_theme.'/view/'.$this->module.'/'.$_file.'.'.$_defaultFormat.'.php';
                         } elseif (is_file(APPPATH.$_app.'/view/'.$this->module.'/'.$_file.'.'.$_defaultFormat.'.php')) {
                             $_path = APPPATH.$_app.'/view/'.$this->module.'/'.$_file.'.'.$_defaultFormat.'.php';
                         } elseif (is_file(VIEWPATH.$this->module.'/'.$_file.'.'.$_defaultFormat.'.php')) {
@@ -139,8 +139,8 @@ class MiniMVC_View
                         $_path = APPPATH.$_app.'/view/'.$_theme.'/'.$_file.$_formatString.'.php';
                     } elseif ($_theme && is_file(VIEWPATH.$_theme.'/'.$_file.$_formatString.'.php')) {
                         $_path = VIEWPATH.$_theme.'/'.$_file.$_formatString.'.php';
-                    } elseif ($_theme && is_file(THEMEPATH.$_theme.'/'.$_file.$_formatString.'.php')) {
-                        $_path = THEMEPATH.$_theme.'/'.$_file.$_formatString.'.php';
+                    } elseif ($_theme && is_file(THEMEPATH.$_theme.'/view/'.$_file.$_formatString.'.php')) {
+                        $_path = THEMEPATH.$_theme.'/view/'.$_file.$_formatString.'.php';
                     } elseif (is_file(APPPATH.$_app.'/view/'.$_file.$_formatString.'.php')) {
                         $_path = APPPATH.$_app.'/view/'.$_file.$_formatString.'.php';
                     } elseif (is_file(VIEWPATH.$_file.$_formatString.'.php')) {
@@ -153,8 +153,8 @@ class MiniMVC_View
                                 $_path = APPPATH.$_app.'/view/'.$_theme.'/'.$_file.'.'.$_defaultFormat.'.php';
                             } elseif ($_theme && is_file(VIEWPATH.$_theme.'/'.$_file.'.'.$_defaultFormat.'.php')) {
                                 $_path = VIEWPATH.$_theme.'/'.$_file.'.'.$_defaultFormat.'.php';
-                            } elseif ($_theme && is_file(THEMEPATH.$_theme.'/'.$_file.'.'.$_defaultFormat.'.php')) {
-                                $_path = THEMEPATH.$_theme.'/'.$_file.'.'.$_defaultFormat.'.php';
+                            } elseif ($_theme && is_file(THEMEPATH.$_theme.'/view/'.$_file.'.'.$_defaultFormat.'.php')) {
+                                $_path = THEMEPATH.$_theme.'/view/'.$_file.'.'.$_defaultFormat.'.php';
                             } elseif (is_file(APPPATH.$_app.'/view/'.$_file.'.'.$_defaultFormat.'.php')) {
                                 $_path = APPPATH.$_app.'/view/'.$_file.'.'.$_defaultFormat.'.php';
                             } elseif (is_file(VIEWPATH.$_file.'.'.$_defaultFormat.'.php')) {
@@ -163,16 +163,16 @@ class MiniMVC_View
                         } else {
                             $_defaultLayout = $this->registry->settings->get('config/defaultLayout', 'default');
                             if ($_defaultLayout != $_file) {
-                                if ($_theme && is_file(APPPATH.$_app.'/view/'.$_theme.'/'.$_defaultLayout.'.'.$_defaultFormat.'.php')) {
-                                    $_path = APPPATH.$_app.'/view/'.$_theme.'/'.$_defaultLayout.'.'.$_defaultFormat.'.php';
-                                } elseif ($_theme && is_file(VIEWPATH.$_theme.'/'.$_defaultLayout.'.'.$_defaultFormat.'.php')) {
-                                    $_path = VIEWPATH.$_theme.'/'.$_defaultLayout.'.'.$_defaultFormat.'.php';
-                                } elseif ($_theme && is_file(THEMEPATH.$_theme.'/'.$_defaultLayout.'.'.$_defaultFormat.'.php')) {
-                                    $_path = THEMEPATH.$_theme.'/'.$_defaultLayout.'.'.$_defaultFormat.'.php';
-                                } elseif (is_file(APPPATH.$_app.'/view/'.$_defaultLayout.'.'.$_defaultFormat.'.php')) {
-                                    $_path = APPPATH.$_app.'/view/'.$_defaultLayout.'.'.$_defaultFormat.'.php';
-                                } elseif (is_file(VIEWPATH.$_defaultLayout.'.'.$_defaultFormat.'.php')) {
-                                    $_path = VIEWPATH.$_defaultLayout.'.'.$_defaultFormat.'.php';
+                                if ($_theme && is_file(APPPATH.$_app.'/view/'.$_theme.'/'.$_defaultLayout.$_formatString.'.php')) {
+                                    $_path = APPPATH.$_app.'/view/'.$_theme.'/'.$_defaultLayout.$_formatString.'.php';
+                                } elseif ($_theme && is_file(VIEWPATH.$_theme.'/'.$_defaultLayout.$_formatString.'.php')) {
+                                    $_path = VIEWPATH.$_theme.'/'.$_defaultLayout.$_formatString.'.php';
+                                } elseif ($_theme && is_file(THEMEPATH.$_theme.'/'.$_defaultLayout.$_formatString.'.php')) {
+                                    $_path = THEMEPATH.$_theme.'/'.$_defaultLayout.$_formatString.'.php';
+                                } elseif (is_file(APPPATH.$_app.'/view/'.$_defaultLayout.$_formatString.'.php')) {
+                                    $_path = APPPATH.$_app.'/view/'.$_defaultLayout.$_formatString.'.php';
+                                } elseif (is_file(VIEWPATH.$_defaultLayout.$_formatString.'.php')) {
+                                    $_path = VIEWPATH.$_defaultLayout.$_formatString.'.php';
                                 }
                             }
                         }

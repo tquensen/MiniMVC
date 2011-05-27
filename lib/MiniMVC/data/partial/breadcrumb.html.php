@@ -5,5 +5,5 @@
         else:
         ?><span><?php echo htmlspecialchars($entry['title'])?></span><?php
         endif; ?>
-        <?php $this->get($_partial, array('navi' => $navi), $_module, $_app); ?></li></ul>
+        <?php $this->get($_partial, array('navi' => $navi), $_module, $_format, $_app); ?></li></ul>
 <?php endif; ?>

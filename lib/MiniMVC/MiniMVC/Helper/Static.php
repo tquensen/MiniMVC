@@ -56,12 +56,12 @@ class Helper_Static extends MiniMVC_Helper
             }
             $url = $baseurl.$theme.'/'.$module.'/'.$file;
         }
-        elseif ($theme && $module !== null && file_exists(THEMEPATH.$theme.'web/'.$module.'/'.$file))
+        elseif ($theme && $module !== null && file_exists(THEMEPATH.$theme.'/web/'.$module.'/'.$file))
         {
             if ($prefixHash) {
                 $parts = explode('.', $file);
                 $ext = array_pop($parts);
-                $file = implode('.', $parts) . '_' . md5(filemtime(THEMEPATH.$theme.'web/'.$module.'/'.$file)) . '_.' . $ext;
+                $file = implode('.', $parts) . '_' . md5(filemtime(THEMEPATH.$theme.'/web/'.$module.'/'.$file)) . '_.' . $ext;
             }
             $url = $baseurl.'theme/'.$theme.'/'.$module.'/'.$file;
         }
@@ -110,12 +110,12 @@ class Helper_Static extends MiniMVC_Helper
             }
             $url = $baseurl.$theme.'/'.$file;
         }
-        elseif ($theme && file_exists(THEMEPATH.$theme.'web/'.$file))
+        elseif ($theme && file_exists(THEMEPATH.$theme.'/web/'.$file))
         {
             if ($prefixHash) {
                 $parts = explode('.', $file);
                 $ext = array_pop($parts);
-                $file = implode('.', $parts) . '_' . md5(filemtime(THEMEPATH.$theme.'web/'.$file)) . '_.' . $ext;
+                $file = implode('.', $parts) . '_' . md5(filemtime(THEMEPATH.$theme.'/web/'.$file)) . '_.' . $ext;
             }
             $url = $baseurl.'theme/'.$theme.'/'.$file;
         }
