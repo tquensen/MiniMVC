@@ -1,20 +1,16 @@
 <?php
-class MiniMVC_Model implements ArrayAccess
+class MiniMVC_Model implements ArrayAccess, Serializable
 {
 	protected $_properties = array();
     protected $_databaseProperties = array();
     protected $_relations = array();
 	protected $_table = null;
     protected $_collection = null;
-	protected $_isNew = true;
 
 	public function __construct($table = null)
 	{
         if ($table) {
             $this->_table = $table;
-        } else {
-            $tableName = get_class($this).'Table';
-            $this->_table = call_user_func($tableName . '::getInstance');
         }
 	}
 
@@ -29,6 +25,10 @@ class MiniMVC_Model implements ArrayAccess
      */
     public function getTable()
     {
+        if ($this->_table === null) {
+            $tableName = get_class($this).'Table';
+            $this->_table = call_user_func($tableName . '::getInstance');
+        }
         return $this->_table;
     }
 
@@ -141,6 +141,26 @@ class MiniMVC_Model implements ArrayAccess
         } elseif (isset($this->_properties[$offset])) {
             unset($this->_properties[$offset]);
         }
+    }
+    
+    public function serialize()
+    {
+        return serialize(array(
+            'p' => $this->_properties,
+            'dbp' => $this->_databaseProperties,
+            'rel' => $this->_relations,
+            'col' => $this->_collection
+        ));
+    }
+    
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+        $this->__construct();
+        $this->_properties = $data['p'];
+        $this->_databaseProperties = $data['dbp'];
+        $this->_relations = $data['rel'];
+        $this->_collection = $data['col'];
     }
 
     /**

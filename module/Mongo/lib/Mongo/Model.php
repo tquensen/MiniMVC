@@ -10,20 +10,19 @@ class Mongo_Model implements Serializable
 
     protected $_properties = array();
     protected $_databaseProperties = array();
+    protected $_connection = null;
     /**
      *
      * @var Mongo_Repository
      */
     protected $_repository = null;
 
-    public function __construct($data = array(), $connection = null)
+    public function __construct($data = array(), $connection = null, $repository = false)
     {
         $this->_properties = $data;
+        $this->_connection = $connection;
         if ($repository) {
             $this->_repository = $repository;
-        } else {
-            $repositoryName = get_class($this).'Repository';
-            $this->_repository = class_exists($repositoryName) ? new $repositoryName(null, null, $connection) : new Mongo_Repository(get_class($this), get_class($this), $connection);    
         }
     }
 
@@ -98,6 +97,10 @@ class Mongo_Model implements Serializable
      */
     public function getRepository()
     {
+        if ($this->repository === null) {
+            $repositoryName = get_class($this).'Repository';
+            $this->_repository = class_exists($repositoryName) ? new $repositoryName(null, null, $this->_connection) : new Mongo_Repository(get_class($this), get_class($this), $this->_connection);    
+        }
         return $this->_repository;
     }
 
@@ -107,7 +110,7 @@ class Mongo_Model implements Serializable
      */
     public function getDB()
     {
-        return $this->_repository->getDB();
+        return $this->getRepository()->getDB();
     }
 
     /**
@@ -116,7 +119,7 @@ class Mongo_Model implements Serializable
      */
     public function getCollection()
     {
-        return $this->_repository->getCollection();
+        return $this->getRepository()->getCollection();
     }
 
     public function increment($property, $value, $save = true)
@@ -633,7 +636,7 @@ class Mongo_Model implements Serializable
     public function save($safe = true)
     {
         try {
-            return $this->_repository->save($this, $safe);
+            return $this->getRepository()->save($this, $safe);
         } catch (MongoException $e) {
             throw $e;
             return false;
@@ -648,7 +651,7 @@ class Mongo_Model implements Serializable
     public function remove($safe = true)
     {
         try {
-            return $this->_repository->remove($this, $safe);
+            return $this->getRepository()->remove($this, $safe);
         } catch (MongoException $e) {
             throw $e;
             return false;

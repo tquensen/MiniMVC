@@ -22,7 +22,6 @@ class Mongo_Repository
     public function __construct($collectionName = null, $className = null, $connection = null)
     {
         $this->connection = $connection;
-        $this->db = MiniMVC_Registry::getInstance()->mongo->get($this->connection);
 
         if ($collectionName) {
             $this->collectionName = $collectionName;
@@ -43,6 +42,9 @@ class Mongo_Repository
      */
     public function getDB()
     {
+        if ($this->db === null) {
+            $this->db = MiniMVC_Registry::getInstance()->mongo->get($this->connection);
+        }
         return $this->db;
     }
 
