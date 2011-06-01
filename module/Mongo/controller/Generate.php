@@ -16,7 +16,18 @@ class Mongo_Generate_Controller extends MiniMVC_Controller
             return 'No model definition found for '.$params['model'].' in module '.$params['module'].'...' . "\n";
         }
 
-        if (!isset($definition['columns']['_id'])) {
+        if (!isset($definition['mapReduce'])) {
+            $definition['mapReduce'] = false;
+        }
+        
+        if ($definition['mapReduce']) {
+            if (!isset($definition['columns']['_id'])) {
+                $definition['columns']['_id'] = 'mixed';
+            }
+            if (!isset($definition['columns']['value'])) {
+                $definition['columns']['value'] = 'mixed';
+            }
+        } elseif (!isset($definition['columns']['_id'])) {
             $definition['columns']['_id'] = 'MongoId';
         }
         if (!isset($definition['relations'])) {
@@ -29,6 +40,8 @@ class Mongo_Generate_Controller extends MiniMVC_Controller
         if (!isset($definition['autoIncrement'])) {
             $definition['autoIncrement'] = true;
         }
+        
+        
 
         $model = ucfirst($params['model']);
 
@@ -45,7 +58,8 @@ class Mongo_Generate_Controller extends MiniMVC_Controller
             '{relations_list}',
             '{embedded_methods}',
             '{embedded_list}',
-            '{auto_increment}'
+            '{auto_increment}',
+            '{parent_model}'
         );
         $replace = array(
             $model,
@@ -60,7 +74,8 @@ class Mongo_Generate_Controller extends MiniMVC_Controller
             $this->getRelationsListCode($definition, $model),
             $this->getEmbeddedMethodsCode($definition, $model),
             $this->getEmbeddedListCode($definition, $model),
-            (bool) $definition['autoIncrement'] ? 'true' : 'false'
+            (bool) $definition['autoIncrement'] ? 'true' : 'false',
+            $definition['mapReduce'] ? 'Mongo_MapReduceModel' : 'Mongo_Model'
         );
 
         $path = MODULEPATH . $params['module'].'/model';
@@ -74,7 +89,7 @@ class Mongo_Generate_Controller extends MiniMVC_Controller
             $message .= '-> Datei '.$model.'.php existiert bereits'."\n";
         }
         if (!file_exists($path . '/'.$model.'Repository.php')) {
-            file_put_contents($path . '/'.$model.'Repository.php', str_replace($search, $replace, file_get_contents($dummy . '/Repository.php')));
+            file_put_contents($path . '/'.$model.'Repository.php', str_replace($search, $replace, file_get_contents($dummy . ($definition['mapReduce'] ? '/MapReduceRepository.php' : '/Repository.php'))));
             $message .= '-> Datei '.$model.'Repository.php erstellt'."\n";
         } else {
             $message .= '-> Datei '.$model.'Repository.php existiert bereits'."\n";

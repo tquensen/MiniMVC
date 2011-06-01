@@ -4,7 +4,7 @@
  * 
  * @method {name}Repository getRepository()
  */
-class {name} extends Mongo_Model
+class {name} extends {parent_model}
 {
     /*
     public function preSave()
