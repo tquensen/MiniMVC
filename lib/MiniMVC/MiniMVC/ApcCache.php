@@ -6,6 +6,7 @@
 class MiniMVC_ApcCache extends MiniMVC_Cache
 {
     protected $data = array();
+    protected $toSave = array();
 
     public function get($key, $default = null)
     {
@@ -59,35 +60,43 @@ class MiniMVC_ApcCache extends MiniMVC_Cache
             $this->save((array) $value, $file, $app, $environment);
             return true;
         } else {
+            $k = implode('/', $parts);
+            $this->toSave[$file][$k] = $value;
+            return true;
+        }
+    }
+    
+    public function __destruct()
+    {
+        $app = $this->registry->settings->get('currentApp');
+        $environment = $this->registry->settings->get('currentEnvironment');
+        
+        foreach ($this->toSave as $file => $keys) {
             $this->load($file, $app, $environment);
-            if (count($parts) === 1) {
-                $this->data[$file][$parts[0]] = $value;
-                $this->save($this->data[$file], $file, $app, $environment);
-                return true;
-            } elseif (count($parts) === 2) {
-                $this->data[$file][$parts[0]][$parts[1]] = $value;
-                $this->save($this->data[$file], $file, $app, $environment);
-                return true;
-            } elseif (count($parts) === 3) {
-                $this->data[$file][$parts[0]][$parts[1]][$parts[2]] = $value;
-                $this->save($this->data[$file], $file, $app, $environment);
-                return true;
+            foreach ($keys as $k => $v) {
+                $parts = explode('/', $k);
+                if (count($parts) === 1) {
+                    $this->data[$file][$parts[0]] = $value;
+                } elseif (count($parts) === 2) {
+                    $this->data[$file][$parts[0]][$parts[1]] = $value;
+                } elseif (count($parts) === 3) {
+                    $this->data[$file][$parts[0]][$parts[1]][$parts[2]] = $value;
+                } else {
+                    $pointer = &$this->data[$file];
+                    while (null !== ($index = array_shift($parts))) {
+                        if (!isset($pointer[$index])) {
+                            $pointer[$index] = array();
+
+                        }
+                        $pointer = &$pointer[$index];
+                        if (count($parts) === 0) {
+                            $pointer = $value;
+                        }
+                    }
+                }
             }
+            $this->save($this->data[$file], $file, $app, $environment);
         }
-
-        $pointer = &$this->data[$file];
-        while (null !== ($index = array_shift($parts))) {
-            if (!isset($pointer[$index])) {
-                $pointer[$index] = array();
-
-            }
-            $pointer = &$pointer[$index];
-            if (count($parts) === 0) {
-                $pointer = $value;
-            }
-        }
-
-        $this->save($this->data[$file], $file, $app, $environment);
         return true;
     }
 
