@@ -34,7 +34,6 @@ class MiniMVC_Form_Validator
     {
         if ($element) {
             $this->element = $element;
-            $this->form = $element->getForm();
         }
     }
 
@@ -52,7 +51,10 @@ class MiniMVC_Form_Validator
 
     public function getForm()
     {
-        return $this->form;
+        if ($this->form) {
+            return $this->form;
+        }
+        return ($this->element) ? $this->element->getForm() : null;
     }
 
 	public function validate($value)

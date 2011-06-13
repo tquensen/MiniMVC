@@ -54,7 +54,7 @@ $MiniMVC_routes['user.userNew'] = array(
     'rights' => 'guest'
 );
 $MiniMVC_routes['user.userCreate'] = array(
-    'route' => 'user(.:_format:)',
+    'route' => 'user/new(.:_format:)',
     'controller' => 'User_User',
     'action' => 'create',
     'method' => 'POST',
@@ -88,7 +88,7 @@ $MiniMVC_routes['user.userEdit'] = array(
     'rights' => 'user'
 );
 $MiniMVC_routes['user.userUpdate'] = array(
-    'route' => 'user/:slug:(.:_format:)',
+    'route' => 'user/:slug:/edit(.:_format:)',
     'controller' => 'User_User',
     'action' => 'update',
     'method' => 'POST',

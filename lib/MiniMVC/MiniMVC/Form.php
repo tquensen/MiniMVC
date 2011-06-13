@@ -161,7 +161,8 @@ class MiniMVC_Form
 //            }
 //        }
         if ($values === null) {
-            $values = strtoupper($this->getOption('method')) === 'GET' ? $_GET : $_POST;
+            $arr = strtoupper($this->getOption('method')) === 'GET' ? $_GET : $_POST;
+            $values = !empty($arr[$this->name]) ? $arr[$this->name] : array();
         }
 
         foreach ($this->elements as $element) {

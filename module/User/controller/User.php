@@ -85,12 +85,12 @@ class User_User_Controller extends MiniMVC_Controller
             $message = $this->view->t->userLoginSuccessMessage;
             if ($this->registry->layout->getFormat() === null) {
                 $this->registry->helper->messages->add($message, 'success');
-                $form->successRedirect('user.userShow', array('slug' => $model->slug));
+                $this->redirect('user.userShow', array('slug' => $model->slug));
             }
         }
 
         if ($this->registry->layout->getFormat() === null) {
-            $form->errorRedirect('user.userLogin');
+            //$form->errorRedirect('user.userLogin');
         }
 
         $this->view->form = $form;
@@ -138,7 +138,7 @@ class User_User_Controller extends MiniMVC_Controller
                 $message = $this->view->t->userCreateSuccessMessage;
                 if ($this->registry->layout->getFormat() === null) {
                     $this->registry->helper->messages->add($message, 'success');
-                    $form->successRedirect('user.userShow', array('slug' => $model->slug));
+                    $this->redirect('user.userShow', array('slug' => $model->slug));
                 }
             } else {
                 $form->setError($this->view->t->userCreateErrorMessage);
@@ -146,7 +146,7 @@ class User_User_Controller extends MiniMVC_Controller
         }
 
         if ($this->registry->layout->getFormat() === null) {
-            $form->errorRedirect('user.userNew');
+            //$form->errorRedirect('user.userNew');
         }
 
         $this->view->form = $form;
@@ -213,7 +213,7 @@ class User_User_Controller extends MiniMVC_Controller
                 $message = $this->view->t->userUpdateSuccessMessage;
                 if ($this->registry->layout->getFormat() === null) {
                     $this->registry->helper->messages->add($message, 'success');
-                    $form->successRedirect('user.userShow', array('slug' => $model->slug));
+                    $this->redirect('user.userShow', array('slug' => $model->slug));
                 }
             } else {
                 $this->view->form->setError($this->view->t->userUpdateErrorMessage);
@@ -221,7 +221,7 @@ class User_User_Controller extends MiniMVC_Controller
         }
 
         if ($this->registry->layout->getFormat() === null) {
-            $form->errorRedirect('user.userEdit', array('slug' => $model->slug));
+            //$form->errorRedirect('user.userEdit', array('slug' => $model->slug));
         }
 
         $this->view->form = $form;
