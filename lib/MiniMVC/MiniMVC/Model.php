@@ -312,6 +312,7 @@ class MiniMVC_Model implements ArrayAccess, Serializable
             foreach ($identifier as $id) {
                 $this->setRelated($relation, $id, $update);
             }
+            return true;
         }
         if (is_object($identifier) && $identifier instanceof MiniMVC_Model) {
             $info = $this->getTable()->getRelation($relation);
@@ -359,6 +360,7 @@ class MiniMVC_Model implements ArrayAccess, Serializable
             foreach ($identifier as $id) {
                 $this->deleteRelated($relation, $id, $realDelete, $realDeleteLoad, $realDeleteCleanRef);
             }
+            return true;
         }
         if (is_object($identifier)) {
             if (isset($this->_relations[$relation][$identifier->getIdentifier()])) {
@@ -481,6 +483,7 @@ class MiniMVC_Model implements ArrayAccess, Serializable
             foreach ($identifier as $id) {
                 $this->saveRelated($relation, $id, $saveThisOnDemand);
             }
+            return true;
         }
         
         if (!$info = $this->getTable()->getRelation($relation)) {
@@ -605,6 +608,7 @@ class MiniMVC_Model implements ArrayAccess, Serializable
             foreach ($identifier as $id) {
                 $this->linkRelated($relation, $id, $loadRelated);
             }
+            return true;
         }
         
         if (!$identifier) {
@@ -733,6 +737,7 @@ class MiniMVC_Model implements ArrayAccess, Serializable
             foreach ($identifier as $id) {
                 $this->unlinkRelated($relation, $id);
             }
+            return true;
         }
 
         if (!$info = $this->getTable()->getRelation($relation)) {
