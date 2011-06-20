@@ -84,7 +84,7 @@ class Helper_Url extends MiniMVC_Helper
         return $baseurl.$url;
 	}
 
-    public function link($title, $route, $parameter = array(), $method = null, $attrs = '', $confirm = null, $postData = array(), $app = null)
+    public function link($title, $route, $parameter = array(), $method = null, $attrs = array(), $confirm = null, $postData = array(), $app = null)
     {
         $url = $this->get($route, $parameter, $app);
         if (!$url) {
@@ -111,7 +111,11 @@ class Helper_Url extends MiniMVC_Helper
         }
 
         if ($method == 'GET') {
-            return '<a href="'.htmlspecialchars($url).'"'.($attrs ? ' '.$attrs : '').($confirm ? ' onclick="return confirm(\''.htmlspecialchars($confirm).'\')"' : '').'>'.$title.'</a>';
+            $attributes = '';
+            foreach ((array) $attrs as $k => $v) {
+                $attributes .= ' '.$k.'="'.$v.'"';
+            }
+            return '<a href="'.htmlspecialchars($url).'"'.($attributes).($confirm ? ' onclick="return confirm(\''.htmlspecialchars($confirm).'\')"' : '').'>'.$title.'</a>';
         } else {
             $form = new MiniMVC_Form(array(
                 'name' => md5($url).'Form',
