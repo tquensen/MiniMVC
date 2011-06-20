@@ -22,6 +22,17 @@ $MiniMVC_routes['user.userIndex'] = array(
                         //        array(array('administrate', array('moderate', 'publish'))) = administrate OR (moderate AND publish)
 );
 
+$MiniMVC_routes['user.userLogout'] = array(
+    'route' => 'user/logout(.:_format:)',
+    'controller' => 'User_User',
+    'action' => 'logout',
+    'method' => array('GET', 'POST'),
+    'parameter' => array('_format' => 'default'), //set the default format
+    'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
+    'active' => true, //this route must be activated for each app to work
+    'rights' => 'user'
+);
+
 $MiniMVC_routes['user.userLogin'] = array(
     'route' => 'user/login(.:_format:)',
     'controller' => 'User_User',

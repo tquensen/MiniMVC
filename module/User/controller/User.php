@@ -1,15 +1,18 @@
 <?php
+
 class User_User_Controller extends MiniMVC_Controller
 {
+
     public function indexAction($params)
     {
         $this->registry->helper->meta->setTitle($this->view->t->userIndexTitle);
         $this->registry->helper->meta->setDescription($this->view->t->userIndexMetaDescription);
 
         if ($this->view->selectCache(
-            array('name' => 'user.userIndex', 'loggedIn' => (bool) $this->registry->guard->getId()),
-            array('user.userIndex'), true, 3600
-        )) { return $this->view->prepareCache(); }
+                array('name' => 'user.userIndex', 'loggedIn' => (bool)$this->registry->guard->getId()), array('user.userIndex'), true, 3600
+        )) {
+            return $this->view->prepareCache();
+        }
 
         $showPerPage = 20;
         $currentPage = !empty($_GET['p']) ? $_GET['p'] : 1;
@@ -18,12 +21,7 @@ class User_User_Controller extends MiniMVC_Controller
         $this->view->entries = $query->build();
 
         $this->view->pager = $this->registry->helper->pager->get(
-                $query->count(),
-                $showPerPage,
-                $this->registry->helper->url->get('user.userIndex') . '(?p={page})',
-                $currentPage,
-                7,
-                false
+                $query->count(), $showPerPage, $this->registry->helper->url->get('user.userIndex') . '(?p={page})', $currentPage, 7, false
         );
     }
 
@@ -34,7 +32,7 @@ class User_User_Controller extends MiniMVC_Controller
         } else {
             $user = $params['model'];
         }
-        
+
         if ($this->registry->rights->roleHasRight($user->role, 'guest')) {
             return $this->delegate404();
         }
@@ -43,9 +41,10 @@ class User_User_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setDescription($this->view->t->userShowMetaDescription(array('name' => htmlspecialchars($user->name))));
 
         if ($this->view->selectCache(
-            array('name' => 'user.userShow', 'self' => (bool) ($this->registry->guard->getId() == $user->id)),
-            array('user.userShow', 'user.userShow.'.$user->id), true, 3600
-        )) { return $this->view->prepareCache(); }
+                array('name' => 'user.userShow', 'self' => (bool)($this->registry->guard->getId() == $user->id)), array('user.userShow', 'user.userShow.' . $user->id), true, 3600
+        )) {
+            return $this->view->prepareCache();
+        }
 
         $this->view->model = $user;
     }
@@ -56,24 +55,35 @@ class User_User_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setDescription($this->view->t->userLoginDescription);
 
         $form = UserTable::getInstance()->getLoginForm(null, array(
-            'route' => 'user.userProcessLogin'
-        ));
+                'route' => 'user.userProcessLogin'
+            ));
 
         $this->view->form = $form;
+    }
+
+    public function logoutAction($params)
+    {
+        $this->registry->helper->meta->setTitle($this->view->t->userLogoutTitle);
+        $this->registry->helper->meta->setDescription($this->view->t->userLogoutDescription);
+
+        $this->registry->guard->setUser();
+
+        if ($this->registry->layout->getFormat() === null) {
+            $this->redirect('');
+        }
     }
 
     public function processLoginAction($params)
     {
         $form = UserTable::getInstance()->getLoginForm(null, array(
-            'route' => 'user.userProcessLogin'
-        ));
+                'route' => 'user.userProcessLogin'
+            ));
 
         $model = $form->getModel();
         $success = false;
         $message = '';
 
-        if ($form->validate())
-        {
+        if ($form->validate()) {
             $success = true;
             $model = $form->getModel();
             $this->registry->guard->setUser($model->id, $model->role, true);
@@ -105,8 +115,8 @@ class User_User_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setDescription($this->view->t->userNewMetaDescription);
 
         $form = UserTable::getInstance()->getRegisterForm(null, array(
-            'route' => 'user.userCreate'
-        ));
+                'route' => 'user.userCreate'
+            ));
 
         $this->view->form = $form;
     }
@@ -114,15 +124,14 @@ class User_User_Controller extends MiniMVC_Controller
     public function createAction($params)
     {
         $form = UserTable::getInstance()->getRegisterForm(null, array(
-            'route' => 'user.userCreate'
-        ));
+                'route' => 'user.userCreate'
+            ));
 
         $model = $form->getModel();
         $success = false;
         $message = '';
 
-        if ($form->validate())
-        {
+        if ($form->validate()) {
             $form->updateModel();
             if ($model->save()) {
                 $success = true;
@@ -173,9 +182,9 @@ class User_User_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setDescription($this->view->t->userEditMetaDescription);
 
         $form = UserTable::getInstance()->getPasswordForm($model, array(
-            'route' => 'user.userUpdate',
-            'parameter' => array('slug' => $model->slug)
-        ));
+                'route' => 'user.userUpdate',
+                'parameter' => array('slug' => $model->slug)
+            ));
 
         $this->view->form = $form;
         $this->view->model = $model;
@@ -196,19 +205,18 @@ class User_User_Controller extends MiniMVC_Controller
         }
 
         $form = UserTable::getInstance()->getPasswordForm($model, array(
-            'route' => 'user.userUpdate',
-            'parameter' => array('slug' => $model->slug)
-        ));
+                'route' => 'user.userUpdate',
+                'parameter' => array('slug' => $model->slug)
+            ));
         $success = false;
         $message = '';
 
-        if ($form->validate())
-        {
+        if ($form->validate()) {
             $form->updateModel();
             if ($model->save()) {
                 $success = true;
 
-                $this->view->deleteCache(array('user.userIndex', 'user.userShow.'.$model->id));
+                $this->view->deleteCache(array('user.userIndex', 'user.userShow.' . $model->id));
 
                 $message = $this->view->t->userUpdateSuccessMessage;
                 if ($this->registry->layout->getFormat() === null) {
@@ -249,8 +257,8 @@ class User_User_Controller extends MiniMVC_Controller
         if ($success) {
             $this->registry->guard->setUser();
 
-            $this->view->deleteCache(array('user.userIndex', 'user.userShow.'.$model->id));
-            
+            $this->view->deleteCache(array('user.userIndex', 'user.userShow.' . $model->id));
+
             $message = $this->view->t->userDeleteSuccessMessage(array('name' => htmlspecialchars($model->name)));
             if ($params['_format'] == 'default') {
                 $this->registry->helper->messages->add($message, 'success');
@@ -259,7 +267,7 @@ class User_User_Controller extends MiniMVC_Controller
         } else {
             $message = $this->view->t->userDeleteErrorMessage(array('name' => htmlspecialchars($model->name)));
             if ($params['_format'] == 'default') {
-               $this->registry->helper->messages->add($message, 'error');
+                $this->registry->helper->messages->add($message, 'error');
                 return $this->redirect('user.userIndex');
             }
         }
@@ -271,6 +279,7 @@ class User_User_Controller extends MiniMVC_Controller
 
     public function widgetAction($params)
     {
+        
     }
 
 }
