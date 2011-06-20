@@ -58,7 +58,7 @@ class Helper_Navi extends MiniMVC_Helper
             if (is_string($entry['title'])) {
                 $current['title'] = $entry['title'];
             } elseif (is_array($entry['title']) && isset($entry['title'][0])) {
-                $t = $this->registry->helper->i18n->get(isset($entry[1]) ? $entry[1] : '_default');
+                $t = $this->registry->helper->i18n->get(isset($entry['title'][1]) ? $entry['title'][1] : '_default');
                 $current['title'] = $t->{$entry['title'][0]};
             } else {
                 $current['title'] = '';
