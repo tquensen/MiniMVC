@@ -1,5 +1,5 @@
 <?php if ($success): ?>
-    <h2><?php echo $t->userNewHeadline; ?></h2>
+    <h1><?php echo $t->userNewHeadline; ?></h1>
     <p>
         <a href="<?php echo $h->url->get('user.userShow', array('slug' => $model->slug)); ?>">
             <?php echo $o->esc($message); ?>

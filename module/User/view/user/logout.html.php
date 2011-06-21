@@ -1,4 +1,4 @@
-<h2><?php echo $t->userLogoutHeadline; ?></h2>
+<h1><?php echo $t->userLogoutHeadline; ?></h1>
 <p>
     <?php echo $t->userLogoutMessage; ?>
 </p>

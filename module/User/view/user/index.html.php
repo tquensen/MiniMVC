@@ -1,14 +1,14 @@
-<h2><?php echo $t->userIndexHeadline; ?></h2>
+<h1><?php echo $t->userIndexHeadline; ?></h1>
 
 <?php if (count($entries)): ?>
 <ol>
     <?php foreach ($entries as $model): ?>
     <li>
-        <h3>
+        <h2>
             <a href="<?php $o->esc($h->url->get('user.userShow', array('slug' => $model->slug))); ?>">
                 <?php $o->esc($model->name); ?>
             </a>
-        </h3>
+        </h2>
     </li>
     <?php endforeach; ?>
 </ol>
