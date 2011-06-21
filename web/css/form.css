@@ -83,7 +83,6 @@
     border: 1px solid;
     border-color: #999 #bbb #ddd;
     background: #fafafa;
-    color: #666;
     background: -webkit-linear-gradient(top, rgb(239,239,239), rgb(255,255,255) 50%);
     background: -moz-linear-gradient(top, rgb(239,239,239), rgb(255,255,255) 50%);
     background: -o-linear-gradient(top, rgb(239,239,239), rgb(255,255,255) 50%);
@@ -128,6 +127,16 @@
     color: #000;
 }
 
+.fancyForm input[disabled], .fancyForm textarea[disabled], .fancyForm select[disabled], .fancyForm button[disabled], .fancyButton[disabled],
+.fancyForm input[readonly], .fancyForm textarea[readonly], .fancyForm select[readonly], .fancyForm button[readonly], .fancyButton[readonly] {
+    border-color: #ccc #ddd #eee;
+    background: #f6f6f6;
+    color: #999;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+}
+
 .fancyForm input[type=submit], .fancyForm button, .fancyButton {
     display: inline-block;
     width: auto;
@@ -161,6 +170,16 @@
     background: -ms-linear-gradient(top, rgb(191,191,191), rgb(255,255,255) 50%);
     background: linear-gradient(top, rgb(191,191,191), rgb(255,255,255) 50%);
     border-color: #999 #888 #777;
+}
+
+.fancyForm input[type=submit][disabled], .fancyForm button[disabled], .fancyButton[disabled],
+.fancyForm input[type=submit][readonly], .fancyForm button[readonly], .fancyButton[readonly] {
+    border-color: #eee #ddd #ccc;
+    background: #f6f6f6;
+   color: #999;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
 }
 
 .fancyForm input[type=radio]:focus + label, .fancyForm input[type=checkbox]:focus + label {
