@@ -5,10 +5,10 @@ class My_Default_Controller extends MiniMVC_Controller
     public function indexAction($params)
     {
         $this->view->setFile('static/home');
-        if ($title = $this->view->t->get('home_title')) {
+        if ($title = $this->view->t->get('homeTtitle')) {
             $this->registry->helper->meta->setTitle($title);
         }
-        if ($description = $this->view->t->get('home_description')) {
+        if ($description = $this->view->t->get('homeDescription')) {
             $this->registry->helper->meta->setDescription($description);
         }
     }
@@ -21,7 +21,7 @@ class My_Default_Controller extends MiniMVC_Controller
      * in view/static/PAGENAME.php
      * 
      * add title and meta description in i18n files as 
-     * $MiniMVC_i18n['My']['PAGENAME_title'] and $MiniMVC_i18n['My']['PAGENAME_description']
+     * $MiniMVC_i18n['My']['PAGENAMETitle'] and $MiniMVC_i18n['My']['PAGENAMEDescription']
      *
      * @param array $params the route params
      */
@@ -30,10 +30,10 @@ class My_Default_Controller extends MiniMVC_Controller
         if (!empty($params['page'])) {
             $page = $params['page'];
             $this->view->setFile('static/'.$page);
-            if ($title = $this->view->t->get($page.'_title')) {
+            if ($title = $this->view->t->get($page.'Title')) {
                 $this->registry->helper->meta->setTitle($title);
             }
-            if ($description = $this->view->t->get($page.'_description')) {
+            if ($description = $this->view->t->get($page.'Description')) {
                 $this->registry->helper->meta->setDescription($description);
             }
         }

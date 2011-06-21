@@ -16,14 +16,14 @@ class Core_Error_Controller extends MiniMVC_Controller
 
 	public function error401Action($params)
 	{
-        $this->registry->helper->meta->setTitle('Error 401 Unauthorized', false);
+        $this->registry->helper->meta->setTitle($this->view->t->error401Title, false);
         $this->registry->helper->meta->setDescription('');
         header('HTTP/1.1 401 Unauthorized', true, 401);
 
         if (isset($params['exception']) && $params['exception'] instanceof MiniMVC_PublicHttpException && $params['exception']->getMessage()) {
             $this->view->message = $params['exception']->getMessage();
         } else {
-            $this->view->message = 'Error 401 Unauthorized';
+            $this->view->message = $this->view->t->error401Message; //'Error 401 Unauthorized';
         }
 
         if (isset($params['debug']) && $params['debug'] && isset($params['exception'])) {
@@ -34,14 +34,14 @@ class Core_Error_Controller extends MiniMVC_Controller
 	
 	public function error403Action($params)
 	{
-        $this->registry->helper->meta->setTitle('Error 403 Forbidden', false);
+        $this->registry->helper->meta->setTitle($this->view->t->error403Title, false);
         $this->registry->helper->meta->setDescription('');
 		header('HTTP/1.1 403 Forbidden', true, 403);
 
         if (isset($params['exception']) && $params['exception'] instanceof MiniMVC_PublicHttpException && $params['exception']->getMessage()) {
             $this->view->message = $params['exception']->getMessage();
         } else {
-            $this->view->message = 'Error 403 Forbidden';
+            $this->view->message = $this->view->t->error403Message; //'Error 403 Forbidden';
         }
 
         if (isset($params['debug']) && $params['debug'] && isset($params['exception'])) {
@@ -52,14 +52,14 @@ class Core_Error_Controller extends MiniMVC_Controller
 	
 	public function error404Action($params)
 	{
-        $this->registry->helper->meta->setTitle('Error 404 Not Found', false);
+        $this->registry->helper->meta->setTitle($this->view->t->error404Title, false);
         $this->registry->helper->meta->setDescription('');
 		header('HTTP/1.1 404 Not Found', true, 404);
 
         if (isset($params['exception']) && $params['exception'] instanceof MiniMVC_PublicHttpException && $params['exception']->getMessage()) {
             $this->view->message = $params['exception']->getMessage();
         } else {
-            $this->view->message = 'Error 404 Not Found';
+            $this->view->message =  $this->view->t->error404Message; //'Error 404 Not Found';
         }
 
         if (isset($params['debug']) && $params['debug'] && isset($params['exception'])) {
@@ -71,12 +71,14 @@ class Core_Error_Controller extends MiniMVC_Controller
     public function error500Action($params)
 	{
         if (isset($params['exception']) && isset($this->serverErrorCodes[$params['exception']->getCode()])) {
-            $this->registry->helper->meta->setTitle('Error '.$this->serverErrorCodes[$params['exception']->getCode()], false);
-            $this->view->message = 'Error '.$this->serverErrorCodes[$params['exception']->getCode()];
+            $this->registry->helper->meta->setTitle($this->view->t->get('error'.$params['exception']->getCode().'Title'), false);
+            $this->view->message =  $this->view->t->get('error'.$params['exception']->getCode().'Message'); // 'Error '.$this->serverErrorCodes[$params['exception']->getCode()];
+            $this->view->headline = $this->view->t->get('error'.$params['exception']->getCode().'Headline');
             header($this->serverErrorCodes[$params['exception']->getCode()], true, $params['exception']->getCode());
         } else {
-            $this->registry->helper->meta->setTitle('Error 500 Internal Server Error', false);
-            $this->view->message = 'Error 500 Internal Server Error';
+            $this->registry->helper->meta->setTitle($this->view->t->error500Title, false);
+            $this->view->message =  $this->view->t->error500Message; //'Error 500 Internal Server Error';
+            $this->view->headline =  $this->view->t->error500Headline;
             header('500 Internal Server Error', true, 500);
         }
 
