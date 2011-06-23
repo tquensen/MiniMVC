@@ -1,1 +1,1 @@
-<h1>Example view</h1>
+<h2>Example view</h2>

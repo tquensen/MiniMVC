@@ -1,4 +1,4 @@
-<h1><?php echo $t->UserShowHeadline(array('name' => htmlspecialchars($model->name))); ?></h1>
+<h2><?php echo $t->UserShowHeadline(array('name' => htmlspecialchars($model->name))); ?></h2>
 
 
 

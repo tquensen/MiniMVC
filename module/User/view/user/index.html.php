@@ -1,4 +1,4 @@
-<h1><?php echo $t->userIndexHeadline; ?></h1>
+<h2><?php echo $t->userIndexHeadline; ?></h2>
 
 <?php if (count($entries)): ?>
 <ol>

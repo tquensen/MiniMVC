@@ -1,4 +1,4 @@
-<h1><?php echo $t->error401Headline; ?></h1>
+<h2><?php echo $t->error401Headline; ?></h2>
 <?php if ($message): ?>
 <p><?php echo $o->esc($message); ?></p>
 <?php endif; ?>
