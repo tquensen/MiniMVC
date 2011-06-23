@@ -11,6 +11,7 @@ class Helper_DummyCache extends MiniMVC_Helper {
     protected $key = false;
     protected $urlHash = 'other';
     protected $tokens = array();
+    protected $ttl = false;
 
     public function get($conditions = array(), $tokens = array(), $bindToUrl = true)
     {
@@ -25,6 +26,11 @@ class Helper_DummyCache extends MiniMVC_Helper {
     public function check()
     {
         return false;
+    }
+    
+    public function setTTL($time)
+    {
+        $this->ttl = $time;
     }
 
     public function load()
