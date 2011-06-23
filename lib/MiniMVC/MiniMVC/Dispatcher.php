@@ -446,7 +446,7 @@ class MiniMVC_Dispatcher
         }
 
         $viewName = $this->registry->settings->get('config/classes/view', 'MiniMVC_View');
-        $view = new $viewName($controllerParts[0], strtolower($controllerParts[1].'/'.$action));
+        $view = new $viewName($controllerParts[0], strtolower($controllerParts[1]).'/'.$action);
 
         $controllerClass = new $controllerName($view);
         $this->registry->events->notify(new sfEvent($controllerClass, 'minimvc.call', array('controller' => $controller, 'action' => $action, 'params' => $params)));
