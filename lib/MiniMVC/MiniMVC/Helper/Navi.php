@@ -107,7 +107,7 @@ class Helper_Navi extends MiniMVC_Helper
                 $current['url'] = false;
             }
             if (isset($entry['submenu']) && is_array($entry['submenu'])) {
-                list($submenu, $submenuActive) = $this->buildNavi($entry['submenu']);
+                list($submenu, $submenuActive) = $this->_buildNavi($entry['submenu']);
                 $current['submenu'] = !empty($submenu) ? $submenu : false;
                 if ($submenuActive) {
                     $current['active'] = $submenuActive;
