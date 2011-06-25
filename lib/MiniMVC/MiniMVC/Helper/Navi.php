@@ -57,6 +57,11 @@ class Helper_Navi extends MiniMVC_Helper
             $navi = $this->registry->settings->get('view/navi/' . $name, array());
         }
         
+        return $this->_buildNavi($navi);
+    }
+    
+    protected function _buildNavi($navi)
+    {
         $return = array();
         $active = false;
         foreach ($navi as $entry) {
