@@ -95,7 +95,23 @@ class Helper_Css extends MiniMVC_Helper
             return array_merge($cache, $this->additionalFiles);
         }
 
-        $files = $this->registry->settings->get('view/css', array());
+        if ($theme) {
+            $MiniMVC_view = $this->registry->settings->get('view', array());
+            $currentApp = $this->registry->settings->get('currentApp');
+            if (file_exists(THEMEPATH.$theme.'/theme.php')) {
+                include THEMEPATH.$theme.'/theme.php';
+            }
+            if (file_exists(DATAPATH.'settings/theme.php')) {
+                include DATAPATH.'settings/theme.php';
+            }
+            if ($currentApp && file_exists(APPPATH.$currentApp.'settings/theme.php')) {
+                include APPPATH.$currentApp.'settings/theme.php';
+            }
+            $files = isset($MiniMVC_view['css']) ? $MiniMVC_view['css'] : array();
+        } else {
+            $files = $this->registry->settings->get('view/css', array());
+        }
+        
         $preparedFiles = array();
         foreach ($files as $file) {
             $data = array();

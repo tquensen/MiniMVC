@@ -5,10 +5,10 @@ class My_Default_Controller extends MiniMVC_Controller
     public function indexAction($params)
     {
         $this->view->setFile('static/home');
-        if ('homeTitle' !== ($title = $this->view->t->get('homeTtitle'))) {
+        if ('homeTitle' !== ($title = $this->view->t->get('homeTitle'))) {
             $this->registry->helper->meta->setTitle($title);
         }
-        if ('homeDescription' !==($description = $this->view->t->get('homeDescription'))) {
+        if ('homeDescription' !== ($description = $this->view->t->get('homeDescription'))) {
             $this->registry->helper->meta->setDescription($description);
         }
     }

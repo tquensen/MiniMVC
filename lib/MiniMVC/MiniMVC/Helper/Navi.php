@@ -31,14 +31,32 @@ class Helper_Navi extends MiniMVC_Helper
     public function get($navi)
     {
         if (!isset($this->navis[$navi])) {
-            $naviData = $this->buildNavi($this->registry->settings->get('view/navi/' . $navi, array()));
+            $naviData = $this->buildNavi($navi);
             $this->navis[$navi] = $naviData[0];
         }
         return $this->navis[$navi];
     }
 
-    protected function buildNavi($navi)
+    protected function buildNavi($name)
     {
+        $theme = $this->registry->layout->getTheme();
+        if ($theme) {
+            $MiniMVC_view = $this->registry->settings->get('view', array());
+            $currentApp = $this->registry->settings->get('currentApp');
+            if (file_exists(THEMEPATH.$theme.'/theme.php')) {
+                include THEMEPATH.$theme.'/theme.php';
+            }
+            if (file_exists(DATAPATH.'settings/theme.php')) {
+                include DATAPATH.'settings/theme.php';
+            }
+            if ($currentApp && file_exists(APPPATH.$currentApp.'settings/theme.php')) {
+                include APPPATH.$currentApp.'settings/theme.php';
+            }
+            $navi = isset($MiniMVC_view['navi'][$name]) ? $MiniMVC_view['navi'][$name] : array();
+        } else {
+            $navi = $this->registry->settings->get('view/navi/' . $name, array());
+        }
+        
         $return = array();
         $active = false;
         foreach ($navi as $entry) {

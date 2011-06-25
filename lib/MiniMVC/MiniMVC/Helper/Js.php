@@ -158,11 +158,28 @@ class Helper_Js extends MiniMVC_Helper
 
     public function prepareFiles()
     {
-        if (null !== ($cache = $this->registry->cache->get('jsCached'))) {
+        $theme = $this->registry->layout->getTheme();
+        if (null !== ($cache = $this->registry->cache->get('jsCached_'.$theme))) {
             return $cache;
         }
-        $theme = $this->registry->layout->getTheme();
-        $files = $this->registry->settings->get('view/js', array());
+        
+        if ($theme) {
+            $MiniMVC_view = $this->registry->settings->get('view', array());
+            $currentApp = $this->registry->settings->get('currentApp');
+            if (file_exists(THEMEPATH.$theme.'/theme.php')) {
+                include THEMEPATH.$theme.'/theme.php';
+            }
+            if (file_exists(DATAPATH.'settings/theme.php')) {
+                include DATAPATH.'settings/theme.php';
+            }
+            if ($currentApp && file_exists(APPPATH.$currentApp.'settings/theme.php')) {
+                include APPPATH.$currentApp.'settings/theme.php';
+            }
+            $files = isset($MiniMVC_view['js']) ? $MiniMVC_view['js'] : array();
+        } else {
+            $files = $this->registry->settings->get('view/js', array());
+        }
+        
         $preparedFiles = array();
         foreach ($files as $file) {
             $data = array();
@@ -207,7 +224,7 @@ class Helper_Js extends MiniMVC_Helper
         }
 
         $combinedFiles = $this->combineFiles($preparedFiles);
-        $this->registry->cache->set('jsCached', $combinedFiles);
+        $this->registry->cache->set('jsCached_'.$theme, $combinedFiles);
 
         return $combinedFiles;
     }

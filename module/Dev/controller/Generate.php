@@ -119,6 +119,7 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         file_put_contents($path . '/settings/config.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/config_app.php')));
         file_put_contents($path . '/settings/routes.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/routes_app.php')));
         file_put_contents($path . '/settings/widgets.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/widgets_app.php')));
+        file_put_contents($path . '/settings/theme.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/theme.php')));
 
         if ($params['w']) {
             file_put_contents(WEBPATH . $params['app'] . '.php', str_replace('APP', $params['app'], file_get_contents($dummy . '/app_web.php')));
