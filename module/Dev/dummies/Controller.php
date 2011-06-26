@@ -73,9 +73,10 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTCreateTitle);
         $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTCreateMetaDescription);
 
-        $form = CONTROLLERTable::getInstance()->getForm(null, array(
+        $form = new CONTROLLERForm(array(
             'route' => 'MODLC.CONTROLLERLCFIRSTCreate'
-        ));
+        ), null);
+        
         $success = false;
 
         if ($form->wasSubmitted()) {
@@ -119,10 +120,11 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setTitle($this->view->t->CONTROLLERLCFIRSTUpdateTitle(array('title' => htmlspecialchars($model->title))));
         $this->registry->helper->meta->setDescription($this->view->t->CONTROLLERLCFIRSTUpdateMetaDescription(array('title' => htmlspecialchars($model->title))));
         
-        $form = CONTROLLERTable::getInstance()->getForm($model, array(
+        $form = new CONTROLLERForm(array(
             'route' => 'MODLC.CONTROLLERLCFIRSTUpdate',
             'parameter' => array('slug' => $model->slug)
-        ));
+        ), $model);
+
         $success = false;
 
         if ($form->wasSubmitted()) {

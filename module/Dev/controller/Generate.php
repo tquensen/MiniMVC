@@ -298,6 +298,12 @@ class Dev_Generate_Controller extends MiniMVC_Controller
         } else {
             $message .= '-> Datei '.$model.'Table.php existiert bereits'."\n";
         }
+        if (!file_exists($path . '/'.$model.'Form.php')) {
+            file_put_contents($path . '/'.$model.'Form.php', str_replace($search, $replace, file_get_contents($dummy . '/Form.php')));
+            $message .= '-> Datei '.$model.'Form.php erstellt'."\n";
+        } else {
+            $message .= '-> Datei '.$model.'Form.php existiert bereits'."\n";
+        }
         if (!file_exists($path . '/'.$model.'Collection.php')) {
             file_put_contents($path . '/'.$model.'Collection.php', str_replace($search, $replace, file_get_contents($dummy . '/Collection.php')));
             $message .= '-> Datei '.$model.'Collection.php erstellt'."\n";

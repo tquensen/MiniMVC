@@ -2,32 +2,6 @@
 class {name}Table extends {name}TableBase
 {
     /**
-     * @param {name} $model a {name} instance (optional)
-     * @param array $options options for the form
-     * @return MiniMVC_Form returns the created form object
-     */
-    public function getForm($model = null, $options = array())
-    {
-        $i18n = $this->registry->helper->i18n->get('{module}');
-
-        if (!$model) {
-            $model = $this->create();
-        }
-
-        $options = array_merge(array('name' => '{name}Form', 'model' => $model, 'class' => 'fancyForm'), $options);
-
-        $form = new MiniMVC_Form($options);
-
-        {columns_form}
-
-        $form->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $model->isNew() ? $i18n->{namelcfirst}FormSubmitCreateLabel : $i18n->{namelcfirst}FormSubmitUpdateLabel)));
-
-        $form->bindValues();
-        
-        return $form;
-    }
-
-    /**
      * Created the table for this model
      */
     public function install($installedVersion = 0, $targetVersion = 0)
