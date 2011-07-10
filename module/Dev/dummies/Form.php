@@ -12,14 +12,14 @@ class {name}Form extends MiniMVC_Form
     
     public function __construct($options, $model = null)
     {
-        $this->i18n = $this->registry->helper->i18n->get('{module}');
-    
+        $this->i18n = MiniMVC_Registry::getInstance()->helper->i18n->get('{module}');
+        
         if (!$model) {
             $model = new {name}();
         }
         $this->model = $model;
         
-        $options = array_merge(
+        $options = array_merge(array(
             'class' => 'fancyForm'
         ),(array)$options);
         

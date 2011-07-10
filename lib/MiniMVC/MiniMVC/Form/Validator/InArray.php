@@ -14,12 +14,12 @@ class MiniMVC_Form_Validator_InArray extends MiniMVC_Form_Validator
             }
 
             foreach ($value as $singleValue) {
-                if (!in_array($singleValue, $this->options['array'], empty($singleValue) && $singleValue !== '0')) {
+                if (!in_array($singleValue, array_map('strval', $this->options['array']), true)) {
                     return false;
                 }
             }
             return true;
         }
-		return in_array($value, $this->options['array'], empty($value) && $value !== '0');
+		return in_array($value, array_map('strval', $this->options['array']), true);
 	}
 }
