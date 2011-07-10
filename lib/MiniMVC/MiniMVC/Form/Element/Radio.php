@@ -16,7 +16,17 @@ class MiniMVC_Form_Element_Radio extends MiniMVC_Form_Element
 	{
 		if ($this->value !== null && !$this->getOption('skipDefaultValidator'))
 		{
-			$this->validators[] = new MiniMVC_Form_Validator_InArray(array('array' => array_keys($this->options['elements'])));
+            $values = array();
+            foreach ($this->options['options'] as $key => $value) {
+                if (is_array($value)) {
+                    foreach($value as $k => $v) {
+                        $values[] = $k;
+                    }
+                } else {
+                    $values[] = $key;
+                }
+            }
+			$this->validators[] = new MiniMVC_Form_Validator_InArray(array('errorMessage' => $this->errorMessage, 'array' => $values));
 		}
 
 		return parent::validate();

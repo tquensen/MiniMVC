@@ -265,6 +265,10 @@
     margin: 5px 0;
 }
 
+.fancyForm .formCheckboxGroupWrapper ul ul, .fancyForm .formRadioWrapper ul ul {
+    margin: 0;
+}
+
 .fancyForm .formCheckboxWrapper li, .fancyForm .formCheckboxGroupWrapper li, .fancyForm .formRadioWrapper li {
     margin: 0;
     padding: 0;
@@ -291,6 +295,13 @@
     display: inline;
     width: auto;
     padding: 3px ;
+}
+
+.fancyForm .formCheckboxGroupWrapper ul strong, .fancyForm .formRadioWrapper ul strong {
+    display: block;
+    padding: 3px 6px 0;
+    font-size: inherit;
+    font-weight: bold;
 }
 
 /* alternative button styles */
