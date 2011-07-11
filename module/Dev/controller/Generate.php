@@ -435,10 +435,10 @@ class Dev_Generate_Controller extends MiniMVC_Controller
             'array' => 'Text'
         );
 
-        $code = '$form->setElement(new MiniMVC_Form_Element_{type}(\'{column}\',
-                        array(\'label\' => $i18n->{namelcfirst}Form{columncc}Label),
+        $code = '$this->setElement(new MiniMVC_Form_Element_{type}(\'{column}\',
+                        array(\'label\' => $this->i18n->{namelcfirst}Form{columncc}Label),
                         array(
-                            //new MiniMVC_Form_Validator_Required(array(\'errorMessage\' => $i18n->{namelcfirst}Form{columncc}Error))
+                            //new MiniMVC_Form_Validator_Required(array(\'errorMessage\' => $this->i18n->{namelcfirst}Form{columncc}Error))
                 )));
         ';
 

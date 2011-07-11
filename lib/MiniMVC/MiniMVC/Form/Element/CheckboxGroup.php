@@ -25,7 +25,7 @@ class MiniMVC_Form_Element_CheckboxGroup extends MiniMVC_Form_Element
 		if ($this->value && !$this->getOption('skipDefaultValidator'))
 		{
             $values = array();
-            foreach ($this->options['options'] as $key => $value) {
+            foreach ($this->options['elements'] as $key => $value) {
                 if (is_array($value)) {
                     foreach($value as $k => $v) {
                         $values[] = $k;
