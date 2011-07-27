@@ -78,31 +78,26 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
         ), null);
         
         $success = false;
+        
+        if ($form->validate()) {
+            $model = $form->updateModel();
+            if ($model->save()) {
+                $success = true;
+                $message = $this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage(array('title' => htmlspecialchars($model->title)));
 
-        if ($form->wasSubmitted()) {
-            $model = $form->getModel();
-            $message = '';
+                //clear the index cache (and other cached pages if needed)
+                //$this->view->deleteCache('MODLC.CONTROLLERLCFIRSTIndex');
 
-            if ($form->validate()) {
-                $form->updateModel();
-                if ($model->save()) {
-                    $success = true;
-                    $message = $this->view->t->CONTROLLERLCFIRSTCreateSuccessMessage(array('title' => htmlspecialchars($model->title)));
-
-                    //clear the index cache (and other cached pages if needed)
-                    //$this->view->deleteCache('MODLC.CONTROLLERLCFIRSTIndex');
-
-                    if ($this->registry->layout->getFormat() === null) {
-                        $this->registry->helper->messages->add($message, 'success');
-                        return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
-                    }
-                } else {
-                    $form->setError($this->view->t->CONTROLLERLCFIRSTCreateErrorMessage);
+                if ($this->registry->layout->getFormat() === null) {
+                    $this->registry->helper->messages->add($message, 'success');
+                    return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
                 }
+                
+                $this->view->message = $message;
+                $this->view->model = $model;
+            } else {
+                $form->setError($this->view->t->CONTROLLERLCFIRSTCreateErrorMessage);
             }
-            
-            $this->view->model = $model;
-            $this->view->message = $message;
         }
 
         $this->view->success = $success;
@@ -127,28 +122,24 @@ class MODULE_CONTROLLER_Controller extends MiniMVC_Controller
 
         $success = false;
 
-        if ($form->wasSubmitted()) {
-            $message = '';
+        if ($form->validate()) {
+            $form->updateModel();
+            if ($model->save()) {
+                $success = true;
+                $message = $this->view->t->CONTROLLERLCFIRSTUpdateSuccessMessage(array('title' => htmlspecialchars($model->title)));
 
-            if ($form->validate()) {
-                $form->updateModel();
-                if ($model->save()) {
-                    $success = true;
-                    $message = $this->view->t->CONTROLLERLCFIRSTUpdateSuccessMessage(array('title' => htmlspecialchars($model->title)));
+                //clear the index cache and the cache of this model (and other cached pages if needed)
+                //$this->view->deleteCache(array('MODLC.CONTROLLERLCFIRSTIndex', 'MODLC.CONTROLLERLCFIRSTShow.'.$model->slug));
 
-                    //clear the index cache and the cache of this model (and other cached pages if needed)
-                    //$this->view->deleteCache(array('MODLC.CONTROLLERLCFIRSTIndex', 'MODLC.CONTROLLERLCFIRSTShow.'.$model->slug));
-
-                    if ($this->registry->layout->getFormat() === null) {
-                        $this->registry->helper->messages->add($message, 'success');
-                        return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
-                    }
-                } else {
-                    $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTUpdateErrorMessage);
+                if ($this->registry->layout->getFormat() === null) {
+                    $this->registry->helper->messages->add($message, 'success');
+                    return $this->redirect('MODLC.CONTROLLERLCFIRSTShow', array('slug' => $model->slug));
                 }
+                
+                $this->view->message = $message;
+            } else {
+                $this->view->form->setError($this->view->t->CONTROLLERLCFIRSTUpdateErrorMessage);
             }
-
-            $this->view->message = $message;
         }
 
         $this->view->success = $success;

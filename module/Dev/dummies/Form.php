@@ -33,8 +33,6 @@ class {name}Form extends MiniMVC_Form
         {columns_form}
 
         $this->setElement(new MiniMVC_Form_Element_Submit('submit', array('label' => $this->model->isNew() ? $this->i18n->{namelcfirst}FormSubmitCreateLabel : $this->i18n->{namelcfirst}FormSubmitUpdateLabel)));
-
-        $this->bindValues();
     }
 
 }

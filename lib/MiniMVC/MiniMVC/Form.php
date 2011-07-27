@@ -5,6 +5,7 @@ class MiniMVC_Form
     protected $elements = array();
     protected $name = null;
     protected $isValid = true;
+    protected $wasSubmitted = null;
     protected $errors = array();
     protected $options = array();
     protected $model = null;
@@ -31,7 +32,7 @@ class MiniMVC_Form
         $this->options['action'] = MiniMVC_Registry::getInstance()->helper->url->get($this->options['route'], !empty($this->options['parameter']) ? $this->options['parameter'] : array());
         
 
-        $this->setElement(new MiniMVC_Form_Element_Hidden('FormCheck', array('defaultValue' => 1, 'alwaysDisplayDefault' => true), array(new MiniMVC_Form_Validator_Required())));
+        //$this->setElement(new MiniMVC_Form_Element_Hidden('FormCheck', array('defaultValue' => 1, 'alwaysDisplayDefault' => true), array(new MiniMVC_Form_Validator_Required())));
     }
 
     public function getFormToken()
@@ -162,12 +163,18 @@ class MiniMVC_Form
 //        }
         if ($values === null) {
             $arr = strtoupper($this->getOption('method')) === 'GET' ? $_GET : $_POST;
-            $values = !empty($arr[$this->name]) ? $arr[$this->name] : array();
+            if (empty($arr[$this->name])) {
+                $this->wasSubmitted = false;
+                return false;
+            }
+            $values = $arr[$this->name];
         }
 
+        $this->wasSubmitted = true;
+        
         foreach ($this->elements as $element) {
             $element->setValue(isset($values[$element->getName()]) ? $values[$element->getName()]
-                                : null);
+                                : false);
         }
         return true;
     }
@@ -195,11 +202,14 @@ class MiniMVC_Form
         return $this->isValid;
     }
 
-    public function validate()
+    public function validate($values = null)
     {
 //        $this->handleAjaxValidation();
-
-        //$this->bindValues();
+        
+        if ($values !== null) {
+            $this->bindValues($values);
+        }
+        
         if (!$this->isValid || !$this->wasSubmitted()) {
             return false;
         }
@@ -268,8 +278,11 @@ class MiniMVC_Form
 
     public function wasSubmitted()
     {
-        
-        return strtoupper($this->getOption('method')) === 'GET' ? !empty($_GET[$this->name]) : !empty($_POST[$this->name]);
+        if ($this->wasSubmitted === null) {
+            $this->bindValues();
+        }
+        return $this->wasSubmitted;
+        //return strtoupper($this->getOption('method')) === 'GET' ? !empty($_GET[$this->name]) : !empty($_POST[$this->name]);
     }
 
     public function getValues()
