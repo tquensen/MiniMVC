@@ -14,7 +14,7 @@ class MiniMVC_Form_Element_Radio extends MiniMVC_Form_Element
 
 	public function validate()
 	{
-		if ($this->value !== null && !$this->getOption('skipDefaultValidator'))
+		if ($this->value && !$this->getOption('skipDefaultValidator'))
 		{
             $values = array();
             foreach ($this->options['elements'] as $key => $value) {
