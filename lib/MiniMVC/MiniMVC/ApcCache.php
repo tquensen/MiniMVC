@@ -212,7 +212,7 @@ class MiniMVC_ApcCache extends MiniMVC_Cache
         if (!$data) {
             return apc_delete($this->prefix.'_'.$fileKey.'_'.$app.'_'.$environment);
         }
-        return apc_store($this->prefix.'_'.$fileKey.'_'.$app.'_'.$environment, $value);
+        return apc_store($this->prefix.'_'.$fileKey.'_'.$app.'_'.$environment, $data);
     }
 }
 
