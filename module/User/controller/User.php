@@ -49,7 +49,7 @@ class User_User_Controller extends MiniMVC_Controller
         $this->view->model = $user;
     }
     
-    public function newLoginAction($params)
+    public function loginAction($params)
     {
         $this->registry->helper->meta->setTitle($this->view->t->userLoginTitle);
         $this->registry->helper->meta->setDescription($this->view->t->userLoginDescription);
