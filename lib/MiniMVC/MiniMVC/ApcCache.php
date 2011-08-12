@@ -76,11 +76,11 @@ class MiniMVC_ApcCache extends MiniMVC_Cache
             foreach ($keys as $k => $v) {
                 $parts = explode('/', $k);
                 if (count($parts) === 1) {
-                    $this->data[$file][$parts[0]] = $value;
+                    $this->data[$file][$parts[0]] = $v;
                 } elseif (count($parts) === 2) {
-                    $this->data[$file][$parts[0]][$parts[1]] = $value;
+                    $this->data[$file][$parts[0]][$parts[1]] = $v;
                 } elseif (count($parts) === 3) {
-                    $this->data[$file][$parts[0]][$parts[1]][$parts[2]] = $value;
+                    $this->data[$file][$parts[0]][$parts[1]][$parts[2]] = $v;
                 } else {
                     $pointer = &$this->data[$file];
                     while (null !== ($index = array_shift($parts))) {
@@ -90,7 +90,7 @@ class MiniMVC_ApcCache extends MiniMVC_Cache
                         }
                         $pointer = &$pointer[$index];
                         if (count($parts) === 0) {
-                            $pointer = $value;
+                            $pointer = $v;
                         }
                     }
                 }
