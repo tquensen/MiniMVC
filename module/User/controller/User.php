@@ -48,16 +48,35 @@ class User_User_Controller extends MiniMVC_Controller
 
         $this->view->model = $user;
     }
-
-    public function loginAction($params)
+    
+    public function newLoginAction($params)
     {
         $this->registry->helper->meta->setTitle($this->view->t->userLoginTitle);
         $this->registry->helper->meta->setDescription($this->view->t->userLoginDescription);
-
+        
         $form = UserTable::getInstance()->getLoginForm(null, array(
-                'route' => 'user.userProcessLogin'
+                'route' => 'user.userLogin'
             ));
+        
+        $success = false;
+        
+        if ($form->validate()) {
+            $success = true;
+            $model = $form->getModel();
+            $this->registry->guard->setUser($model->id, $model->role, true);
+            $this->registry->guard->setAuthToken($model->auth_token);
+            $this->registry->guard->email = $model->email;
+            $this->registry->guard->slug = $model->slug;
+            $this->registry->guard->name = $model->name;
 
+            $message = $this->view->t->userLoginSuccessMessage;
+            if ($this->registry->layout->getFormat() === null) {
+                $this->registry->helper->messages->add($message, 'success');
+                return $this->redirect('');
+            }
+        }
+
+        $this->view->success = $success;
         $this->view->form = $form;
     }
 
@@ -71,42 +90,6 @@ class User_User_Controller extends MiniMVC_Controller
         if ($this->registry->layout->getFormat() === null) {
             $this->redirect('');
         }
-    }
-
-    public function processLoginAction($params)
-    {
-        $form = UserTable::getInstance()->getLoginForm(null, array(
-                'route' => 'user.userProcessLogin'
-            ));
-
-        $model = $form->getModel();
-        $success = false;
-        $message = '';
-
-        if ($form->validate()) {
-            $success = true;
-            $model = $form->getModel();
-            $this->registry->guard->setUser($model->id, $model->role, true);
-            $this->registry->guard->setAuthToken($model->auth_token);
-            $this->registry->guard->email = $model->email;
-            $this->registry->guard->slug = $model->slug;
-            $this->registry->guard->name = $model->name;
-
-            $message = $this->view->t->userLoginSuccessMessage;
-            if ($this->registry->layout->getFormat() === null) {
-                $this->registry->helper->messages->add($message, 'success');
-                $this->redirect('user.userShow', array('slug' => $model->slug));
-            }
-        }
-
-        if ($this->registry->layout->getFormat() === null) {
-            //$form->errorRedirect('user.userLogin');
-        }
-
-        $this->view->form = $form;
-        $this->view->model = $model;
-        $this->view->success = $success;
-        $this->view->message = $message;
     }
 
     public function newAction($params)

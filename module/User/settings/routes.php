@@ -37,17 +37,7 @@ $MiniMVC_routes['user.userLogin'] = array(
     'route' => 'user/login(.:_format:)',
     'controller' => 'User_User',
     'action' => 'login',
-    'method' => 'GET',
-    'parameter' => array('_format' => 'default'), //set the default format
-    'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
-    'active' => true, //this route must be activated for each app to work
-    'rights' => 'guest'
-);
-$MiniMVC_routes['user.userProcessLogin'] = array(
-    'route' => 'user/login(.:_format:)',
-    'controller' => 'User_User',
-    'action' => 'processLogin',
-    'method' => 'POST',
+    'method' => array('GET', 'POST'),
     'parameter' => array('_format' => 'default'), //set the default format
     'parameterPatterns' => array('_format' => 'html|json'), //allow html, json and/or other (like 'json|xml|atom') as alternative formats
     'active' => true, //this route must be activated for each app to work
