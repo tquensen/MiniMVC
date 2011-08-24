@@ -34,7 +34,7 @@ class Helper_Url extends MiniMVC_Helper
 
 		try
 		{
-			$routeData = $this->registry->dispatcher->getRoute($route, $parameter);
+			$routeData = $this->registry->dispatcher->getRoute($route);
 		}
 		catch (Exception $e)
 		{
