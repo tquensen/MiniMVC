@@ -54,8 +54,9 @@ class User_User_Controller extends MiniMVC_Controller
         $this->registry->helper->meta->setTitle($this->view->t->userLoginTitle);
         $this->registry->helper->meta->setDescription($this->view->t->userLoginDescription);
         
+        $redirect = isset($_GET['redirect']) ? '?redirect='.$_GET['redirect'] : '';
         $form = UserTable::getInstance()->getLoginForm(null, array(
-                'route' => 'user.userLogin'
+                'action' => $this->view->helper->url->get('user.userLogin').$redirect
             ));
         
         $success = false;
@@ -72,7 +73,11 @@ class User_User_Controller extends MiniMVC_Controller
             $message = $this->view->t->userLoginSuccessMessage;
             if ($this->registry->layout->getFormat() === null) {
                 $this->registry->helper->messages->add($message, 'success');
-                return $this->redirect('');
+                if (isset($_GET['redirect'])) {
+                    header('Location: '.$_GET['redirect'], true, 302);
+                    return;
+                }
+                return $this->redirect();
             }
         }
 
