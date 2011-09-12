@@ -1,4 +1,6 @@
+    <?php if ($element->label && (!isset($label) || $label !== false)): ?> 
     <label><?php echo htmlspecialchars($element->label) ?><?php if ($element->required && $element->getForm()->getOption('requiredMark')): ?><?php echo '<span class="requiredMark">'.htmlspecialchars($element->getForm()->getOption('requiredMark')).'</span>'; ?><?php endif; ?></label>
+    <?php endif; ?>
     <ul>
     <?php foreach ($element->elements as $check => $value): ?>
         <?php if (is_array($value)): ?>

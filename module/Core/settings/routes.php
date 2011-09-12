@@ -5,7 +5,7 @@ $MiniMVC_routes['core.error401'] = array(
     'controller' => 'Core_Error',
     'action' => 'error401',
 );
-$MiniMVC_routes['core.error401debug'] = array(
+$MiniMVC_routes['core.error401.debug'] = array(
     'route' => 'error401debug',
     'active' => false, //don't allow direct access
     'controller' => 'Core_Error',
@@ -18,7 +18,7 @@ $MiniMVC_routes['core.error403'] = array(
     'controller' => 'Core_Error',
     'action' => 'error403',
 );
-$MiniMVC_routes['core.error403debug'] = array(
+$MiniMVC_routes['core.error403.debug'] = array(
     'route' => 'error403debug',
     'active' => false, //don't allow direct access
     'controller' => 'Core_Error',
@@ -31,7 +31,7 @@ $MiniMVC_routes['core.error404'] = array(
     'controller' => 'Core_Error',
     'action' => 'error404',
 );
-$MiniMVC_routes['core.error404debug'] = array(
+$MiniMVC_routes['core.error404.debug'] = array(
     'route' => 'error404debug',
     'active' => false, //don't allow direct access
     'controller' => 'Core_Error',
@@ -44,7 +44,7 @@ $MiniMVC_routes['core.error500'] = array(
     'controller' => 'Core_Error',
     'action' => 'error500',
 );
-$MiniMVC_routes['core.error500debug'] = array(
+$MiniMVC_routes['core.error500.debug'] = array(
     'route' => 'error500debug',
     'active' => false, //don't allow direct access
     'controller' => 'Core_Error',

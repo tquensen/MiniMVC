@@ -124,7 +124,7 @@ class Mongo_Model implements Serializable
 
     public function increment($property, $value, $save = true)
     {
-        $this->$property = $this->property + $value;
+        $this->$property = $this->$property + $value;
         if ($save !== null) {
             $status = $this->getCollection()->update(array('_id' => $this->_id), array('$inc' => array($property => $value)), array('safe' => $save));
             if ($status) {

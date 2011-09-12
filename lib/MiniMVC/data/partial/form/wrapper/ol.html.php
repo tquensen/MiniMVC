@@ -1,5 +1,6 @@
 <?php $inList = false; ?>
 <?php foreach ($form->getElements() as $currentElement): ?>
+    <?php if ($currentElement->getType() == 'hidden') { continue; }; ?>
     <?php if (in_array($currentElement->getType(), array('fieldset', 'fieldsetend')) && $inList): $inList = false; ?>
         </ol>
     <?php endif; ?>

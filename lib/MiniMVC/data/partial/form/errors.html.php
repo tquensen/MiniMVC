@@ -1,3 +1,4 @@
+<?php if (!$form->isValid() && $form->getOption('showGlobalErrors') && $form->hasErrors()): ?>
 <ul id="<?php echo htmlspecialchars($form->getName())?>__errors" class="formErrors">
     <?php foreach ($form->getErrors() as $error): ?>
         <li>
@@ -12,3 +13,4 @@
         </li>
     <?php endforeach; ?>
 </ul>
+<?php endif; ?>
